@@ -1,0 +1,28 @@
+# Configuration
+config/config.php
+
+# Database
+data/*.db
+data/*.sqlite
+
+# Dependencies (if using Composer later)
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+vote-app-thinking-outloud.pdf
+vote-app-spec.md

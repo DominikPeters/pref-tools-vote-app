@@ -1,0 +1,24 @@
+RewriteEngine On
+
+# For subfolder deployment (e.g., https://example.com/vote/), change to:
+# RewriteBase /vote/
+RewriteBase /
+
+# Deny access to sensitive directories
+RewriteRule ^(src|config|templates|data|migrations|tests|vendor)/ - [F,L]
+
+# Deny access to hidden files and directories (except .htaccess itself)
+RewriteRule (^|/)\.(?!htaccess) - [F,L]
+
+# Deny access to sensitive files
+RewriteRule ^(composer\.(json|lock)|phpunit\.xml|README\.md|LICENSE|\.gitignore)$ - [F,L]
+
+# Static assets - serve directly
+RewriteRule ^assets/ - [L]
+
+# Allow install.php direct access
+RewriteRule ^install\.php$ - [L]
+
+# Everything else goes to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [QSA,L]
