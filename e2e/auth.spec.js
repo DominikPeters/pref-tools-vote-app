@@ -2,40 +2,32 @@
 const { test, expect } = require('./fixtures');
 
 test.describe('Authentication', () => {
-  test('sysadmin can log in and access dashboard', async ({ page, installedApp }) => {
-    // Go to login page
-    await page.goto('/login');
+  test('sysadmin can log in and access dashboard', async ({ freshPage, adminCredentials }) => {
+    // Use freshPage since we want to test the login flow
+    await freshPage.goto('/login');
 
-    // Fill in sysadmin credentials from installedApp fixture
-    await page.fill('input[name="email"]', installedApp.email);
-    await page.fill('input[name="password"]', installedApp.password);
+    // Fill in sysadmin credentials
+    await freshPage.fill('input[name="email"]', adminCredentials.email);
+    await freshPage.fill('input[name="password"]', adminCredentials.password);
 
-    // Click login (need to make sure we're on login tab, not register)
-    await page.click('button.auth-tab:has-text("Login")');
-    await page.click('#loginForm button[type="submit"]');
+    // Click login (ensure we're on login tab, not register)
+    await freshPage.click('button.auth-tab:has-text("Login")');
+    await freshPage.click('#loginForm button[type="submit"]');
 
     // Should redirect to dashboard
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.locator('h1')).toContainText('Dashboard');
+    await expect(freshPage).toHaveURL('/dashboard');
+    await expect(freshPage.locator('h1')).toContainText('Dashboard');
 
     // Should show user email in header
-    await expect(page.locator('.user-email')).toContainText(installedApp.email);
+    await expect(freshPage.locator('.user-email')).toContainText(adminCredentials.email);
 
     // Should show sysadmin link
-    await expect(page.locator('nav a:has-text("Sysadmin")')).toBeVisible();
+    await expect(freshPage.locator('nav a:has-text("Sysadmin")')).toBeVisible();
   });
 
-  test('sysadmin can access sysadmin dashboard', async ({ page, installedApp }) => {
-    // Log in first
-    await page.goto('/login');
-    await page.click('button.auth-tab:has-text("Login")');
-    await page.fill('input[name="email"]', installedApp.email);
-    await page.fill('input[name="password"]', installedApp.password);
-    await page.click('#loginForm button[type="submit"]');
-    await expect(page).toHaveURL('/dashboard');
-
-    // Navigate to sysadmin
-    await page.click('nav a:has-text("Sysadmin")');
+  test('sysadmin can access sysadmin dashboard', async ({ page }) => {
+    // page is pre-authenticated as admin via storage state
+    await page.goto('/sysadmin');
 
     // Should be on sysadmin dashboard
     await expect(page).toHaveURL('/sysadmin');
@@ -45,13 +37,9 @@ test.describe('Authentication', () => {
     await expect(page.locator('.stat-card')).toHaveCount(4);
   });
 
-  test('regular user cannot see sysadmin link', async ({ page, installedApp }) => {
-    // Register a new regular user
-    await page.goto('/login');
-    await page.click('button.auth-tab:has-text("Register")');
-    await page.fill('#registerForm input[name="email"]', 'user@example.com');
-    await page.fill('#registerForm input[name="password"]', 'userpassword123');
-    await page.click('#registerForm button[type="submit"]');
+  test('regular user cannot see sysadmin link', async ({ userAccount }) => {
+    // userAccount fixture creates and logs in a fresh regular user
+    const { page } = userAccount;
 
     // Should be on dashboard
     await expect(page).toHaveURL('/dashboard');
@@ -60,14 +48,8 @@ test.describe('Authentication', () => {
     await expect(page.locator('nav a:has-text("Sysadmin")')).not.toBeVisible();
   });
 
-  test('regular user cannot access sysadmin pages', async ({ page, installedApp }) => {
-    // Register a new regular user
-    await page.goto('/login');
-    await page.click('button.auth-tab:has-text("Register")');
-    await page.fill('#registerForm input[name="email"]', 'user2@example.com');
-    await page.fill('#registerForm input[name="password"]', 'userpassword123');
-    await page.click('#registerForm button[type="submit"]');
-    await expect(page).toHaveURL('/dashboard');
+  test('regular user cannot access sysadmin pages', async ({ userAccount }) => {
+    const { page } = userAccount;
 
     // Try to access sysadmin directly
     await page.goto('/sysadmin');
@@ -76,21 +58,49 @@ test.describe('Authentication', () => {
     await expect(page.locator('h1')).toContainText('Access Denied');
   });
 
-  test('user can log out', async ({ page, installedApp }) => {
-    // Log in
-    await page.goto('/login');
-    await page.click('button.auth-tab:has-text("Login")');
-    await page.fill('input[name="email"]', installedApp.email);
-    await page.fill('input[name="password"]', installedApp.password);
-    await page.click('#loginForm button[type="submit"]');
-    await expect(page).toHaveURL('/dashboard');
+  test('user can log out', async ({ freshPage, adminCredentials }) => {
+    // Log in with fresh page (don't use shared admin session to avoid invalidating it)
+    await freshPage.goto('/login');
+    await freshPage.click('button.auth-tab:has-text("Login")');
+    await freshPage.fill('#loginForm input[name="email"]', adminCredentials.email);
+    await freshPage.fill('#loginForm input[name="password"]', adminCredentials.password);
+    await freshPage.click('#loginForm button[type="submit"]');
+    await expect(freshPage).toHaveURL('/dashboard');
 
     // Log out
-    await page.click('button:has-text("Log Out")');
+    await freshPage.click('button:has-text("Log Out")');
 
-    // Should be redirected to login or home
-    // After logout, visiting dashboard should redirect to login
-    await page.goto('/dashboard');
-    await expect(page).toHaveURL('/login');
+    // Verify logged out by trying to access dashboard
+    await freshPage.goto('/dashboard');
+    await expect(freshPage).toHaveURL('/login');
+  });
+
+  test('shows error for invalid credentials', async ({ freshPage }) => {
+    await freshPage.goto('/login');
+
+    await freshPage.click('button.auth-tab:has-text("Login")');
+    await freshPage.fill('#loginForm input[name="email"]', 'wrong@example.com');
+    await freshPage.fill('#loginForm input[name="password"]', 'wrongpassword');
+    await freshPage.click('#loginForm button[type="submit"]');
+
+    // Should show error message
+    await expect(freshPage.locator('text=Invalid credentials')).toBeVisible();
+  });
+
+  test('can register a new account', async ({ freshPage, uniqueEmail }) => {
+    await freshPage.goto('/login');
+
+    // Switch to register tab
+    await freshPage.click('button.auth-tab:has-text("Register")');
+
+    // Fill registration form
+    await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
+    await freshPage.fill('#registerForm input[name="password"]', 'newuserpassword123');
+    await freshPage.fill('#registerForm input[name="password_confirm"]', 'newuserpassword123');
+    await freshPage.click('#registerForm button[type="submit"]');
+
+    // Should redirect to dashboard
+    await expect(freshPage).toHaveURL('/dashboard');
+    await expect(freshPage.locator('h1')).toContainText('Dashboard');
   });
 });

@@ -1,8 +1,22 @@
 // @ts-check
 const { test, expect } = require('./fixtures');
 
+/**
+ * Installation Flow Tests
+ *
+ * These tests run in an isolated project with a single worker.
+ * Each test uses the freshInstall fixture to delete the database/config
+ * before testing the installation flow.
+ *
+ * Run these tests separately: npx playwright test --project=install
+ */
 test.describe('Installation Flow', () => {
+  // Serial mode ensures tests run one at a time within this file
+  test.describe.configure({ mode: 'serial' });
+
   test('completes full installation process', async ({ page, freshInstall }) => {
+    // freshInstall fixture has deleted config and database
+
     // Navigate to app - should redirect to installer
     await page.goto('/');
     await expect(page).toHaveURL(/install\.php/);
@@ -67,12 +81,18 @@ test.describe('Installation Flow', () => {
     await expect(page.locator('.error')).toContainText('8 characters');
   });
 
-  test('redirects to home when already installed', async ({ page, installedApp }) => {
-    // installedApp fixture already installed the app
-    // Now try to access install.php directly
-    await page.goto('/install.php');
+  test('redirects to home when already installed', async ({ page, freshInstall }) => {
+    // Do a complete fresh install first
+    await page.goto('/');
+    await page.click('text=Start Installation');
+    await page.click('button:has-text("Continue")');
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.fill('input[name="password"]', 'testpassword123');
+    await page.click('button:has-text("Complete Installation")');
+    await expect(page.locator('h1')).toContainText('Installation Complete');
 
-    // Should redirect to homepage
+    // Now verify that accessing install.php redirects to home
+    await page.goto('/install.php');
     await expect(page).toHaveURL('/');
   });
 });

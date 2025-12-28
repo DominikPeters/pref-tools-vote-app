@@ -2,24 +2,39 @@
 const { test, expect } = require('./fixtures');
 
 test.describe('Poll Creation and Voting', () => {
-  test('can create a poll without logging in', async ({ page, installedApp }) => {
-    // Go to create page
-    await page.goto('/create');
+  test('can create a poll without logging in', async ({ freshPage }) => {
+    // Use freshPage to verify no auth is required
+    await freshPage.goto('/create');
 
     // Should be on builder page
-    await expect(page.locator('h1')).toContainText('Create');
+    await expect(freshPage.locator('h1')).toContainText('Create');
 
     // Fill in poll title
-    await page.fill('input[name="title"]', 'Test Poll');
+    await freshPage.fill('#pollTitle', 'Test Poll');
 
-    // The builder is JavaScript-driven, so we need to interact with it
-    // Add a question (assuming there's an "Add Question" button)
-    // This depends on the actual builder UI - adjust as needed
+    // Add a question
+    await freshPage.click('#addQuestionBtn');
+
+    // Fill in question text
+    await freshPage.fill('.question-title-input', 'What is your favorite color?');
+
+    // Fill in options (there are 2 default options)
+    const optionInputs = freshPage.locator('.option-label-input');
+    await optionInputs.nth(0).fill('Red');
+    await optionInputs.nth(1).fill('Blue');
+
+    // Publish the poll
+    await freshPage.click('#publishBtn');
+
+    // Should redirect to admin panel
+    await expect(freshPage).toHaveURL(/\/admin\//);
+    await expect(freshPage.locator('h1')).toContainText('Admin');
+    await expect(freshPage.locator('text=Test Poll')).toBeVisible();
   });
 
-  test('can access poll by public link', async ({ page, installedApp }) => {
-    // First create a poll via API (simpler for testing)
-    const response = await page.request.post('/api/polls', {
+  test('can access poll by public link', async ({ freshPage, request }) => {
+    // Create a poll via API
+    const response = await request.post('/api/polls', {
       data: {
         title: 'E2E Test Poll',
         description: 'A poll created for E2E testing',
@@ -40,26 +55,26 @@ test.describe('Poll Creation and Voting', () => {
     });
 
     const pollData = await response.json();
-    expect(pollData.public_id).toBeDefined();
+    expect(pollData.poll.public_id).toBeDefined();
 
-    // Navigate to the poll
-    await page.goto(`/${pollData.public_id}`);
+    // Navigate to the poll (use freshPage - voters don't need auth)
+    await freshPage.goto(`/${pollData.poll.public_id}`);
 
     // Should see the poll
-    await expect(page.locator('h1')).toContainText('E2E Test Poll');
+    await expect(freshPage.locator('h1')).toContainText('E2E Test Poll');
 
     // Should see the question
-    await expect(page.locator('text=What is your favorite color?')).toBeVisible();
+    await expect(freshPage.locator('text=What is your favorite color?')).toBeVisible();
 
     // Should see the options
-    await expect(page.locator('text=Red')).toBeVisible();
-    await expect(page.locator('text=Blue')).toBeVisible();
-    await expect(page.locator('text=Green')).toBeVisible();
+    await expect(freshPage.locator('text=Red')).toBeVisible();
+    await expect(freshPage.locator('text=Blue')).toBeVisible();
+    await expect(freshPage.locator('text=Green')).toBeVisible();
   });
 
-  test('can submit a vote', async ({ page, installedApp }) => {
+  test('can submit a vote', async ({ freshPage, request }) => {
     // Create a poll via API
-    const response = await page.request.post('/api/polls', {
+    const response = await request.post('/api/polls', {
       data: {
         title: 'Voting Test Poll',
         status: 'open',
@@ -80,25 +95,21 @@ test.describe('Poll Creation and Voting', () => {
     const pollData = await response.json();
 
     // Navigate to poll
-    await page.goto(`/${pollData.public_id}`);
+    await freshPage.goto(`/${pollData.poll.public_id}`);
 
     // Select an option
-    await page.click('text=Option A');
+    await freshPage.click('text=Option A');
 
     // Submit vote
-    await page.click('button[type="submit"]');
+    await freshPage.click('button[type="submit"]');
 
-    // Should see success message or redirect
-    // The exact behavior depends on your implementation
-    await expect(page.locator('text=Thank you')).toBeVisible({ timeout: 5000 }).catch(() => {
-      // Or check for redirect to results
-      return expect(page).toHaveURL(new RegExp(`${pollData.public_id}`));
-    });
+    // Should see success message or confirmation
+    await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });
   });
 
-  test('cannot vote on closed poll', async ({ page, installedApp }) => {
+  test('cannot vote on closed poll', async ({ freshPage, request }) => {
     // Create a closed poll via API
-    const response = await page.request.post('/api/polls', {
+    const response = await request.post('/api/polls', {
       data: {
         title: 'Closed Poll',
         status: 'closed',
@@ -119,15 +130,15 @@ test.describe('Poll Creation and Voting', () => {
     const pollData = await response.json();
 
     // Navigate to poll
-    await page.goto(`/${pollData.public_id}`);
+    await freshPage.goto(`/${pollData.poll.public_id}`);
 
-    // Should redirect to results or show closed message
-    // depending on visibility settings
+    // Should show closed message or redirect to results
+    await expect(freshPage.locator('h2:has-text("Closed")')).toBeVisible();
   });
 
-  test('poll admin can access admin panel', async ({ page, installedApp }) => {
+  test('poll admin can access admin panel', async ({ freshPage, request }) => {
     // Create a poll via API
-    const response = await page.request.post('/api/polls', {
+    const response = await request.post('/api/polls', {
       data: {
         title: 'Admin Test Poll',
         status: 'draft',
@@ -142,13 +153,38 @@ test.describe('Poll Creation and Voting', () => {
     });
 
     const pollData = await response.json();
-    expect(pollData.admin_token).toBeDefined();
+    expect(pollData.poll.admin_token).toBeDefined();
 
-    // Navigate to admin panel
-    await page.goto(`/${pollData.public_id}/admin/${pollData.admin_token}`);
+    // Navigate to admin panel (no auth required - uses admin token in URL)
+    await freshPage.goto(`/${pollData.poll.public_id}/admin/${pollData.poll.admin_token}`);
 
     // Should see admin panel
-    await expect(page.locator('h1')).toContainText('Admin');
-    await expect(page.locator('text=Admin Test Poll')).toBeVisible();
+    await expect(freshPage.locator('h1')).toContainText('Admin');
+    await expect(freshPage.locator('text=Admin Test Poll')).toBeVisible();
+  });
+
+  test('poll shows on authenticated user dashboard', async ({ page, request }) => {
+    // Create a poll via API (authenticated as admin via storage state)
+    const response = await request.post('/api/polls', {
+      data: {
+        title: 'Dashboard Visible Poll',
+        status: 'open',
+        questions: [
+          {
+            type: 'single_choice',
+            text: 'Test',
+            options: [{ label: 'A' }, { label: 'B' }]
+          }
+        ]
+      }
+    });
+
+    await response.json();
+
+    // Go to dashboard
+    await page.goto('/dashboard');
+
+    // Poll should be visible
+    await expect(page.locator('text=Dashboard Visible Poll')).toBeVisible();
   });
 });

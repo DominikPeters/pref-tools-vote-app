@@ -45,6 +45,88 @@ npm run test:e2e:debug  # Run in debug mode
 
 E2E tests are in `e2e/` and test full user flows (install, auth, polls, sysadmin).
 
+### E2E Test Architecture
+
+**Projects** (in `playwright.config.js`):
+- `setup` - Installs app, creates admin session, saves storage state
+- `main` - Auth, poll, sysadmin tests (depends on setup, runs in parallel)
+- `install` - Installation flow tests (isolated, runs serially with `workers: 1`)
+
+**Key Fixtures** (in `e2e/fixtures.js`):
+- `page` - Pre-authenticated as admin via storage state (default for `main` project)
+- `freshPage` - No authentication, use for login/register flows or anonymous access
+- `userAccount` - Creates a new regular user, returns `{ page, email, password }`
+- `uniqueEmail` - Generates unique email with timestamp + random string
+- `adminCredentials` - Returns `{ email, password }` for manual login
+- `freshInstall` - Deletes database/config (only use in `install` project)
+
+### Writing Good E2E Tests
+
+**1. Don't invalidate shared state**
+```javascript
+// BAD: Logs out the shared admin session, breaks other tests
+test('logout', async ({ page }) => {
+  await page.click('button:has-text("Log Out")');
+});
+
+// GOOD: Use freshPage with its own login
+test('logout', async ({ freshPage, adminCredentials }) => {
+  await freshPage.goto('/login');
+  // ... login with adminCredentials ...
+  await freshPage.click('button:has-text("Log Out")');
+});
+```
+
+**2. Use appropriate fixtures**
+```javascript
+// Testing admin-only features: use page (pre-authenticated)
+test('admin dashboard', async ({ page }) => {
+  await page.goto('/sysadmin');
+});
+
+// Testing public/anonymous access: use freshPage
+test('view poll', async ({ freshPage }) => {
+  await freshPage.goto('/some-poll-id');
+});
+
+// Testing regular user behavior: use userAccount
+test('user cannot access admin', async ({ userAccount }) => {
+  await userAccount.page.goto('/sysadmin');
+  await expect(userAccount.page.locator('h1')).toContainText('Access Denied');
+});
+```
+
+**3. Create test data via API when possible**
+```javascript
+// Faster and more reliable than UI interactions
+const response = await request.post('/api/polls', {
+  data: { title: 'Test Poll', status: 'open', questions: [...] }
+});
+const { poll } = await response.json();
+await page.goto(`/${poll.public_id}`);
+```
+
+**4. Use unique identifiers to avoid conflicts**
+```javascript
+// BAD: Hardcoded email conflicts on retry or parallel runs
+await page.fill('input[name="email"]', 'user@example.com');
+
+// GOOD: Use uniqueEmail fixture
+test('register', async ({ freshPage, uniqueEmail }) => {
+  await freshPage.fill('input[name="email"]', uniqueEmail);
+});
+```
+
+**5. Wait for specific elements, not arbitrary timeouts**
+```javascript
+// BAD
+await page.waitForTimeout(1000);
+
+// GOOD
+await page.waitForSelector('#usersTable tbody tr');
+await expect(page.locator('h1')).toContainText('Dashboard');
+```
+
 ## Key Concepts
 
 **Input Types:** single choice, approval (with min/max), rankings (full/truncated/with ties), utility scores, star ratings, grades, yes/no/abstain, free text

@@ -1,8 +1,14 @@
 // @ts-check
 const { defineConfig } = require('@playwright/test');
+const path = require('path');
 
 /**
  * Playwright configuration for Vote App E2E tests
+ *
+ * Project Structure:
+ * - setup: Installs the app and saves admin storage state (runs first)
+ * - main: Auth, poll, and sysadmin tests with pre-authenticated admin (depends on setup)
+ * - install: Isolated installation flow tests (runs separately with single worker)
  *
  * Uses APP_ENV=test to isolate test database from development:
  * - Config: config/config.test.php (instead of config.php)
@@ -13,17 +19,11 @@ const { defineConfig } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './e2e',
 
-  // Run tests in parallel
-  fullyParallel: true,
-
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
 
   // Retry on CI only
   retries: process.env.CI ? 2 : 0,
-
-  // Limit parallel workers on CI
-  workers: process.env.CI ? 1 : undefined,
 
   // Reporter to use
   reporter: 'html',
@@ -40,28 +40,51 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  // Configure projects for browsers
+  // Configure projects
   projects: [
+    // Setup project: installs app and creates admin session
     {
-      name: 'chromium',
-      use: { browserName: 'chromium' },
+      name: 'setup',
+      testMatch: /setup\.spec\.js/,
+      teardown: 'cleanup',
     },
-    // Uncomment to test on more browsers:
-    // {
-    //   name: 'firefox',
-    //   use: { browserName: 'firefox' },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { browserName: 'webkit' },
-    // },
+
+    // Cleanup project: runs after all tests complete
+    {
+      name: 'cleanup',
+      testMatch: /cleanup\.spec\.js/,
+    },
+
+    // Main tests: run with admin storage state pre-loaded
+    {
+      name: 'main',
+      testMatch: /(auth|poll|sysadmin)\.spec\.js$/,
+      dependencies: ['setup'],
+      use: {
+        // Pre-authenticate as admin - tests can override if needed
+        storageState: path.join(__dirname, 'e2e', 'state', 'admin.json'),
+      },
+      // Run tests in parallel - test isolation is handled via fixtures
+      fullyParallel: true,
+      workers: process.env.CI ? 1 : 4,
+    },
+
+    // Install tests: isolated, runs separately with single worker
+    {
+      name: 'install',
+      testMatch: /install\.spec\.js/,
+      // No dependencies - starts fresh
+      // Single worker to avoid race conditions
+      fullyParallel: false,
+      workers: 1,
+    },
   ],
 
   // Run local PHP server before starting tests
   // APP_ENV=test ensures separate config and database files
   webServer: {
     command: 'APP_ENV=test php -S localhost:18080 2>/dev/null',
-    url: 'http://localhost:18080/install.php',
+    url: 'http://localhost:18080',
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
     stdout: 'ignore',
