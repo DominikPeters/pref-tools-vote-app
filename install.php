@@ -68,10 +68,10 @@ function handleDatabaseSetup() {
     $config = [
         'database' => [
             'driver' => $driver,
-            'sqlite_path' => $basePath . '/data/vote.db',
+            'sqlite_path' => $basePath . '/data/poll.db',
             'mysql_host' => $_POST['mysql_host'] ?? 'localhost',
             'mysql_port' => (int)($_POST['mysql_port'] ?? 3306),
-            'mysql_database' => $_POST['mysql_database'] ?? 'vote_app',
+            'mysql_database' => $_POST['mysql_database'] ?? 'poll_app',
             'mysql_username' => $_POST['mysql_username'] ?? 'root',
             'mysql_password' => $_POST['mysql_password'] ?? '',
             'mysql_charset' => 'utf8mb4',
@@ -83,7 +83,7 @@ function handleDatabaseSetup() {
             'timezone' => 'UTC',
         ],
         'session' => [
-            'name' => 'vote_session',
+            'name' => 'poll_session',
             'lifetime' => 7200,
         ],
         'security' => [
@@ -385,9 +385,9 @@ function handleAdminSetup() {
             <p>Let's set up your voting application. This will only take a minute.</p>
 
             <ul class="feature-list">
-                <li>Create and share votes with multiple question types</li>
+                <li>Create and share polls with multiple question types</li>
                 <li>Rankings, approval voting, star ratings, and more</li>
-                <li>No account required to create votes</li>
+                <li>No account required to create polls</li>
                 <li>Built-in social choice algorithms</li>
             </ul>
 
@@ -437,7 +437,7 @@ function handleAdminSetup() {
                     </div>
                     <div class="form-group">
                         <label>Database Name</label>
-                        <input type="text" name="mysql_database" value="vote_app">
+                        <input type="text" name="mysql_database" value="poll_app">
                     </div>
                     <div class="form-group">
                         <label>Username</label>
@@ -472,7 +472,7 @@ function handleAdminSetup() {
             <form method="post">
                 <input type="hidden" name="step" value="admin">
 
-                <p>Create an admin account to manage your votes. This is optional - you can create votes without an account.</p>
+                <p>Create an admin account to manage your polls. This is optional - you can create polls without an account.</p>
 
                 <div class="form-group">
                     <label>Email</label>
@@ -500,14 +500,14 @@ function handleAdminSetup() {
 
             <p>You can now:</p>
             <ul class="feature-list">
-                <li>Create your first vote</li>
+                <li>Create your first poll</li>
                 <li>Share voting links with participants</li>
                 <li>View and export results</li>
             </ul>
 
             <div class="actions">
                 <a href="<?= htmlspecialchars($urlBasePath) ?>/" class="btn">Go to App</a>
-                <a href="<?= htmlspecialchars($urlBasePath) ?>/create" class="btn btn-secondary">Create Vote</a>
+                <a href="<?= htmlspecialchars($urlBasePath) ?>/create" class="btn btn-secondary">Create Poll</a>
             </div>
 
         <?php endif; ?>

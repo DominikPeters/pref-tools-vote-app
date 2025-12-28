@@ -1,17 +1,17 @@
 <?php
-$title = 'Pref.Tools Vote - Create and Share Votes';
+$title = 'Pref.Tools Vote - Create and Share Polls';
 ob_start();
 ?>
 
 <div class="container">
     <section class="hero">
-        <h1>Create and Share Votes</h1>
+        <h1>Create and Share Polls</h1>
         <p class="lead">
             A powerful voting application with support for multiple voting methods:
             rankings, approval voting, star ratings, and more.
         </p>
         <div class="hero-actions">
-            <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Vote</a>
+            <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Poll</a>
             <a href="#demo" class="btn btn-secondary btn-large">See Demo</a>
         </div>
     </section>
@@ -51,7 +51,7 @@ ob_start();
         <div class="steps">
             <div class="step">
                 <div class="step-number">1</div>
-                <h3>Create Your Vote</h3>
+                <h3>Create Your Poll</h3>
                 <p>Use our intuitive form builder to create questions with any voting method.</p>
             </div>
             <div class="step">
@@ -70,7 +70,7 @@ ob_start();
     <section class="cta">
         <h2>Ready to Start?</h2>
         <p>Create your first vote in minutes. No account required.</p>
-        <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Vote</a>
+        <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Poll</a>
     </section>
 </div>
 

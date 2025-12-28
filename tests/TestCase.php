@@ -73,23 +73,23 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Create a test vote
+     * Create a test poll
      */
-    protected function createVote(array $data = [], ?int $userId = null): \App\Models\Vote
+    protected function createPoll(array $data = [], ?int $userId = null): \App\Models\Poll
     {
         $defaults = [
-            'title' => 'Test Vote',
+            'title' => 'Test Poll',
             'description' => 'A test vote description',
             'status' => 'draft',
         ];
 
-        return \App\Models\Vote::create(array_merge($defaults, $data), $userId);
+        return \App\Models\Poll::create(array_merge($defaults, $data), $userId);
     }
 
     /**
      * Create a test question
      */
-    protected function createQuestion(int $voteId, array $data = []): \App\Models\Question
+    protected function createQuestion(int $pollId, array $data = []): \App\Models\Question
     {
         $defaults = [
             'type' => 'single_choice',
@@ -102,7 +102,7 @@ abstract class TestCase extends BaseTestCase
             ],
         ];
 
-        return \App\Models\Question::create($voteId, array_merge($defaults, $data));
+        return \App\Models\Question::create($pollId, array_merge($defaults, $data));
     }
 
     /**
@@ -165,18 +165,18 @@ abstract class TestCase extends BaseTestCase
         $router->post('/api/auth/logout', [\App\Controllers\AuthApiController::class, 'logout']);
         $router->get('/api/auth/me', [\App\Controllers\AuthApiController::class, 'me']);
 
-        // Vote routes
-        $router->post('/api/votes', [\App\Controllers\VoteApiController::class, 'create']);
-        $router->get('/api/votes/:publicId', [\App\Controllers\VoteApiController::class, 'show']);
-        $router->get('/api/votes/:publicId/admin/:adminToken', [\App\Controllers\VoteApiController::class, 'showAdmin']);
-        $router->put('/api/votes/:publicId/admin/:adminToken', [\App\Controllers\VoteApiController::class, 'update']);
-        $router->delete('/api/votes/:publicId/admin/:adminToken', [\App\Controllers\VoteApiController::class, 'delete']);
-        $router->post('/api/votes/:publicId/admin/:adminToken/close', [\App\Controllers\VoteApiController::class, 'close']);
-        $router->post('/api/votes/:publicId/admin/:adminToken/reopen', [\App\Controllers\VoteApiController::class, 'reopen']);
+        // Poll routes
+        $router->post('/api/polls', [\App\Controllers\PollApiController::class, 'create']);
+        $router->get('/api/polls/:publicId', [\App\Controllers\PollApiController::class, 'show']);
+        $router->get('/api/polls/:publicId/admin/:adminToken', [\App\Controllers\PollApiController::class, 'showAdmin']);
+        $router->put('/api/polls/:publicId/admin/:adminToken', [\App\Controllers\PollApiController::class, 'update']);
+        $router->delete('/api/polls/:publicId/admin/:adminToken', [\App\Controllers\PollApiController::class, 'delete']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/close', [\App\Controllers\PollApiController::class, 'close']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [\App\Controllers\PollApiController::class, 'reopen']);
 
         // Response routes
-        $router->post('/api/votes/:publicId/responses', [\App\Controllers\VoteApiController::class, 'submitResponse']);
-        $router->get('/api/votes/:publicId/responses', [\App\Controllers\VoteApiController::class, 'listResponses']);
+        $router->post('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'submitResponse']);
+        $router->get('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'listResponses']);
 
         return $router;
     }

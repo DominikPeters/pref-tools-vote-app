@@ -8,7 +8,7 @@ use App\Services\TokenService;
 class Response
 {
     public ?int $id = null;
-    public int $voteId;
+    public int $pollId;
 
     public ?string $voterName = null;
     public ?string $voterToken = null;
@@ -31,7 +31,7 @@ class Response
     {
         $response = new self();
         $response->id = (int) $row['id'];
-        $response->voteId = (int) $row['vote_id'];
+        $response->pollId = (int) $row['poll_id'];
         $response->voterName = $row['voter_name'];
         $response->voterToken = $row['voter_token'];
         $response->accessTokenId = $row['access_token_id'] ? (int) $row['access_token_id'] : null;
@@ -54,14 +54,14 @@ class Response
     }
 
     /**
-     * Find responses by vote ID
+     * Find responses by poll ID
      */
-    public static function findByVoteId(int $voteId): array
+    public static function findByPollId(int $pollId): array
     {
         $db = Database::getInstance();
         $rows = $db->fetchAll(
-            "SELECT * FROM responses WHERE vote_id = :vote_id ORDER BY created_at ASC",
-            ['vote_id' => $voteId]
+            "SELECT * FROM responses WHERE poll_id = :poll_id ORDER BY created_at ASC",
+            ['poll_id' => $pollId]
         );
         return array_map(fn($row) => self::fromRow($row), $rows);
     }
@@ -69,12 +69,12 @@ class Response
     /**
      * Find a response by voter token
      */
-    public static function findByVoterToken(int $voteId, string $voterToken): ?self
+    public static function findByVoterToken(int $pollId, string $voterToken): ?self
     {
         $db = Database::getInstance();
         $row = $db->fetch(
-            "SELECT * FROM responses WHERE vote_id = :vote_id AND voter_token = :voter_token",
-            ['vote_id' => $voteId, 'voter_token' => $voterToken]
+            "SELECT * FROM responses WHERE poll_id = :poll_id AND voter_token = :voter_token",
+            ['poll_id' => $pollId, 'voter_token' => $voterToken]
         );
         return $row ? self::fromRow($row) : null;
     }
@@ -95,7 +95,7 @@ class Response
     /**
      * Create a new response
      */
-    public static function create(int $voteId, array $data): self
+    public static function create(int $pollId, array $data): self
     {
         $db = Database::getInstance();
 
@@ -103,7 +103,7 @@ class Response
         $voterToken = TokenService::generateVoterToken();
 
         $id = $db->insert('responses', [
-            'vote_id' => $voteId,
+            'poll_id' => $pollId,
             'voter_name' => $data['voter_name'] ?? null,
             'voter_token' => $voterToken,
             'access_token_id' => $data['access_token_id'] ?? null,

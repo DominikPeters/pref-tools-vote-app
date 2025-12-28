@@ -7,7 +7,7 @@ use App\Database;
 class Question
 {
     public ?int $id = null;
-    public int $voteId;
+    public int $pollId;
     public int $sortOrder = 0;
 
     public string $type; // text_single, text_multi, single_choice, approval, ranking, etc.
@@ -45,7 +45,7 @@ class Question
     {
         $question = new self();
         $question->id = (int) $row['id'];
-        $question->voteId = (int) $row['vote_id'];
+        $question->pollId = (int) $row['poll_id'];
         $question->sortOrder = (int) $row['sort_order'];
         $question->type = $row['type'];
         $question->text = $row['text'];
@@ -68,14 +68,14 @@ class Question
     }
 
     /**
-     * Find questions by vote ID
+     * Find questions by poll ID
      */
-    public static function findByVoteId(int $voteId): array
+    public static function findByPollId(int $pollId): array
     {
         $db = Database::getInstance();
         $rows = $db->fetchAll(
-            "SELECT * FROM questions WHERE vote_id = :vote_id ORDER BY sort_order ASC",
-            ['vote_id' => $voteId]
+            "SELECT * FROM questions WHERE poll_id = :poll_id ORDER BY sort_order ASC",
+            ['poll_id' => $pollId]
         );
 
         $questions = array_map(fn($row) => self::fromRow($row), $rows);
@@ -91,19 +91,19 @@ class Question
     /**
      * Create a new question
      */
-    public static function create(int $voteId, array $data): self
+    public static function create(int $pollId, array $data): self
     {
         $db = Database::getInstance();
 
         // Get next sort order
         $maxOrder = $db->fetchColumn(
-            "SELECT MAX(sort_order) FROM questions WHERE vote_id = :vote_id",
-            ['vote_id' => $voteId]
+            "SELECT MAX(sort_order) FROM questions WHERE poll_id = :poll_id",
+            ['poll_id' => $pollId]
         );
         $sortOrder = $data['sort_order'] ?? (($maxOrder ?? -1) + 1);
 
         $id = $db->insert('questions', [
-            'vote_id' => $voteId,
+            'poll_id' => $pollId,
             'sort_order' => $sortOrder,
             'type' => $data['type'],
             'text' => $data['text'] ?? '',

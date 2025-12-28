@@ -56,7 +56,7 @@ if (!$needsInstall) {
     }
 
     // Start session
-    $sessionName = \App\Config::get('session.name', 'vote_session');
+    $sessionName = \App\Config::get('session.name', 'poll_session');
     $sessionLifetime = \App\Config::get('session.lifetime', 7200);
 
     session_name($sessionName);

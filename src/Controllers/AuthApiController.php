@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Models\User;
-use App\Models\Vote;
+use App\Models\Poll;
 use App\Models\Response;
 use App\Services\LogService;
 
@@ -99,25 +99,25 @@ class AuthApiController extends ApiController
     }
 
     /**
-     * GET /api/user/votes
+     * GET /api/user/polls
      */
-    public function userVotes(array $params): array
+    public function userPolls(array $params): array
     {
         $authError = $this->requireAuth();
         if ($authError) {
             return $authError;
         }
 
-        $votes = Vote::findByUserId($this->user()->id);
+        $polls = Poll::findByUserId($this->user()->id);
 
         return $this->success([
-            'votes' => array_map(fn($v) => [
+            'polls' => array_map(fn($v) => [
                 'public_id' => $v->publicId,
                 'title' => $v->title,
                 'status' => $v->status,
                 'response_count' => $v->getResponseCount(),
                 'created_at' => $v->createdAt->format('c'),
-            ], $votes),
+            ], $polls),
         ]);
     }
 
@@ -135,11 +135,11 @@ class AuthApiController extends ApiController
 
         $result = [];
         foreach ($responses as $response) {
-            $vote = Vote::find($response->voteId);
-            if ($vote) {
+            $poll = Poll::find($response->pollId);
+            if ($poll) {
                 $result[] = [
-                    'vote_public_id' => $vote->publicId,
-                    'vote_title' => $vote->title,
+                    'poll_public_id' => $poll->publicId,
+                    'poll_title' => $poll->title,
                     'created_at' => $response->createdAt->format('c'),
                 ];
             }
@@ -149,9 +149,9 @@ class AuthApiController extends ApiController
     }
 
     /**
-     * POST /api/user/claim-vote
+     * POST /api/user/claim-poll
      */
-    public function claimVote(array $params): array
+    public function claimPoll(array $params): array
     {
         $authError = $this->requireAuth();
         if ($authError) {
@@ -164,22 +164,22 @@ class AuthApiController extends ApiController
             return $this->error('public_id and admin_token are required', 'MISSING_FIELDS', 400);
         }
 
-        $vote = Vote::findByPublicId($data['public_id']);
+        $poll = Poll::findByPublicId($data['public_id']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($data['admin_token'])) {
+        if (!$poll->verifyAdminToken($data['admin_token'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        if ($vote->userId !== null) {
-            return $this->error('Vote already claimed', 'ALREADY_CLAIMED', 400);
+        if ($poll->userId !== null) {
+            return $this->error('Poll already claimed', 'ALREADY_CLAIMED', 400);
         }
 
-        $vote = $vote->update(['user_id' => $this->user()->id]);
+        $poll = $poll->update(['user_id' => $this->user()->id]);
 
-        return $this->success(['vote' => $vote->toAdminArray()]);
+        return $this->success(['poll' => $poll->toAdminArray()]);
     }
 }

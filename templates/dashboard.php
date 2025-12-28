@@ -8,28 +8,28 @@ ob_start();
     <div class="container">
         <header class="dashboard-header">
             <h1>Your Dashboard</h1>
-            <a href="<?= basePath() ?>/create" class="btn btn-primary">Create New Vote</a>
+            <a href="<?= basePath() ?>/create" class="btn btn-primary">Create New Poll</a>
         </header>
 
         <section class="card votes-section">
-            <h2>Your Votes</h2>
-            <?php if (empty($votes)): ?>
+            <h2>Your Polls</h2>
+            <?php if (empty($polls)): ?>
                 <p class="empty-message">You haven't created any votes yet.</p>
             <?php else: ?>
                 <div class="votes-list">
-                    <?php foreach ($votes as $vote): ?>
-                        <div class="vote-item">
+                    <?php foreach ($polls as $poll): ?>
+                        <div class="poll-item">
                             <div class="vote-info">
-                                <h3 class="vote-title"><?= e($vote->title) ?></h3>
-                                <div class="vote-meta">
-                                    <span class="status status-<?= e($vote->status) ?>"><?= ucfirst(e($vote->status)) ?></span>
-                                    <span class="response-count"><?= $vote->getResponseCount() ?> responses</span>
-                                    <span class="created-date"><?= $vote->createdAt->format('M j, Y') ?></span>
+                                <h3 class="poll-title"><?= e($poll->title) ?></h3>
+                                <div class="poll-meta">
+                                    <span class="status status-<?= e($poll->status) ?>"><?= ucfirst(e($poll->status)) ?></span>
+                                    <span class="response-count"><?= $poll->getResponseCount() ?> responses</span>
+                                    <span class="created-date"><?= $poll->createdAt->format('M j, Y') ?></span>
                                 </div>
                             </div>
-                            <div class="vote-actions">
-                                <a href="<?= basePath() ?>/<?= e($vote->publicId) ?>/admin/<?= e($vote->adminToken) ?>" class="btn btn-small">Manage</a>
-                                <a href="<?= basePath() ?>/<?= e($vote->publicId) ?>" class="btn btn-small btn-secondary">View</a>
+                            <div class="poll-actions">
+                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($poll->adminToken) ?>" class="btn btn-small">Manage</a>
+                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary">View</a>
                             </div>
                         </div>
                     <?php endforeach; ?>

@@ -26,3 +26,6 @@ Thumbs.db
 .env
 vote-app-thinking-outloud.pdf
 vote-app-spec.md
+AGENTS.md
+CLAUDE.md
+GEMINI.md

@@ -3,27 +3,27 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Vote;
+use App\Models\Poll;
 use App\Models\Question;
 use App\Models\Response;
 
 class ResponseApiTest extends TestCase
 {
-    private Vote $vote;
+    private Poll $poll;
     private Question $question;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create a vote with a question for response tests
-        $this->vote = $this->createVote(['status' => 'open']);
-        $this->question = $this->createQuestion($this->vote->id);
+        // Create a poll with a question for response tests
+        $this->poll = $this->createPoll(['status' => 'open']);
+        $this->question = $this->createQuestion($this->poll->id);
     }
 
     public function test_can_submit_response(): void
     {
-        $response = $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [
                 $this->question->id => $this->question->options[0]->id,
             ],
@@ -34,40 +34,40 @@ class ResponseApiTest extends TestCase
         $this->assertArrayHasKey('voter_token', $response);
     }
 
-    public function test_cannot_submit_to_closed_vote(): void
+    public function test_cannot_submit_to_closed_poll(): void
     {
-        // Close the vote
-        $this->vote->close();
+        // Close the poll
+        $this->poll->close();
 
-        $response = $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [
                 $this->question->id => $this->question->options[0]->id,
             ],
         ]);
 
-        $this->assertError($response, 'VOTE_NOT_OPEN');
+        $this->assertError($response, 'POLL_NOT_OPEN');
     }
 
-    public function test_cannot_submit_to_draft_vote(): void
+    public function test_cannot_submit_to_draft_poll(): void
     {
-        $draftVote = $this->createVote(['status' => 'draft']);
-        $question = $this->createQuestion($draftVote->id);
+        $draftPoll = $this->createPoll(['status' => 'draft']);
+        $question = $this->createQuestion($draftPoll->id);
 
-        $response = $this->callApi('POST', "/api/votes/{$draftVote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$draftPoll->publicId}/responses", [
             'answers' => [
                 $question->id => $question->options[0]->id,
             ],
         ]);
 
-        $this->assertError($response, 'VOTE_NOT_OPEN');
+        $this->assertError($response, 'POLL_NOT_OPEN');
     }
 
     public function test_response_includes_voter_name_when_collected(): void
     {
-        $vote = $this->createVote(['status' => 'open', 'collect_name' => true]);
-        $question = $this->createQuestion($vote->id);
+        $poll = $this->createPoll(['status' => 'open', 'collect_name' => true]);
+        $question = $this->createQuestion($poll->id);
 
-        $response = $this->callApi('POST', "/api/votes/{$vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
             'voter_name' => 'Alice Smith',
             'answers' => [
                 $question->id => $question->options[0]->id,
@@ -80,7 +80,7 @@ class ResponseApiTest extends TestCase
 
     public function test_can_submit_approval_answer(): void
     {
-        $question = $this->createQuestion($this->vote->id, [
+        $question = $this->createQuestion($this->poll->id, [
             'type' => 'approval',
             'text' => 'Select all that apply',
         ]);
@@ -90,7 +90,7 @@ class ResponseApiTest extends TestCase
             $question->options[2]->id,
         ];
 
-        $response = $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [
                 $question->id => $selectedIds,
             ],
@@ -102,7 +102,7 @@ class ResponseApiTest extends TestCase
 
     public function test_can_submit_ranking_answer(): void
     {
-        $question = $this->createQuestion($this->vote->id, [
+        $question = $this->createQuestion($this->poll->id, [
             'type' => 'ranking',
             'text' => 'Rank your preferences',
         ]);
@@ -113,7 +113,7 @@ class ResponseApiTest extends TestCase
             $question->options[1]->id,
         ];
 
-        $response = $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [
                 $question->id => $ranking,
             ],
@@ -125,13 +125,13 @@ class ResponseApiTest extends TestCase
 
     public function test_can_submit_text_answer(): void
     {
-        $question = $this->createQuestion($this->vote->id, [
+        $question = $this->createQuestion($this->poll->id, [
             'type' => 'text_single',
             'text' => 'What is your name?',
             'options' => [], // Text questions don't have options
         ]);
 
-        $response = $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [
                 $question->id => 'John Doe',
             ],
@@ -143,22 +143,22 @@ class ResponseApiTest extends TestCase
 
     public function test_can_list_responses_when_visible(): void
     {
-        // Create vote with visible responses
-        $vote = $this->createVote([
+        // Create poll with visible responses
+        $poll = $this->createPoll([
             'status' => 'closed',
             'visibility' => 'anonymous',
             'visibility_timing' => 'after_close',
         ]);
-        $question = $this->createQuestion($vote->id);
+        $question = $this->createQuestion($poll->id);
 
         // Submit a response directly
-        Response::create($vote->id, [
+        Response::create($poll->id, [
             'answers' => [
                 $question->id => $question->options[0]->id,
             ],
         ]);
 
-        $response = $this->callApi('GET', "/api/votes/{$vote->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertSuccess($response);
         $this->assertArrayHasKey('responses', $response);
@@ -167,44 +167,44 @@ class ResponseApiTest extends TestCase
 
     public function test_cannot_list_responses_when_private(): void
     {
-        $vote = $this->createVote([
+        $poll = $this->createPoll([
             'status' => 'closed',
             'visibility' => 'private',
         ]);
 
-        $response = $this->callApi('GET', "/api/votes/{$vote->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertError($response, 'NOT_VISIBLE');
     }
 
     public function test_cannot_list_responses_before_close_if_after_close_timing(): void
     {
-        $vote = $this->createVote([
+        $poll = $this->createPoll([
             'status' => 'open',
             'visibility' => 'anonymous',
             'visibility_timing' => 'after_close',
         ]);
 
-        $response = $this->callApi('GET', "/api/votes/{$vote->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertError($response, 'NOT_VISIBLE');
     }
 
     public function test_can_list_responses_during_voting_if_during_timing(): void
     {
-        $vote = $this->createVote([
+        $poll = $this->createPoll([
             'status' => 'open',
             'visibility' => 'anonymous',
             'visibility_timing' => 'during',
         ]);
-        $question = $this->createQuestion($vote->id);
+        $question = $this->createQuestion($poll->id);
 
         // Submit a response
-        Response::create($vote->id, [
+        Response::create($poll->id, [
             'answers' => [$question->id => $question->options[0]->id],
         ]);
 
-        $response = $this->callApi('GET', "/api/votes/{$vote->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertSuccess($response);
         $this->assertCount(1, $response['responses']);
@@ -212,20 +212,20 @@ class ResponseApiTest extends TestCase
 
     public function test_admin_can_always_see_responses(): void
     {
-        $vote = $this->createVote([
+        $poll = $this->createPoll([
             'status' => 'open',
             'visibility' => 'private',
         ]);
-        $question = $this->createQuestion($vote->id);
+        $question = $this->createQuestion($poll->id);
 
-        Response::create($vote->id, [
+        Response::create($poll->id, [
             'answers' => [$question->id => $question->options[0]->id],
         ]);
 
         // Use admin token in query string
-        $_GET['admin_token'] = $vote->adminToken;
+        $_GET['admin_token'] = $poll->adminToken;
 
-        $response = $this->callApi('GET', "/api/votes/{$vote->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertSuccess($response);
         $this->assertCount(1, $response['responses']);
@@ -234,16 +234,16 @@ class ResponseApiTest extends TestCase
     public function test_response_count_updates_after_submission(): void
     {
         // Check initial count
-        $initial = $this->callApi('GET', "/api/votes/{$this->vote->publicId}/admin/{$this->vote->adminToken}");
-        $this->assertEquals(0, $initial['vote']['response_count']);
+        $initial = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/admin/{$this->poll->adminToken}");
+        $this->assertEquals(0, $initial['poll']['response_count']);
 
         // Submit response
-        $this->callApi('POST', "/api/votes/{$this->vote->publicId}/responses", [
+        $this->callApi('POST', "/api/polls/{$this->poll->publicId}/responses", [
             'answers' => [$this->question->id => $this->question->options[0]->id],
         ]);
 
         // Check updated count
-        $updated = $this->callApi('GET', "/api/votes/{$this->vote->publicId}/admin/{$this->vote->adminToken}");
-        $this->assertEquals(1, $updated['vote']['response_count']);
+        $updated = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/admin/{$this->poll->adminToken}");
+        $this->assertEquals(1, $updated['poll']['response_count']);
     }
 }

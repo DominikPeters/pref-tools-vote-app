@@ -5,14 +5,14 @@ namespace App\Models;
 use App\Database;
 use App\Services\TokenService;
 
-class Vote
+class Poll
 {
     public ?int $id = null;
     public string $publicId;
     public string $adminToken;
     public ?int $userId = null;
 
-    public string $title = 'Untitled Vote';
+    public string $title = 'Untitled Poll';
     public ?string $description = null;
 
     public string $status = 'draft'; // draft, open, closed
@@ -37,78 +37,78 @@ class Vote
     public array $questions = [];
 
     /**
-     * Create a Vote instance from a database row
+     * Create a Poll instance from a database row
      */
     public static function fromRow(array $row): self
     {
-        $vote = new self();
-        $vote->id = (int) $row['id'];
-        $vote->publicId = $row['public_id'];
-        $vote->adminToken = $row['admin_token'];
-        $vote->userId = $row['user_id'] ? (int) $row['user_id'] : null;
+        $poll = new self();
+        $poll->id = (int) $row['id'];
+        $poll->publicId = $row['public_id'];
+        $poll->adminToken = $row['admin_token'];
+        $poll->userId = $row['user_id'] ? (int) $row['user_id'] : null;
 
-        $vote->title = $row['title'];
-        $vote->description = $row['description'];
+        $poll->title = $row['title'];
+        $poll->description = $row['description'];
 
-        $vote->status = $row['status'];
-        $vote->visibility = $row['visibility'];
-        $vote->visibilityTiming = $row['visibility_timing'];
-        $vote->collectName = (bool) $row['collect_name'];
-        $vote->nameVisibility = $row['name_visibility'];
-        $vote->allowEditOwn = (bool) $row['allow_edit_own'];
-        $vote->allowEditAny = (bool) $row['allow_edit_any'];
-        $vote->randomizeOptions = (bool) $row['randomize_options'];
+        $poll->status = $row['status'];
+        $poll->visibility = $row['visibility'];
+        $poll->visibilityTiming = $row['visibility_timing'];
+        $poll->collectName = (bool) $row['collect_name'];
+        $poll->nameVisibility = $row['name_visibility'];
+        $poll->allowEditOwn = (bool) $row['allow_edit_own'];
+        $poll->allowEditAny = (bool) $row['allow_edit_any'];
+        $poll->randomizeOptions = (bool) $row['randomize_options'];
 
-        $vote->accessMode = $row['access_mode'];
-        $vote->accessPassword = $row['access_password'];
+        $poll->accessMode = $row['access_mode'];
+        $poll->accessPassword = $row['access_password'];
 
-        $vote->locale = $row['locale'];
+        $poll->locale = $row['locale'];
 
-        $vote->createdAt = new \DateTime($row['created_at']);
-        $vote->updatedAt = new \DateTime($row['updated_at']);
-        $vote->closedAt = $row['closed_at'] ? new \DateTime($row['closed_at']) : null;
+        $poll->createdAt = new \DateTime($row['created_at']);
+        $poll->updatedAt = new \DateTime($row['updated_at']);
+        $poll->closedAt = $row['closed_at'] ? new \DateTime($row['closed_at']) : null;
 
-        return $vote;
+        return $poll;
     }
 
     /**
-     * Find a vote by ID
+     * Find a poll by ID
      */
     public static function find(int $id): ?self
     {
         $db = Database::getInstance();
-        $row = $db->fetch("SELECT * FROM votes WHERE id = :id", ['id' => $id]);
+        $row = $db->fetch("SELECT * FROM polls WHERE id = :id", ['id' => $id]);
         return $row ? self::fromRow($row) : null;
     }
 
     /**
-     * Find a vote by public ID
+     * Find a poll by public ID
      */
     public static function findByPublicId(string $publicId): ?self
     {
         $db = Database::getInstance();
         $row = $db->fetch(
-            "SELECT * FROM votes WHERE public_id = :public_id",
+            "SELECT * FROM polls WHERE public_id = :public_id",
             ['public_id' => $publicId]
         );
         return $row ? self::fromRow($row) : null;
     }
 
     /**
-     * Find votes by user ID
+     * Find polls by user ID
      */
     public static function findByUserId(int $userId): array
     {
         $db = Database::getInstance();
         $rows = $db->fetchAll(
-            "SELECT * FROM votes WHERE user_id = :user_id ORDER BY created_at DESC",
+            "SELECT * FROM polls WHERE user_id = :user_id ORDER BY created_at DESC",
             ['user_id' => $userId]
         );
         return array_map(fn($row) => self::fromRow($row), $rows);
     }
 
     /**
-     * Create a new vote
+     * Create a new poll
      */
     public static function create(array $data, ?int $userId = null): self
     {
@@ -118,17 +118,17 @@ class Vote
         $adminToken = TokenService::generateAdminToken();
 
         // Ensure unique public ID
-        while ($db->fetch("SELECT id FROM votes WHERE public_id = :id", ['id' => $publicId])) {
+        while ($db->fetch("SELECT id FROM polls WHERE public_id = :id", ['id' => $publicId])) {
             $publicId = TokenService::generatePublicId();
         }
 
         $now = date('Y-m-d H:i:s');
 
-        $id = $db->insert('votes', [
+        $id = $db->insert('polls', [
             'public_id' => $publicId,
             'admin_token' => $adminToken,
             'user_id' => $userId,
-            'title' => $data['title'] ?? 'Untitled Vote',
+            'title' => $data['title'] ?? 'Untitled Poll',
             'description' => $data['description'] ?? null,
             'status' => $data['status'] ?? 'draft',
             'visibility' => $data['visibility'] ?? 'private',
@@ -151,7 +151,7 @@ class Vote
     }
 
     /**
-     * Update the vote
+     * Update the poll
      */
     public function update(array $data): self
     {
@@ -181,22 +181,22 @@ class Vote
             $updateData['access_password'] = password_hash($data['access_password'], PASSWORD_DEFAULT);
         }
 
-        $db->update('votes', $updateData, 'id = :id', ['id' => $this->id]);
+        $db->update('polls', $updateData, 'id = :id', ['id' => $this->id]);
 
         return self::find($this->id);
     }
 
     /**
-     * Delete the vote
+     * Delete the poll
      */
     public function delete(): bool
     {
         $db = Database::getInstance();
-        return $db->delete('votes', 'id = :id', ['id' => $this->id]) > 0;
+        return $db->delete('polls', 'id = :id', ['id' => $this->id]) > 0;
     }
 
     /**
-     * Close the vote
+     * Close the poll
      */
     public function close(): self
     {
@@ -204,7 +204,7 @@ class Vote
         $now = date('Y-m-d H:i:s');
 
         $db->update(
-            'votes',
+            'polls',
             ['status' => 'closed', 'closed_at' => $now, 'updated_at' => $now],
             'id = :id',
             ['id' => $this->id]
@@ -214,7 +214,7 @@ class Vote
     }
 
     /**
-     * Reopen the vote
+     * Reopen the poll
      */
     public function reopen(): self
     {
@@ -222,7 +222,7 @@ class Vote
         $now = date('Y-m-d H:i:s');
 
         $db->update(
-            'votes',
+            'polls',
             ['status' => 'open', 'closed_at' => null, 'updated_at' => $now],
             'id = :id',
             ['id' => $this->id]
@@ -232,7 +232,7 @@ class Vote
     }
 
     /**
-     * Publish the vote (change from draft to open)
+     * Publish the poll (change from draft to open)
      */
     public function publish(): self
     {
@@ -240,7 +240,7 @@ class Vote
         $now = date('Y-m-d H:i:s');
 
         $db->update(
-            'votes',
+            'polls',
             ['status' => 'open', 'updated_at' => $now],
             'id = :id',
             ['id' => $this->id]
@@ -250,11 +250,11 @@ class Vote
     }
 
     /**
-     * Load questions for this vote
+     * Load questions for this poll
      */
     public function loadQuestions(): self
     {
-        $this->questions = Question::findByVoteId($this->id);
+        $this->questions = Question::findByPollId($this->id);
         return $this;
     }
 
@@ -284,8 +284,8 @@ class Vote
     {
         $db = Database::getInstance();
         return (int) $db->fetchColumn(
-            "SELECT COUNT(*) FROM responses WHERE vote_id = :vote_id",
-            ['vote_id' => $this->id]
+            "SELECT COUNT(*) FROM responses WHERE poll_id = :poll_id",
+            ['poll_id' => $this->id]
         );
     }
 

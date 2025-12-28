@@ -11,11 +11,11 @@ pref-tools-vote/
 │   │   ├── css/
 │   │   │   ├── main.css        # Global styles
 │   │   │   ├── builder.css     # Form builder styles
-│   │   │   └── vote.css        # Voter-facing form styles
+│   │   │   └── poll.css        # Voter-facing form styles
 │   │   ├── js/
 │   │   │   ├── app.js          # Shared utilities, API client
 │   │   │   ├── builder.js      # Form builder logic
-│   │   │   ├── vote.js         # Voter form logic
+│   │   │   ├── poll.js         # Voter form logic
 │   │   │   ├── admin.js        # Admin panel logic
 │   │   │   ├── dashboard.js    # User dashboard logic
 │   │   │   └── lib/
@@ -32,18 +32,18 @@ pref-tools-vote/
 │   ├── Controllers/
 │   │   ├── PageController.php      # Renders HTML pages
 │   │   ├── ApiController.php       # Base API controller
-│   │   ├── VoteApiController.php   # Vote CRUD, submission
+│   │   ├── PollApiController.php   # Poll CRUD, submission
 │   │   ├── AuthApiController.php   # Login, register, logout
 │   │   └── AdminApiController.php  # Admin actions (close vote, etc.)
 │   ├── Models/
 │   │   ├── User.php
-│   │   ├── Vote.php            # A vote/form instance
+│   │   ├── Poll.php            # A vote/form instance
 │   │   ├── Question.php        # A question within a vote
 │   │   ├── Option.php          # An option/candidate within a question
 │   │   ├── Response.php        # A voter's submission
 │   │   └── Answer.php          # A single answer within a response
 │   ├── Services/
-│   │   ├── VoteService.php     # Business logic for votes
+│   │   ├── PollService.php     # Business logic for votes
 │   │   ├── TokenService.php    # Generate secure tokens
 │   │   ├── MailService.php     # Email sending abstraction
 │   │   └── LogService.php      # Action logging
@@ -57,7 +57,7 @@ pref-tools-vote/
 │   ├── layout.php              # Base layout
 │   ├── home.php                # Landing page
 │   ├── builder.php             # Form builder page
-│   ├── vote.php                # Voter-facing form
+│   ├── poll.php                # Voter-facing form
 │   ├── results.php             # Results page
 │   ├── admin.php               # Admin panel
 │   ├── dashboard.php           # User dashboard
@@ -113,7 +113,7 @@ CREATE TABLE users (
 );
 
 -- Votes (a form/poll instance)
-CREATE TABLE votes (
+CREATE TABLE polls (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
     public_id       VARCHAR(16) UNIQUE NOT NULL,   -- e.g., "ABC123" (in URL)
     admin_token     VARCHAR(32) NOT NULL,           -- e.g., "XYZ789..." (for admin URL)
@@ -149,7 +149,7 @@ CREATE TABLE votes (
 -- Questions within a vote
 CREATE TABLE questions (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     sort_order      INTEGER NOT NULL DEFAULT 0,
     
     type            VARCHAR(30) NOT NULL,           -- See "Question Types" below
@@ -164,7 +164,7 @@ CREATE TABLE questions (
     
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
 );
 
 -- Options/candidates within a question
@@ -184,7 +184,7 @@ CREATE TABLE options (
 -- Voter responses (one per submission)
 CREATE TABLE responses (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     
     voter_name      VARCHAR(255) NULL,              -- If collect_name is true
     voter_token     VARCHAR(64) NULL,               -- For edit-own-vote tracking (cookie-based)
@@ -197,7 +197,7 @@ CREATE TABLE responses (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -222,7 +222,7 @@ CREATE TABLE answers (
 -- Access tokens (for token-based access mode)
 CREATE TABLE access_tokens (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     token           VARCHAR(32) UNIQUE NOT NULL,
     
     label           VARCHAR(255) NULL,              -- Optional identifier (e.g., "Token for Alice")
@@ -231,14 +231,14 @@ CREATE TABLE access_tokens (
     
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
 );
 
 -- Email invitations (for email-based access mode)
 CREATE TABLE email_invitations (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     email           VARCHAR(255) NOT NULL,
     token           VARCHAR(32) UNIQUE NOT NULL,
     
@@ -248,7 +248,7 @@ CREATE TABLE email_invitations (
     
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
 );
 
@@ -259,7 +259,7 @@ CREATE TABLE action_log (
     
     -- Optional foreign keys (nullable, for filtering/linking)
     user_id         INTEGER NULL,
-    vote_id         INTEGER NULL,
+    poll_id         INTEGER NULL,
     response_id     INTEGER NULL,
     
     -- Flexible payload
@@ -269,14 +269,14 @@ CREATE TABLE action_log (
 );
 
 -- Indexes
-CREATE INDEX idx_action_log_vote_id ON action_log(vote_id);
+CREATE INDEX idx_action_log_poll_id ON action_log(poll_id);
 CREATE INDEX idx_action_log_user_id ON action_log(user_id);
 CREATE INDEX idx_action_log_created_at ON action_log(created_at);
-CREATE INDEX idx_votes_public_id ON votes(public_id);
-CREATE INDEX idx_votes_user_id ON votes(user_id);
-CREATE INDEX idx_questions_vote_id ON questions(vote_id);
+CREATE INDEX idx_polls_public_id ON votes(public_id);
+CREATE INDEX idx_polls_user_id ON votes(user_id);
+CREATE INDEX idx_questions_poll_id ON questions(poll_id);
 CREATE INDEX idx_options_question_id ON options(question_id);
-CREATE INDEX idx_responses_vote_id ON responses(vote_id);
+CREATE INDEX idx_responses_poll_id ON responses(poll_id);
 CREATE INDEX idx_answers_response_id ON answers(response_id);
 CREATE INDEX idx_access_tokens_token ON access_tokens(token);
 CREATE INDEX idx_email_invitations_token ON email_invitations(token);
@@ -367,17 +367,17 @@ The `Database.php` wrapper will handle these differences with a simple dialect f
 | POST | `/api/auth/logout` | Log out | Yes |
 | GET | `/api/auth/me` | Get current user | Yes |
 
-#### Votes (Form Management)
+#### Polls (Form Management)
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/votes` | Create new vote | No* |
-| GET | `/api/votes/:publicId` | Get vote (public data) | Via access |
-| GET | `/api/votes/:publicId/admin/:adminToken` | Get vote (full admin data) | Via token |
-| PUT | `/api/votes/:publicId/admin/:adminToken` | Update vote | Via token |
-| DELETE | `/api/votes/:publicId/admin/:adminToken` | Delete vote | Via token |
-| POST | `/api/votes/:publicId/admin/:adminToken/close` | Close voting | Via token |
-| POST | `/api/votes/:publicId/admin/:adminToken/reopen` | Reopen voting | Via token |
+| POST | `/api/polls` | Create new poll | No* |
+| GET | `/api/polls/:publicId` | Get poll (public data) | Via access |
+| GET | `/api/polls/:publicId/admin/:adminToken` | Get poll (full admin data) | Via token |
+| PUT | `/api/polls/:publicId/admin/:adminToken` | Update poll | Via token |
+| DELETE | `/api/polls/:publicId/admin/:adminToken` | Delete poll | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/close` | Close voting | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/reopen` | Reopen voting | Via token |
 
 *Returns admin token in response; optionally linked to user account if logged in.
 
@@ -385,61 +385,61 @@ The `Database.php` wrapper will handle these differences with a simple dialect f
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/votes/:publicId/admin/:adminToken/questions` | Add question | Via token |
-| PUT | `/api/votes/:publicId/admin/:adminToken/questions/:qId` | Update question | Via token |
-| DELETE | `/api/votes/:publicId/admin/:adminToken/questions/:qId` | Delete question | Via token |
-| POST | `/api/votes/:publicId/admin/:adminToken/questions/:qId/options` | Add option | Via token |
-| PUT | `/api/votes/:publicId/admin/:adminToken/options/:optId` | Update option | Via token |
-| DELETE | `/api/votes/:publicId/admin/:adminToken/options/:optId` | Delete option | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/questions` | Add question | Via token |
+| PUT | `/api/polls/:publicId/admin/:adminToken/questions/:qId` | Update question | Via token |
+| DELETE | `/api/polls/:publicId/admin/:adminToken/questions/:qId` | Delete question | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/questions/:qId/options` | Add option | Via token |
+| PUT | `/api/polls/:publicId/admin/:adminToken/options/:optId` | Update option | Via token |
+| DELETE | `/api/polls/:publicId/admin/:adminToken/options/:optId` | Delete option | Via token |
 
-Alternatively, the entire form structure can be saved in one `PUT /api/votes/:publicId/admin/:adminToken` call with nested questions/options.
+Alternatively, the entire form structure can be saved in one `PUT /api/polls/:publicId/admin/:adminToken` call with nested questions/options.
 
 #### Responses (Voter Submissions)
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/votes/:publicId/responses` | Submit vote | Via access |
-| GET | `/api/votes/:publicId/responses` | Get all responses (if visible) | Via access |
-| GET | `/api/votes/:publicId/responses/:respId` | Get single response | Via access |
-| PUT | `/api/votes/:publicId/responses/:respId` | Update response | Via voter token |
-| DELETE | `/api/votes/:publicId/responses/:respId` | Delete response | Via voter token |
+| POST | `/api/polls/:publicId/responses` | Submit vote | Via access |
+| GET | `/api/polls/:publicId/responses` | Get all responses (if visible) | Via access |
+| GET | `/api/polls/:publicId/responses/:respId` | Get single response | Via access |
+| PUT | `/api/polls/:publicId/responses/:respId` | Update response | Via voter token |
+| DELETE | `/api/polls/:publicId/responses/:respId` | Delete response | Via voter token |
 
 #### Access Tokens (Admin)
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/votes/:publicId/admin/:adminToken/tokens` | Generate access tokens | Via token |
-| GET | `/api/votes/:publicId/admin/:adminToken/tokens` | List access tokens | Via token |
-| DELETE | `/api/votes/:publicId/admin/:adminToken/tokens/:tokId` | Revoke token | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/tokens` | Generate access tokens | Via token |
+| GET | `/api/polls/:publicId/admin/:adminToken/tokens` | List access tokens | Via token |
+| DELETE | `/api/polls/:publicId/admin/:adminToken/tokens/:tokId` | Revoke token | Via token |
 
 #### Email Invitations (Admin)
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/votes/:publicId/admin/:adminToken/invitations` | Send email invites | Via token + logged in |
-| GET | `/api/votes/:publicId/admin/:adminToken/invitations` | List invitations | Via token |
+| POST | `/api/polls/:publicId/admin/:adminToken/invitations` | Send email invites | Via token + logged in |
+| GET | `/api/polls/:publicId/admin/:adminToken/invitations` | List invitations | Via token |
 
 #### User Dashboard
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/user/votes` | List user's votes | Yes |
+| GET | `/api/user/polls` | List user's votes | Yes |
 | GET | `/api/user/responses` | List user's responses | Yes |
-| POST | `/api/user/claim-vote` | Claim a vote by admin token | Yes |
+| POST | `/api/user/claim-poll` | Claim a poll by admin token | Yes |
 
 #### Export
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/votes/:publicId/admin/:adminToken/export?format=json` | Export raw data | Via token |
-| GET | `/api/votes/:publicId/admin/:adminToken/export?format=csv` | Export as CSV | Via token |
-| GET | `/api/votes/:publicId/admin/:adminToken/export?format=preflib` | Export in PrefLib format | Via token |
+| GET | `/api/polls/:publicId/admin/:adminToken/export?format=json` | Export raw data | Via token |
+| GET | `/api/polls/:publicId/admin/:adminToken/export?format=csv` | Export as CSV | Via token |
+| GET | `/api/polls/:publicId/admin/:adminToken/export?format=preflib` | Export in PrefLib format | Via token |
 
 #### Action Log
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/votes/:publicId/admin/:adminToken/log` | Get action log for this vote | Via token |
+| GET | `/api/polls/:publicId/admin/:adminToken/log` | Get action log for this vote | Via token |
 | GET | `/api/admin/log` | Get global action log (site owner) | Site admin |
 
 ---
@@ -604,7 +604,7 @@ class LogService {
     ): void {
         $this->db->insert('action_log', [
             'action' => $action,
-            'vote_id' => $voteId,
+            'poll_id' => $voteId,
             'user_id' => $userId,
             'response_id' => $responseId,
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
@@ -613,7 +613,7 @@ class LogService {
     }
 }
 
-// Usage in VoteService.php
+// Usage in PollService.php
 public function createVote(array $data, ?User $user): Vote {
     $vote = $this->saveVote($data, $user);
     
@@ -634,7 +634,7 @@ public function createVote(array $data, ?User $user): Vote {
 - [ ] Database abstraction (SQLite + MySQL)
 - [ ] Router and bootstrap
 - [ ] User authentication (email/password)
-- [ ] Vote CRUD API
+- [ ] Poll CRUD API
 - [ ] Question/Option CRUD API
 - [ ] Basic templates (layout, home)
 - [ ] Install script
@@ -646,20 +646,20 @@ public function createVote(array $data, ?User $user): Vote {
 - [ ] Input type: single choice
 - [ ] Input type: approval
 - [ ] Auto-save to localStorage
-- [ ] Save to server
+- [ ] Save draft to server for logged-in users
 
 ### Phase 3: Voting Flow
 - [ ] Voter form rendering
 - [ ] Response submission API
 - [ ] Voter token (edit own vote)
 - [ ] Access control (password, tokens)
-- [ ] Voter-facing i18n
+- [-] Voter-facing i18n (delayed for now)
 
 ### Phase 4: Admin & Results
 - [ ] Admin panel template
-- [ ] Close/reopen vote
+- [ ] Close/reopen poll
 - [ ] Raw results display (approval matrix style)
-- [ ] Action log viewer (per-vote)
+- [ ] Action log viewer (per-poll)
 - [ ] Export (JSON, CSV, PrefLib)
 
 ### Phase 5: Polish & Compliance
@@ -671,6 +671,7 @@ public function createVote(array $data, ?User $user): Vote {
 - [ ] Account deletion
 - [ ] Report button
 - [ ] "Contribute to research" toggle
+- [ ] Add "duplicate this poll" feature (copies all questions/options, but not responses)
 
 ### Phase 6: Additional Input Types
 - [ ] Rankings (full)
@@ -698,7 +699,7 @@ These are fine to defer but worth knowing:
 
 2. **Write-in candidates**: Schema supports it (see "Write-In Candidates" above), but **aggregation logic** is the complex part — grouping similar write-ins, handling them in voting rules, displaying in results. Recommend deferring the aggregation work.
 
-3. **"Throw away the key" mode**: Would need a `votes.admin_locked` flag that, once set, prevents even admin edits. Easy to add but worth deciding the UX.
+3. **"Throw away the key" mode**: Would need a `polls.admin_locked` flag that, once set, prevents even admin edits. Easy to add but worth deciding the UX.
 
 4. **Multiple privacy settings per form**: Schema supports it, but the UI for configuring this and the logic for displaying responses gets complex. Could simplify to form-level only for v1.
 

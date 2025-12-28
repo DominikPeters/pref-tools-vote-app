@@ -1,6 +1,6 @@
 <?php
-$isEditing = isset($vote) && $vote !== null;
-$title = ($isEditing ? 'Edit: ' . e($vote->title) : 'Create Vote') . ' - Pref.Tools Vote';
+$isEditing = isset($poll) && $poll !== null;
+$title = ($isEditing ? 'Edit: ' . e($poll->title) : 'Create Poll') . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/builder.css'];
 $extraJs = ['/assets/js/builder.js'];
 ob_start();
@@ -8,7 +8,7 @@ ob_start();
 
 <?php if ($isEditing): ?>
 <script>
-    window.VOTE_DATA = <?= json_encode($vote->toAdminArray()) ?>;
+    window.POLL_DATA = <?= json_encode($poll->toAdminArray()) ?>;
     window.ADMIN_TOKEN = <?= json_encode($adminToken) ?>;
 </script>
 <?php endif; ?>
@@ -16,7 +16,7 @@ ob_start();
 <div class="builder-container">
     <div class="builder-header">
         <div class="container">
-            <h1><?= $isEditing ? 'Edit Vote' : 'Create a New Vote' ?></h1>
+            <h1><?= $isEditing ? 'Edit Poll' : 'Create a New Poll' ?></h1>
             <div class="builder-actions">
                 <button type="button" class="btn btn-secondary" id="previewBtn">Preview</button>
                 <?php if ($isEditing): ?>
@@ -24,7 +24,7 @@ ob_start();
                 <?php else: ?>
                 <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;">Clear</button>
                 <?php endif; ?>
-                <?php if ($isEditing && $vote->status === 'draft'): ?>
+                <?php if ($isEditing && $poll->status === 'draft'): ?>
                 <button type="button" class="btn btn-primary" id="saveBtn">Update Draft</button>
                 <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
                 <?php elseif ($isEditing): ?>
@@ -42,12 +42,12 @@ ob_start();
     <div class="builder-main">
         <div class="container">
             <!-- Vote Metadata -->
-            <section class="vote-meta card">
+            <section class="poll-meta card">
                 <div class="form-group">
-                    <input type="text" id="voteTitle" class="input-title" placeholder="Untitled Vote" value="">
+                    <input type="text" id="pollTitle" class="input-title" placeholder="Untitled Poll" value="">
                 </div>
                 <div class="form-group">
-                    <textarea id="voteDescription" class="input-description" placeholder="Add a description (optional, Markdown supported)"></textarea>
+                    <textarea id="pollDescription" class="input-description" placeholder="Add a description (optional, Markdown supported)"></textarea>
                 </div>
             </section>
 
@@ -183,7 +183,7 @@ ob_start();
             <button type="button" class="modal-close" id="closePreview">&times;</button>
         </div>
         <div class="modal-body">
-            <div id="previewContent" class="vote-container preview-mode">
+            <div id="previewContent" class="poll-container preview-mode">
                 <!-- Preview content will be rendered here -->
             </div>
         </div>

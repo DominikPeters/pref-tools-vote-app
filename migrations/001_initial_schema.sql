@@ -10,8 +10,8 @@ CREATE TABLE users (
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Votes (a form/poll instance)
-CREATE TABLE votes (
+-- Polls (a form/poll instance)
+CREATE TABLE polls (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
     public_id       VARCHAR(16) UNIQUE NOT NULL,
     admin_token     VARCHAR(32) NOT NULL,
@@ -41,10 +41,10 @@ CREATE TABLE votes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Questions within a vote
+-- Questions within a poll
 CREATE TABLE questions (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     sort_order      INTEGER NOT NULL DEFAULT 0,
 
     type            VARCHAR(30) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE questions (
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
 );
 
 -- Options/candidates within a question
@@ -78,7 +78,7 @@ CREATE TABLE options (
 -- Voter responses (one per submission)
 CREATE TABLE responses (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
 
     voter_name      VARCHAR(255) NULL,
     voter_token     VARCHAR(64) NULL,
@@ -91,7 +91,7 @@ CREATE TABLE responses (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -114,7 +114,7 @@ CREATE TABLE answers (
 -- Access tokens (for token-based access mode)
 CREATE TABLE access_tokens (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     token           VARCHAR(32) UNIQUE NOT NULL,
 
     label           VARCHAR(255) NULL,
@@ -123,14 +123,14 @@ CREATE TABLE access_tokens (
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
 );
 
 -- Email invitations (for email-based access mode)
 CREATE TABLE email_invitations (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vote_id         INTEGER NOT NULL,
+    poll_id         INTEGER NOT NULL,
     email           VARCHAR(255) NOT NULL,
     token           VARCHAR(32) UNIQUE NOT NULL,
 
@@ -140,7 +140,7 @@ CREATE TABLE email_invitations (
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
 );
 
@@ -150,7 +150,7 @@ CREATE TABLE action_log (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     user_id         INTEGER NULL,
-    vote_id         INTEGER NULL,
+    poll_id         INTEGER NULL,
     response_id     INTEGER NULL,
 
     action          VARCHAR(50) NOT NULL,
@@ -159,15 +159,15 @@ CREATE TABLE action_log (
 );
 
 -- Indexes
-CREATE INDEX idx_votes_public_id ON votes(public_id);
-CREATE INDEX idx_votes_user_id ON votes(user_id);
-CREATE INDEX idx_questions_vote_id ON questions(vote_id);
+CREATE INDEX idx_polls_public_id ON polls(public_id);
+CREATE INDEX idx_polls_user_id ON polls(user_id);
+CREATE INDEX idx_questions_poll_id ON questions(poll_id);
 CREATE INDEX idx_options_question_id ON options(question_id);
-CREATE INDEX idx_responses_vote_id ON responses(vote_id);
+CREATE INDEX idx_responses_poll_id ON responses(poll_id);
 CREATE INDEX idx_responses_voter_token ON responses(voter_token);
 CREATE INDEX idx_answers_response_id ON answers(response_id);
 CREATE INDEX idx_access_tokens_token ON access_tokens(token);
 CREATE INDEX idx_email_invitations_token ON email_invitations(token);
-CREATE INDEX idx_action_log_vote_id ON action_log(vote_id);
+CREATE INDEX idx_action_log_poll_id ON action_log(poll_id);
 CREATE INDEX idx_action_log_user_id ON action_log(user_id);
 CREATE INDEX idx_action_log_created_at ON action_log(created_at);

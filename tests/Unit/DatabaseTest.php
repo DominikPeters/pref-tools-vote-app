@@ -132,7 +132,7 @@ class DatabaseTest extends TestCase
         $db = Database::getInstance();
 
         $this->assertTrue($db->tableExists('users'));
-        $this->assertTrue($db->tableExists('votes'));
+        $this->assertTrue($db->tableExists('polls'));
         $this->assertFalse($db->tableExists('nonexistent_table'));
     }
 

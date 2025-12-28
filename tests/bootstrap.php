@@ -48,3 +48,33 @@ date_default_timezone_set('UTC');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+/**
+ * Helper function to escape HTML
+ */
+function e(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Helper function to generate a URL
+ */
+function url(string $path = ''): string
+{
+    $base = \App\Config::isLoaded() ? \App\Config::get('app.url', '') : '';
+    return rtrim($base, '/') . '/' . ltrim($path, '/');
+}
+
+/**
+ * Helper function to get base path
+ */
+function basePath(): string
+{
+    if (!\App\Config::isLoaded()) {
+        return '';
+    }
+    $url = \App\Config::get('app.url', '');
+    $parsed = parse_url($url);
+    return rtrim($parsed['path'] ?? '', '/');
+}

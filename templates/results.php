@@ -1,5 +1,5 @@
 <?php
-$title = 'Results: ' . e($vote->title) . ' - Pref.Tools Vote';
+$title = 'Results: ' . e($poll->title) . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/results.js'];
 ob_start();
 ?>
@@ -8,20 +8,20 @@ ob_start();
     <div class="container">
         <header class="results-header">
             <h1>Results</h1>
-            <div class="vote-title"><?= e($vote->title) ?></div>
-            <?php if ($vote->status === 'open'): ?>
+            <div class="poll-title"><?= e($poll->title) ?></div>
+            <?php if ($poll->status === 'open'): ?>
                 <div class="live-badge">Live Results</div>
             <?php endif; ?>
         </header>
 
-        <div class="results-content" data-public-id="<?= e($vote->publicId) ?>">
+        <div class="results-content" data-public-id="<?= e($poll->publicId) ?>">
             <div id="resultsData" class="results-data">
                 <p class="loading">Loading results...</p>
             </div>
         </div>
 
         <footer class="results-footer">
-            <a href="<?= basePath() ?>/<?= e($vote->publicId) ?>" class="btn btn-secondary">Back to Vote</a>
+            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-secondary">Back to Poll</a>
         </footer>
     </div>
 </div>

@@ -21,7 +21,7 @@ import { api, generateTempId, debounce, showToast, basePath } from './app.js';
 
 // Default state for resetting
 const defaultState = {
-    title: 'Untitled Vote',
+    title: 'Untitled Poll',
     description: '',
     settings: {
         collectName: false,
@@ -51,9 +51,9 @@ let isEditMode = false;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Check if editing an existing vote
-    if (window.VOTE_DATA) {
+    if (window.POLL_DATA) {
         isEditMode = true;
-        loadFromServer(window.VOTE_DATA, window.ADMIN_TOKEN);
+        loadFromServer(window.POLL_DATA, window.ADMIN_TOKEN);
         // Clear localStorage so next create is fresh
         clearLocalStorage();
     } else {
@@ -73,12 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initElements() {
     // Title and description
-    document.getElementById('voteTitle').addEventListener('input', (e) => {
-        state.title = e.target.value || 'Untitled Vote';
+    document.getElementById('pollTitle').addEventListener('input', (e) => {
+        state.title = e.target.value || 'Untitled Poll';
         markDirty();
     });
 
-    document.getElementById('voteDescription').addEventListener('input', (e) => {
+    document.getElementById('pollDescription').addEventListener('input', (e) => {
         state.description = e.target.value;
         markDirty();
     });
@@ -126,7 +126,7 @@ function initElements() {
     if (saveBtn) {
         saveBtn.addEventListener('click', saveDraft);
     }
-    document.getElementById('publishBtn').addEventListener('click', publishVote);
+    document.getElementById('publishBtn').addEventListener('click', publishPoll);
     document.getElementById('previewBtn').addEventListener('click', previewVote);
 
     // Cancel button (edit mode) - go back to admin
@@ -146,8 +146,8 @@ function initElements() {
 
 function render() {
     // Update form fields
-    document.getElementById('voteTitle').value = state.title;
-    document.getElementById('voteDescription').value = state.description;
+    document.getElementById('pollTitle').value = state.title;
+    document.getElementById('pollDescription').value = state.description;
 
     // Update settings
     document.getElementById('collectName').checked = state.settings.collectName;
@@ -376,11 +376,11 @@ function markDirty() {
 function saveToLocalStorage() {
     // Don't save to localStorage in edit mode
     if (isEditMode) return;
-    localStorage.setItem('vote_draft', JSON.stringify(state));
+    localStorage.setItem('poll_draft', JSON.stringify(state));
 }
 
 function loadFromLocalStorage() {
-    const saved = localStorage.getItem('vote_draft');
+    const saved = localStorage.getItem('poll_draft');
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -395,7 +395,7 @@ function loadFromLocalStorage() {
 
 function loadFromServer(voteData, adminToken) {
     // Convert server data format to local state format
-    state.title = voteData.title || 'Untitled Vote';
+    state.title = voteData.title || 'Untitled Poll';
     state.description = voteData.description || '';
     state.publicId = voteData.public_id;
     state.adminToken = adminToken;
@@ -429,11 +429,11 @@ function loadFromServer(voteData, adminToken) {
     }));
 
     // Clear localStorage draft since we're editing an existing vote
-    localStorage.removeItem('vote_draft');
+    localStorage.removeItem('poll_draft');
 }
 
 function clearLocalStorage() {
-    localStorage.removeItem('vote_draft');
+    localStorage.removeItem('poll_draft');
 }
 
 function resetForm() {
@@ -484,9 +484,9 @@ async function saveDraft() {
 
         let result;
         if (state.publicId && state.adminToken) {
-            result = await api.put(`/api/votes/${state.publicId}/admin/${state.adminToken}`, data);
+            result = await api.put(`/api/polls/${state.publicId}/admin/${state.adminToken}`, data);
         } else {
-            result = await api.post('/api/votes', data);
+            result = await api.post('/api/polls', data);
             state.publicId = result.vote.public_id;
             state.adminToken = result.vote.admin_token;
         }
@@ -494,12 +494,12 @@ async function saveDraft() {
         state.isDirty = false;
 
         // If editing, don't save to localStorage
-        if (!window.VOTE_DATA) {
+        if (!window.POLL_DATA) {
             saveToLocalStorage();
         }
 
         // If we were editing (came from server), go back to admin
-        if (window.VOTE_DATA) {
+        if (window.POLL_DATA) {
             showToast('Saved! Returning to admin...', 'success');
             setTimeout(() => {
                 window.location.href = `${basePath}/${state.publicId}/admin/${state.adminToken}`;
@@ -517,7 +517,7 @@ async function saveDraft() {
     }
 }
 
-async function publishVote() {
+async function publishPoll() {
     // Validate
     if (!state.title.trim()) {
         showToast('Please add a title', 'error');
@@ -542,9 +542,9 @@ async function publishVote() {
 
         let result;
         if (state.publicId && state.adminToken) {
-            result = await api.put(`/api/votes/${state.publicId}/admin/${state.adminToken}`, data);
+            result = await api.put(`/api/polls/${state.publicId}/admin/${state.adminToken}`, data);
         } else {
-            result = await api.post('/api/votes', data);
+            result = await api.post('/api/polls', data);
         }
 
         clearLocalStorage();
@@ -598,7 +598,7 @@ function renderPreview() {
 
     let html = `
         <header class="vote-header">
-            <h1>${escapeHtml(state.title || 'Untitled Vote')}</h1>
+            <h1>${escapeHtml(state.title || 'Untitled Poll')}</h1>
             ${state.description ? `<div class="vote-description">${escapeHtml(state.description)}</div>` : ''}
         </header>
         <form class="vote-form">

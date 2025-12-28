@@ -1,2 +1,2 @@
 # vote-app
-Allows people to hold votes online
+Allows people to hold polls online

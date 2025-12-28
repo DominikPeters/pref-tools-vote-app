@@ -8,7 +8,7 @@ use App\Services\TokenService;
 class AccessToken
 {
     public int $id;
-    public int $voteId;
+    public int $pollId;
     public string $token;
     public ?string $label = null;
     public ?\DateTime $usedAt = null;
@@ -22,7 +22,7 @@ class AccessToken
     {
         $token = new self();
         $token->id = (int) $row['id'];
-        $token->voteId = (int) $row['vote_id'];
+        $token->pollId = (int) $row['poll_id'];
         $token->token = $row['token'];
         $token->label = $row['label'];
         $token->usedAt = $row['used_at'] ? new \DateTime($row['used_at']) : null;
@@ -42,27 +42,27 @@ class AccessToken
     }
 
     /**
-     * Find an access token by token string for a specific vote
+     * Find an access token by token string for a specific poll
      */
-    public static function findByToken(int $voteId, string $token): ?self
+    public static function findByToken(int $pollId, string $token): ?self
     {
         $db = Database::getInstance();
         $row = $db->fetch(
-            'SELECT * FROM access_tokens WHERE vote_id = :vote_id AND token = :token',
-            ['vote_id' => $voteId, 'token' => $token]
+            'SELECT * FROM access_tokens WHERE poll_id = :poll_id AND token = :token',
+            ['poll_id' => $pollId, 'token' => $token]
         );
         return $row ? self::fromRow($row) : null;
     }
 
     /**
-     * Find all tokens for a vote
+     * Find all tokens for a poll
      */
-    public static function findByVoteId(int $voteId): array
+    public static function findByPollId(int $pollId): array
     {
         $db = Database::getInstance();
         $rows = $db->fetchAll(
-            'SELECT * FROM access_tokens WHERE vote_id = :vote_id ORDER BY created_at DESC',
-            ['vote_id' => $voteId]
+            'SELECT * FROM access_tokens WHERE poll_id = :poll_id ORDER BY created_at DESC',
+            ['poll_id' => $pollId]
         );
         return array_map([self::class, 'fromRow'], $rows);
     }
@@ -70,7 +70,7 @@ class AccessToken
     /**
      * Create new access tokens
      */
-    public static function generate(int $voteId, int $count = 1, ?string $labelPrefix = null): array
+    public static function generate(int $pollId, int $count = 1, ?string $labelPrefix = null): array
     {
         $db = Database::getInstance();
         $tokens = [];
@@ -80,7 +80,7 @@ class AccessToken
             $label = $labelPrefix ? "{$labelPrefix} " . ($i + 1) : null;
 
             $id = $db->insert('access_tokens', [
-                'vote_id' => $voteId,
+                'poll_id' => $pollId,
                 'token' => $token,
                 'label' => $label,
                 'created_at' => date('Y-m-d H:i:s'),
@@ -130,7 +130,7 @@ class AccessToken
     {
         return [
             'id' => $this->id,
-            'vote_id' => $this->voteId,
+            'poll_id' => $this->pollId,
             'token' => $this->token,
             'label' => $this->label,
             'used_at' => $this->usedAt?->format('c'),

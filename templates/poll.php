@@ -1,7 +1,7 @@
 <?php
-$title = e($vote->title) . ' - Pref.Tools Vote';
-$extraCss = ['/assets/css/vote.css'];
-$extraJs = ['/assets/js/vote.js'];
+$title = e($poll->title) . ' - Pref.Tools Vote';
+$extraCss = ['/assets/css/poll.css'];
+$extraJs = ['/assets/js/poll.js'];
 $isEditing = isset($existingResponse) && $existingResponse !== null;
 ob_start();
 ?>
@@ -12,37 +12,37 @@ ob_start();
 </script>
 <?php endif; ?>
 
-<div class="vote-container">
+<div class="poll-container">
     <div class="container">
-        <header class="vote-header">
-            <h1><?= e($vote->title) ?></h1>
-            <?php if ($vote->description): ?>
-                <div class="vote-description">
-                    <?= nl2br(e($vote->description)) ?>
+        <header class="poll-header">
+            <h1><?= e($poll->title) ?></h1>
+            <?php if ($poll->description): ?>
+                <div class="poll-description">
+                    <?= nl2br(e($poll->description)) ?>
                 </div>
             <?php endif; ?>
-            <?php if ($vote->status === 'draft'): ?>
-                <div class="vote-status-banner draft">
-                    This vote is not yet open for submissions.
+            <?php if ($poll->status === 'draft'): ?>
+                <div class="poll-status-banner draft">
+                    This poll is not yet open for submissions.
                 </div>
             <?php endif; ?>
         </header>
 
-        <?php if ($vote->status === 'open'): ?>
+        <?php if ($poll->status === 'open'): ?>
             <?php if ($isEditing): ?>
                 <div class="editing-banner">
                     You have already submitted a response. You can update it below.
                 </div>
             <?php endif; ?>
-            <form id="voteForm" class="vote-form" data-public-id="<?= e($vote->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
-                <?php if ($vote->collectName): ?>
+            <form id="pollForm" class="poll-form" data-public-id="<?= e($poll->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
+                <?php if ($poll->collectName): ?>
                     <div class="form-group name-field">
                         <label for="voterName">Your Name</label>
                         <input type="text" id="voterName" name="voter_name" required>
                     </div>
                 <?php endif; ?>
 
-                <?php foreach ($vote->questions as $question): ?>
+                <?php foreach ($poll->questions as $question): ?>
                     <div class="question-block card" data-question-id="<?= $question->id ?>" data-type="<?= e($question->type) ?>">
                         <div class="question-text">
                             <?= e($question->text) ?>
@@ -168,11 +168,11 @@ ob_start();
                 </div>
             </form>
         <?php else: ?>
-            <div class="vote-closed-message card">
+            <div class="poll-closed-message card">
                 <h2>Voting is Closed</h2>
-                <p>This vote is no longer accepting responses.</p>
-                <?php if ($vote->visibility !== 'private'): ?>
-                    <a href="<?= basePath() ?>/<?= e($vote->publicId) ?>/results" class="btn btn-primary">View Results</a>
+                <p>This poll is no longer accepting responses.</p>
+                <?php if ($poll->visibility !== 'private'): ?>
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary">View Results</a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

@@ -1,0 +1,192 @@
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use App\Models\Poll;
+use App\Models\Question;
+
+class PollApiTest extends TestCase
+{
+    public function test_can_create_poll_without_auth(): void
+    {
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'My First Poll',
+            'description' => 'Testing vote creation',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('poll', $response);
+        $this->assertEquals('My First Poll', $response['poll']['title']);
+        $this->assertArrayHasKey('public_id', $response['poll']);
+        $this->assertArrayHasKey('admin_token', $response['poll']);
+        $this->assertArrayHasKey('admin_url', $response);
+        $this->assertArrayHasKey('public_url', $response);
+    }
+
+    public function test_poll_created_with_auth_is_linked_to_user(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'User Poll',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals($user->id, $response['poll']['user_id']);
+    }
+
+    public function test_can_create_poll_with_questions(): void
+    {
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'Poll with Questions',
+            'questions' => [
+                [
+                    'type' => 'single_choice',
+                    'text' => 'What is your favorite color?',
+                    'options' => [
+                        ['label' => 'Red'],
+                        ['label' => 'Blue'],
+                        ['label' => 'Green'],
+                    ],
+                ],
+                [
+                    'type' => 'approval',
+                    'text' => 'Which fruits do you like?',
+                    'options' => [
+                        ['label' => 'Apple'],
+                        ['label' => 'Banana'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertCount(2, $response['poll']['questions']);
+        $this->assertEquals('single_choice', $response['poll']['questions'][0]['type']);
+        $this->assertCount(3, $response['poll']['questions'][0]['options']);
+    }
+
+    public function test_can_get_poll_by_public_id(): void
+    {
+        $poll = $this->createPoll(['title' => 'Public Poll']);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}");
+
+        $this->assertSuccess($response);
+        $this->assertEquals('Public Poll', $response['poll']['title']);
+        $this->assertArrayNotHasKey('admin_token', $response['poll']); // Should not expose admin token
+    }
+
+    public function test_get_nonexistent_poll_returns_404(): void
+    {
+        $response = $this->callApi('GET', '/api/polls/NONEXISTENT');
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
+
+    public function test_can_get_poll_admin_data_with_token(): void
+    {
+        $poll = $this->createPoll(['title' => 'Admin Poll']);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}");
+
+        $this->assertSuccess($response);
+        $this->assertEquals('Admin Poll', $response['poll']['title']);
+        $this->assertArrayHasKey('admin_token', $response['poll']); // Admin data includes token
+    }
+
+    public function test_admin_data_requires_correct_token(): void
+    {
+        $poll = $this->createPoll();
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/WRONGTOKEN");
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_can_update_poll(): void
+    {
+        $poll = $this->createPoll(['title' => 'Original Title']);
+
+        $response = $this->callApi('PUT', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}", [
+            'title' => 'Updated Title',
+            'description' => 'New description',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('Updated Title', $response['poll']['title']);
+        $this->assertEquals('New description', $response['poll']['description']);
+    }
+
+    public function test_can_delete_poll(): void
+    {
+        $poll = $this->createPoll();
+        $publicId = $poll->publicId;
+        $adminToken = $poll->adminToken;
+
+        $response = $this->callApi('DELETE', "/api/polls/{$publicId}/admin/{$adminToken}");
+
+        $this->assertSuccess($response);
+
+        // Verify it's gone
+        $getResponse = $this->callApi('GET', "/api/polls/{$publicId}");
+        $this->assertError($getResponse, 'NOT_FOUND');
+    }
+
+    public function test_can_close_poll(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/close");
+
+        $this->assertSuccess($response);
+        $this->assertEquals('closed', $response['poll']['status']);
+        $this->assertNotNull($response['poll']['closed_at']);
+    }
+
+    public function test_can_reopen_poll(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+
+        // Close first
+        $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/close");
+
+        // Now reopen
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/reopen");
+
+        $this->assertSuccess($response);
+        $this->assertEquals('open', $response['poll']['status']);
+    }
+
+    public function test_poll_settings_are_saved(): void
+    {
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'Configured Poll',
+            'visibility' => 'anonymous',
+            'visibility_timing' => 'during',
+            'collect_name' => true,
+            'allow_edit_own' => false,
+            'randomize_options' => true,
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('anonymous', $response['poll']['visibility']);
+        $this->assertEquals('during', $response['poll']['visibility_timing']);
+        $this->assertTrue($response['poll']['collect_name']);
+        $this->assertFalse($response['poll']['allow_edit_own']);
+        $this->assertTrue($response['poll']['randomize_options']);
+    }
+
+    public function test_response_count_is_included(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}");
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('response_count', $response['poll']);
+        $this->assertEquals(0, $response['poll']['response_count']);
+    }
+}

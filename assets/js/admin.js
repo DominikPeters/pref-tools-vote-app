@@ -4,7 +4,7 @@
 
 import { api, showToast, copyToClipboard, basePath } from './app.js';
 
-let voteData = null;
+let pollData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.admin-content');
@@ -18,28 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadResponses(publicId, adminToken);
 
     // Action buttons
-    const publishBtn = document.getElementById('publishVote');
+    const publishBtn = document.getElementById('publishPoll');
     if (publishBtn) {
-        publishBtn.addEventListener('click', () => publishVote(publicId, adminToken));
+        publishBtn.addEventListener('click', () => publishPoll(publicId, adminToken));
     }
 
-    const closeBtn = document.getElementById('closeVote');
+    const closeBtn = document.getElementById('closePoll');
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => closeVote(publicId, adminToken));
+        closeBtn.addEventListener('click', () => closePoll(publicId, adminToken));
     }
 
-    const reopenBtn = document.getElementById('reopenVote');
+    const reopenBtn = document.getElementById('reopenPoll');
     if (reopenBtn) {
-        reopenBtn.addEventListener('click', () => reopenVote(publicId, adminToken));
+        reopenBtn.addEventListener('click', () => reopenPoll(publicId, adminToken));
     }
 
-    document.getElementById('editVote')?.addEventListener('click', () => {
+    document.getElementById('editPoll')?.addEventListener('click', () => {
         window.location.href = `${basePath}/${publicId}/admin/${adminToken}/edit`;
     });
 
-    document.getElementById('deleteVote')?.addEventListener('click', () => {
+    document.getElementById('deletePoll')?.addEventListener('click', () => {
         if (confirm('Are you sure you want to delete this vote? This cannot be undone.')) {
-            deleteVote(publicId, adminToken);
+            deletePoll(publicId, adminToken);
         }
     });
 
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadVote(publicId, adminToken) {
     try {
-        const result = await api.get(`/api/votes/${publicId}/admin/${adminToken}`);
-        voteData = result.vote;
+        const result = await api.get(`/api/polls/${publicId}/admin/${adminToken}`);
+        pollData = result.vote;
     } catch (err) {
         showToast('Failed to load vote data', 'error');
     }
@@ -85,7 +85,7 @@ async function loadResponses(publicId, adminToken) {
     container.innerHTML = '<p class="loading">Loading responses...</p>';
 
     try {
-        const result = await api.get(`/api/votes/${publicId}/responses?admin_token=${adminToken}`);
+        const result = await api.get(`/api/polls/${publicId}/responses?admin_token=${adminToken}`);
 
         if (result.responses.length === 0) {
             container.innerHTML = '<p class="empty-message">No responses yet.</p>';
@@ -113,11 +113,11 @@ async function loadResponses(publicId, adminToken) {
 }
 
 function formatAnswers(answers) {
-    if (!voteData || !voteData.questions) {
+    if (!pollData || !pollData.questions) {
         return JSON.stringify(answers);
     }
 
-    return voteData.questions.map(q => {
+    return pollData.questions.map(q => {
         const answer = answers[q.id];
         let displayValue = '';
 
@@ -156,19 +156,19 @@ function formatAnswers(answers) {
     }).join('');
 }
 
-async function publishVote(publicId, adminToken) {
+async function publishPoll(publicId, adminToken) {
     try {
-        await api.put(`/api/votes/${publicId}/admin/${adminToken}`, { status: 'open' });
-        showToast('Vote published!', 'success');
+        await api.put(`/api/polls/${publicId}/admin/${adminToken}`, { status: 'open' });
+        showToast('Poll published!', 'success');
         setTimeout(() => location.reload(), 1000);
     } catch (err) {
         showToast(err.message, 'error');
     }
 }
 
-async function closeVote(publicId, adminToken) {
+async function closePoll(publicId, adminToken) {
     try {
-        await api.post(`/api/votes/${publicId}/admin/${adminToken}/close`);
+        await api.post(`/api/polls/${publicId}/admin/${adminToken}/close`);
         showToast('Voting closed', 'success');
         setTimeout(() => location.reload(), 1000);
     } catch (err) {
@@ -176,9 +176,9 @@ async function closeVote(publicId, adminToken) {
     }
 }
 
-async function reopenVote(publicId, adminToken) {
+async function reopenPoll(publicId, adminToken) {
     try {
-        await api.post(`/api/votes/${publicId}/admin/${adminToken}/reopen`);
+        await api.post(`/api/polls/${publicId}/admin/${adminToken}/reopen`);
         showToast('Voting reopened', 'success');
         setTimeout(() => location.reload(), 1000);
     } catch (err) {
@@ -186,10 +186,10 @@ async function reopenVote(publicId, adminToken) {
     }
 }
 
-async function deleteVote(publicId, adminToken) {
+async function deletePoll(publicId, adminToken) {
     try {
-        await api.delete(`/api/votes/${publicId}/admin/${adminToken}`);
-        showToast('Vote deleted', 'success');
+        await api.delete(`/api/polls/${publicId}/admin/${adminToken}`);
+        showToast('Poll deleted', 'success');
         setTimeout(() => window.location.href = basePath + '/', 1000);
     } catch (err) {
         showToast(err.message, 'error');
@@ -198,7 +198,7 @@ async function deleteVote(publicId, adminToken) {
 
 async function exportData(publicId, adminToken, format) {
     try {
-        const result = await api.get(`/api/votes/${publicId}/admin/${adminToken}/export?format=${format}`);
+        const result = await api.get(`/api/polls/${publicId}/admin/${adminToken}/export?format=${format}`);
 
         if (format === 'json') {
             // Download as JSON file

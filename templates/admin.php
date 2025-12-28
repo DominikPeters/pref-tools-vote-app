@@ -1,5 +1,5 @@
 <?php
-$title = 'Admin: ' . e($vote->title) . ' - Pref.Tools Vote';
+$title = 'Admin: ' . e($poll->title) . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/admin.js'];
 ob_start();
 ?>
@@ -8,26 +8,26 @@ ob_start();
     <div class="container">
         <header class="admin-header">
             <h1>Admin Panel</h1>
-            <div class="vote-title"><?= e($vote->title) ?></div>
-            <div class="vote-status status-<?= e($vote->status) ?>">
-                Status: <?= ucfirst(e($vote->status)) ?>
+            <div class="poll-title"><?= e($poll->title) ?></div>
+            <div class="poll-status status-<?= e($poll->status) ?>">
+                Status: <?= ucfirst(e($poll->status)) ?>
             </div>
         </header>
 
-        <div class="admin-content" data-public-id="<?= e($vote->publicId) ?>" data-admin-token="<?= e($adminToken) ?>">
+        <div class="admin-content" data-public-id="<?= e($poll->publicId) ?>" data-admin-token="<?= e($adminToken) ?>">
             <!-- Quick Actions -->
             <section class="card admin-actions">
                 <h2>Actions</h2>
                 <div class="action-buttons">
-                    <?php if ($vote->status === 'draft'): ?>
-                        <button type="button" class="btn btn-success" id="publishVote">Publish Vote</button>
-                    <?php elseif ($vote->status === 'open'): ?>
-                        <button type="button" class="btn btn-warning" id="closeVote">Close Voting</button>
+                    <?php if ($poll->status === 'draft'): ?>
+                        <button type="button" class="btn btn-success" id="publishPoll">Publish Poll</button>
+                    <?php elseif ($poll->status === 'open'): ?>
+                        <button type="button" class="btn btn-warning" id="closePoll">Close Voting</button>
                     <?php else: ?>
-                        <button type="button" class="btn btn-primary" id="reopenVote">Reopen Voting</button>
+                        <button type="button" class="btn btn-primary" id="reopenPoll">Reopen Voting</button>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-secondary" id="editVote">Edit Vote</button>
-                    <button type="button" class="btn btn-danger" id="deleteVote">Delete Vote</button>
+                    <button type="button" class="btn btn-secondary" id="editPoll">Edit Poll</button>
+                    <button type="button" class="btn btn-danger" id="deletePoll">Delete Poll</button>
                 </div>
             </section>
 
@@ -38,14 +38,14 @@ ob_start();
                     <div class="share-link-group">
                         <label>Voting Link (for participants):</label>
                         <div class="copy-field">
-                            <input type="text" id="publicLink" readonly value="<?= e(url($vote->publicId)) ?>">
+                            <input type="text" id="publicLink" readonly value="<?= e(url($poll->publicId)) ?>">
                             <button type="button" class="btn btn-small copy-btn" data-target="publicLink">Copy</button>
                         </div>
                     </div>
                     <div class="share-link-group">
                         <label>Admin Link (save this!):</label>
                         <div class="copy-field">
-                            <input type="text" id="adminLink" readonly value="<?= e(url($vote->publicId . '/admin/' . $adminToken)) ?>">
+                            <input type="text" id="adminLink" readonly value="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>">
                             <button type="button" class="btn btn-small copy-btn" data-target="adminLink">Copy</button>
                         </div>
                     </div>
@@ -57,15 +57,15 @@ ob_start();
                 <h2>Statistics</h2>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-value" id="responseCount"><?= $vote->getResponseCount() ?></div>
+                        <div class="stat-value" id="responseCount"><?= $poll->getResponseCount() ?></div>
                         <div class="stat-label">Responses</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><?= count($vote->questions) ?></div>
+                        <div class="stat-value"><?= count($poll->questions) ?></div>
                         <div class="stat-label">Questions</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><?= $vote->createdAt->format('M j, Y') ?></div>
+                        <div class="stat-value"><?= $poll->createdAt->format('M j, Y') ?></div>
                         <div class="stat-label">Created</div>
                     </div>
                 </div>
@@ -89,19 +89,19 @@ ob_start();
                 <h2>Settings</h2>
                 <dl class="settings-list">
                     <dt>Visibility:</dt>
-                    <dd><?= e($vote->visibility) ?> (<?= e($vote->visibilityTiming) ?>)</dd>
+                    <dd><?= e($poll->visibility) ?> (<?= e($poll->visibilityTiming) ?>)</dd>
 
                     <dt>Collect Names:</dt>
-                    <dd><?= $vote->collectName ? 'Yes' : 'No' ?></dd>
+                    <dd><?= $poll->collectName ? 'Yes' : 'No' ?></dd>
 
                     <dt>Edit Own Response:</dt>
-                    <dd><?= $vote->allowEditOwn ? 'Yes' : 'No' ?></dd>
+                    <dd><?= $poll->allowEditOwn ? 'Yes' : 'No' ?></dd>
 
                     <dt>Edit Any Response:</dt>
-                    <dd><?= $vote->allowEditAny ? 'Yes' : 'No' ?></dd>
+                    <dd><?= $poll->allowEditAny ? 'Yes' : 'No' ?></dd>
 
                     <dt>Randomize Options:</dt>
-                    <dd><?= $vote->randomizeOptions ? 'Yes' : 'No' ?></dd>
+                    <dd><?= $poll->randomizeOptions ? 'Yes' : 'No' ?></dd>
                 </dl>
             </section>
         </div>

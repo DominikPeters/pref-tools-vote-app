@@ -27,14 +27,14 @@ class LogService
      */
     public function log(
         string $action,
-        ?int $voteId = null,
+        ?int $pollId = null,
         ?int $userId = null,
         ?int $responseId = null,
         array $data = []
     ): void {
         $this->db->insert('action_log', [
             'action' => $action,
-            'vote_id' => $voteId,
+            'poll_id' => $pollId,
             'user_id' => $userId,
             'response_id' => $responseId,
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
@@ -44,13 +44,13 @@ class LogService
     }
 
     /**
-     * Get logs for a vote
+     * Get logs for a poll
      */
-    public function getLogsForVote(int $voteId, int $limit = 100): array
+    public function getLogsForPoll(int $pollId, int $limit = 100): array
     {
         return $this->db->fetchAll(
-            "SELECT * FROM action_log WHERE vote_id = :vote_id ORDER BY created_at DESC LIMIT :limit",
-            ['vote_id' => $voteId, 'limit' => $limit]
+            "SELECT * FROM action_log WHERE poll_id = :poll_id ORDER BY created_at DESC LIMIT :limit",
+            ['poll_id' => $pollId, 'limit' => $limit]
         );
     }
 

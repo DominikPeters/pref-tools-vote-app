@@ -1,5 +1,5 @@
 <?php
-$title = 'Access Required - ' . e($vote->title);
+$title = 'Access Required - ' . e($poll->title);
 ob_start();
 ?>
 
@@ -7,14 +7,14 @@ ob_start();
     <div class="container">
         <div class="password-card card">
             <h1>Password Required</h1>
-            <p class="vote-title"><?= e($vote->title) ?></p>
-            <p class="description">This vote is password protected. Please enter the password to continue.</p>
+            <p class="poll-title"><?= e($poll->title) ?></p>
+            <p class="description">This poll is password protected. Please enter the password to continue.</p>
 
             <?php if ($error): ?>
                 <div class="error-message"><?= e($error) ?></div>
             <?php endif; ?>
 
-            <form method="post" action="<?= basePath() ?>/<?= e($vote->publicId) ?>">
+            <form method="post" action="<?= basePath() ?>/<?= e($poll->publicId) ?>">
                 <div class="form-group">
                     <label for="access_password">Password</label>
                     <input type="password" id="access_password" name="access_password" required autofocus>
@@ -43,7 +43,7 @@ ob_start();
     font-size: 1.5rem;
 }
 
-.password-card .vote-title {
+.password-card .poll-title {
     color: var(--color-primary);
     font-weight: 500;
     margin-bottom: 1rem;

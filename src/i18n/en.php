@@ -16,8 +16,8 @@ return [
     'update_success' => 'Your response has been updated.',
 
     // Error messages
-    'vote_not_found' => 'Vote not found.',
-    'vote_closed' => 'This vote is closed and no longer accepting responses.',
+    'vote_not_found' => 'Poll not found.',
+    'vote_closed' => 'This poll is closed and no longer accepting responses.',
     'already_voted' => 'You have already submitted a response.',
     'validation_error' => 'Please check your answers and try again.',
 
@@ -61,7 +61,7 @@ return [
     'edit_response' => 'Edit your response',
     'close_vote' => 'Close voting',
     'reopen_vote' => 'Reopen voting',
-    'delete_vote' => 'Delete vote',
+    'delete_vote' => 'Delete poll',
     'share' => 'Share',
     'copy_link' => 'Copy Link',
     'copied' => 'Copied!',

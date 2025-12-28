@@ -56,7 +56,7 @@ ob_start();
             </form>
 
             <p class="auth-note">
-                Creating an account is optional. You can create votes without an account.
+                Creating an account is optional. You can create polls without an account.
             </p>
         </div>
     </div>

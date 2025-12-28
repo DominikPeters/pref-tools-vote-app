@@ -3,16 +3,16 @@
 namespace App\Controllers;
 
 use App\Auth;
-use App\Models\Vote;
+use App\Models\Poll;
 use App\Models\Question;
 use App\Models\Option;
 use App\Models\Response;
 use App\Services\LogService;
 
-class VoteApiController extends ApiController
+class PollApiController extends ApiController
 {
     /**
-     * POST /api/votes - Create a new vote
+     * POST /api/polls - Create a new poll
      */
     public function create(array $params): array
     {
@@ -21,25 +21,25 @@ class VoteApiController extends ApiController
         $userId = $this->user()?->id;
 
         try {
-            $vote = Vote::create($data, $userId);
+            $poll = Poll::create($data, $userId);
 
             // Create questions if provided
             if (!empty($data['questions'])) {
                 foreach ($data['questions'] as $qData) {
-                    Question::create($vote->id, $qData);
+                    Question::create($poll->id, $qData);
                 }
             }
 
-            $vote->loadQuestions();
+            $poll->loadQuestions();
 
-            LogService::getInstance()->log('vote.created', $vote->id, $userId, null, [
-                'title' => $vote->title,
+            LogService::getInstance()->log('poll.created', $poll->id, $userId, null, [
+                'title' => $poll->title,
             ]);
 
             return $this->success([
-                'vote' => $vote->toAdminArray(),
-                'admin_url' => url("{$vote->publicId}/admin/{$vote->adminToken}"),
-                'public_url' => url($vote->publicId),
+                'poll' => $poll->toAdminArray(),
+                'admin_url' => url("{$poll->publicId}/admin/{$poll->adminToken}"),
+                'public_url' => url($poll->publicId),
             ]);
         } catch (\Exception $e) {
             return $this->error('Failed to create vote: ' . $e->getMessage(), 'CREATE_FAILED', 500);
@@ -47,187 +47,187 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * GET /api/votes/:publicId - Get vote (public data)
+     * GET /api/polls/:publicId - Get poll (public data)
      */
     public function show(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
         // Check access based on access mode
-        if ($vote->accessMode === 'password') {
+        if ($poll->accessMode === 'password') {
             // Password check would happen on frontend, here we just return that it's required
         }
 
-        $vote->loadQuestions();
+        $poll->loadQuestions();
 
-        return $this->success(['vote' => $vote->toPublicArray()]);
+        return $this->success(['poll' => $poll->toPublicArray()]);
     }
 
     /**
-     * GET /api/votes/:publicId/admin/:adminToken - Get vote (admin data)
+     * GET /api/polls/:publicId/admin/:adminToken - Get poll (admin data)
      */
     public function showAdmin(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        $vote->loadQuestions();
+        $poll->loadQuestions();
 
-        return $this->success(['vote' => $vote->toAdminArray()]);
+        return $this->success(['poll' => $poll->toAdminArray()]);
     }
 
     /**
-     * PUT /api/votes/:publicId/admin/:adminToken - Update vote
+     * PUT /api/polls/:publicId/admin/:adminToken - Update poll
      */
     public function update(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
         $data = $this->getBody() ?? [];
 
         try {
-            $vote = $vote->update($data);
+            $poll = $poll->update($data);
 
             // Handle questions update
             if (isset($data['questions'])) {
-                $this->syncQuestions($vote, $data['questions']);
+                $this->syncQuestions($poll, $data['questions']);
             }
 
-            $vote->loadQuestions();
+            $poll->loadQuestions();
 
-            LogService::getInstance()->log('vote.updated', $vote->id, $this->user()?->id, null, [
+            LogService::getInstance()->log('poll.updated', $poll->id, $this->user()?->id, null, [
                 'fields' => array_keys($data),
             ]);
 
-            return $this->success(['vote' => $vote->toAdminArray()]);
+            return $this->success(['poll' => $poll->toAdminArray()]);
         } catch (\Exception $e) {
             return $this->error('Failed to update vote: ' . $e->getMessage(), 'UPDATE_FAILED', 500);
         }
     }
 
     /**
-     * DELETE /api/votes/:publicId/admin/:adminToken - Delete vote
+     * DELETE /api/polls/:publicId/admin/:adminToken - Delete poll
      */
     public function delete(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        $title = $vote->title;
+        $title = $poll->title;
 
-        LogService::getInstance()->log('vote.deleted', $vote->id, $this->user()?->id, null, [
+        LogService::getInstance()->log('poll.deleted', $poll->id, $this->user()?->id, null, [
             'title' => $title,
         ]);
 
-        $vote->delete();
+        $poll->delete();
 
         return $this->success();
     }
 
     /**
-     * POST /api/votes/:publicId/admin/:adminToken/close - Close voting
+     * POST /api/polls/:publicId/admin/:adminToken/close - Close voting
      */
     public function close(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        $vote = $vote->close();
-        $vote->loadQuestions();
+        $poll = $poll->close();
+        $poll->loadQuestions();
 
-        LogService::getInstance()->log('vote.closed', $vote->id, $this->user()?->id);
+        LogService::getInstance()->log('poll.closed', $poll->id, $this->user()?->id);
 
-        return $this->success(['vote' => $vote->toAdminArray()]);
+        return $this->success(['poll' => $poll->toAdminArray()]);
     }
 
     /**
-     * POST /api/votes/:publicId/admin/:adminToken/reopen - Reopen voting
+     * POST /api/polls/:publicId/admin/:adminToken/reopen - Reopen voting
      */
     public function reopen(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        $vote = $vote->reopen();
-        $vote->loadQuestions();
+        $poll = $poll->reopen();
+        $poll->loadQuestions();
 
-        LogService::getInstance()->log('vote.reopened', $vote->id, $this->user()?->id);
+        LogService::getInstance()->log('poll.reopened', $poll->id, $this->user()?->id);
 
-        return $this->success(['vote' => $vote->toAdminArray()]);
+        return $this->success(['poll' => $poll->toAdminArray()]);
     }
 
     /**
-     * POST /api/votes/:publicId/responses - Submit a vote response
+     * POST /api/polls/:publicId/responses - Submit a poll response
      */
     public function submitResponse(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if ($vote->status !== 'open') {
-            return $this->error('Vote is not open for submissions', 'VOTE_NOT_OPEN', 400);
+        if ($poll->status !== 'open') {
+            return $this->error('Poll is not open for submissions', 'POLL_NOT_OPEN', 400);
         }
 
         $data = $this->getBody() ?? [];
 
         // Check for existing response by voter token (from cookie)
-        $voterToken = $_COOKIE['voter_token_' . $vote->publicId] ?? null;
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $existingResponse = null;
 
         if ($voterToken) {
-            $existingResponse = Response::findByVoterToken($vote->id, $voterToken);
+            $existingResponse = Response::findByVoterToken($poll->id, $voterToken);
         }
 
-        if ($existingResponse && !$vote->allowEditOwn && !$vote->allowEditAny) {
+        if ($existingResponse && !$poll->allowEditOwn && !$poll->allowEditAny) {
             return $this->error('You have already submitted a response', 'ALREADY_SUBMITTED', 400);
         }
 
         try {
             $responseData = [
-                'voter_name' => $vote->collectName ? ($data['voter_name'] ?? null) : null,
+                'voter_name' => $poll->collectName ? ($data['voter_name'] ?? null) : null,
                 'user_id' => $this->user()?->id,
                 'answers' => $data['answers'] ?? [],
             ];
@@ -235,15 +235,15 @@ class VoteApiController extends ApiController
             if ($existingResponse) {
                 $response = $existingResponse->update($responseData);
 
-                LogService::getInstance()->log('response.edited', $vote->id, $this->user()?->id, $response->id, [
+                LogService::getInstance()->log('response.edited', $poll->id, $this->user()?->id, $response->id, [
                     'by' => 'voter',
                 ]);
             } else {
-                $response = Response::create($vote->id, $responseData);
+                $response = Response::create($poll->id, $responseData);
 
                 // Set voter token cookie
                 setcookie(
-                    'voter_token_' . $vote->publicId,
+                    'voter_token_' . $poll->publicId,
                     $response->voterToken,
                     [
                         'expires' => time() + 86400 * 365, // 1 year
@@ -254,7 +254,7 @@ class VoteApiController extends ApiController
                     ]
                 );
 
-                LogService::getInstance()->log('response.submitted', $vote->id, $this->user()?->id, $response->id, [
+                LogService::getInstance()->log('response.submitted', $poll->id, $this->user()?->id, $response->id, [
                     'voter_name' => $response->voterName,
                 ]);
             }
@@ -271,29 +271,29 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * GET /api/votes/:publicId/responses - Get all responses
+     * GET /api/polls/:publicId/responses - Get all responses
      */
     public function listResponses(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
         // Check visibility
-        $canSee = $this->canSeeResponses($vote);
+        $canSee = $this->canSeeResponses($poll);
         if (!$canSee) {
             return $this->error('Responses are not visible', 'NOT_VISIBLE', 403);
         }
 
-        $responses = Response::findByVoteId($vote->id);
+        $responses = Response::findByPollId($poll->id);
 
         foreach ($responses as $response) {
             $response->loadAnswers();
         }
 
-        $includeNames = $this->canSeeVoterNames($vote);
+        $includeNames = $this->canSeeVoterNames($poll);
 
         return $this->success([
             'responses' => array_map(fn($r) => $r->toArray($includeNames), $responses),
@@ -301,19 +301,19 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * GET /api/votes/:publicId/responses/:responseId - Get single response
+     * GET /api/polls/:publicId/responses/:responseId - Get single response
      */
     public function getResponse(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
         $response = Response::find((int) $params['responseId']);
 
-        if (!$response || $response->voteId !== $vote->id) {
+        if (!$response || $response->pollId !== $poll->id) {
             return $this->error('Response not found', 'NOT_FOUND', 404);
         }
 
@@ -323,29 +323,29 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * PUT /api/votes/:publicId/responses/:responseId - Update response
+     * PUT /api/polls/:publicId/responses/:responseId - Update response
      */
     public function updateResponse(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
         $response = Response::find((int) $params['responseId']);
 
-        if (!$response || $response->voteId !== $vote->id) {
+        if (!$response || $response->pollId !== $poll->id) {
             return $this->error('Response not found', 'NOT_FOUND', 404);
         }
 
         // Check edit permissions
-        $voterToken = $_COOKIE['voter_token_' . $vote->publicId] ?? null;
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $canEdit = false;
 
-        if ($vote->allowEditAny) {
+        if ($poll->allowEditAny) {
             $canEdit = true;
-        } elseif ($vote->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
+        } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
             $canEdit = true;
         }
 
@@ -357,11 +357,11 @@ class VoteApiController extends ApiController
 
         try {
             $response = $response->update([
-                'voter_name' => $vote->collectName ? ($data['voter_name'] ?? $response->voterName) : null,
+                'voter_name' => $poll->collectName ? ($data['voter_name'] ?? $response->voterName) : null,
                 'answers' => $data['answers'] ?? [],
             ]);
 
-            LogService::getInstance()->log('response.edited', $vote->id, $this->user()?->id, $response->id, [
+            LogService::getInstance()->log('response.edited', $poll->id, $this->user()?->id, $response->id, [
                 'by' => 'voter',
             ]);
 
@@ -372,29 +372,29 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * DELETE /api/votes/:publicId/responses/:responseId - Delete response
+     * DELETE /api/polls/:publicId/responses/:responseId - Delete response
      */
     public function deleteResponse(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
         $response = Response::find((int) $params['responseId']);
 
-        if (!$response || $response->voteId !== $vote->id) {
+        if (!$response || $response->pollId !== $poll->id) {
             return $this->error('Response not found', 'NOT_FOUND', 404);
         }
 
         // Check delete permissions
-        $voterToken = $_COOKIE['voter_token_' . $vote->publicId] ?? null;
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $canDelete = false;
 
-        if ($vote->allowEditAny) {
+        if ($poll->allowEditAny) {
             $canDelete = true;
-        } elseif ($vote->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
+        } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
             $canDelete = true;
         }
 
@@ -404,7 +404,7 @@ class VoteApiController extends ApiController
 
         $voterName = $response->voterName;
 
-        LogService::getInstance()->log('response.deleted', $vote->id, $this->user()?->id, $response->id, [
+        LogService::getInstance()->log('response.deleted', $poll->id, $this->user()?->id, $response->id, [
             'by' => 'voter',
             'voter_name' => $voterName,
         ]);
@@ -415,22 +415,22 @@ class VoteApiController extends ApiController
     }
 
     /**
-     * GET /api/votes/:publicId/admin/:adminToken/export - Export vote data
+     * GET /api/polls/:publicId/admin/:adminToken/export - Export poll data
      */
     public function export(array $params): array
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
-            return $this->error('Vote not found', 'NOT_FOUND', 404);
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
         }
 
-        $vote->loadQuestions();
-        $responses = Response::findByVoteId($vote->id);
+        $poll->loadQuestions();
+        $responses = Response::findByPollId($poll->id);
 
         foreach ($responses as $response) {
             $response->loadAnswers();
@@ -440,29 +440,29 @@ class VoteApiController extends ApiController
 
         switch ($format) {
             case 'csv':
-                return $this->exportCsv($vote, $responses);
+                return $this->exportCsv($poll, $responses);
 
             case 'preflib':
-                return $this->exportPreflib($vote, $responses);
+                return $this->exportPreflib($poll, $responses);
 
             case 'json':
             default:
                 return $this->success([
-                    'vote' => $vote->toAdminArray(),
+                    'poll' => $poll->toAdminArray(),
                     'responses' => array_map(fn($r) => $r->toArray(), $responses),
                 ]);
         }
     }
 
     /**
-     * Sync questions for a vote
+     * Sync questions for a poll
      */
-    private function syncQuestions(Vote $vote, array $questionsData): void
+    private function syncQuestions(Poll $poll, array $questionsData): void
     {
         $db = \App\Database::getInstance();
 
         // Get existing question IDs
-        $existingIds = array_map(fn($q) => $q->id, Question::findByVoteId($vote->id));
+        $existingIds = array_map(fn($q) => $q->id, Question::findByPollId($poll->id));
 
         $newIds = [];
 
@@ -480,7 +480,7 @@ class VoteApiController extends ApiController
             } else {
                 // Create new question
                 $qData['sort_order'] = $index;
-                $question = Question::create($vote->id, $qData);
+                $question = Question::create($poll->id, $qData);
                 $newIds[] = $question->id;
             }
         }
@@ -531,19 +531,19 @@ class VoteApiController extends ApiController
     /**
      * Check if current user/visitor can see responses
      */
-    private function canSeeResponses(Vote $vote): bool
+    private function canSeeResponses(Poll $poll): bool
     {
         // Admin token in request
         $adminToken = $_GET['admin_token'] ?? null;
-        if ($adminToken && $vote->verifyAdminToken($adminToken)) {
+        if ($adminToken && $poll->verifyAdminToken($adminToken)) {
             return true;
         }
 
-        if ($vote->visibility === 'private') {
+        if ($poll->visibility === 'private') {
             return false;
         }
 
-        if ($vote->visibilityTiming === 'after_close' && $vote->status !== 'closed') {
+        if ($poll->visibilityTiming === 'after_close' && $poll->status !== 'closed') {
             return false;
         }
 
@@ -553,24 +553,24 @@ class VoteApiController extends ApiController
     /**
      * Check if voter names are visible
      */
-    private function canSeeVoterNames(Vote $vote): bool
+    private function canSeeVoterNames(Poll $poll): bool
     {
         $adminToken = $_GET['admin_token'] ?? null;
-        if ($adminToken && $vote->verifyAdminToken($adminToken)) {
+        if ($adminToken && $poll->verifyAdminToken($adminToken)) {
             return true;
         }
 
-        return in_array($vote->visibility, ['full', 'names_only']);
+        return in_array($poll->visibility, ['full', 'names_only']);
     }
 
     /**
      * Export as CSV
      */
-    private function exportCsv(Vote $vote, array $responses): array
+    private function exportCsv(Poll $poll, array $responses): array
     {
         // Build CSV content
         $headers = ['Response ID', 'Voter Name', 'Created At'];
-        foreach ($vote->questions as $question) {
+        foreach ($poll->questions as $question) {
             $headers[] = $question->text;
         }
 
@@ -582,7 +582,7 @@ class VoteApiController extends ApiController
                 $response->createdAt->format('Y-m-d H:i:s'),
             ];
 
-            foreach ($vote->questions as $question) {
+            foreach ($poll->questions as $question) {
                 $answer = null;
                 foreach ($response->answers as $a) {
                     if ($a->questionId === $question->id) {
@@ -611,11 +611,11 @@ class VoteApiController extends ApiController
     /**
      * Export in PrefLib format (for ranking questions)
      */
-    private function exportPreflib(Vote $vote, array $responses): array
+    private function exportPreflib(Poll $poll, array $responses): array
     {
         $exports = [];
 
-        foreach ($vote->questions as $question) {
+        foreach ($poll->questions as $question) {
             if (!in_array($question->type, ['ranking', 'ranking_truncated', 'ranking_with_ties'])) {
                 continue;
             }

@@ -7,12 +7,12 @@ return [
         'driver' => 'sqlite',
 
         // SQLite settings
-        'sqlite_path' => __DIR__ . '/../data/vote.db',
+        'sqlite_path' => __DIR__ . '/../data/poll.db',
 
         // MySQL settings (used when driver is 'mysql')
         'mysql_host' => 'localhost',
         'mysql_port' => 3306,
-        'mysql_database' => 'vote_app',
+        'mysql_database' => 'poll_app',
         'mysql_username' => 'root',
         'mysql_password' => '',
         'mysql_charset' => 'utf8mb4',
@@ -28,7 +28,7 @@ return [
 
     // Session settings
     'session' => [
-        'name' => 'vote_session',
+        'name' => 'poll_session',
         'lifetime' => 7200, // 2 hours
     ],
 

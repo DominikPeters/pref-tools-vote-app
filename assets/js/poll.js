@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initForm() {
-    const form = document.getElementById('voteForm');
+    const form = document.getElementById('pollForm');
     if (!form) return;
 
     form.addEventListener('submit', async (e) => {
@@ -41,7 +41,7 @@ function initForm() {
 
         try {
             const isEditing = form.dataset.editing === 'true';
-            const result = await api.post(`/api/votes/${publicId}/responses`, formData);
+            const result = await api.post(`/api/polls/${publicId}/responses`, formData);
 
             // Clear any saved progress
             clearProgress();
@@ -50,7 +50,7 @@ function initForm() {
 
             // Show confirmation or redirect
             setTimeout(() => {
-                const vote = document.querySelector('.vote-container');
+                const vote = document.querySelector('.poll-container');
                 vote.innerHTML = `
                     <div class="container">
                         <div class="card" style="text-align: center;">
@@ -70,7 +70,7 @@ function initForm() {
 }
 
 function collectFormData() {
-    const form = document.getElementById('voteForm');
+    const form = document.getElementById('pollForm');
     const data = {
         answers: {},
     };
@@ -294,13 +294,13 @@ function initYnaButtons() {
 }
 
 function getProgressKey() {
-    const form = document.getElementById('voteForm');
+    const form = document.getElementById('pollForm');
     if (!form) return null;
-    return `vote_progress_${form.dataset.publicId}`;
+    return `poll_progress_${form.dataset.publicId}`;
 }
 
 function initProgressSaving() {
-    const form = document.getElementById('voteForm');
+    const form = document.getElementById('pollForm');
     if (!form) return;
 
     // Don't save progress if we're editing an existing response

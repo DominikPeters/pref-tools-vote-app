@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Auth;
-use App\Models\Vote;
+use App\Models\Poll;
 
 class PageController
 {
@@ -18,28 +18,28 @@ class PageController
     }
 
     /**
-     * GET /create - Form builder (new vote)
+     * GET /create - Form builder (new poll)
      * GET /:publicId/admin/:adminToken/edit - Form builder (edit existing)
      */
     public function builder(array $params): void
     {
-        $vote = null;
+        $poll = null;
         $adminToken = null;
 
-        // Check if editing an existing vote
+        // Check if editing an existing poll
         if (!empty($params['publicId']) && !empty($params['adminToken'])) {
-            $vote = Vote::findByPublicId($params['publicId']);
+            $poll = Poll::findByPublicId($params['publicId']);
 
-            if (!$vote) {
+            if (!$poll) {
                 http_response_code(404);
                 view('error', [
-                    'title' => 'Vote Not Found',
-                    'message' => 'The vote you are looking for does not exist.',
+                    'title' => 'Poll Not Found',
+                    'message' => 'The poll you are looking for does not exist.',
                 ]);
                 return;
             }
 
-            if (!$vote->verifyAdminToken($params['adminToken'])) {
+            if (!$poll->verifyAdminToken($params['adminToken'])) {
                 http_response_code(403);
                 view('error', [
                     'title' => 'Access Denied',
@@ -48,13 +48,13 @@ class PageController
                 return;
             }
 
-            $vote->loadQuestions();
+            $poll->loadQuestions();
             $adminToken = $params['adminToken'];
         }
 
         view('builder', [
             'user' => Auth::getInstance()->user(),
-            'vote' => $vote,
+            'poll' => $poll,
             'adminToken' => $adminToken,
         ]);
     }
@@ -85,49 +85,49 @@ class PageController
             exit;
         }
 
-        $votes = Vote::findByUserId($user->id);
+        $polls = Poll::findByUserId($user->id);
 
         view('dashboard', [
             'user' => $user,
-            'votes' => $votes,
+            'polls' => $polls,
         ]);
     }
 
     /**
      * GET /:publicId - Voter form
      */
-    public function vote(array $params): void
+    public function poll(array $params): void
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
+        if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Vote Not Found',
-                'message' => 'The vote you are looking for does not exist.',
+                'title' => 'Poll Not Found',
+                'message' => 'The poll you are looking for does not exist.',
             ]);
             return;
         }
 
         // If vote is closed and results are public, redirect to results
-        if ($vote->status === 'closed' && $vote->visibility !== 'private') {
-            header('Location: ' . url("{$vote->publicId}/results"));
+        if ($poll->status === 'closed' && $poll->visibility !== 'private') {
+            header('Location: ' . url("{$poll->publicId}/results"));
             exit;
         }
 
         // Check password protection
-        if ($vote->accessMode === 'password' && $vote->accessPassword) {
-            $sessionKey = 'vote_access_' . $vote->publicId;
+        if ($poll->accessMode === 'password' && $poll->accessPassword) {
+            $sessionKey = 'poll_access_' . $poll->publicId;
 
             // Handle password submission
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['access_password'])) {
-                if ($vote->verifyAccessPassword($_POST['access_password'])) {
+                if ($poll->verifyAccessPassword($_POST['access_password'])) {
                     $_SESSION[$sessionKey] = true;
-                    header('Location: ' . url($vote->publicId));
+                    header('Location: ' . url($poll->publicId));
                     exit;
                 } else {
                     view('password', [
-                        'vote' => $vote,
+                        'poll' => $poll,
                         'error' => 'Incorrect password. Please try again.',
                     ]);
                     return;
@@ -137,7 +137,7 @@ class PageController
             // Check if already unlocked
             if (empty($_SESSION[$sessionKey])) {
                 view('password', [
-                    'vote' => $vote,
+                    'poll' => $poll,
                     'error' => null,
                 ]);
                 return;
@@ -145,13 +145,13 @@ class PageController
         }
 
         // Check token-based access
-        if ($vote->accessMode === 'token') {
+        if ($poll->accessMode === 'token') {
             $token = $_GET['token'] ?? null;
             if ($token) {
-                $accessToken = \App\Models\AccessToken::findByToken($vote->id, $token);
+                $accessToken = \App\Models\AccessToken::findByToken($poll->id, $token);
                 if ($accessToken && !$accessToken->usedAt) {
                     // Valid token, store in session
-                    $_SESSION['vote_token_' . $vote->publicId] = $token;
+                    $_SESSION['poll_token_' . $poll->publicId] = $token;
                 } elseif (!$accessToken) {
                     http_response_code(403);
                     view('error', [
@@ -160,30 +160,30 @@ class PageController
                     ]);
                     return;
                 }
-            } elseif (empty($_SESSION['vote_token_' . $vote->publicId])) {
+            } elseif (empty($_SESSION['poll_token_' . $poll->publicId])) {
                 http_response_code(403);
                 view('error', [
                     'title' => 'Access Token Required',
-                    'message' => 'This vote requires an access token. Please use the link provided by the vote creator.',
+                    'message' => 'This poll requires an access token. Please use the link provided by the poll creator.',
                 ]);
                 return;
             }
         }
 
-        $vote->loadQuestions();
+        $poll->loadQuestions();
 
-        // Check for existing response (edit-own-vote)
+        // Check for existing response (edit-own-poll)
         $existingResponse = null;
-        $voterToken = $_COOKIE['voter_token_' . $vote->publicId] ?? null;
-        if ($voterToken && ($vote->allowEditOwn || $vote->allowEditAny)) {
-            $existingResponse = \App\Models\Response::findByVoterToken($vote->id, $voterToken);
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
+        if ($voterToken && ($poll->allowEditOwn || $poll->allowEditAny)) {
+            $existingResponse = \App\Models\Response::findByVoterToken($poll->id, $voterToken);
             if ($existingResponse) {
                 $existingResponse->loadAnswers();
             }
         }
 
-        view('vote', [
-            'vote' => $vote,
+        view('poll', [
+            'poll' => $poll,
             'user' => Auth::getInstance()->user(),
             'existingResponse' => $existingResponse,
         ]);
@@ -194,21 +194,21 @@ class PageController
      */
     public function results(array $params): void
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
+        if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Vote Not Found',
-                'message' => 'The vote you are looking for does not exist.',
+                'title' => 'Poll Not Found',
+                'message' => 'The poll you are looking for does not exist.',
             ]);
             return;
         }
 
         // Check if results are visible
         $canView = false;
-        if ($vote->visibility !== 'private') {
-            if ($vote->visibilityTiming === 'during' || $vote->status === 'closed') {
+        if ($poll->visibility !== 'private') {
+            if ($poll->visibilityTiming === 'during' || $poll->status === 'closed') {
                 $canView = true;
             }
         }
@@ -217,15 +217,15 @@ class PageController
             http_response_code(403);
             view('error', [
                 'title' => 'Results Not Available',
-                'message' => 'The results for this vote are not yet available.',
+                'message' => 'The results for this poll are not yet available.',
             ]);
             return;
         }
 
-        $vote->loadQuestions();
+        $poll->loadQuestions();
 
         view('results', [
-            'vote' => $vote,
+            'poll' => $poll,
             'user' => Auth::getInstance()->user(),
         ]);
     }
@@ -235,18 +235,18 @@ class PageController
      */
     public function admin(array $params): void
     {
-        $vote = Vote::findByPublicId($params['publicId']);
+        $poll = Poll::findByPublicId($params['publicId']);
 
-        if (!$vote) {
+        if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Vote Not Found',
-                'message' => 'The vote you are looking for does not exist.',
+                'title' => 'Poll Not Found',
+                'message' => 'The poll you are looking for does not exist.',
             ]);
             return;
         }
 
-        if (!$vote->verifyAdminToken($params['adminToken'])) {
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
             http_response_code(403);
             view('error', [
                 'title' => 'Access Denied',
@@ -255,10 +255,10 @@ class PageController
             return;
         }
 
-        $vote->loadQuestions();
+        $poll->loadQuestions();
 
         view('admin', [
-            'vote' => $vote,
+            'poll' => $poll,
             'adminToken' => $params['adminToken'],
             'user' => Auth::getInstance()->user(),
         ]);

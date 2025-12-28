@@ -10,7 +10,7 @@ require_once __DIR__ . '/src/bootstrap.php';
 
 use App\Router;
 use App\Controllers\PageController;
-use App\Controllers\VoteApiController;
+use App\Controllers\PollApiController;
 use App\Controllers\AuthApiController;
 
 // Check if installation is needed
@@ -35,8 +35,8 @@ $router->get('/create', [PageController::class, 'builder']);
 $router->get('/login', [PageController::class, 'login']);
 $router->get('/dashboard', [PageController::class, 'dashboard']);
 
-// Vote pages - dynamic routes
-$router->get('/:publicId', [PageController::class, 'vote']);
+// Poll pages - dynamic routes
+$router->get('/:publicId', [PageController::class, 'poll']);
 $router->get('/:publicId/results', [PageController::class, 'results']);
 $router->get('/:publicId/admin/:adminToken', [PageController::class, 'admin']);
 $router->get('/:publicId/admin/:adminToken/edit', [PageController::class, 'builder']);
@@ -51,29 +51,29 @@ $router->post('/api/auth/login', [AuthApiController::class, 'login']);
 $router->post('/api/auth/logout', [AuthApiController::class, 'logout']);
 $router->get('/api/auth/me', [AuthApiController::class, 'me']);
 
-// Votes
-$router->post('/api/votes', [VoteApiController::class, 'create']);
-$router->get('/api/votes/:publicId', [VoteApiController::class, 'show']);
-$router->get('/api/votes/:publicId/admin/:adminToken', [VoteApiController::class, 'showAdmin']);
-$router->put('/api/votes/:publicId/admin/:adminToken', [VoteApiController::class, 'update']);
-$router->delete('/api/votes/:publicId/admin/:adminToken', [VoteApiController::class, 'delete']);
-$router->post('/api/votes/:publicId/admin/:adminToken/close', [VoteApiController::class, 'close']);
-$router->post('/api/votes/:publicId/admin/:adminToken/reopen', [VoteApiController::class, 'reopen']);
+// Polls
+$router->post('/api/polls', [PollApiController::class, 'create']);
+$router->get('/api/polls/:publicId', [PollApiController::class, 'show']);
+$router->get('/api/polls/:publicId/admin/:adminToken', [PollApiController::class, 'showAdmin']);
+$router->put('/api/polls/:publicId/admin/:adminToken', [PollApiController::class, 'update']);
+$router->delete('/api/polls/:publicId/admin/:adminToken', [PollApiController::class, 'delete']);
+$router->post('/api/polls/:publicId/admin/:adminToken/close', [PollApiController::class, 'close']);
+$router->post('/api/polls/:publicId/admin/:adminToken/reopen', [PollApiController::class, 'reopen']);
 
-// Responses (voter submissions)
-$router->post('/api/votes/:publicId/responses', [VoteApiController::class, 'submitResponse']);
-$router->get('/api/votes/:publicId/responses', [VoteApiController::class, 'listResponses']);
-$router->get('/api/votes/:publicId/responses/:responseId', [VoteApiController::class, 'getResponse']);
-$router->put('/api/votes/:publicId/responses/:responseId', [VoteApiController::class, 'updateResponse']);
-$router->delete('/api/votes/:publicId/responses/:responseId', [VoteApiController::class, 'deleteResponse']);
+// Responses (poll responses)
+$router->post('/api/polls/:publicId/responses', [PollApiController::class, 'submitResponse']);
+$router->get('/api/polls/:publicId/responses', [PollApiController::class, 'listResponses']);
+$router->get('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'getResponse']);
+$router->put('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'updateResponse']);
+$router->delete('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'deleteResponse']);
 
 // Export
-$router->get('/api/votes/:publicId/admin/:adminToken/export', [VoteApiController::class, 'export']);
+$router->get('/api/polls/:publicId/admin/:adminToken/export', [PollApiController::class, 'export']);
 
 // User dashboard
-$router->get('/api/user/votes', [AuthApiController::class, 'userVotes']);
+$router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);
 $router->get('/api/user/responses', [AuthApiController::class, 'userResponses']);
-$router->post('/api/user/claim-vote', [AuthApiController::class, 'claimVote']);
+$router->post('/api/user/claim-poll', [AuthApiController::class, 'claimPoll']);
 
 // ============================================
 // Dispatch Request

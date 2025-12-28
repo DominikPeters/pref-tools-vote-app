@@ -18,11 +18,11 @@ async function loadResults(publicId) {
 
     try {
         // Load vote data
-        const voteResult = await api.get(`/api/votes/${publicId}`);
-        const vote = voteResult.vote;
+        const pollResult = await api.get(`/api/polls/${publicId}`);
+        const poll = pollResult.poll;
 
         // Load responses
-        const responsesResult = await api.get(`/api/votes/${publicId}/responses`);
+        const responsesResult = await api.get(`/api/polls/${publicId}/responses`);
         const responses = responsesResult.responses;
 
         if (responses.length === 0) {
@@ -31,7 +31,7 @@ async function loadResults(publicId) {
         }
 
         // Render results for each question
-        container.innerHTML = vote.questions.map(question => {
+        container.innerHTML = poll.questions.map(question => {
             return `
                 <div class="result-question card">
                     <h3>${escapeHtml(question.text)}</h3>
