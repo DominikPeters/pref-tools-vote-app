@@ -97,7 +97,7 @@ export async function copyToClipboard(text) {
 export function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+    toast.innerHTML = message;
     toast.style.cssText = `
         position: fixed;
         bottom: 20px;
@@ -110,6 +110,11 @@ export function showToast(message, type = 'info') {
         z-index: 9999;
         animation: slideIn 0.3s ease;
     `;
+    // Style any links in the toast
+    toast.querySelectorAll('a').forEach(a => {
+        a.style.color = 'white';
+        a.style.textDecoration = 'underline';
+    });
 
     document.body.appendChild(toast);
 

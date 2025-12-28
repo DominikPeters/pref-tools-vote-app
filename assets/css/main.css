@@ -280,7 +280,7 @@ img {
    Forms
    -------------------------------------------------------------------------- */
 .form-group {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-s);
 }
 
 .form-group label {
@@ -547,6 +547,7 @@ textarea {
 
 .vote-meta {
     display: flex;
+    flex-direction: column;
     gap: var(--spacing-md);
     font-size: 0.75rem;
     color: var(--color-text-muted);

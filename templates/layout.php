@@ -17,7 +17,7 @@
         <div class="container">
             <a href="<?= basePath() ?>/" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
-                <a href="<?= basePath() ?>/create" class="btn btn-primary">Create Vote</a>
+                <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>>Create Vote</a>
                 <?php if (!empty($user)): ?>
                     <a href="<?= basePath() ?>/dashboard">Dashboard</a>
                     <span class="user-email"><?= e($user->email) ?></span>

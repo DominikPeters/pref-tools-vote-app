@@ -1,11 +1,26 @@
 /**
  * Form Builder JavaScript
+ *
+ * Modes & Buttons:
+ * ┌─────────────────────────┬─────────────────────────────────────────────────┐
+ * │ Mode                    │ Buttons                                         │
+ * ├─────────────────────────┼─────────────────────────────────────────────────┤
+ * │ Create (fresh)          │ Preview, [Save Draft]*, Publish                 │
+ * │ Create (from storage)   │ Preview, Clear, [Save Draft]*, Publish          │
+ * │ Edit draft              │ Preview, Cancel, Update Draft, Publish          │
+ * │ Edit open/closed        │ Preview, Cancel, Save Changes                   │
+ * └─────────────────────────┴─────────────────────────────────────────────────┘
+ * * Save Draft only shown for logged-in users
+ *
+ * Storage:
+ * - Create mode: auto-saves to localStorage on every change
+ * - Edit mode: no localStorage (clears it on init so next create is fresh)
  */
 
 import { api, generateTempId, debounce, showToast, basePath } from './app.js';
 
-// Form state
-const state = {
+// Default state for resetting
+const defaultState = {
     title: 'Untitled Vote',
     description: '',
     settings: {
@@ -22,18 +37,34 @@ const state = {
     isDirty: false,
 };
 
+// Form state
+const state = { ...defaultState, settings: { ...defaultState.settings }, questions: [] };
+
 // Question types that need options
 const OPTION_TYPES = [
     'single_choice', 'approval', 'ranking', 'star', 'grade', 'yes_no_abstain'
 ];
 
+// Track if we're in edit mode (don't save to localStorage)
+let isEditMode = false;
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Check if editing an existing vote
     if (window.VOTE_DATA) {
+        isEditMode = true;
         loadFromServer(window.VOTE_DATA, window.ADMIN_TOKEN);
+        // Clear localStorage so next create is fresh
+        clearLocalStorage();
     } else {
-        loadFromLocalStorage();
+        const loadedFromStorage = loadFromLocalStorage();
+        // Show Clear button if we loaded saved data
+        if (loadedFromStorage) {
+            const clearBtn = document.getElementById('clearBtn');
+            if (clearBtn) {
+                clearBtn.style.display = '';
+            }
+        }
     }
     initElements();
     render();
@@ -91,9 +122,26 @@ function initElements() {
     document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
 
     // Action buttons
-    document.getElementById('saveBtn').addEventListener('click', saveDraft);
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveDraft);
+    }
     document.getElementById('publishBtn').addEventListener('click', publishVote);
     document.getElementById('previewBtn').addEventListener('click', previewVote);
+
+    // Cancel button (edit mode) - go back to admin
+    const cancelBtn = document.getElementById('cancelBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            window.location.href = `${basePath}/${state.publicId}/admin/${state.adminToken}`;
+        });
+    }
+
+    // Clear button (create mode) - reset form
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', resetForm);
+    }
 }
 
 function render() {
@@ -326,6 +374,8 @@ function markDirty() {
 }
 
 function saveToLocalStorage() {
+    // Don't save to localStorage in edit mode
+    if (isEditMode) return;
     localStorage.setItem('vote_draft', JSON.stringify(state));
 }
 
@@ -335,10 +385,12 @@ function loadFromLocalStorage() {
         try {
             const data = JSON.parse(saved);
             Object.assign(state, data);
+            return true;
         } catch (e) {
             console.error('Failed to load draft:', e);
         }
     }
+    return false;
 }
 
 function loadFromServer(voteData, adminToken) {
@@ -384,6 +436,35 @@ function clearLocalStorage() {
     localStorage.removeItem('vote_draft');
 }
 
+function resetForm() {
+    // Reset state to defaults
+    state.title = defaultState.title;
+    state.description = defaultState.description;
+    state.settings = { ...defaultState.settings };
+    state.questions = [];
+    state.publicId = null;
+    state.adminToken = null;
+    state.isDirty = false;
+
+    // Clear localStorage
+    clearLocalStorage();
+
+    // Hide Clear button
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+
+    // Reset Save Draft button text
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.textContent = 'Save Draft';
+    }
+
+    // Re-render the form
+    render();
+}
+
 function setupAutoSave() {
     // Auto-save to localStorage every 5 seconds if dirty
     setInterval(() => {
@@ -391,14 +472,6 @@ function setupAutoSave() {
             saveToLocalStorage();
         }
     }, 5000);
-
-    // Warn before leaving with unsaved changes
-    window.addEventListener('beforeunload', (e) => {
-        if (state.isDirty && !state.publicId) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
 }
 
 async function saveDraft() {
@@ -425,13 +498,19 @@ async function saveDraft() {
             saveToLocalStorage();
         }
 
-        showToast('Saved!', 'success');
-
         // If we were editing (came from server), go back to admin
         if (window.VOTE_DATA) {
+            showToast('Saved! Returning to admin...', 'success');
             setTimeout(() => {
                 window.location.href = `${basePath}/${state.publicId}/admin/${state.adminToken}`;
             }, 1000);
+        } else {
+            showToast('Saved! View in <a href="' + basePath + '/dashboard">Dashboard</a>', 'success');
+            // Update button text from "Save Draft" to "Update Draft"
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.textContent = 'Update Draft';
+            }
         }
     } catch (err) {
         showToast(err.message, 'error');
@@ -469,9 +548,11 @@ async function publishVote() {
         }
 
         clearLocalStorage();
+        state.isDirty = false;
 
         // Redirect to admin page
-        window.location.href = result.admin_url;
+        const adminUrl = result.admin_url || `${basePath}/${state.publicId}/admin/${state.adminToken}`;
+        window.location.href = adminUrl;
     } catch (err) {
         showToast(err.message, 'error');
     }

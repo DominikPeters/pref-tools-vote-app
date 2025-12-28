@@ -16,11 +16,25 @@ ob_start();
 <div class="builder-container">
     <div class="builder-header">
         <div class="container">
-            <h1>Create a New Vote</h1>
+            <h1><?= $isEditing ? 'Edit Vote' : 'Create a New Vote' ?></h1>
             <div class="builder-actions">
                 <button type="button" class="btn btn-secondary" id="previewBtn">Preview</button>
-                <button type="button" class="btn btn-primary" id="saveBtn">Save Draft</button>
+                <?php if ($isEditing): ?>
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <?php else: ?>
+                <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;">Clear</button>
+                <?php endif; ?>
+                <?php if ($isEditing && $vote->status === 'draft'): ?>
+                <button type="button" class="btn btn-primary" id="saveBtn">Update Draft</button>
                 <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
+                <?php elseif ($isEditing): ?>
+                <button type="button" class="btn btn-success" id="publishBtn">Save Changes</button>
+                <?php else: ?>
+                <?php if (isset($user) && $user): ?>
+                <button type="button" class="btn btn-primary" id="saveBtn">Save Draft</button>
+                <?php endif; ?>
+                <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
+                <?php endif; ?>
             </div>
         </div>
     </div>
