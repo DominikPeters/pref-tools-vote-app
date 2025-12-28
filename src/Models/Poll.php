@@ -108,6 +108,40 @@ class Poll
     }
 
     /**
+     * Get all polls (for sysadmin)
+     */
+    public static function all(int $limit = 100, int $offset = 0): array
+    {
+        $db = Database::getInstance();
+        $rows = $db->fetchAll(
+            "SELECT * FROM polls ORDER BY created_at DESC LIMIT :limit OFFSET :offset",
+            ['limit' => $limit, 'offset' => $offset]
+        );
+        return array_map(fn($row) => self::fromRow($row), $rows);
+    }
+
+    /**
+     * Count total polls
+     */
+    public static function count(): int
+    {
+        $db = Database::getInstance();
+        return (int) $db->fetchColumn("SELECT COUNT(*) FROM polls");
+    }
+
+    /**
+     * Count polls by status
+     */
+    public static function countByStatus(string $status): int
+    {
+        $db = Database::getInstance();
+        return (int) $db->fetchColumn(
+            "SELECT COUNT(*) FROM polls WHERE status = :status",
+            ['status' => $status]
+        );
+    }
+
+    /**
      * Create a new poll
      */
     public static function create(array $data, ?int $userId = null): self
@@ -339,6 +373,27 @@ class Poll
             'closed_at' => $this->closedAt?->format('c'),
             'response_count' => $this->getResponseCount(),
             'questions' => array_map(fn($q) => $q->toArray(), $this->questions),
+        ];
+    }
+
+    /**
+     * Convert to array for sysadmin JSON output (no admin_token, includes owner info)
+     */
+    public function toSysadminArray(): array
+    {
+        $owner = $this->userId ? User::find($this->userId) : null;
+
+        return [
+            'id' => $this->id,
+            'public_id' => $this->publicId,
+            'user_id' => $this->userId,
+            'owner_email' => $owner?->email,
+            'title' => $this->title,
+            'status' => $this->status,
+            'access_mode' => $this->accessMode,
+            'created_at' => $this->createdAt?->format('c'),
+            'updated_at' => $this->updatedAt?->format('c'),
+            'response_count' => $this->getResponseCount(),
         ];
     }
 }

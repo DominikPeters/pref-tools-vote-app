@@ -11,6 +11,10 @@
 // Base path (project root)
 $basePath = __DIR__;
 
+// Detect environment (for test isolation)
+$appEnv = getenv('APP_ENV') ?: 'production';
+$isTestEnv = $appEnv === 'test';
+
 // Detect URL base path from current request (for subfolder deployment)
 $urlBasePath = '';
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
@@ -23,11 +27,44 @@ $detectedProtocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ?
 $detectedHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $detectedAppUrl = $detectedProtocol . '://' . $detectedHost . $urlBasePath;
 
-// Prevent access if already installed
-$configPath = $basePath . '/config/config.php';
-if (file_exists($configPath)) {
-    header('Location: ' . $urlBasePath . '/');
-    exit;
+// Check if config exists (use test config in test environment)
+$configPath = $isTestEnv
+    ? $basePath . '/config/config.test.php'
+    : $basePath . '/config/config.php';
+$configExists = file_exists($configPath);
+
+// Handle post-database-setup steps
+if ($configExists) {
+    require_once $basePath . '/src/bootstrap.php';
+
+    $step = $_POST['step'] ?? ($_GET['step'] ?? 'welcome');
+
+    // Always allow the complete step (it's just a success message)
+    if ($step === 'complete') {
+        // Allow showing complete page
+    }
+    // Allow admin step only if no users exist yet
+    elseif ($step === 'admin') {
+        $userCount = \App\Database::getInstance()->fetchColumn("SELECT COUNT(*) FROM users");
+        if ($userCount > 0) {
+            // Already have users, redirect to home
+            header('Location: ' . $urlBasePath . '/');
+            exit;
+        }
+        // Allow showing admin page
+    }
+    // For welcome/database steps, check if fully installed
+    else {
+        $userCount = \App\Database::getInstance()->fetchColumn("SELECT COUNT(*) FROM users");
+        if ($userCount > 0) {
+            // Fully installed, redirect to home
+            header('Location: ' . $urlBasePath . '/');
+            exit;
+        }
+        // Config exists but no users - redirect to admin step
+        header('Location: ' . $urlBasePath . '/install.php?step=admin');
+        exit;
+    }
 }
 
 $step = $_POST['step'] ?? ($_GET['step'] ?? 'welcome');
@@ -60,15 +97,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function handleDatabaseSetup() {
-    global $configPath, $basePath;
+    global $configPath, $basePath, $isTestEnv;
 
     $driver = $_POST['driver'] ?? 'sqlite';
     $appUrl = rtrim($_POST['app_url'] ?? 'http://localhost', '/');
 
+    // Use separate database file for test environment
+    $sqliteFile = $isTestEnv ? 'poll.test.db' : 'poll.db';
+
     $config = [
         'database' => [
             'driver' => $driver,
-            'sqlite_path' => $basePath . '/data/poll.db',
+            'sqlite_path' => $basePath . '/data/' . $sqliteFile,
             'mysql_host' => $_POST['mysql_host'] ?? 'localhost',
             'mysql_port' => (int)($_POST['mysql_port'] ?? 3306),
             'mysql_database' => $_POST['mysql_database'] ?? 'poll_app',
@@ -166,38 +206,40 @@ function handleDatabaseSetup() {
 }
 
 function handleAdminSetup() {
-    global $basePath;
+    global $basePath, $configExists;
 
-    // Load bootstrap
-    require_once $basePath . '/src/bootstrap.php';
+    // Load bootstrap if not already loaded
+    if (!$configExists) {
+        require_once $basePath . '/src/bootstrap.php';
+    }
 
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if (empty($email)) {
-        // Skip admin creation
-        return true;
-    }
-
-    if (strlen($password) < 8) {
-        return 'Password must be at least 8 characters.';
+        return 'Email is required.';
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return 'Please enter a valid email address.';
     }
 
+    if (strlen($password) < 8) {
+        return 'Password must be at least 8 characters.';
+    }
+
     try {
         $auth = \App\Auth::getInstance();
-        $user = $auth->register($email, $password);
+        $user = $auth->register($email, $password, \App\Models\User::ROLE_SYSADMIN);
 
         \App\Services\LogService::getInstance()->log('user.registered', null, $user->id, null, [
             'via' => 'installer',
+            'role' => 'sysadmin',
         ]);
 
         return true;
     } catch (Exception $e) {
-        return 'Failed to create admin account: ' . $e->getMessage();
+        return 'Failed to create sysadmin account: ' . $e->getMessage();
     }
 }
 
@@ -462,7 +504,7 @@ function handleAdminSetup() {
             </script>
 
         <?php elseif ($step === 'admin'): ?>
-            <h1>Create Admin Account</h1>
+            <h1>Create Sysadmin Account</h1>
             <p class="step-indicator">Step 2 of 2</p>
 
             <?php if ($error): ?>
@@ -472,22 +514,21 @@ function handleAdminSetup() {
             <form method="post">
                 <input type="hidden" name="step" value="admin">
 
-                <p>Create an admin account to manage your polls. This is optional - you can create polls without an account.</p>
+                <p>Create a sysadmin account to manage the entire application, including users, all polls, and view system logs.</p>
 
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password">
-                    <p class="hint">At least 8 characters. Leave blank to skip.</p>
+                    <input type="password" name="password" required>
+                    <p class="hint">At least 8 characters.</p>
                 </div>
 
                 <div class="actions">
                     <button type="submit" class="btn">Complete Installation</button>
-                    <button type="submit" name="email" value="" class="btn btn-secondary">Skip</button>
                 </div>
             </form>
 

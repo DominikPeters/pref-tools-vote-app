@@ -63,6 +63,15 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Create a test sysadmin user
+     */
+    protected function createSysadmin(string $email = 'admin@example.com', string $password = 'password123'): \App\Models\User
+    {
+        $auth = Auth::getInstance();
+        return $auth->register($email, $password, \App\Models\User::ROLE_SYSADMIN);
+    }
+
+    /**
      * Log in as a user
      */
     protected function actingAs(\App\Models\User $user): self
@@ -177,6 +186,15 @@ abstract class TestCase extends BaseTestCase
         // Response routes
         $router->post('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'submitResponse']);
         $router->get('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'listResponses']);
+
+        // Sysadmin routes
+        $router->get('/api/sysadmin/stats', [\App\Controllers\SysadminApiController::class, 'stats']);
+        $router->get('/api/sysadmin/users', [\App\Controllers\SysadminApiController::class, 'listUsers']);
+        $router->put('/api/sysadmin/users/:userId', [\App\Controllers\SysadminApiController::class, 'updateUser']);
+        $router->delete('/api/sysadmin/users/:userId', [\App\Controllers\SysadminApiController::class, 'deleteUser']);
+        $router->get('/api/sysadmin/polls', [\App\Controllers\SysadminApiController::class, 'listPolls']);
+        $router->delete('/api/sysadmin/polls/:pollId', [\App\Controllers\SysadminApiController::class, 'deletePoll']);
+        $router->get('/api/sysadmin/logs', [\App\Controllers\SysadminApiController::class, 'listLogs']);
 
         return $router;
     }

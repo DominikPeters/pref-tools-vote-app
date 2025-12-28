@@ -1,5 +1,6 @@
 # Configuration
 config/config.php
+config/config.test.php
 
 # Database
 data/*.db
@@ -7,6 +8,16 @@ data/*.sqlite
 
 # Dependencies (if using Composer later)
 vendor/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # IDE
 .idea/
@@ -26,6 +37,5 @@ Thumbs.db
 .env
 vote-app-thinking-outloud.pdf
 vote-app-spec.md
-AGENTS.md
 CLAUDE.md
 GEMINI.md

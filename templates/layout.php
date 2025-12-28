@@ -20,6 +20,9 @@
                 <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>>Create Poll</a>
                 <?php if (!empty($user)): ?>
                     <a href="<?= basePath() ?>/dashboard">Dashboard</a>
+                    <?php if ($user->isSysadmin()): ?>
+                        <a href="<?= basePath() ?>/sysadmin">Sysadmin</a>
+                    <?php endif; ?>
                     <span class="user-email"><?= e($user->email) ?></span>
                 <?php else: ?>
                     <a href="<?= basePath() ?>/login">Login</a>

@@ -64,4 +64,23 @@ class LogService
             ['user_id' => $userId, 'limit' => $limit]
         );
     }
+
+    /**
+     * Get all logs (for sysadmin)
+     */
+    public function getAllLogs(int $limit = 100, int $offset = 0): array
+    {
+        return $this->db->fetchAll(
+            "SELECT * FROM action_log ORDER BY created_at DESC LIMIT :limit OFFSET :offset",
+            ['limit' => $limit, 'offset' => $offset]
+        );
+    }
+
+    /**
+     * Count total logs
+     */
+    public function countLogs(): int
+    {
+        return (int) $this->db->fetchColumn("SELECT COUNT(*) FROM action_log");
+    }
 }

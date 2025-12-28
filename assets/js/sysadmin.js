@@ -1,0 +1,317 @@
+/**
+ * Sysadmin Dashboard JavaScript
+ */
+
+const BASE_PATH = window.BASE_PATH || '';
+
+// State
+let currentPage = {
+    users: 0,
+    polls: 0,
+    logs: 0
+};
+const PAGE_SIZE = 50;
+
+// Initialize based on current page
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+
+    if (path.endsWith('/sysadmin/users')) {
+        loadUsers();
+    } else if (path.endsWith('/sysadmin/polls')) {
+        loadPolls();
+    } else if (path.endsWith('/sysadmin/logs')) {
+        loadLogs();
+        initModal();
+    }
+});
+
+// ============================================
+// API Helpers
+// ============================================
+
+async function apiRequest(endpoint, options = {}) {
+    const url = `${BASE_PATH}/api/sysadmin${endpoint}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+}
+
+// ============================================
+// Users
+// ============================================
+
+async function loadUsers(offset = 0) {
+    const tbody = document.querySelector('#usersTable tbody');
+    const countEl = document.getElementById('userCount');
+    const paginationEl = document.getElementById('usersPagination');
+
+    try {
+        const data = await apiRequest(`/users?limit=${PAGE_SIZE}&offset=${offset}`);
+
+        countEl.textContent = `${data.total} total`;
+        currentPage.users = offset;
+
+        // Clear and populate table
+        tbody.innerHTML = '';
+        const template = document.getElementById('userRowTemplate');
+
+        for (const user of data.users) {
+            const row = template.content.cloneNode(true);
+            const tr = row.querySelector('tr');
+
+            tr.dataset.userId = user.id;
+            row.querySelector('.user-id').textContent = user.id;
+            row.querySelector('.user-email').textContent = user.email;
+
+            const select = row.querySelector('.role-select');
+            select.value = user.role;
+            select.addEventListener('change', () => updateUserRole(user.id, select.value));
+
+            row.querySelector('.user-created').textContent = formatDate(user.created_at);
+
+            const deleteBtn = row.querySelector('.delete-user-btn');
+            deleteBtn.addEventListener('click', () => deleteUser(user.id, user.email));
+
+            tbody.appendChild(row);
+        }
+
+        // Render pagination
+        renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadUsers);
+
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5" class="loading">Error loading users: ${error.message}</td></tr>`;
+    }
+}
+
+async function updateUserRole(userId, newRole) {
+    try {
+        await apiRequest(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ role: newRole })
+        });
+    } catch (error) {
+        alert(`Failed to update role: ${error.message}`);
+        loadUsers(currentPage.users);
+    }
+}
+
+async function deleteUser(userId, email) {
+    if (!confirm(`Are you sure you want to delete user "${email}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        await apiRequest(`/users/${userId}`, { method: 'DELETE' });
+        loadUsers(currentPage.users);
+    } catch (error) {
+        alert(`Failed to delete user: ${error.message}`);
+    }
+}
+
+// ============================================
+// Polls
+// ============================================
+
+async function loadPolls(offset = 0) {
+    const tbody = document.querySelector('#pollsTable tbody');
+    const countEl = document.getElementById('pollCount');
+    const paginationEl = document.getElementById('pollsPagination');
+
+    try {
+        const data = await apiRequest(`/polls?limit=${PAGE_SIZE}&offset=${offset}`);
+
+        countEl.textContent = `${data.total} total`;
+        currentPage.polls = offset;
+
+        // Clear and populate table
+        tbody.innerHTML = '';
+        const template = document.getElementById('pollRowTemplate');
+
+        for (const poll of data.polls) {
+            const row = template.content.cloneNode(true);
+            const tr = row.querySelector('tr');
+
+            tr.dataset.pollId = poll.id;
+            row.querySelector('.poll-id').textContent = poll.id;
+
+            const titleLink = row.querySelector('.poll-link');
+            titleLink.textContent = poll.title;
+            titleLink.href = `${BASE_PATH}/${poll.public_id}`;
+
+            row.querySelector('.poll-owner').textContent = poll.owner_email || '(anonymous)';
+
+            const statusSpan = row.querySelector('.status');
+            statusSpan.textContent = poll.status;
+            statusSpan.classList.add(`status-${poll.status}`);
+
+            row.querySelector('.poll-responses').textContent = poll.response_count;
+            row.querySelector('.poll-created').textContent = formatDate(poll.created_at);
+
+            const deleteBtn = row.querySelector('.delete-poll-btn');
+            deleteBtn.addEventListener('click', () => deletePoll(poll.id, poll.title));
+
+            tbody.appendChild(row);
+        }
+
+        // Render pagination
+        renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadPolls);
+
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading">Error loading polls: ${error.message}</td></tr>`;
+    }
+}
+
+async function deletePoll(pollId, title) {
+    if (!confirm(`Are you sure you want to delete poll "${title}"? This will also delete all responses. This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        await apiRequest(`/polls/${pollId}`, { method: 'DELETE' });
+        loadPolls(currentPage.polls);
+    } catch (error) {
+        alert(`Failed to delete poll: ${error.message}`);
+    }
+}
+
+// ============================================
+// Logs
+// ============================================
+
+async function loadLogs(offset = 0) {
+    const tbody = document.querySelector('#logsTable tbody');
+    const countEl = document.getElementById('logCount');
+    const paginationEl = document.getElementById('logsPagination');
+
+    try {
+        const data = await apiRequest(`/logs?limit=${PAGE_SIZE}&offset=${offset}`);
+
+        countEl.textContent = `${data.total} total`;
+        currentPage.logs = offset;
+
+        // Clear and populate table
+        tbody.innerHTML = '';
+        const template = document.getElementById('logRowTemplate');
+
+        for (const log of data.logs) {
+            const row = template.content.cloneNode(true);
+
+            row.querySelector('.log-time').textContent = formatDateTime(log.created_at);
+            row.querySelector('.log-action code').textContent = log.action;
+            row.querySelector('.log-user').textContent = log.user_email || (log.user_id ? `User #${log.user_id}` : '-');
+            row.querySelector('.log-poll').textContent = log.poll_id || '-';
+            row.querySelector('.log-ip').textContent = log.ip_address || '-';
+
+            const viewBtn = row.querySelector('.view-data-btn');
+            if (log.data) {
+                viewBtn.style.display = 'inline-flex';
+                viewBtn.addEventListener('click', () => showLogData(log.data));
+            }
+
+            tbody.appendChild(row);
+        }
+
+        // Render pagination
+        renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadLogs);
+
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="6" class="loading">Error loading logs: ${error.message}</td></tr>`;
+    }
+}
+
+function showLogData(data) {
+    const modal = document.getElementById('dataModal');
+    const content = document.getElementById('dataModalContent');
+    content.textContent = JSON.stringify(data, null, 2);
+    modal.style.display = 'flex';
+}
+
+function initModal() {
+    const modal = document.getElementById('dataModal');
+    const closeBtn = modal.querySelector('.modal-close');
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+// ============================================
+// Helpers
+// ============================================
+
+function formatDate(isoString) {
+    if (!isoString) return '-';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatDateTime(isoString) {
+    if (!isoString) return '-';
+    const date = new Date(isoString);
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function renderPagination(container, total, offset, pageSize, loadFn) {
+    const totalPages = Math.ceil(total / pageSize);
+    const currentPageNum = Math.floor(offset / pageSize) + 1;
+
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = `
+        <button class="prev-btn" ${offset === 0 ? 'disabled' : ''}>Previous</button>
+        <span class="page-info">Page ${currentPageNum} of ${totalPages}</span>
+        <button class="next-btn" ${offset + pageSize >= total ? 'disabled' : ''}>Next</button>
+    `;
+
+    container.querySelector('.prev-btn')?.addEventListener('click', () => {
+        loadFn(Math.max(0, offset - pageSize));
+    });
+
+    container.querySelector('.next-btn')?.addEventListener('click', () => {
+        loadFn(offset + pageSize);
+    });
+}

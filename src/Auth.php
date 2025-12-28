@@ -124,7 +124,7 @@ class Auth
     /**
      * Register a new user
      */
-    public function register(string $email, string $password): User
+    public function register(string $email, string $password, string $role = User::ROLE_USER): User
     {
         $email = strtolower(trim($email));
 
@@ -144,6 +144,7 @@ class Auth
         $id = $db->insert('users', [
             'email' => $email,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'role' => $role,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -151,6 +152,7 @@ class Auth
         $user = new User();
         $user->id = (int)$id;
         $user->email = $email;
+        $user->role = $role;
         $user->createdAt = new \DateTime();
         $user->updatedAt = new \DateTime();
 

@@ -22,6 +22,10 @@ define('TEMPLATES_PATH', BASE_PATH . '/templates');
 define('DATA_PATH', BASE_PATH . '/data');
 define('MIGRATIONS_PATH', BASE_PATH . '/migrations');
 
+// Detect environment (default: production)
+define('APP_ENV', getenv('APP_ENV') ?: 'production');
+define('IS_TEST_ENV', APP_ENV === 'test');
+
 // Simple PSR-4-ish autoloader
 spl_autoload_register(function (string $class): void {
     // Only handle App namespace
@@ -39,8 +43,10 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
-// Check if config exists
-$configFile = CONFIG_PATH . '/config.php';
+// Check if config exists (use test config in test environment)
+$configFile = IS_TEST_ENV
+    ? CONFIG_PATH . '/config.test.php'
+    : CONFIG_PATH . '/config.php';
 $needsInstall = !file_exists($configFile);
 
 if (!$needsInstall) {
@@ -70,6 +76,16 @@ if (!$needsInstall) {
 
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
+    }
+
+    // Check if sysadmin exists - if not, installation is incomplete
+    $db = \App\Database::getInstance();
+    $sysadminCount = (int) $db->fetchColumn(
+        "SELECT COUNT(*) FROM users WHERE role = :role",
+        ['role' => 'sysadmin']
+    );
+    if ($sysadminCount === 0) {
+        $needsInstall = true;
     }
 }
 

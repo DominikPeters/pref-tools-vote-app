@@ -12,6 +12,8 @@ use App\Router;
 use App\Controllers\PageController;
 use App\Controllers\PollApiController;
 use App\Controllers\AuthApiController;
+use App\Controllers\SysadminController;
+use App\Controllers\SysadminApiController;
 
 // Check if installation is needed
 if (needsInstall()) {
@@ -34,6 +36,13 @@ $router->get('/', [PageController::class, 'home']);
 $router->get('/create', [PageController::class, 'builder']);
 $router->get('/login', [PageController::class, 'login']);
 $router->get('/dashboard', [PageController::class, 'dashboard']);
+
+// Sysadmin pages
+$router->get('/sysadmin', [SysadminController::class, 'dashboard']);
+$router->get('/sysadmin/users', [SysadminController::class, 'users']);
+$router->get('/sysadmin/polls', [SysadminController::class, 'polls']);
+$router->get('/sysadmin/logs', [SysadminController::class, 'logs']);
+$router->get('/sysadmin/stats', [SysadminController::class, 'stats']);
 
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
@@ -74,6 +83,15 @@ $router->get('/api/polls/:publicId/admin/:adminToken/export', [PollApiController
 $router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);
 $router->get('/api/user/responses', [AuthApiController::class, 'userResponses']);
 $router->post('/api/user/claim-poll', [AuthApiController::class, 'claimPoll']);
+
+// Sysadmin API
+$router->get('/api/sysadmin/stats', [SysadminApiController::class, 'stats']);
+$router->get('/api/sysadmin/users', [SysadminApiController::class, 'listUsers']);
+$router->put('/api/sysadmin/users/:userId', [SysadminApiController::class, 'updateUser']);
+$router->delete('/api/sysadmin/users/:userId', [SysadminApiController::class, 'deleteUser']);
+$router->get('/api/sysadmin/polls', [SysadminApiController::class, 'listPolls']);
+$router->delete('/api/sysadmin/polls/:pollId', [SysadminApiController::class, 'deletePoll']);
+$router->get('/api/sysadmin/logs', [SysadminApiController::class, 'listLogs']);
 
 // ============================================
 // Dispatch Request
