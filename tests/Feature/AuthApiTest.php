@@ -135,4 +135,61 @@ class AuthApiTest extends TestCase
         $meResponse = $this->callApi('GET', '/api/auth/me');
         $this->assertError($meResponse, 'NOT_AUTHENTICATED');
     }
+
+    public function test_user_can_list_own_polls(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $this->createPoll(['title' => 'Poll 1'], $user->id);
+        $this->createPoll(['title' => 'Poll 2'], $user->id);
+        $this->createPoll(['title' => 'Other Poll']); // Not owned by user
+
+        $response = $this->callApi('GET', '/api/user/polls');
+
+        $this->assertSuccess($response);
+        $this->assertCount(2, $response['polls']);
+    }
+
+    public function test_user_can_list_own_responses(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id);
+
+        // Submit response as logged in user
+        $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        $response = $this->callApi('GET', '/api/user/responses');
+
+        $this->assertSuccess($response);
+        $this->assertCount(1, $response['responses']);
+        $this->assertEquals($poll->title, $response['responses'][0]['poll_title']);
+    }
+
+    public function test_user_can_claim_poll(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        // Create an anonymous poll (no user_id)
+        $poll = $this->createPoll(['title' => 'Anonymous Poll']);
+        $this->assertNull($poll->userId);
+
+        $response = $this->callApi('POST', '/api/user/claim-poll', [
+            'public_id' => $poll->publicId,
+            'admin_token' => $poll->adminToken,
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals($user->id, $response['poll']['user_id']);
+
+        // Verify in database
+        $updatedPoll = \App\Models\Poll::find($poll->id);
+        $this->assertEquals($user->id, $updatedPoll->userId);
+    }
 }

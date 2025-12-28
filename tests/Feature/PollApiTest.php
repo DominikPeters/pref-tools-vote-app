@@ -189,4 +189,79 @@ class PollApiTest extends TestCase
         $this->assertArrayHasKey('response_count', $response['poll']);
         $this->assertEquals(0, $response['poll']['response_count']);
     }
+
+    public function test_can_export_responses_csv(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id);
+        \App\Models\Response::create($poll->id, [
+            'answers' => [$question->id => $question->options[0]->id]
+        ]);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/export", [], [
+            'format' => 'csv'
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('csv', $response['format']);
+        $this->assertArrayHasKey('headers', $response);
+        $this->assertArrayHasKey('rows', $response);
+        $this->assertCount(1, $response['rows']);
+    }
+
+    public function test_can_export_responses_preflib(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'ranking',
+            'text' => 'Rank things'
+        ]);
+        
+        $ranking = [$question->options[0]->id, $question->options[1]->id, $question->options[2]->id];
+        \App\Models\Response::create($poll->id, [
+            'answers' => [$question->id => $ranking]
+        ]);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/export", [], [
+            'format' => 'preflib'
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('preflib', $response['format']);
+        $this->assertCount(1, $response['questions']);
+        $this->assertEquals('Rank things', $response['questions'][0]['question_text']);
+        $this->assertCount(3, $response['questions'][0]['alternatives']);
+    }
+
+    public function test_can_sync_questions_during_update(): void
+    {
+        $poll = $this->createPoll();
+        $q1 = $this->createQuestion($poll->id, ['text' => 'Question 1']);
+        $q2 = $this->createQuestion($poll->id, ['text' => 'Question 2']);
+
+        $response = $this->callApi('PUT', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}", [
+            'questions' => [
+                [
+                    'id' => $q1->id,
+                    'text' => 'Updated Question 1',
+                    'type' => 'single_choice',
+                    'options' => [
+                        ['label' => 'New Option']
+                    ]
+                ],
+                [
+                    'text' => 'New Question 3',
+                    'type' => 'text_single'
+                ]
+            ]
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertCount(2, $response['poll']['questions']);
+        $this->assertEquals('Updated Question 1', $response['poll']['questions'][0]['text']);
+        $this->assertEquals('New Question 3', $response['poll']['questions'][1]['text']);
+        
+        // Verify q2 is deleted
+        $this->assertNull(\App\Models\Question::find($q2->id));
+    }
 }

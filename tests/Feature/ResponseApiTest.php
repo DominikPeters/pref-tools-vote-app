@@ -222,10 +222,9 @@ class ResponseApiTest extends TestCase
             'answers' => [$question->id => $question->options[0]->id],
         ]);
 
-        // Use admin token in query string
-        $_GET['admin_token'] = $poll->adminToken;
-
-        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses", [], [
+            'admin_token' => $poll->adminToken
+        ]);
 
         $this->assertSuccess($response);
         $this->assertCount(1, $response['responses']);
@@ -245,5 +244,72 @@ class ResponseApiTest extends TestCase
         // Check updated count
         $updated = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/admin/{$this->poll->adminToken}");
         $this->assertEquals(1, $updated['poll']['response_count']);
+    }
+
+    public function test_can_get_single_response(): void
+    {
+        $response = Response::create($this->poll->id, [
+            'answers' => [$this->question->id => $this->question->options[0]->id],
+        ]);
+
+        $apiResponse = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/responses/{$response->id}");
+
+        $this->assertSuccess($apiResponse);
+        $this->assertEquals($response->id, $apiResponse['response']['id']);
+    }
+
+    public function test_can_update_own_response(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'allow_edit_own' => true]);
+        $question = $this->createQuestion($poll->id);
+
+        $response = Response::create($poll->id, [
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        // Mock voter token cookie
+        $_COOKIE['voter_token_' . $poll->publicId] = $response->voterToken;
+
+        $apiResponse = $this->callApi('PUT', "/api/polls/{$poll->publicId}/responses/{$response->id}", [
+            'answers' => [$question->id => $question->options[1]->id],
+        ]);
+
+        $this->assertSuccess($apiResponse);
+        $this->assertEquals($question->options[1]->id, $apiResponse['response']['answers'][$question->id]);
+    }
+
+    public function test_cannot_update_own_response_if_disabled(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'allow_edit_own' => false]);
+        $question = $this->createQuestion($poll->id);
+
+        $response = Response::create($poll->id, [
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        $_COOKIE['voter_token_' . $poll->publicId] = $response->voterToken;
+
+        $apiResponse = $this->callApi('PUT', "/api/polls/{$poll->publicId}/responses/{$response->id}", [
+            'answers' => [$question->id => $question->options[1]->id],
+        ]);
+
+        $this->assertError($apiResponse, 'EDIT_NOT_ALLOWED');
+    }
+
+    public function test_can_delete_own_response(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'allow_edit_own' => true]);
+        $question = $this->createQuestion($poll->id);
+
+        $response = Response::create($poll->id, [
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        $_COOKIE['voter_token_' . $poll->publicId] = $response->voterToken;
+
+        $apiResponse = $this->callApi('DELETE', "/api/polls/{$poll->publicId}/responses/{$response->id}");
+
+        $this->assertSuccess($apiResponse);
+        $this->assertNull(Response::find($response->id));
     }
 }

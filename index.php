@@ -46,6 +46,7 @@ $router->get('/sysadmin/stats', [SysadminController::class, 'stats']);
 
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
+$router->post('/:publicId', [PageController::class, 'poll']);
 $router->get('/:publicId/results', [PageController::class, 'results']);
 $router->get('/:publicId/admin/:adminToken', [PageController::class, 'admin']);
 $router->get('/:publicId/admin/:adminToken/edit', [PageController::class, 'builder']);

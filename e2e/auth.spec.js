@@ -69,10 +69,11 @@ test.describe('Authentication', () => {
 
     // Log out
     await freshPage.click('button:has-text("Log Out")');
+    await freshPage.waitForURL(url => url.pathname === '/' || url.pathname === '/login');
 
     // Verify logged out by trying to access dashboard
     await freshPage.goto('/dashboard');
-    await expect(freshPage).toHaveURL('/login');
+    await expect(freshPage).toHaveURL(/\/login/);
   });
 
   test('shows error for invalid credentials', async ({ freshPage }) => {

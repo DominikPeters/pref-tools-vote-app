@@ -186,6 +186,17 @@ abstract class TestCase extends BaseTestCase
         // Response routes
         $router->post('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'submitResponse']);
         $router->get('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'listResponses']);
+        $router->get('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'getResponse']);
+        $router->put('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'updateResponse']);
+        $router->delete('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'deleteResponse']);
+
+        // Export
+        $router->get('/api/polls/:publicId/admin/:adminToken/export', [\App\Controllers\PollApiController::class, 'export']);
+
+        // User dashboard
+        $router->get('/api/user/polls', [\App\Controllers\AuthApiController::class, 'userPolls']);
+        $router->get('/api/user/responses', [\App\Controllers\AuthApiController::class, 'userResponses']);
+        $router->post('/api/user/claim-poll', [\App\Controllers\AuthApiController::class, 'claimPoll']);
 
         // Sysadmin routes
         $router->get('/api/sysadmin/stats', [\App\Controllers\SysadminApiController::class, 'stats']);
@@ -227,6 +238,7 @@ abstract class TestCase extends BaseTestCase
  */
 class TestInputStream
 {
+    public $context;
     public static string $data = '';
     private int $position = 0;
 

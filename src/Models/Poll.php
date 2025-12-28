@@ -194,7 +194,7 @@ class Poll
         $updateData = ['updated_at' => date('Y-m-d H:i:s')];
 
         $allowedFields = [
-            'title', 'description', 'status', 'visibility', 'visibility_timing',
+            'user_id', 'title', 'description', 'status', 'visibility', 'visibility_timing',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
             'randomize_options', 'access_mode', 'locale'
         ];

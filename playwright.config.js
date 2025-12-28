@@ -46,19 +46,13 @@ module.exports = defineConfig({
     {
       name: 'setup',
       testMatch: /setup\.spec\.js/,
-      teardown: 'cleanup',
-    },
-
-    // Cleanup project: runs after all tests complete
-    {
-      name: 'cleanup',
-      testMatch: /cleanup\.spec\.js/,
+      dependencies: ['install'],
     },
 
     // Main tests: run with admin storage state pre-loaded
     {
       name: 'main',
-      testMatch: /(auth|poll|sysadmin)\.spec\.js$/,
+      testMatch: /(auth|poll|sysadmin|extended_poll|advanced_sysadmin|specialized_inputs|voter_experience|builder_advanced)\.spec\.js$/,
       dependencies: ['setup'],
       use: {
         // Pre-authenticate as admin - tests can override if needed
@@ -72,8 +66,7 @@ module.exports = defineConfig({
     // Install tests: isolated, runs separately with single worker
     {
       name: 'install',
-      testMatch: /install\.spec\.js/,
-      // No dependencies - starts fresh
+      testMatch: /(install|cleanup)\.spec\.js/,
       // Single worker to avoid race conditions
       fullyParallel: false,
       workers: 1,
