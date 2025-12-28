@@ -40,3 +40,5 @@ vote-app-thinking-outloud.pdf
 vote-app-spec.md
 CLAUDE.md
 GEMINI.md
+.claude/settings.local.json
+/.phpunit.cache

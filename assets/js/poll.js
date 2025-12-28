@@ -1,26 +1,69 @@
 /**
  * Voter Form JavaScript
+ *
+ * Renders poll questions using the shared question renderer and handles
+ * form submission, validation, and progress saving.
  */
 
 import { api, showToast } from './app.js';
+import { renderQuestion } from './question-renderer.js';
+
+// ==========================================================================
+// Initialization
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Render questions if poll data is available
+    if (window.POLL_DATA) {
+        renderPoll(window.POLL_DATA);
+    }
+
     initForm();
+    initSingleChoice();
+    initApproval();
     initRankings();
     initStarRatings();
+    initGradeButtons();
     initYnaButtons();
 
     // Pre-fill form if editing existing response
     if (window.EXISTING_RESPONSE) {
         prefillForm(window.EXISTING_RESPONSE);
     } else {
-        // Try to restore from localStorage (partial progress)
         restoreProgress();
     }
 
-    // Set up progress saving
     initProgressSaving();
 });
+
+/**
+ * Render the entire poll using JS
+ */
+function renderPoll(poll) {
+    const container = document.getElementById('questionsContainer');
+    if (!container) return;
+
+    let html = '';
+    let questionNumber = 0;
+
+    poll.questions.forEach((question) => {
+        // Section headers don't get numbered
+        if (question.type !== 'section_header') {
+            questionNumber++;
+        }
+        html += renderQuestion(question, {
+            disabled: false,
+            showNumbers: question.type !== 'section_header',
+            questionNumber: questionNumber
+        });
+    });
+
+    container.innerHTML = html;
+}
+
+// ==========================================================================
+// Form Handling
+// ==========================================================================
 
 function initForm() {
     const form = document.getElementById('pollForm');
@@ -32,7 +75,6 @@ function initForm() {
         const publicId = form.dataset.publicId;
         const formData = collectFormData();
 
-        // Validate
         const validationError = validateForm(formData);
         if (validationError) {
             showToast(validationError, 'error');
@@ -41,17 +83,15 @@ function initForm() {
 
         try {
             const isEditing = form.dataset.editing === 'true';
-            const result = await api.post(`/api/polls/${publicId}/responses`, formData);
+            await api.post(`/api/polls/${publicId}/responses`, formData);
 
-            // Clear any saved progress
             clearProgress();
 
             showToast(isEditing ? 'Response updated!' : 'Vote submitted successfully!', 'success');
 
-            // Show confirmation or redirect
             setTimeout(() => {
-                const vote = document.querySelector('.poll-container');
-                vote.innerHTML = `
+                const container = document.querySelector('.poll-container');
+                container.innerHTML = `
                     <div class="container">
                         <div class="card" style="text-align: center;">
                             <h2>Thank you!</h2>
@@ -71,9 +111,7 @@ function initForm() {
 
 function collectFormData() {
     const form = document.getElementById('pollForm');
-    const data = {
-        answers: {},
-    };
+    const data = { answers: {} };
 
     // Voter name
     const nameInput = document.getElementById('voterName');
@@ -82,7 +120,7 @@ function collectFormData() {
     }
 
     // Collect answers for each question
-    document.querySelectorAll('.question-block').forEach(block => {
+    document.querySelectorAll('.question-display').forEach(block => {
         const questionId = block.dataset.questionId;
         const type = block.dataset.type;
 
@@ -120,13 +158,19 @@ function collectFormData() {
                 break;
 
             case 'grade':
-                answer = {};
-                block.querySelectorAll('.grade-select').forEach(select => {
-                    const optionId = select.name.match(/\[(\d+)\]/)?.[1];
-                    if (optionId && select.value) {
-                        answer[optionId] = select.value;
-                    }
-                });
+                // Check if using button mode or select mode
+                const gradeInput = block.querySelector('.grade-value');
+                if (gradeInput?.value) {
+                    answer = JSON.parse(gradeInput.value);
+                } else {
+                    answer = {};
+                    block.querySelectorAll('.grade-select').forEach(select => {
+                        const optionId = select.name.match(/\[(\d+)\]/)?.[1];
+                        if (optionId && select.value) {
+                            answer[optionId] = select.value;
+                        }
+                    });
+                }
                 break;
 
             case 'yes_no_abstain':
@@ -146,13 +190,11 @@ function collectFormData() {
 }
 
 function validateForm(data) {
-    // Check required questions
-    const requiredQuestions = document.querySelectorAll('.question-block .required-marker');
+    const requiredQuestions = document.querySelectorAll('.question-display .required-marker');
 
     for (const marker of requiredQuestions) {
-        const block = marker.closest('.question-block');
+        const block = marker.closest('.question-display');
         const questionId = block.dataset.questionId;
-
         const answer = data.answers[questionId];
 
         if (answer === null || answer === undefined || answer === '' ||
@@ -162,7 +204,102 @@ function validateForm(data) {
         }
     }
 
+    // Validate approval min constraints
+    const approvalQuestions = document.querySelectorAll('.question-display[data-type="approval"]');
+    for (const block of approvalQuestions) {
+        const questionId = block.dataset.questionId;
+        const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
+        const min = question?.settings?.min ?? 0;
+
+        if (min > 0) {
+            const answer = data.answers[questionId];
+            const count = Array.isArray(answer) ? answer.length : 0;
+            if (count < min) {
+                return `Please select at least ${min} option(s) for "${question.text}"`;
+            }
+        }
+    }
+
     return null;
+}
+
+// ==========================================================================
+// Interactive Question Types
+// ==========================================================================
+
+/**
+ * Allow clicking on a selected radio to deselect it
+ */
+function initSingleChoice() {
+    document.querySelectorAll('.radio-options').forEach(container => {
+        const radios = container.querySelectorAll('input[type="radio"]');
+
+        radios.forEach(radio => {
+            // Track whether this radio was already checked before click
+            radio.addEventListener('mousedown', () => {
+                radio.dataset.wasChecked = radio.checked;
+            });
+
+            radio.addEventListener('click', () => {
+                if (radio.dataset.wasChecked === 'true') {
+                    radio.checked = false;
+                }
+            });
+        });
+    });
+}
+
+/**
+ * Handle approval (checkbox) min/max constraints
+ */
+function initApproval() {
+    document.querySelectorAll('.checkbox-options').forEach(container => {
+        const block = container.closest('.question-display');
+        if (!block || block.dataset.type !== 'approval') return;
+
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        const questionId = block.dataset.questionId;
+
+        // Get settings from poll data
+        const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
+        const min = question?.settings?.min ?? 0;
+        const max = question?.settings?.max ?? null;
+
+        // Add constraint hint if there are constraints
+        if (min > 0 || max !== null) {
+            const hint = document.createElement('p');
+            hint.className = 'approval-hint';
+            let hintText = '';
+            if (min > 0 && max !== null) {
+                hintText = min === max ? `Select exactly ${min}` : `Select ${min} to ${max}`;
+            } else if (min > 0) {
+                hintText = `Select at least ${min}`;
+            } else if (max !== null) {
+                hintText = `Select up to ${max}`;
+            }
+            hint.textContent = hintText;
+            container.parentNode.insertBefore(hint, container);
+        }
+
+        // Handle max constraint
+        if (max !== null) {
+            const updateDisabledState = () => {
+                const checkedCount = container.querySelectorAll('input[type="checkbox"]:checked').length;
+                checkboxes.forEach(cb => {
+                    if (!cb.checked) {
+                        cb.disabled = checkedCount >= max;
+                    }
+                });
+            };
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateDisabledState);
+            });
+
+            // Initial state
+            updateDisabledState();
+        }
+    });
 }
 
 function initRankings() {
@@ -170,7 +307,6 @@ function initRankings() {
         const list = container.querySelector('.ranking-list');
         const input = container.querySelector('.ranking-value');
 
-        // Update hidden input
         const updateValue = () => {
             const order = Array.from(list.querySelectorAll('.ranking-item'))
                 .map(item => parseInt(item.dataset.optionId));
@@ -180,48 +316,16 @@ function initRankings() {
         // Initialize value
         updateValue();
 
-        // Make sortable
-        let dragging = null;
-
-        list.querySelectorAll('.ranking-item').forEach(item => {
-            item.setAttribute('draggable', 'true');
-
-            item.addEventListener('dragstart', () => {
-                dragging = item;
-                item.classList.add('dragging');
-            });
-
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
+        // Use SortableJS for rankings
+        new Sortable(list, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: () => {
                 updateValue();
-            });
-        });
-
-        list.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(list, e.clientY);
-
-            if (afterElement) {
-                list.insertBefore(dragging, afterElement);
-            } else {
-                list.appendChild(dragging);
             }
         });
     });
-}
-
-function getDragAfterElement(container, y) {
-    const elements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
-
-    return elements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-
-        if (offset < 0 && offset > closest.offset) {
-            return { offset, element: child };
-        }
-        return closest;
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
 function initStarRatings() {
@@ -233,34 +337,79 @@ function initStarRatings() {
             const optionId = ratingDiv.dataset.optionId;
             const stars = ratingDiv.querySelectorAll('.star');
 
+            const updateVisualState = () => {
+                const currentRating = ratings[optionId] || 0;
+                stars.forEach(s => {
+                    const sValue = parseInt(s.dataset.value);
+                    s.classList.toggle('active', sValue <= currentRating);
+                });
+            };
+
             stars.forEach(star => {
                 star.addEventListener('click', () => {
                     const value = parseInt(star.dataset.value);
-                    ratings[optionId] = value;
+                    // Click on same value clears the rating
+                    if (ratings[optionId] === value) {
+                        delete ratings[optionId];
+                    } else {
+                        ratings[optionId] = value;
+                    }
 
-                    // Update visual state
-                    stars.forEach(s => {
-                        const sValue = parseInt(s.dataset.value);
-                        s.classList.toggle('active', sValue <= value);
-                    });
-
-                    // Update hidden input
+                    updateVisualState();
                     input.value = JSON.stringify(ratings);
                 });
 
-                // Hover effect
+                // Hover effect - always show preview regardless of current selection
                 star.addEventListener('mouseenter', () => {
-                    const value = parseInt(star.dataset.value);
+                    const hoverValue = parseInt(star.dataset.value);
                     stars.forEach(s => {
                         const sValue = parseInt(s.dataset.value);
-                        s.style.color = sValue <= value ? 'var(--color-warning)' : '';
+                        if (sValue <= hoverValue) {
+                            s.style.color = 'var(--color-warning)';
+                        } else {
+                            s.style.color = 'var(--color-border)';
+                        }
                     });
                 });
             });
 
             ratingDiv.addEventListener('mouseleave', () => {
+                // Restore to actual state
                 stars.forEach(s => {
                     s.style.color = '';
+                });
+            });
+        });
+    });
+}
+
+/**
+ * Handle grade buttons (for ≤3 grades displayed as buttons)
+ */
+function initGradeButtons() {
+    document.querySelectorAll('.grade-buttons-mode').forEach(container => {
+        const input = container.querySelector('.grade-value');
+        const values = {};
+
+        container.querySelectorAll('.grade-buttons').forEach(buttonsDiv => {
+            const optionId = buttonsDiv.dataset.optionId;
+            const buttons = buttonsDiv.querySelectorAll('.grade-btn');
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const value = btn.dataset.value;
+
+                    // Click on same value clears the selection
+                    if (values[optionId] === value) {
+                        delete values[optionId];
+                        buttons.forEach(b => b.classList.remove('active'));
+                    } else {
+                        values[optionId] = value;
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    }
+
+                    input.value = JSON.stringify(values);
                 });
             });
         });
@@ -279,19 +428,28 @@ function initYnaButtons() {
             buttons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const value = btn.dataset.value;
-                    values[optionId] = value;
 
-                    // Update visual state
-                    buttons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                    // Click on same value clears the selection
+                    if (values[optionId] === value) {
+                        delete values[optionId];
+                        buttons.forEach(b => b.classList.remove('active'));
+                    } else {
+                        values[optionId] = value;
+                        // Update visual state
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    }
 
-                    // Update hidden input
                     input.value = JSON.stringify(values);
                 });
             });
         });
     });
 }
+
+// ==========================================================================
+// Progress Saving
+// ==========================================================================
 
 function getProgressKey() {
     const form = document.getElementById('pollForm');
@@ -303,10 +461,9 @@ function initProgressSaving() {
     const form = document.getElementById('pollForm');
     if (!form) return;
 
-    // Don't save progress if we're editing an existing response
+    // Don't save progress if editing existing response
     if (form.dataset.editing === 'true') return;
 
-    // Save progress on any input change
     const saveProgress = () => {
         const data = collectFormData();
         const key = getProgressKey();
@@ -315,11 +472,10 @@ function initProgressSaving() {
         }
     };
 
-    // Listen for changes
     form.addEventListener('change', saveProgress);
     form.addEventListener('input', saveProgress);
 
-    // Also save on custom events (for drag-and-drop, stars, etc.)
+    // Watch for ranking changes
     document.querySelectorAll('.ranking-list').forEach(list => {
         const observer = new MutationObserver(saveProgress);
         observer.observe(list, { childList: true });
@@ -335,7 +491,6 @@ function restoreProgress() {
 
     try {
         const data = JSON.parse(saved);
-        // Convert to response format for prefillForm
         prefillForm({
             voter_name: data.voter_name,
             answers: data.answers,
@@ -352,6 +507,10 @@ function clearProgress() {
     }
 }
 
+// ==========================================================================
+// Form Prefilling
+// ==========================================================================
+
 function prefillForm(response) {
     const answers = response.answers || {};
 
@@ -362,7 +521,7 @@ function prefillForm(response) {
     }
 
     // Pre-fill each question
-    document.querySelectorAll('.question-block').forEach(block => {
+    document.querySelectorAll('.question-display').forEach(block => {
         const questionId = block.dataset.questionId;
         const type = block.dataset.type;
         const answer = answers[questionId];
@@ -395,7 +554,6 @@ function prefillForm(response) {
                     const list = block.querySelector('.ranking-list');
                     const input = block.querySelector('.ranking-value');
                     if (list && input) {
-                        // Reorder items
                         const items = Array.from(list.querySelectorAll('.ranking-item'));
                         const itemMap = {};
                         items.forEach(item => {
@@ -409,7 +567,6 @@ function prefillForm(response) {
                             }
                         });
 
-                        // Update hidden input
                         input.value = JSON.stringify(answer);
                     }
                 }
@@ -434,10 +591,25 @@ function prefillForm(response) {
 
             case 'grade':
                 if (typeof answer === 'object') {
-                    Object.entries(answer).forEach(([optionId, grade]) => {
-                        const select = block.querySelector(`select[name*="[${optionId}]"]`);
-                        if (select) select.value = grade;
-                    });
+                    // Check if using button mode or select mode
+                    const gradeInput = block.querySelector('.grade-value');
+                    if (gradeInput) {
+                        // Button mode
+                        Object.entries(answer).forEach(([optionId, grade]) => {
+                            const buttonsDiv = block.querySelector(`.grade-buttons[data-option-id="${optionId}"]`);
+                            if (buttonsDiv) {
+                                const btn = buttonsDiv.querySelector(`.grade-btn[data-value="${grade}"]`);
+                                if (btn) btn.classList.add('active');
+                            }
+                        });
+                        gradeInput.value = JSON.stringify(answer);
+                    } else {
+                        // Select mode
+                        Object.entries(answer).forEach(([optionId, grade]) => {
+                            const select = block.querySelector(`select[name*="[${optionId}]"]`);
+                            if (select) select.value = grade;
+                        });
+                    }
                 }
                 break;
 

@@ -36,6 +36,7 @@ class Question
         'star',
         'grade',
         'yes_no_abstain',
+        'section_header',
     ];
 
     /**
@@ -95,6 +96,16 @@ class Question
     {
         $db = Database::getInstance();
 
+        $type = $data['type'] ?? 'single_choice';
+        $settings = $data['settings'] ?? null;
+        $optionCount = count($data['options'] ?? []);
+
+        // Validate type and settings
+        $errors = self::validateTypeSettings($type, $settings, $optionCount);
+        if (!empty($errors)) {
+            throw new \InvalidArgumentException(implode('; ', $errors));
+        }
+
         // Get next sort order
         $maxOrder = $db->fetchColumn(
             "SELECT MAX(sort_order) FROM questions WHERE poll_id = :poll_id",
@@ -105,11 +116,11 @@ class Question
         $id = $db->insert('questions', [
             'poll_id' => $pollId,
             'sort_order' => $sortOrder,
-            'type' => $data['type'],
+            'type' => $type,
             'text' => $data['text'] ?? '',
             'description' => $data['description'] ?? null,
             'required' => ($data['required'] ?? true) ? 1 : 0,
-            'settings' => isset($data['settings']) ? json_encode($data['settings']) : null,
+            'settings' => $settings !== null ? json_encode($settings) : null,
             'visibility' => $data['visibility'] ?? null,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
@@ -138,6 +149,22 @@ class Question
     {
         $db = Database::getInstance();
 
+        // Determine effective type and settings after update
+        $type = $data['type'] ?? $this->type;
+        $settings = array_key_exists('settings', $data) ? $data['settings'] : $this->settings;
+
+        // Get option count (load if needed)
+        if (empty($this->options)) {
+            $this->loadOptions();
+        }
+        $optionCount = count($this->options);
+
+        // Validate type and settings
+        $errors = self::validateTypeSettings($type, $settings, $optionCount);
+        if (!empty($errors)) {
+            throw new \InvalidArgumentException(implode('; ', $errors));
+        }
+
         $updateData = [];
 
         $allowedFields = ['sort_order', 'type', 'text', 'description', 'required', 'visibility'];
@@ -152,8 +179,8 @@ class Question
             }
         }
 
-        if (isset($data['settings'])) {
-            $updateData['settings'] = json_encode($data['settings']);
+        if (array_key_exists('settings', $data)) {
+            $updateData['settings'] = $data['settings'] !== null ? json_encode($data['settings']) : null;
         }
 
         if (!empty($updateData)) {
@@ -190,6 +217,102 @@ class Question
             'single_choice', 'approval', 'ranking', 'ranking_truncated',
             'ranking_with_ties', 'utility', 'star', 'grade', 'yes_no_abstain'
         ]);
+    }
+
+    /**
+     * Validate question type and settings
+     *
+     * @param string $type Question type
+     * @param array|null $settings Type-specific settings
+     * @param int $optionCount Number of options for this question
+     * @return array Array of error messages (empty if valid)
+     */
+    public static function validateTypeSettings(string $type, ?array $settings, int $optionCount = 0): array
+    {
+        $errors = [];
+
+        // Validate type is known
+        if (!in_array($type, self::TYPES)) {
+            $errors[] = "Unknown question type: {$type}";
+            return $errors;
+        }
+
+        if ($settings === null) {
+            return $errors;
+        }
+
+        switch ($type) {
+            case 'approval':
+                $min = $settings['min'] ?? 0;
+                $max = $settings['max'] ?? null;
+
+                if (!is_int($min) && !is_numeric($min)) {
+                    $errors[] = "Approval min must be a number";
+                } else {
+                    $min = (int) $min;
+                    if ($min < 0) {
+                        $errors[] = "Approval min cannot be negative";
+                    }
+                    if ($optionCount > 0 && $min > $optionCount) {
+                        $errors[] = "Approval min ({$min}) cannot exceed number of options ({$optionCount})";
+                    }
+                }
+
+                if ($max !== null) {
+                    if (!is_int($max) && !is_numeric($max)) {
+                        $errors[] = "Approval max must be a number";
+                    } else {
+                        $max = (int) $max;
+                        if ($max < 1) {
+                            $errors[] = "Approval max must be at least 1";
+                        }
+                        if ($optionCount > 0 && $max > $optionCount) {
+                            // This is okay - we treat it as "all"
+                        }
+                        if (is_numeric($settings['min'] ?? 0) && $max < (int)($settings['min'] ?? 0)) {
+                            $errors[] = "Approval max ({$max}) cannot be less than min ({$min})";
+                        }
+                    }
+                }
+                break;
+
+            case 'star':
+                $starCount = $settings['starCount'] ?? 5;
+                if (!is_int($starCount) && !is_numeric($starCount)) {
+                    $errors[] = "Star count must be a number";
+                } else {
+                    $starCount = (int) $starCount;
+                    if ($starCount < 2 || $starCount > 10) {
+                        $errors[] = "Star count must be between 2 and 10";
+                    }
+                }
+                break;
+
+            case 'grade':
+                if (isset($settings['grades'])) {
+                    if (!is_array($settings['grades'])) {
+                        $errors[] = "Grades must be an array";
+                    } elseif (count($settings['grades']) < 1) {
+                        $errors[] = "At least one grade is required";
+                    } else {
+                        foreach ($settings['grades'] as $grade) {
+                            if (!is_string($grade) || trim($grade) === '') {
+                                $errors[] = "Each grade must be a non-empty string";
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 'yes_no_abstain':
+                if (isset($settings['allowAbstain']) && !is_bool($settings['allowAbstain'])) {
+                    $errors[] = "allowAbstain must be a boolean";
+                }
+                break;
+        }
+
+        return $errors;
     }
 
     /**

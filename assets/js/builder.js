@@ -1,25 +1,21 @@
 /**
- * Form Builder JavaScript
+ * WYSIWYG Form Builder
  *
- * Modes & Buttons:
- * ┌─────────────────────────┬─────────────────────────────────────────────────┐
- * │ Mode                    │ Buttons                                         │
- * ├─────────────────────────┼─────────────────────────────────────────────────┤
- * │ Create (fresh)          │ Preview, [Save Draft]*, Publish                 │
- * │ Create (from storage)   │ Preview, Clear, [Save Draft]*, Publish          │
- * │ Edit draft              │ Preview, Cancel, Update Draft, Publish          │
- * │ Edit open/closed        │ Preview, Cancel, Save Changes                   │
- * └─────────────────────────┴─────────────────────────────────────────────────┘
- * * Save Draft only shown for logged-in users
+ * Implements a Google/Microsoft Forms-like builder with three question states:
+ * 1. Display (unfocused): Shows question as it will appear to voters
+ * 2. Hover: Adds gray background and drag handle
+ * 3. Editing: Full editing UI with inputs and settings
  *
- * Storage:
- * - Create mode: auto-saves to localStorage on every change
- * - Edit mode: no localStorage (clears it on init so next create is fresh)
+ * Click on a question to edit, click outside to collapse back to display.
  */
 
-import { api, generateTempId, debounce, showToast, basePath } from './app.js';
+import { api, generateTempId, showToast, basePath } from './app.js';
+import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
 
-// Default state for resetting
+// ==========================================================================
+// State Management
+// ==========================================================================
+
 const defaultState = {
     title: 'Untitled Poll',
     description: '',
@@ -37,38 +33,33 @@ const defaultState = {
     isDirty: false,
 };
 
-// Form state
 const state = { ...defaultState, settings: { ...defaultState.settings }, questions: [] };
 
-// Question types that need options
-const OPTION_TYPES = [
-    'single_choice', 'approval', 'ranking', 'star', 'grade', 'yes_no_abstain'
-];
+let isEditMode = false;  // True if editing an existing poll (vs creating new)
+let activeQuestionId = null;  // Currently editing question ID
+let questionsSortable = null;  // SortableJS instance for questions
 
-// Track if we're in edit mode (don't save to localStorage)
-let isEditMode = false;
+// ==========================================================================
+// Initialization
+// ==========================================================================
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if editing an existing vote
     if (window.POLL_DATA) {
         isEditMode = true;
         loadFromServer(window.POLL_DATA, window.ADMIN_TOKEN);
-        // Clear localStorage so next create is fresh
         clearLocalStorage();
     } else {
         const loadedFromStorage = loadFromLocalStorage();
-        // Show Clear button if we loaded saved data
         if (loadedFromStorage) {
             const clearBtn = document.getElementById('clearBtn');
-            if (clearBtn) {
-                clearBtn.style.display = '';
-            }
+            if (clearBtn) clearBtn.style.display = '';
         }
     }
+
     initElements();
     render();
     setupAutoSave();
+    setupClickHandling();
 });
 
 function initElements() {
@@ -123,13 +114,11 @@ function initElements() {
 
     // Action buttons
     const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveDraft);
-    }
-    document.getElementById('publishBtn').addEventListener('click', publishPoll);
-    document.getElementById('previewBtn').addEventListener('click', previewVote);
+    if (saveBtn) saveBtn.addEventListener('click', saveDraft);
 
-    // Cancel button (edit mode) - go back to admin
+    document.getElementById('publishBtn').addEventListener('click', publishPoll);
+
+    // Cancel button (edit mode)
     const cancelBtn = document.getElementById('cancelBtn');
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
@@ -137,19 +126,70 @@ function initElements() {
         });
     }
 
-    // Clear button (create mode) - reset form
+    // Clear button (create mode)
     const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', resetForm);
-    }
+    if (clearBtn) clearBtn.addEventListener('click', resetForm);
 }
 
+/**
+ * Handle clicks on questions using event delegation
+ * This approach is cleaner than adding click listeners to each wrapper
+ */
+function setupClickHandling() {
+    const container = document.getElementById('questionsList');
+
+    // Use event delegation on the container
+    container.addEventListener('click', (e) => {
+        // Don't interfere with interactive elements inside the editor
+        if (e.target.closest('.question-editor')) {
+            return;
+        }
+
+        // Don't interfere with drag handle
+        if (e.target.closest('.drag-handle-question')) {
+            return;
+        }
+
+        // Click on the display area of a question - enter edit mode
+        const wrapper = e.target.closest('.question-wrapper');
+        if (wrapper) {
+            const questionId = wrapper.dataset.questionId;
+            if (questionId !== activeQuestionId) {
+                setActiveQuestion(questionId);
+            }
+        }
+    });
+
+    // Handle clicks outside questions to collapse editor
+    document.addEventListener('click', (e) => {
+        // Ignore clicks inside question wrappers
+        if (e.target.closest('.question-wrapper')) {
+            return;
+        }
+
+        // Ignore clicks on UI elements that shouldn't collapse
+        if (e.target.closest('.add-question-wrapper') ||
+            e.target.closest('.builder-actions') ||
+            e.target.closest('.settings-panel') ||
+            e.target.closest('.poll-meta')) {
+            return;
+        }
+
+        // Click outside - collapse current editor
+        if (activeQuestionId) {
+            setActiveQuestion(null);
+        }
+    });
+}
+
+// ==========================================================================
+// Rendering
+// ==========================================================================
+
 function render() {
-    // Update form fields
     document.getElementById('pollTitle').value = state.title;
     document.getElementById('pollDescription').value = state.description;
 
-    // Update settings
     document.getElementById('collectName').checked = state.settings.collectName;
     document.querySelector(`input[name="visibility"][value="${state.settings.visibility}"]`).checked = true;
     document.querySelector(`input[name="visibilityTiming"][value="${state.settings.visibilityTiming}"]`).checked = true;
@@ -157,7 +197,6 @@ function render() {
     document.getElementById('allowEditAny').checked = state.settings.allowEditAny;
     document.getElementById('randomizeOptions').checked = state.settings.randomizeOptions;
 
-    // Render questions
     renderQuestions();
 }
 
@@ -165,30 +204,272 @@ function renderQuestions() {
     const container = document.getElementById('questionsList');
     container.innerHTML = '';
 
+    let questionNumber = 0;
     state.questions.forEach((question, index) => {
-        const element = createQuestionElement(question, index);
-        container.appendChild(element);
+        // Section headers don't get numbered
+        if (question.type !== 'section_header') {
+            questionNumber++;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'question-wrapper';
+        wrapper.dataset.questionId = question._id;
+
+        // Drag handle is always present (visible on hover or always in edit mode)
+        const dragHandle = `
+            <div class="drag-handle-question" title="Drag to reorder">
+                <span class="drag-dots">&#8942;&#8942;</span>
+            </div>
+        `;
+
+        if (question._id === activeQuestionId) {
+            wrapper.classList.add('editing');
+            wrapper.innerHTML = dragHandle + renderQuestionEditor(question, index, questionNumber);
+            setupEditorEvents(wrapper, question);
+        } else {
+            wrapper.innerHTML = dragHandle + renderQuestion(question, {
+                disabled: true,
+                showNumbers: question.type !== 'section_header',
+                questionNumber: questionNumber
+            });
+        }
+
+        container.appendChild(wrapper);
     });
 
-    // Make questions sortable
-    makeSortable(container, '.question-card', (newOrder) => {
-        state.questions = newOrder.map(id => state.questions.find(q => q._id === id));
-        markDirty();
-    });
+    initQuestionsSortable();
 }
 
-function createQuestionElement(question, index) {
-    const template = document.getElementById('questionTemplate');
-    const element = template.content.cloneNode(true).querySelector('.question-card');
+/**
+ * Get the required toggle behavior for a question type
+ */
+function getRequiredBehavior(question) {
+    if (question.type === 'section_header') return { hidden: true };
+    if (question.type === 'ranking') return { disabled: true, forced: true };
+    return { disabled: false };
+}
 
-    element.dataset.questionId = question._id;
+/**
+ * Grade preset definitions
+ */
+const GRADE_PRESETS = {
+    'default': { label: 'Excellent → Reject', grades: ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'] },
+    'a-f': { label: 'A – F', grades: ['A', 'B', 'C', 'D', 'E', 'F'] },
+    'plus-minus': { label: '++ / + / 0 / − / −−', grades: ['++', '+', '0', '−', '−−'] },
+    'pass-fail': { label: 'Pass / Fail', grades: ['Pass', 'Fail'] },
+    'custom': { label: 'Custom...', grades: null },
+};
+
+/**
+ * Render type-specific settings for a question
+ */
+function renderTypeSettings(question) {
+    const settings = question.settings || {};
+
+    switch (question.type) {
+        case 'approval':
+            const min = settings.min ?? 0;
+            const optionCount = question.options?.length || 0;
+            // Show empty (placeholder "All") if max is null or equals option count
+            const max = settings.max;
+            const maxDisplay = (max === null || max === undefined || max >= optionCount) ? '' : max;
+            return `
+                <div class="type-settings approval-settings" data-option-count="${optionCount}">
+                    <label>
+                        <span>Min:</span>
+                        <input type="number" class="setting-min" value="${min}" min="0" max="${optionCount}">
+                    </label>
+                    <label>
+                        <span>Max:</span>
+                        <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="All">
+                    </label>
+                </div>
+            `;
+
+        case 'star':
+            const starCount = settings.starCount ?? 5;
+            return `
+                <div class="type-settings star-settings">
+                    <label>
+                        <span>Stars:</span>
+                        <input type="number" class="setting-star-count" value="${starCount}" min="2" max="10">
+                    </label>
+                </div>
+            `;
+
+        case 'grade':
+            const currentGrades = settings.grades || GRADE_PRESETS['default'].grades;
+            const currentPreset = settings.preset || 'default';
+            const isCustom = currentPreset === 'custom';
+            const customValue = isCustom ? currentGrades.join(', ') : '';
+
+            return `
+                <div class="type-settings grade-settings">
+                    <label>
+                        <span>Scale:</span>
+                        <select class="setting-grade-preset">
+                            ${Object.entries(GRADE_PRESETS).map(([key, preset]) =>
+                                `<option value="${key}" ${key === currentPreset ? 'selected' : ''}>${preset.label}</option>`
+                            ).join('')}
+                        </select>
+                    </label>
+                    <label class="custom-grades-row" style="${isCustom ? '' : 'display: none'}">
+                        <input type="text" class="setting-custom-grades" value="${escapeAttr(customValue)}"
+                            placeholder="Comma separated, e.g. Excellent, Good, Poor">
+                    </label>
+                </div>
+            `;
+
+        case 'yes_no_abstain':
+            const allowAbstain = settings.allowAbstain !== false;
+            return `
+                <div class="type-settings yna-settings">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="setting-allow-abstain" ${allowAbstain ? 'checked' : ''}>
+                        <span>Allow "Abstain"</span>
+                    </label>
+                </div>
+            `;
+
+        default:
+            return '';
+    }
+}
+
+/**
+ * Render the editing UI for a question
+ */
+function renderQuestionEditor(question, index, questionNumber) {
+    const typeOptions = QUESTION_TYPES.map(t =>
+        `<option value="${t.value}" ${t.value === question.type ? 'selected' : ''}>${t.label}</option>`
+    ).join('');
+
+    const showOptions = OPTION_TYPES.includes(question.type);
+    const isSectionHeader = question.type === 'section_header';
+    const requiredBehavior = getRequiredBehavior(question);
+
+    // For section headers, show "Section" instead of question number
+    const numberDisplay = isSectionHeader ? '' : `<span class="question-number">${questionNumber}.</span>`;
+    const titlePlaceholder = isSectionHeader ? 'Section title' : 'Question text';
+
+    return `
+        <div class="question-editor ${isSectionHeader ? 'section-header-editor' : ''}">
+            <div class="editor-accent-bar"></div>
+            <div class="editor-toolbar">
+                <button type="button" class="btn-icon copy-question" title="Duplicate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <button type="button" class="btn-icon delete-question" title="Delete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+                <button type="button" class="btn-icon move-up" title="Move up" ${index === 0 ? 'disabled' : ''}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                </button>
+                <button type="button" class="btn-icon move-down" title="Move down" ${index === state.questions.length - 1 ? 'disabled' : ''}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="editor-header">
+                ${numberDisplay}
+                <input type="text" class="question-title-input" value="${escapeAttr(question.text)}" placeholder="${titlePlaceholder}">
+                <select class="question-type-select">${typeOptions}</select>
+            </div>
+
+            <div class="editor-description">
+                <textarea class="question-description-input" placeholder="Description (optional)">${escapeAttr(question.description || '')}</textarea>
+            </div>
+
+            ${showOptions ? `
+                <div class="editor-options">
+                    <div class="options-list" data-question-id="${question._id}">
+                        ${question.options.map((opt, i) => renderOptionEditor(opt, i, question)).join('')}
+                    </div>
+                    <button type="button" class="btn btn-small btn-add-option">+ Add Option</button>
+                </div>
+            ` : ''}
+
+            <div class="editor-footer">
+                ${renderTypeSettings(question)}
+                ${!requiredBehavior.hidden ? `
+                    <label class="checkbox-label required-toggle ${requiredBehavior.disabled ? 'disabled' : ''}">
+                        <input type="checkbox" class="question-required-input"
+                            ${question.required || requiredBehavior.forced ? 'checked' : ''}
+                            ${requiredBehavior.disabled ? 'disabled' : ''}>
+                        <span>Required</span>
+                        ${requiredBehavior.disabled ? '<span class="required-hint">(always)</span>' : ''}
+                    </label>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Render a single option in edit mode
+ */
+function renderOptionEditor(option, index, question) {
+    return `
+        <div class="option-editor" data-option-id="${option._id}">
+            <span class="option-drag-handle" title="Drag to reorder">&#9776;</span>
+            <span class="option-type-indicator">${getOptionIndicator(question.type)}</span>
+            <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="Option ${index + 1}">
+            <button type="button" class="btn-icon delete-option" title="Delete option">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * Get the visual indicator for an option based on question type
+ */
+function getOptionIndicator(type) {
+    switch (type) {
+        case 'single_choice': return '<span class="indicator-radio"></span>';
+        case 'approval': return '<span class="indicator-checkbox"></span>';
+        default: return '';
+    }
+}
+
+/**
+ * Set up event listeners for the question editor
+ */
+function setupEditorEvents(wrapper, question) {
+    // Title input
+    const titleInput = wrapper.querySelector('.question-title-input');
+    titleInput.addEventListener('input', (e) => {
+        question.text = e.target.value;
+        markDirty();
+    });
+    // Focus the title input when entering edit mode
+    setTimeout(() => titleInput.focus(), 50);
+
+    // Description input
+    const descInput = wrapper.querySelector('.question-description-input');
+    descInput.addEventListener('input', (e) => {
+        question.description = e.target.value;
+        markDirty();
+    });
 
     // Type selector
-    const typeSelect = element.querySelector('.question-type');
-    typeSelect.value = question.type;
+    const typeSelect = wrapper.querySelector('.question-type-select');
     typeSelect.addEventListener('change', (e) => {
         question.type = e.target.value;
-        // Add default options if needed
+        // Add default options if switching to option type
         if (OPTION_TYPES.includes(question.type) && question.options.length === 0) {
             question.options = [
                 { _id: generateTempId(), label: 'Option 1' },
@@ -199,95 +480,259 @@ function createQuestionElement(question, index) {
         markDirty();
     });
 
-    // Question text
-    const textInput = element.querySelector('.question-text');
-    textInput.value = question.text;
-    textInput.addEventListener('input', (e) => {
-        question.text = e.target.value;
-        markDirty();
-    });
-
-    // Description
-    const descInput = element.querySelector('.question-description');
-    descInput.value = question.description || '';
-    descInput.addEventListener('input', (e) => {
-        question.description = e.target.value;
-        markDirty();
-    });
-
     // Required checkbox
-    const requiredCheckbox = element.querySelector('.question-required');
-    requiredCheckbox.checked = question.required;
-    requiredCheckbox.addEventListener('change', (e) => {
-        question.required = e.target.checked;
-        markDirty();
-    });
+    const requiredInput = wrapper.querySelector('.question-required-input');
+    if (requiredInput) {
+        requiredInput.addEventListener('change', (e) => {
+            question.required = e.target.checked;
+
+            // If unchecking required on approval type, reset min to 0
+            if (!e.target.checked && question.type === 'approval' && question.settings?.min > 0) {
+                question.settings.min = 0;
+                // Update the input and pulse it to indicate the reset
+                const minInput = wrapper.querySelector('.setting-min');
+                if (minInput) {
+                    minInput.value = 0;
+                    minInput.classList.remove('pulse');
+                    // Force reflow to restart animation
+                    void minInput.offsetWidth;
+                    minInput.classList.add('pulse');
+                }
+            }
+
+            markDirty();
+        });
+    }
 
     // Delete button
-    element.querySelector('.delete-question').addEventListener('click', () => {
+    wrapper.querySelector('.delete-question').addEventListener('click', (e) => {
+        e.stopPropagation();
         if (confirm('Delete this question?')) {
             state.questions = state.questions.filter(q => q._id !== question._id);
+            activeQuestionId = null;
             renderQuestions();
             markDirty();
         }
     });
 
-    // Options
-    const optionsList = element.querySelector('.options-list');
-    const addOptionBtn = element.querySelector('.add-option');
+    // Copy/duplicate button
+    wrapper.querySelector('.copy-question').addEventListener('click', (e) => {
+        e.stopPropagation();
+        duplicateQuestion(question);
+    });
 
-    if (OPTION_TYPES.includes(question.type)) {
-        renderOptions(optionsList, question);
-        addOptionBtn.addEventListener('click', () => {
+    // Move up/down
+    wrapper.querySelector('.move-up').addEventListener('click', (e) => {
+        e.stopPropagation();
+        moveQuestion(question._id, -1);
+    });
+    wrapper.querySelector('.move-down').addEventListener('click', (e) => {
+        e.stopPropagation();
+        moveQuestion(question._id, 1);
+    });
+
+    // Options (if present)
+    const optionsList = wrapper.querySelector('.options-list');
+    if (optionsList) {
+        setupOptionEvents(optionsList, question);
+
+        // Add option button
+        wrapper.querySelector('.btn-add-option').addEventListener('click', () => {
             question.options.push({
                 _id: generateTempId(),
                 label: `Option ${question.options.length + 1}`,
             });
-            renderOptions(optionsList, question);
+            renderQuestions();
             markDirty();
         });
-    } else {
-        optionsList.style.display = 'none';
-        addOptionBtn.style.display = 'none';
     }
 
-    return element;
+    // Type-specific settings
+    setupTypeSettingsEvents(wrapper, question);
 }
 
-function renderOptions(container, question) {
-    container.innerHTML = '';
+/**
+ * Set up event handlers for type-specific settings
+ */
+function setupTypeSettingsEvents(wrapper, question) {
+    // Initialize settings object if needed
+    if (!question.settings) {
+        question.settings = {};
+    }
 
-    question.options.forEach((option, index) => {
-        const template = document.getElementById('optionTemplate');
-        const element = template.content.cloneNode(true).querySelector('.option-item');
+    // Approval min/max settings
+    const minInput = wrapper.querySelector('.setting-min');
+    const maxInput = wrapper.querySelector('.setting-max');
+    const approvalSettings = wrapper.querySelector('.approval-settings');
+    const optionCount = approvalSettings ? parseInt(approvalSettings.dataset.optionCount) || 0 : 0;
 
-        element.dataset.optionId = option._id;
+    if (minInput && maxInput) {
+        minInput.addEventListener('change', (e) => {
+            const oldMin = question.settings.min ?? 0;
+            const newMin = parseInt(e.target.value) || 0;
+            question.settings.min = newMin;
 
-        const labelInput = element.querySelector('.option-label');
-        labelInput.value = option.label;
+            // Get effective max (null means "all" = optionCount)
+            const effectiveMax = question.settings.max ?? optionCount;
+
+            // If min was equal to max and min increased, increase max too
+            if (oldMin === effectiveMax && newMin > oldMin && newMin <= optionCount) {
+                question.settings.max = newMin;
+                // Show "All" if max equals option count, otherwise show the number
+                maxInput.value = (newMin >= optionCount) ? '' : newMin;
+                // Pulse the max input
+                maxInput.classList.remove('pulse');
+                void maxInput.offsetWidth;
+                maxInput.classList.add('pulse');
+            }
+
+            markDirty();
+        });
+
+        maxInput.addEventListener('change', (e) => {
+            const oldMax = question.settings.max ?? optionCount;
+            const newMax = e.target.value ? parseInt(e.target.value) : null;
+            // Store null if max equals or exceeds option count (means "all")
+            question.settings.max = (newMax === null || newMax >= optionCount) ? null : newMax;
+
+            const effectiveNewMax = newMax ?? optionCount;
+            const currentMin = question.settings.min ?? 0;
+
+            // If max was equal to min and max decreased, decrease min too
+            if (oldMax === currentMin && effectiveNewMax < oldMax && effectiveNewMax >= 0) {
+                question.settings.min = effectiveNewMax;
+                minInput.value = effectiveNewMax;
+                // Pulse the min input
+                minInput.classList.remove('pulse');
+                void minInput.offsetWidth;
+                minInput.classList.add('pulse');
+            }
+
+            // Clear display if it equals option count (show placeholder "All")
+            if (newMax !== null && newMax >= optionCount) {
+                maxInput.value = '';
+            }
+
+            markDirty();
+        });
+    }
+
+    // Star count setting
+    const starCountInput = wrapper.querySelector('.setting-star-count');
+    if (starCountInput) {
+        starCountInput.addEventListener('change', (e) => {
+            const value = parseInt(e.target.value) || 5;
+            question.settings.starCount = Math.max(2, Math.min(10, value));
+            renderQuestions();
+            markDirty();
+        });
+    }
+
+    // Grade preset setting
+    const gradePresetSelect = wrapper.querySelector('.setting-grade-preset');
+    const customGradesInput = wrapper.querySelector('.setting-custom-grades');
+    const customGradesLabel = wrapper.querySelector('.custom-grades-row');
+
+    if (gradePresetSelect) {
+        gradePresetSelect.addEventListener('change', (e) => {
+            const preset = e.target.value;
+            question.settings.preset = preset;
+
+            if (preset === 'custom') {
+                if (customGradesLabel) customGradesLabel.style.display = '';
+                // Parse existing custom grades or use default
+                const customValue = customGradesInput?.value.trim();
+                if (customValue) {
+                    question.settings.grades = customValue.split(',').map(g => g.trim()).filter(g => g);
+                }
+            } else {
+                if (customGradesLabel) customGradesLabel.style.display = 'none';
+                question.settings.grades = GRADE_PRESETS[preset].grades;
+            }
+
+            renderQuestions();
+            markDirty();
+        });
+    }
+
+    if (customGradesInput) {
+        customGradesInput.addEventListener('change', (e) => {
+            const value = e.target.value.trim();
+            if (value) {
+                question.settings.grades = value.split(',').map(g => g.trim()).filter(g => g);
+                renderQuestions();
+                markDirty();
+            }
+        });
+    }
+
+    // Y/N/A allow abstain setting
+    const allowAbstainInput = wrapper.querySelector('.setting-allow-abstain');
+    if (allowAbstainInput) {
+        allowAbstainInput.addEventListener('change', (e) => {
+            question.settings.allowAbstain = e.target.checked;
+            renderQuestions();
+            markDirty();
+        });
+    }
+}
+
+/**
+ * Set up events for options within editor
+ */
+function setupOptionEvents(optionsList, question) {
+    // Option inputs
+    optionsList.querySelectorAll('.option-editor').forEach(optEl => {
+        const optionId = optEl.dataset.optionId;
+        const option = question.options.find(o => o._id === optionId);
+        if (!option) return;
+
+        const labelInput = optEl.querySelector('.option-label-input');
         labelInput.addEventListener('input', (e) => {
             option.label = e.target.value;
             markDirty();
         });
 
-        element.querySelector('.delete-option').addEventListener('click', () => {
+        const deleteBtn = optEl.querySelector('.delete-option');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (question.options.length > 2) {
-                question.options = question.options.filter(o => o._id !== option._id);
-                renderOptions(container, question);
+                question.options = question.options.filter(o => o._id !== optionId);
+                renderQuestions();
                 markDirty();
             } else {
                 showToast('Need at least 2 options', 'error');
             }
         });
-
-        container.appendChild(element);
     });
 
     // Make options sortable
-    makeSortable(container, '.option-item', (newOrder) => {
-        question.options = newOrder.map(id => question.options.find(o => o._id === id));
-        markDirty();
+    new Sortable(optionsList, {
+        animation: 150,
+        handle: '.option-drag-handle',
+        ghostClass: 'option-ghost',
+        onEnd: (evt) => {
+            const optionId = evt.item.dataset.optionId;
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+
+            if (oldIndex !== newIndex) {
+                const [moved] = question.options.splice(oldIndex, 1);
+                question.options.splice(newIndex, 0, moved);
+                markDirty();
+            }
+        }
     });
+}
+
+// ==========================================================================
+// Question Operations
+// ==========================================================================
+
+function setActiveQuestion(questionId) {
+    if (activeQuestionId === questionId) return;
+    activeQuestionId = questionId;
+    renderQuestions();
 }
 
 function addQuestion() {
@@ -304,69 +749,83 @@ function addQuestion() {
     };
 
     state.questions.push(question);
+    activeQuestionId = question._id;  // Open for editing immediately
     renderQuestions();
     markDirty();
-
-    // Focus the new question
-    setTimeout(() => {
-        const elements = document.querySelectorAll('.question-text');
-        const lastElement = elements[elements.length - 1];
-        if (lastElement) {
-            lastElement.focus();
-        }
-    }, 100);
 }
 
-function makeSortable(container, itemSelector, onSort) {
-    const items = container.querySelectorAll(itemSelector);
+function duplicateQuestion(question) {
+    const copy = {
+        _id: generateTempId(),
+        type: question.type,
+        text: question.text + ' (copy)',
+        description: question.description,
+        required: question.required,
+        options: question.options.map(o => ({
+            _id: generateTempId(),
+            label: o.label,
+        })),
+    };
 
-    items.forEach(item => {
-        const handle = item.querySelector('.drag-handle, .drag-handle-small');
-        if (!handle) return;
+    const index = state.questions.findIndex(q => q._id === question._id);
+    state.questions.splice(index + 1, 0, copy);
+    activeQuestionId = copy._id;
+    renderQuestions();
+    markDirty();
+}
 
-        handle.addEventListener('dragstart', (e) => {
-            item.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        });
+function moveQuestion(questionId, direction) {
+    const index = state.questions.findIndex(q => q._id === questionId);
+    const newIndex = index + direction;
 
-        handle.addEventListener('dragend', () => {
-            item.classList.remove('dragging');
+    if (newIndex >= 0 && newIndex < state.questions.length) {
+        const [moved] = state.questions.splice(index, 1);
+        state.questions.splice(newIndex, 0, moved);
+        renderQuestions();
+        markDirty();
+    }
+}
 
-            const newOrder = Array.from(container.querySelectorAll(itemSelector))
-                .map(el => el.dataset.questionId || el.dataset.optionId);
+// ==========================================================================
+// SortableJS for Questions
+// ==========================================================================
 
-            onSort(newOrder);
-        });
+function initQuestionsSortable() {
+    const container = document.getElementById('questionsList');
 
-        item.setAttribute('draggable', 'true');
+    // Destroy existing sortable if any
+    if (questionsSortable) {
+        questionsSortable.destroy();
+    }
+
+    questionsSortable = new Sortable(container, {
+        animation: 150,
+        handle: '.drag-handle-question',
+        ghostClass: 'question-ghost',
+        chosenClass: 'question-chosen',
+        dragClass: 'question-drag',
+        onStart: () => {
+            // Clear active question without re-rendering (re-render would destroy DOM mid-drag)
+            activeQuestionId = null;
+        },
+        onEnd: (evt) => {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+
+            if (oldIndex !== newIndex) {
+                const [moved] = state.questions.splice(oldIndex, 1);
+                state.questions.splice(newIndex, 0, moved);
+                markDirty();
+            }
+            // Always re-render to sync DOM with state (also collapses any editor that was open)
+            renderQuestions();
+        }
     });
-
-    container.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const dragging = container.querySelector('.dragging');
-        const afterElement = getDragAfterElement(container, e.clientY, itemSelector);
-
-        if (afterElement) {
-            container.insertBefore(dragging, afterElement);
-        } else {
-            container.appendChild(dragging);
-        }
-    });
 }
 
-function getDragAfterElement(container, y, itemSelector) {
-    const elements = [...container.querySelectorAll(`${itemSelector}:not(.dragging)`)];
-
-    return elements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-
-        if (offset < 0 && offset > closest.offset) {
-            return { offset, element: child };
-        }
-        return closest;
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
+// ==========================================================================
+// State Persistence
+// ==========================================================================
 
 function markDirty() {
     state.isDirty = true;
@@ -374,7 +833,6 @@ function markDirty() {
 }
 
 function saveToLocalStorage() {
-    // Don't save to localStorage in edit mode
     if (isEditMode) return;
     localStorage.setItem('poll_draft', JSON.stringify(state));
 }
@@ -394,14 +852,12 @@ function loadFromLocalStorage() {
 }
 
 function loadFromServer(voteData, adminToken) {
-    // Convert server data format to local state format
     state.title = voteData.title || 'Untitled Poll';
     state.description = voteData.description || '';
     state.publicId = voteData.public_id;
     state.adminToken = adminToken;
     state.isDirty = false;
 
-    // Settings
     state.settings = {
         collectName: voteData.collect_name || false,
         visibility: voteData.visibility || 'private',
@@ -411,7 +867,6 @@ function loadFromServer(voteData, adminToken) {
         randomizeOptions: voteData.randomize_options || false,
     };
 
-    // Questions
     state.questions = (voteData.questions || []).map(q => ({
         _id: generateTempId(),
         id: q.id,
@@ -428,7 +883,6 @@ function loadFromServer(voteData, adminToken) {
         })),
     }));
 
-    // Clear localStorage draft since we're editing an existing vote
     localStorage.removeItem('poll_draft');
 }
 
@@ -437,7 +891,6 @@ function clearLocalStorage() {
 }
 
 function resetForm() {
-    // Reset state to defaults
     state.title = defaultState.title;
     state.description = defaultState.description;
     state.settings = { ...defaultState.settings };
@@ -445,28 +898,20 @@ function resetForm() {
     state.publicId = null;
     state.adminToken = null;
     state.isDirty = false;
+    activeQuestionId = null;
 
-    // Clear localStorage
     clearLocalStorage();
 
-    // Hide Clear button
     const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.style.display = 'none';
-    }
+    if (clearBtn) clearBtn.style.display = 'none';
 
-    // Reset Save Draft button text
     const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) {
-        saveBtn.textContent = 'Save Draft';
-    }
+    if (saveBtn) saveBtn.textContent = 'Save Draft';
 
-    // Re-render the form
     render();
 }
 
 function setupAutoSave() {
-    // Auto-save to localStorage every 5 seconds if dirty
     setInterval(() => {
         if (state.isDirty) {
             saveToLocalStorage();
@@ -474,10 +919,13 @@ function setupAutoSave() {
     }, 5000);
 }
 
+// ==========================================================================
+// API Operations
+// ==========================================================================
+
 async function saveDraft() {
     try {
         const data = prepareData();
-        // Only set to draft if creating new, otherwise keep current status
         if (!state.publicId) {
             data.status = 'draft';
         }
@@ -493,12 +941,10 @@ async function saveDraft() {
 
         state.isDirty = false;
 
-        // If editing, don't save to localStorage
         if (!window.POLL_DATA) {
             saveToLocalStorage();
         }
 
-        // If we were editing (came from server), go back to admin
         if (window.POLL_DATA) {
             showToast('Saved! Returning to admin...', 'success');
             setTimeout(() => {
@@ -506,11 +952,8 @@ async function saveDraft() {
             }, 1000);
         } else {
             showToast('Saved! View in <a href="' + basePath + '/dashboard">Dashboard</a>', 'success');
-            // Update button text from "Save Draft" to "Update Draft"
             const saveBtn = document.getElementById('saveBtn');
-            if (saveBtn) {
-                saveBtn.textContent = 'Update Draft';
-            }
+            if (saveBtn) saveBtn.textContent = 'Update Draft';
         }
     } catch (err) {
         showToast(err.message, 'error');
@@ -550,199 +993,10 @@ async function publishPoll() {
         clearLocalStorage();
         state.isDirty = false;
 
-        // Redirect to admin page
         const adminUrl = result.admin_url || `${basePath}/${state.publicId}/admin/${state.adminToken}`;
         window.location.href = adminUrl;
     } catch (err) {
         showToast(err.message, 'error');
-    }
-}
-
-function previewVote() {
-    const modal = document.getElementById('previewModal');
-    const content = document.getElementById('previewContent');
-
-    // Build preview HTML
-    content.innerHTML = renderPreview();
-
-    // Show modal
-    modal.style.display = 'flex';
-
-    // Close handlers
-    const closeBtn = document.getElementById('closePreview');
-    const backdrop = modal.querySelector('.modal-backdrop');
-
-    const closeModal = () => {
-        modal.style.display = 'none';
-    };
-
-    closeBtn.onclick = closeModal;
-    backdrop.onclick = closeModal;
-
-    // Close on Escape
-    const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-}
-
-function renderPreview() {
-    const escapeHtml = (text) => {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    };
-
-    let html = `
-        <header class="vote-header">
-            <h1>${escapeHtml(state.title || 'Untitled Poll')}</h1>
-            ${state.description ? `<div class="vote-description">${escapeHtml(state.description)}</div>` : ''}
-        </header>
-        <form class="vote-form">
-    `;
-
-    // Voter name field
-    if (state.settings.collectName) {
-        html += `
-            <div class="form-group name-field">
-                <label>Your Name</label>
-                <input type="text" disabled placeholder="Voter name">
-            </div>
-        `;
-    }
-
-    // Questions
-    state.questions.forEach((question, index) => {
-        html += `
-            <div class="question-block">
-                <div class="question-text">
-                    ${escapeHtml(question.text || `Question ${index + 1}`)}
-                    ${question.required ? '<span class="required-marker">*</span>' : ''}
-                </div>
-                ${question.description ? `<div class="question-description">${escapeHtml(question.description)}</div>` : ''}
-                <div class="question-input">
-                    ${renderQuestionInput(question)}
-                </div>
-            </div>
-        `;
-    });
-
-    html += `
-            <div class="form-actions">
-                <button type="button" class="btn btn-primary btn-large" disabled>Submit Vote</button>
-            </div>
-        </form>
-    `;
-
-    return html;
-}
-
-function renderQuestionInput(question) {
-    const escapeHtml = (text) => {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    };
-
-    switch (question.type) {
-        case 'text_single':
-            return '<input type="text" class="form-control" disabled placeholder="Short answer">';
-
-        case 'text_multi':
-            return '<textarea class="form-control" rows="3" disabled placeholder="Long answer"></textarea>';
-
-        case 'single_choice':
-            return `
-                <div class="radio-options">
-                    ${question.options.map(o => `
-                        <label class="radio-option">
-                            <input type="radio" disabled>
-                            <span>${escapeHtml(o.label)}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-
-        case 'approval':
-            return `
-                <div class="checkbox-options">
-                    ${question.options.map(o => `
-                        <label class="checkbox-option">
-                            <input type="checkbox" disabled>
-                            <span>${escapeHtml(o.label)}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-
-        case 'ranking':
-            return `
-                <p class="ranking-hint" style="color: var(--color-text-muted); font-size: 0.875rem;">Drag to reorder (top = best)</p>
-                <ol class="ranking-list">
-                    ${question.options.map(o => `
-                        <li class="ranking-item">
-                            <span class="drag-handle">&#9776;</span>
-                            <span class="option-label">${escapeHtml(o.label)}</span>
-                        </li>
-                    `).join('')}
-                </ol>
-            `;
-
-        case 'star':
-            return `
-                <div class="star-options">
-                    ${question.options.map(o => `
-                        <div class="star-row">
-                            <span class="option-label">${escapeHtml(o.label)}</span>
-                            <div class="star-rating">
-                                ${'<span class="star">&#9733;</span>'.repeat(5)}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-        case 'grade':
-            return `
-                <div class="grade-options">
-                    ${question.options.map(o => `
-                        <div class="grade-row">
-                            <span class="option-label">${escapeHtml(o.label)}</span>
-                            <select class="grade-select" disabled>
-                                <option>Select...</option>
-                                <option>Excellent</option>
-                                <option>Very Good</option>
-                                <option>Good</option>
-                                <option>Fair</option>
-                                <option>Poor</option>
-                                <option>Reject</option>
-                            </select>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-        case 'yes_no_abstain':
-            return `
-                <div class="yna-options">
-                    ${question.options.map(o => `
-                        <div class="yna-row">
-                            <span class="option-label">${escapeHtml(o.label)}</span>
-                            <div class="yna-buttons">
-                                <button type="button" class="yna-btn">Yes</button>
-                                <button type="button" class="yna-btn">No</button>
-                                <button type="button" class="yna-btn">Abstain</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-        default:
-            return '<p>Unknown question type</p>';
     }
 }
 
@@ -757,17 +1011,26 @@ function prepareData() {
         allow_edit_any: state.settings.allowEditAny,
         randomize_options: state.settings.randomizeOptions,
         questions: state.questions.map((q, index) => ({
-            id: q.id, // Server ID if exists
+            id: q.id,
             type: q.type,
             text: q.text,
             description: q.description,
             required: q.required,
+            settings: q.settings || null,
             sort_order: index,
             options: q.options.map((o, oIndex) => ({
-                id: o.id, // Server ID if exists
+                id: o.id,
                 label: o.label,
                 sort_order: oIndex,
             })),
         })),
     };
+}
+
+// ==========================================================================
+// Utilities
+// ==========================================================================
+
+function escapeAttr(str) {
+    return (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

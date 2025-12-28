@@ -15,6 +15,7 @@
 
     --color-bg: #f8fafc;
     --color-bg-card: #ffffff;
+    --color-bg-hover: hsl(210, 80%, 96%);
     --color-text: #1e293b;
     --color-text-muted: #64748b;
     --color-border: #e2e8f0;
@@ -36,6 +37,9 @@
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     --spacing-2xl: 3rem;
+
+    --transition-speed: 0.05s;
+    --transition-speed-fast: 0.01s;
 }
 
 /* --------------------------------------------------------------------------
@@ -181,7 +185,7 @@ img {
     border: 1px solid transparent;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--transition-speed) ease;
     text-decoration: none;
 }
 
@@ -302,7 +306,7 @@ select {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-bg-card);
-    transition: border-color 0.15s ease;
+    transition: border-color var(--transition-speed) ease;
 }
 
 input:focus,

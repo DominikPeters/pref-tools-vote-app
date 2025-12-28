@@ -1,38 +1,46 @@
 /* ==========================================================================
    Voter Form Styles
+
+   Poll-specific styles. Question input styles are in question.css (shared).
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   Poll Container & Header
+   -------------------------------------------------------------------------- */
 .poll-container {
     max-width: 800px;
     margin: 0 auto;
 }
 
-.vote-header {
+.poll-header {
     margin-bottom: var(--spacing-xl);
 }
 
-.vote-header h1 {
+.poll-header h1 {
     margin-bottom: var(--spacing-sm);
 }
 
-.vote-description {
+.poll-description {
     color: var(--color-text-muted);
     font-size: 1.125rem;
+    line-height: 1.6;
 }
 
-.vote-status-banner {
+/* --------------------------------------------------------------------------
+   Status Banners
+   -------------------------------------------------------------------------- */
+.poll-status-banner {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
     text-align: center;
     margin-top: var(--spacing-md);
 }
 
-.vote-status-banner.draft {
+.poll-status-banner.draft {
     background: var(--color-text-muted);
     color: white;
 }
 
-/* Editing Banner */
 .editing-banner {
     background: var(--color-primary);
     color: white;
@@ -42,272 +50,45 @@
     margin-bottom: var(--spacing-lg);
 }
 
-/* Question Blocks */
-.question-block {
-    margin-bottom: var(--spacing-lg);
-}
-
-.question-block .question-text {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin-bottom: var(--spacing-sm);
-}
-
-.required-marker {
-    color: var(--color-danger);
-}
-
-.question-block .question-description {
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-    margin-bottom: var(--spacing-md);
-}
-
-.question-input {
-    margin-top: var(--spacing-md);
-}
-
-/* Radio & Checkbox Options */
-.radio-options,
-.checkbox-options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-}
-
-.radio-option,
-.checkbox-option {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.radio-option:hover,
-.checkbox-option:hover {
-    background: var(--color-border);
-}
-
-.radio-option input,
-.checkbox-option input {
-    width: auto;
-    margin: 0;
-}
-
-/* Ranking */
-.ranking-options {
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-}
-
-.ranking-hint {
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--spacing-md);
-}
-
-.ranking-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    counter-reset: ranking;
-}
-
-.ranking-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg-card);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-sm);
-    cursor: grab;
-    counter-increment: ranking;
-}
-
-.ranking-item::before {
-    content: counter(ranking) ".";
-    font-weight: 600;
-    color: var(--color-primary);
-    min-width: 24px;
-}
-
-.ranking-item:active {
-    cursor: grabbing;
-}
-
-.ranking-item.dragging {
-    opacity: 0.5;
-}
-
-.ranking-item .drag-handle {
-    color: var(--color-text-muted);
-}
-
-/* Star Rating */
-.star-options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-}
-
-.star-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-}
-
-.star-rating {
-    display: flex;
-    gap: var(--spacing-xs);
-}
-
-.star {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--color-border);
-    transition: color 0.15s ease;
-    padding: 0;
-}
-
-.star:hover,
-.star.active {
-    color: var(--color-warning);
-}
-
-/* Grades */
-.grade-options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-}
-
-.grade-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-}
-
-.grade-select {
-    max-width: 150px;
-}
-
-/* Yes/No/Abstain */
-.yna-options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-}
-
-.yna-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-}
-
-.yna-buttons {
-    display: flex;
-    gap: var(--spacing-xs);
-}
-
-.yna-btn {
-    padding: var(--spacing-xs) var(--spacing-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-bg-card);
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: all 0.15s ease;
-}
-
-.yna-btn:hover {
-    background: var(--color-border);
-}
-
-.yna-btn.active.yes {
-    background: var(--color-success);
-    border-color: var(--color-success);
-    color: white;
-}
-
-.yna-btn.active.no {
-    background: var(--color-danger);
-    border-color: var(--color-danger);
-    color: white;
-}
-
-.yna-btn.active.abstain {
-    background: var(--color-text-muted);
-    border-color: var(--color-text-muted);
-    color: white;
-}
-
-/* Name Field */
+/* --------------------------------------------------------------------------
+   Name Field
+   -------------------------------------------------------------------------- */
 .name-field {
     background: var(--color-bg);
     border-radius: var(--radius-md);
     padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
 }
 
-/* Form Actions */
+/* --------------------------------------------------------------------------
+   Form Actions
+   -------------------------------------------------------------------------- */
 .form-actions {
     margin-top: var(--spacing-xl);
     text-align: center;
 }
 
-/* Closed Message */
-.vote-closed-message {
+/* --------------------------------------------------------------------------
+   Closed Poll Message
+   -------------------------------------------------------------------------- */
+.poll-closed-message {
     text-align: center;
 }
 
-.vote-closed-message h2 {
+.poll-closed-message h2 {
     margin-bottom: var(--spacing-md);
 }
 
-.vote-closed-message p {
+.poll-closed-message p {
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-lg);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .star-row,
-    .grade-row,
-    .yna-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .star-rating,
-    .grade-select,
-    .yna-buttons {
-        width: 100%;
-    }
-
-    .yna-buttons {
-        justify-content: stretch;
-    }
-
-    .yna-btn {
-        flex: 1;
-    }
+/* --------------------------------------------------------------------------
+   Questions Container
+   -------------------------------------------------------------------------- */
+#questionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
 }

@@ -1,16 +1,17 @@
 <?php
 $title = e($poll->title) . ' - Pref.Tools Vote';
-$extraCss = ['/assets/css/poll.css'];
+$extraCss = ['/assets/css/question.css', '/assets/css/poll.css'];
 $extraJs = ['/assets/js/poll.js'];
 $isEditing = isset($existingResponse) && $existingResponse !== null;
 ob_start();
 ?>
 
-<?php if ($isEditing): ?>
 <script>
+    window.POLL_DATA = <?= json_encode($poll->toPublicArray()) ?>;
+    <?php if ($isEditing): ?>
     window.EXISTING_RESPONSE = <?= json_encode($existingResponse->toArray()) ?>;
+    <?php endif; ?>
 </script>
-<?php endif; ?>
 
 <div class="poll-container">
     <div class="container">
@@ -42,126 +43,10 @@ ob_start();
                     </div>
                 <?php endif; ?>
 
-                <?php foreach ($poll->questions as $question): ?>
-                    <div class="question-block card" data-question-id="<?= $question->id ?>" data-type="<?= e($question->type) ?>">
-                        <div class="question-text">
-                            <?= e($question->text) ?>
-                            <?php if ($question->required): ?>
-                                <span class="required-marker">*</span>
-                            <?php endif; ?>
-                        </div>
-
-                        <?php if ($question->description): ?>
-                            <div class="question-description">
-                                <?= nl2br(e($question->description)) ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <div class="question-input">
-                            <?php
-                            $inputName = "answers[{$question->id}]";
-                            switch ($question->type):
-                                case 'text_single':
-                            ?>
-                                    <input type="text" name="<?= $inputName ?>" class="form-control" <?= $question->required ? 'required' : '' ?>>
-                                <?php break;
-
-                                case 'text_multi': ?>
-                                    <textarea name="<?= $inputName ?>" class="form-control" rows="4" <?= $question->required ? 'required' : '' ?>></textarea>
-                                <?php break;
-
-                                case 'single_choice': ?>
-                                    <div class="radio-options">
-                                        <?php foreach ($question->options as $option): ?>
-                                            <label class="radio-option">
-                                                <input type="radio" name="<?= $inputName ?>" value="<?= $option->id ?>" <?= $question->required ? 'required' : '' ?>>
-                                                <span><?= e($option->label) ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php break;
-
-                                case 'approval': ?>
-                                    <div class="checkbox-options">
-                                        <?php foreach ($question->options as $option): ?>
-                                            <label class="checkbox-option">
-                                                <input type="checkbox" name="<?= $inputName ?>[]" value="<?= $option->id ?>">
-                                                <span><?= e($option->label) ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php break;
-
-                                case 'ranking': ?>
-                                    <div class="ranking-options" data-question-id="<?= $question->id ?>">
-                                        <p class="ranking-hint">Drag to reorder (top = best)</p>
-                                        <ol class="ranking-list">
-                                            <?php foreach ($question->options as $option): ?>
-                                                <li class="ranking-item" data-option-id="<?= $option->id ?>">
-                                                    <span class="drag-handle">&#9776;</span>
-                                                    <span class="option-label"><?= e($option->label) ?></span>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ol>
-                                        <input type="hidden" name="<?= $inputName ?>" class="ranking-value">
-                                    </div>
-                                <?php break;
-
-                                case 'star': ?>
-                                    <div class="star-options">
-                                        <?php foreach ($question->options as $option): ?>
-                                            <div class="star-row">
-                                                <span class="option-label"><?= e($option->label) ?></span>
-                                                <div class="star-rating" data-option-id="<?= $option->id ?>">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <button type="button" class="star" data-value="<?= $i ?>">&#9733;</button>
-                                                    <?php endfor; ?>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                        <input type="hidden" name="<?= $inputName ?>" class="star-value">
-                                    </div>
-                                <?php break;
-
-                                case 'grade': ?>
-                                    <div class="grade-options">
-                                        <?php
-                                        $grades = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'];
-                                        foreach ($question->options as $option): ?>
-                                            <div class="grade-row">
-                                                <span class="option-label"><?= e($option->label) ?></span>
-                                                <select name="<?= $inputName ?>[<?= $option->id ?>]" class="grade-select">
-                                                    <option value="">Select...</option>
-                                                    <?php foreach ($grades as $grade): ?>
-                                                        <option value="<?= strtolower($grade) ?>"><?= $grade ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php break;
-
-                                case 'yes_no_abstain': ?>
-                                    <div class="yna-options">
-                                        <?php foreach ($question->options as $option): ?>
-                                            <div class="yna-row">
-                                                <span class="option-label"><?= e($option->label) ?></span>
-                                                <div class="yna-buttons" data-option-id="<?= $option->id ?>">
-                                                    <button type="button" class="yna-btn yes" data-value="yes">Yes</button>
-                                                    <button type="button" class="yna-btn no" data-value="no">No</button>
-                                                    <button type="button" class="yna-btn abstain" data-value="abstain">Abstain</button>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                        <input type="hidden" name="<?= $inputName ?>" class="yna-value">
-                                    </div>
-                                <?php break;
-
-                            endswitch;
-                            ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+                <!-- Questions rendered by JavaScript -->
+                <div id="questionsContainer">
+                    <!-- Questions will be rendered here -->
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary btn-large"><?= $isEditing ? 'Update Response' : 'Submit Vote' ?></button>
