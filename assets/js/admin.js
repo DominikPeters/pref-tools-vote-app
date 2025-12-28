@@ -69,6 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Auto-select URL on click for easy copying
+    document.querySelectorAll('.copy-field input[readonly]').forEach(input => {
+        input.addEventListener('click', () => {
+            input.select();
+        });
+        input.addEventListener('focus', () => {
+            input.select();
+        });
+    });
 });
 
 async function loadVote(publicId, adminToken) {
