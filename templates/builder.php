@@ -16,6 +16,13 @@ ob_start();
 <div class="builder-container">
     <div class="builder-header">
         <div class="container">
+            <?php if ($isEditing): ?>
+            <nav class="breadcrumbs">
+                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>">Poll Admin</a>
+                <span class="separator">/</span>
+                <span class="current">Edit Poll</span>
+            </nav>
+            <?php endif; ?>
             <h1><?= $isEditing ? 'Edit Poll' : 'Create a New Poll' ?></h1>
             <div class="builder-actions">
                 <?php if ($isEditing): ?>
@@ -41,7 +48,7 @@ ob_start();
     <div class="builder-main">
         <div class="container">
             <!-- Poll Metadata -->
-            <section class="poll-meta card">
+            <section class="card">
                 <div class="form-group">
                     <input type="text" id="pollTitle" class="input-title" placeholder="Untitled Poll" value="">
                 </div>
@@ -67,7 +74,10 @@ ob_start();
                 <h2>Settings</h2>
 
                 <div class="settings-group">
-                    <h3>Voter Information</h3>
+                    <h3>
+                        Voter Information
+                        <span class="info-icon" data-tooltip="Control whether voters must provide their name when submitting" data-tooltip-pos="right">?</span>
+                    </h3>
                     <label class="checkbox-label">
                         <input type="checkbox" id="collectName">
                         <span>Collect voter names</span>
@@ -75,7 +85,10 @@ ob_start();
                 </div>
 
                 <div class="settings-group">
-                    <h3>Privacy</h3>
+                    <h3>
+                        Privacy
+                        <span class="info-icon" data-tooltip="Controls who can see the submitted responses and voter identities" data-tooltip-pos="right">?</span>
+                    </h3>
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="visibility" value="private" checked>
@@ -93,7 +106,10 @@ ob_start();
                 </div>
 
                 <div class="settings-group">
-                    <h3>When are results visible?</h3>
+                    <h3>
+                        When are results visible?
+                        <span class="info-icon" data-tooltip="Choose when voters can view the poll results and analysis" data-tooltip-pos="right">?</span>
+                    </h3>
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="visibilityTiming" value="after_close" checked>
@@ -107,7 +123,10 @@ ob_start();
                 </div>
 
                 <div class="settings-group">
-                    <h3>Editing</h3>
+                    <h3>
+                        Editing
+                        <span class="info-icon" data-tooltip="Control whether voters can modify responses after submission" data-tooltip-pos="right">?</span>
+                    </h3>
                     <label class="checkbox-label">
                         <input type="checkbox" id="allowEditOwn" checked>
                         <span>Voters can edit their own response</span>
@@ -119,7 +138,10 @@ ob_start();
                 </div>
 
                 <div class="settings-group">
-                    <h3>Options Display</h3>
+                    <h3>
+                        Options Display
+                        <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
+                    </h3>
                     <label class="checkbox-label">
                         <input type="checkbox" id="randomizeOptions">
                         <span>Randomize option order for each voter</span>

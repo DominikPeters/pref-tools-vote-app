@@ -5,16 +5,17 @@
 import { api, showToast, showConfirmModal, setButtonLoading, clearButtonLoading, copyToClipboard, basePath } from './app.js';
 
 let pollData = null;
+let cachedResponses = null; // Store responses to re-render after pollData loads
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const container = document.querySelector('.admin-content');
     if (!container) return;
 
     const publicId = container.dataset.publicId;
     const adminToken = container.dataset.adminToken;
 
-    // Load initial data
-    loadVote(publicId, adminToken);
+    // Load poll data first, then responses (so formatAnswers has pollData)
+    await loadVote(publicId, adminToken);
     loadResponses(publicId, adminToken);
 
     // Action buttons
@@ -95,9 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadVote(publicId, adminToken) {
     try {
         const result = await api.get(`/api/polls/${publicId}/admin/${adminToken}`);
-        pollData = result.vote;
+        pollData = result.poll;
     } catch (err) {
-        showToast('Failed to load vote data', 'error');
+        showToast('Failed to load poll data', 'error');
     }
 }
 
@@ -135,46 +136,70 @@ async function loadResponses(publicId, adminToken) {
 
 function formatAnswers(answers) {
     if (!pollData || !pollData.questions) {
-        return JSON.stringify(answers);
+        // Show a loading placeholder instead of raw JSON
+        return '<em class="loading-answers">Loading...</em>';
     }
 
-    return pollData.questions.map(q => {
+    // Show a compact summary: number of questions answered
+    const answeredCount = pollData.questions.filter(q => {
         const answer = answers[q.id];
-        let displayValue = '';
+        return answer !== undefined && answer !== null && answer !== '';
+    }).length;
 
-        if (answer === undefined || answer === null) {
-            displayValue = '<em>No answer</em>';
-        } else if (typeof answer === 'string' || typeof answer === 'number') {
-            // For single choice, find the option label
-            if (q.type === 'single_choice') {
-                const option = q.options.find(o => o.id === answer);
-                displayValue = option ? escapeHtml(option.label) : answer;
-            } else {
-                displayValue = escapeHtml(String(answer));
-            }
-        } else if (Array.isArray(answer)) {
-            // For approval or ranking
-            const labels = answer.map(id => {
-                const option = q.options.find(o => o.id === id);
-                return option ? option.label : id;
-            });
-            displayValue = labels.map(l => escapeHtml(l)).join(q.type === 'ranking' ? ' > ' : ', ');
-        } else if (typeof answer === 'object') {
-            // For grades, stars, yes/no/abstain
-            displayValue = Object.entries(answer).map(([optId, value]) => {
-                const option = q.options.find(o => o.id === parseInt(optId));
+    const totalQuestions = pollData.questions.filter(q => q.type !== 'section_header').length;
+
+    // Create a compact summary with expandable details
+    const summaryItems = pollData.questions.slice(0, 3).map(q => {
+        const answer = answers[q.id];
+        let displayValue = formatSingleAnswer(q, answer);
+        if (displayValue.length > 50) {
+            displayValue = displayValue.substring(0, 47) + '...';
+        }
+        return `<span class="answer-preview">${escapeHtml(q.text.substring(0, 30))}${q.text.length > 30 ? '...' : ''}: ${displayValue}</span>`;
+    }).join('');
+
+    const moreCount = pollData.questions.length - 3;
+    const moreText = moreCount > 0 ? `<span class="answer-more">+${moreCount} more</span>` : '';
+
+    return `
+        <div class="answer-summary">
+            <span class="answer-count">${answeredCount}/${totalQuestions} answered</span>
+            ${summaryItems}${moreText}
+        </div>
+    `;
+}
+
+function formatSingleAnswer(q, answer) {
+    if (answer === undefined || answer === null) {
+        return '<em>-</em>';
+    } else if (typeof answer === 'string' || typeof answer === 'number') {
+        if (q.type === 'single_choice') {
+            const option = q.options?.find(o => o.id === answer);
+            return option ? escapeHtml(option.label) : String(answer);
+        } else {
+            return escapeHtml(String(answer));
+        }
+    } else if (Array.isArray(answer)) {
+        const labels = answer.map(id => {
+            const option = q.options?.find(o => o.id === id);
+            return option ? option.label : id;
+        });
+        if (labels.length <= 2) {
+            return labels.map(l => escapeHtml(l)).join(q.type === 'ranking' ? ' > ' : ', ');
+        }
+        return `${labels.length} selections`;
+    } else if (typeof answer === 'object') {
+        const entries = Object.entries(answer);
+        if (entries.length <= 2) {
+            return entries.map(([optId, value]) => {
+                const option = q.options?.find(o => o.id === parseInt(optId));
                 const label = option ? option.label : optId;
                 return `${escapeHtml(label)}: ${escapeHtml(String(value))}`;
             }).join(', ');
         }
-
-        return `
-            <div class="answer-row">
-                <span class="question-label">${escapeHtml(q.text)}:</span>
-                <span class="answer-value">${displayValue}</span>
-            </div>
-        `;
-    }).join('');
+        return `${entries.length} ratings`;
+    }
+    return '-';
 }
 
 async function publishPoll(publicId, adminToken) {

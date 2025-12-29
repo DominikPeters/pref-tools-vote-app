@@ -32,6 +32,10 @@ ob_start();
                             <div class="poll-actions">
                                 <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($poll->adminToken) ?>" class="btn btn-small btn-primary">Manage</a>
                                 <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary">View</a>
+                                <button type="button" class="btn btn-small btn-secondary duplicate-poll-btn"
+                                    data-public-id="<?= e($poll->publicId) ?>"
+                                    data-admin-token="<?= e($poll->adminToken) ?>"
+                                    data-tooltip="Create a copy of this poll">Duplicate</button>
                             </div>
                         </div>
                     <?php endforeach; ?>

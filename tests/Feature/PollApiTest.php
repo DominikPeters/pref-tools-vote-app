@@ -264,4 +264,83 @@ class PollApiTest extends TestCase
         // Verify q2 is deleted
         $this->assertNull(\App\Models\Question::find($q2->id));
     }
+
+    public function test_can_duplicate_poll(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $poll = $this->createPoll([
+            'title' => 'Original Poll',
+            'description' => 'Test description',
+            'visibility' => 'anonymous',
+            'collect_name' => true,
+        ]);
+        $q1 = $this->createQuestion($poll->id, [
+            'text' => 'Question 1',
+            'type' => 'single_choice',
+        ]);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/duplicate");
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('poll', $response);
+        $this->assertArrayHasKey('admin_url', $response);
+
+        // Check duplicated poll properties
+        $this->assertEquals('Original Poll (copy)', $response['poll']['title']);
+        $this->assertEquals('Test description', $response['poll']['description']);
+        $this->assertEquals('anonymous', $response['poll']['visibility']);
+        $this->assertTrue($response['poll']['collect_name']);
+        $this->assertEquals('draft', $response['poll']['status']); // Should be draft
+
+        // Check new IDs
+        $this->assertNotEquals($poll->publicId, $response['poll']['public_id']);
+        $this->assertNotEquals($poll->adminToken, $response['poll']['admin_token']);
+
+        // Check questions are duplicated
+        $this->assertCount(1, $response['poll']['questions']);
+        $this->assertEquals('Question 1', $response['poll']['questions'][0]['text']);
+        $this->assertNotEquals($q1->id, $response['poll']['questions'][0]['id']);
+    }
+
+    public function test_duplicate_poll_copies_all_questions_and_options(): void
+    {
+        $poll = $this->createPoll(['title' => 'Multi-question Poll']);
+        $q1 = $this->createQuestion($poll->id, [
+            'text' => 'Single choice question',
+            'type' => 'single_choice',
+        ]);
+        $q2 = $this->createQuestion($poll->id, [
+            'text' => 'Ranking question',
+            'type' => 'ranking',
+        ]);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/duplicate");
+
+        $this->assertSuccess($response);
+        $this->assertCount(2, $response['poll']['questions']);
+        $this->assertEquals('Single choice question', $response['poll']['questions'][0]['text']);
+        $this->assertEquals('Ranking question', $response['poll']['questions'][1]['text']);
+
+        // Check options are duplicated
+        $this->assertCount(3, $response['poll']['questions'][0]['options']);
+        $this->assertCount(3, $response['poll']['questions'][1]['options']);
+    }
+
+    public function test_duplicate_poll_requires_valid_admin_token(): void
+    {
+        $poll = $this->createPoll();
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/WRONGTOKEN/duplicate");
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_duplicate_nonexistent_poll_returns_404(): void
+    {
+        $response = $this->callApi('POST', '/api/polls/NONEXISTENT/admin/SOMETOKEN/duplicate');
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
 }

@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Logout form
+    // Logout form (dashboard)
     const logoutForm = document.getElementById('logoutForm');
     if (logoutForm) {
         logoutForm.addEventListener('submit', async (e) => {
@@ -330,6 +330,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Logout failed', 'error');
             }
         });
+    }
+
+    // User menu dropdown
+    const userMenu = document.querySelector('.user-menu');
+    if (userMenu) {
+        const trigger = userMenu.querySelector('.user-menu-trigger');
+        const logoutBtn = userMenu.querySelector('.user-menu-logout');
+
+        // Toggle dropdown on trigger click
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenu.classList.toggle('open');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target)) {
+                userMenu.classList.remove('open');
+            }
+        });
+
+        // Close dropdown on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && userMenu.classList.contains('open')) {
+                userMenu.classList.remove('open');
+            }
+        });
+
+        // Handle logout
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await api.post('/api/auth/logout');
+                    window.location.href = basePath + '/';
+                } catch (err) {
+                    showToast('Logout failed', 'error');
+                }
+            });
+        }
     }
 });
 

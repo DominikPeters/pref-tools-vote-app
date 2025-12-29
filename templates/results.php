@@ -7,6 +7,12 @@ ob_start();
 
 <div class="results-container">
     <div class="container">
+        <nav class="breadcrumbs">
+            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>">Poll</a>
+            <span class="separator">/</span>
+            <span class="current">Results</span>
+        </nav>
+
         <header class="results-header">
             <h1>Results</h1>
             <div class="poll-title"><?= e($poll->title) ?></div>

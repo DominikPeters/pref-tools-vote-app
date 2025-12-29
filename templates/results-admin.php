@@ -7,6 +7,12 @@ ob_start();
 
 <div class="results-container results-admin">
     <div class="container">
+        <nav class="breadcrumbs">
+            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>">Poll Admin</a>
+            <span class="separator">/</span>
+            <span class="current">Results & Analysis</span>
+        </nav>
+
         <header class="results-header">
             <div class="results-header-top">
                 <div class="results-header-title">

@@ -198,6 +198,77 @@ class PollApiController extends ApiController
     }
 
     /**
+     * POST /api/polls/:publicId/admin/:adminToken/duplicate - Duplicate poll
+     */
+    public function duplicate(array $params): array
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
+        }
+
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
+            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+        }
+
+        $poll->loadQuestions();
+
+        try {
+            // Create new poll with same settings
+            $newPoll = Poll::create([
+                'title' => $poll->title . ' (copy)',
+                'description' => $poll->description,
+                'visibility' => $poll->visibility,
+                'visibility_timing' => $poll->visibilityTiming,
+                'collect_name' => $poll->collectName,
+                'allow_edit_own' => $poll->allowEditOwn,
+                'allow_edit_any' => $poll->allowEditAny,
+                'randomize_options' => $poll->randomizeOptions,
+                'access_mode' => $poll->accessMode,
+                'status' => 'draft', // Always create as draft
+            ], $this->user()?->id);
+
+            // Duplicate questions and options
+            foreach ($poll->questions as $question) {
+                $qData = [
+                    'type' => $question->type,
+                    'text' => $question->text,
+                    'description' => $question->description,
+                    'required' => $question->required,
+                    'settings' => $question->settings,
+                    'sort_order' => $question->sortOrder,
+                    'options' => [],
+                ];
+
+                foreach ($question->options as $option) {
+                    $qData['options'][] = [
+                        'label' => $option->label,
+                        'description' => $option->description,
+                        'sort_order' => $option->sortOrder,
+                    ];
+                }
+
+                Question::create($newPoll->id, $qData);
+            }
+
+            $newPoll->loadQuestions();
+
+            LogService::getInstance()->log('poll.duplicated', $newPoll->id, $this->user()?->id, null, [
+                'source_poll_id' => $poll->id,
+                'title' => $newPoll->title,
+            ]);
+
+            return $this->success([
+                'poll' => $newPoll->toAdminArray(),
+                'admin_url' => url("{$newPoll->publicId}/admin/{$newPoll->adminToken}"),
+            ]);
+        } catch (\Exception $e) {
+            return $this->error('Failed to duplicate poll: ' . $e->getMessage(), 'DUPLICATE_FAILED', 500);
+        }
+    }
+
+    /**
      * POST /api/polls/:publicId/responses - Submit a poll response
      */
     public function submitResponse(array $params): array

@@ -34,6 +34,10 @@
     font-size: 1.25rem;
 }
 
+.builder-header .breadcrumbs {
+    margin-bottom: var(--spacing-xs);
+}
+
 .builder-actions {
     display: flex;
     gap: var(--spacing-sm);
@@ -46,8 +50,16 @@
 /* --------------------------------------------------------------------------
    Poll Metadata (Title & Description)
    -------------------------------------------------------------------------- */
-.poll-meta {
+.poll-meta.card {
     margin-bottom: var(--spacing-xl);
+}
+
+.poll-meta .form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.poll-meta .form-group:last-child {
+    margin-bottom: 0;
 }
 
 .input-title {

@@ -9,7 +9,7 @@
  * Click on a question to edit, click outside to collapse back to display.
  */
 
-import { api, generateTempId, showToast, showUndoToast, setButtonLoading, clearButtonLoading, basePath } from './app.js';
+import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath } from './app.js';
 import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
 
 // ==========================================================================
@@ -128,7 +128,19 @@ function initElements() {
 
     // Clear button (create mode)
     const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) clearBtn.addEventListener('click', resetForm);
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+            const confirmed = await showConfirmModal({
+                title: 'Clear Poll',
+                message: 'Are you sure you want to clear all questions and settings? This cannot be undone.',
+                confirmText: 'Clear All',
+                danger: true,
+            });
+            if (confirmed) {
+                resetForm();
+            }
+        });
+    }
 }
 
 /**

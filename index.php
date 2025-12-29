@@ -75,6 +75,7 @@ $router->put('/api/polls/:publicId/admin/:adminToken', [PollApiController::class
 $router->delete('/api/polls/:publicId/admin/:adminToken', [PollApiController::class, 'delete']);
 $router->post('/api/polls/:publicId/admin/:adminToken/close', [PollApiController::class, 'close']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [PollApiController::class, 'reopen']);
+$router->post('/api/polls/:publicId/admin/:adminToken/duplicate', [PollApiController::class, 'duplicate']);
 
 // Responses (poll responses)
 $router->post('/api/polls/:publicId/responses', [PollApiController::class, 'submitResponse']);

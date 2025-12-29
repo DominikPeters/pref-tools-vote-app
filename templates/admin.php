@@ -6,6 +6,16 @@ ob_start();
 
 <div class="admin-container">
     <div class="container">
+        <nav class="breadcrumbs">
+            <?php if ($user): ?>
+                <a href="<?= basePath() ?>/dashboard">Dashboard</a>
+            <?php else: ?>
+                <a href="<?= basePath() ?>/">Home</a>
+            <?php endif; ?>
+            <span class="separator">/</span>
+            <span class="current">Poll Admin</span>
+        </nav>
+
         <header class="admin-header">
             <div class="admin-header-top">
                 <div class="admin-header-title">
@@ -46,7 +56,7 @@ ob_start();
                         </div>
                     </div>
                     <div class="share-link-group">
-                        <label>Admin Link<?php if ($poll->userId !== $user?->id): ?> <span class="label-hint">(bookmark this!)</span><?php endif; ?></label>
+                        <label>Admin Link<?php if (!$user || $poll->userId !== $user->id): ?> <span class="label-hint">(bookmark this!)</span><?php endif; ?></label>
                         <div class="copy-field">
                             <input type="text" id="adminLink" readonly value="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>">
                             <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>" target="_blank" class="btn btn-secondary btn-icon-only" data-tooltip="Open in new tab" aria-label="Open in new tab">
@@ -60,6 +70,24 @@ ob_start();
                     </div>
                 </div>
             </section>
+
+            <?php if (!$user && $poll->userId === null): ?>
+            <!-- CTA: Link poll to account -->
+            <section class="card claim-cta-section">
+                <div class="claim-cta-content">
+                    <div class="claim-cta-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <div class="claim-cta-text">
+                        <h3>Secure access to this poll</h3>
+                        <p>This poll isn't linked to an account yet. Log in or create an account to always have access to this admin page from your dashboard.</p>
+                    </div>
+                    <div class="claim-cta-actions">
+                        <a href="<?= e(url('login?return=' . urlencode('/' . $poll->publicId . '/admin/' . $adminToken) . '&claim=' . $poll->publicId)) ?>" class="btn btn-primary">Log In or Register</a>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
 
             <!-- Statistics -->
             <section class="card stats-section">
@@ -95,6 +123,7 @@ ob_start();
                         </div>
                     </div>
                 </div>
+                <p class="responses-hint">Showing a summary of responses. For detailed analysis and charts, visit the <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>">Results & Analysis</a> page.</p>
                 <div id="responsesList" class="responses-list">
                     <p class="loading">Loading responses...</p>
                 </div>

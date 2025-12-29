@@ -23,7 +23,16 @@
                     <?php if ($user->isSysadmin()): ?>
                         <a href="<?= basePath() ?>/sysadmin">Sysadmin</a>
                     <?php endif; ?>
-                    <span class="user-email"><?= e($user->email) ?></span>
+                    <div class="user-menu">
+                        <button type="button" class="user-menu-trigger">
+                            <span class="user-email"><?= e($user->email) ?></span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="user-menu-dropdown">
+                            <a href="<?= basePath() ?>/dashboard" class="user-menu-item">Dashboard</a>
+                            <button type="button" class="user-menu-item user-menu-logout">Log Out</button>
+                        </div>
+                    </div>
                 <?php else: ?>
                     <a href="<?= basePath() ?>/login">Login</a>
                 <?php endif; ?>

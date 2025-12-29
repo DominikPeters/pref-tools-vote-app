@@ -182,6 +182,7 @@ abstract class TestCase extends BaseTestCase
         $router->delete('/api/polls/:publicId/admin/:adminToken', [\App\Controllers\PollApiController::class, 'delete']);
         $router->post('/api/polls/:publicId/admin/:adminToken/close', [\App\Controllers\PollApiController::class, 'close']);
         $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [\App\Controllers\PollApiController::class, 'reopen']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/duplicate', [\App\Controllers\PollApiController::class, 'duplicate']);
 
         // Response routes
         $router->post('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'submitResponse']);

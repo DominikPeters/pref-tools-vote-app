@@ -66,6 +66,42 @@ ob_start();
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.auth-tab');
     const forms = document.querySelectorAll('.auth-form');
+    const basePath = window.BASE_PATH || '';
+
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnUrl = urlParams.get('return');
+    const claimPollId = urlParams.get('claim');
+
+    // Extract admin token from return URL if it looks like an admin page
+    function extractAdminToken(url) {
+        const match = url && url.match(/\/([^\/]+)\/admin\/([^\/\?]+)/);
+        return match ? { publicId: match[1], adminToken: match[2] } : null;
+    }
+
+    // Claim poll and redirect
+    async function claimAndRedirect(redirectTo) {
+        const adminInfo = extractAdminToken(returnUrl);
+
+        // Only attempt to claim if we have both the claim param and admin info
+        if (claimPollId && adminInfo && adminInfo.publicId === claimPollId) {
+            try {
+                await fetch(basePath + '/api/user/claim-poll', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        public_id: adminInfo.publicId,
+                        admin_token: adminInfo.adminToken
+                    })
+                });
+                // Ignore errors - poll may already be claimed or user may not have permission
+            } catch (err) {
+                // Ignore claim errors
+            }
+        }
+
+        window.location.href = redirectTo;
+    }
 
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -86,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorEl.textContent = '';
 
         try {
-            const response = await fetch((window.BASE_PATH || '') + '/api/auth/login', {
+            const response = await fetch(basePath + '/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -98,7 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (data.ok) {
-                window.location.href = (window.BASE_PATH || '') + '/dashboard';
+                const redirectTo = returnUrl ? basePath + returnUrl : basePath + '/dashboard';
+                await claimAndRedirect(redirectTo);
             } else {
                 errorEl.textContent = data.error || 'Login failed';
             }
@@ -122,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch((window.BASE_PATH || '') + '/api/auth/register', {
+            const response = await fetch(basePath + '/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -134,7 +171,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (data.ok) {
-                window.location.href = (window.BASE_PATH || '') + '/dashboard';
+                const redirectTo = returnUrl ? basePath + returnUrl : basePath + '/dashboard';
+                await claimAndRedirect(redirectTo);
             } else {
                 errorEl.textContent = data.error || 'Registration failed';
             }
