@@ -454,6 +454,7 @@ class Poll
             'randomize_options' => $this->randomizeOptions,
             'access_mode' => $this->accessMode,
             'voting_mode' => $this->votingMode,
+            'results_viewable' => $this->areResultsViewable(),
             'requires_password' => $this->accessMode === 'password',
             'requires_identity' => $this->requiresIdentity(),
             'locale' => $this->locale,

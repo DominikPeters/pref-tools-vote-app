@@ -189,13 +189,20 @@ class PageController
 
         $poll->loadQuestions();
 
-        // Check for existing response (edit-own-poll)
+        // Check for existing response
         $existingResponse = null;
+        $hasVoted = false;
         $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
-        if ($voterToken && ($poll->allowEditOwn || $poll->allowEditAny)) {
+        if ($voterToken) {
             $existingResponse = \App\Models\Response::findByVoterToken($poll->id, $voterToken);
             if ($existingResponse) {
-                $existingResponse->loadAnswers();
+                $hasVoted = true;
+                // Only load answers if they can actually edit
+                if ($poll->allowEditOwn || $poll->allowEditAny) {
+                    $existingResponse->loadAnswers();
+                } else {
+                    $existingResponse = null; // Don't pass response if not editing
+                }
             }
         }
 
@@ -203,6 +210,7 @@ class PageController
             'poll' => $poll,
             'user' => Auth::getInstance()->user(),
             'existingResponse' => $existingResponse,
+            'hasVoted' => $hasVoted,
         ]);
     }
 

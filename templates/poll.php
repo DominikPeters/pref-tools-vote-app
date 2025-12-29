@@ -30,28 +30,44 @@ ob_start();
         </header>
 
         <?php if ($poll->status === 'open'): ?>
-            <?php if ($isEditing): ?>
-                <div class="editing-banner">
-                    You have already submitted a response. You can update it below.
+            <?php if ($hasVoted && !$isEditing): ?>
+                <div class="card" style="text-align: center;">
+                    <h2>Thank you!</h2>
+                    <p>Your response has already been recorded.</p>
+                    <?php if ($poll->areResultsViewable()): ?>
+                        <div style="margin-top: 2rem;">
+                            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary">View Results</a>
+                        </div>
+                    <?php else: ?>
+                        <p style="color: var(--color-text-muted); margin-top: 1rem;">
+                            You can now close this page.
+                        </p>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
-            <form id="pollForm" class="poll-form" data-public-id="<?= e($poll->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
-                <?php if ($poll->collectName): ?>
-                    <div class="form-group name-field">
-                        <label for="voterName">Your Name</label>
-                        <input type="text" id="voterName" name="voter_name" required>
+            <?php else: ?>
+                <?php if ($isEditing): ?>
+                    <div class="editing-banner">
+                        You have already submitted a response. You can update it below.
                     </div>
                 <?php endif; ?>
+                <form id="pollForm" class="poll-form" data-public-id="<?= e($poll->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
+                    <?php if ($poll->collectName): ?>
+                        <div class="form-group name-field">
+                            <label for="voterName">Your Name</label>
+                            <input type="text" id="voterName" name="voter_name" required>
+                        </div>
+                    <?php endif; ?>
 
-                <!-- Questions rendered by JavaScript -->
-                <div id="questionsContainer">
-                    <!-- Questions will be rendered here -->
-                </div>
+                    <!-- Questions rendered by JavaScript -->
+                    <div id="questionsContainer">
+                        <!-- Questions will be rendered here -->
+                    </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-large"><?= $isEditing ? 'Update Response' : 'Submit Vote' ?></button>
-                </div>
-            </form>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large"><?= $isEditing ? 'Update Response' : 'Submit Vote' ?></button>
+                    </div>
+                </form>
+            <?php endif; ?>
         <?php else: ?>
             <div class="poll-closed-message card">
                 <h2>Voting is Closed</h2>

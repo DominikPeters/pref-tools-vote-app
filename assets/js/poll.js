@@ -122,14 +122,31 @@ function initForm() {
 
             // Show thank you message immediately (no toast needed)
             const container = document.querySelector('.poll-container');
+            const canEdit = window.POLL_DATA?.allow_edit_own || window.POLL_DATA?.allow_edit_any;
+            const canViewResults = window.POLL_DATA?.results_viewable;
+
+            let actionsHtml = '';
+            if (canEdit) {
+                actionsHtml += `<button type="button" class="btn btn-secondary" onclick="location.reload()">Edit Your Response</button>`;
+            }
+            if (canViewResults) {
+                actionsHtml += `<a href="${window.BASE_PATH}/${publicId}/results" class="btn btn-primary">View Results</a>`;
+            }
+
             container.innerHTML = `
                 <div class="container">
                     <div class="card" style="text-align: center;">
                         <h2>Thank you!</h2>
                         <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
-                        <p style="color: var(--color-text-muted);">
-                            You can close this page or <a href="javascript:location.reload()">edit your response</a>.
-                        </p>
+                        ${actionsHtml ? `
+                            <div class="thank-you-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                ${actionsHtml}
+                            </div>
+                        ` : `
+                            <p style="color: var(--color-text-muted); margin-top: 1rem;">
+                                You can now close this page.
+                            </p>
+                        `}
                     </div>
                 </div>
             `;

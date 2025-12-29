@@ -35,6 +35,8 @@ phpunit
 
 Tests are in `tests/` with Feature tests (API integration) and Unit tests.
 
+Do NOT run `vendor/bin/phpunit`. It does not exist.
+
 **E2E Tests (Playwright):**
 ```bash
 npm run test:e2e        # Run all E2E tests headlessly

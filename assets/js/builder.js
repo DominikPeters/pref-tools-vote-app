@@ -464,8 +464,12 @@ function setupEditorEvents(wrapper, question) {
         question.text = e.target.value;
         markDirty();
     });
-    // Focus the title input when entering edit mode
-    setTimeout(() => titleInput.focus(), 50);
+    // Focus the title input when entering edit mode, unless something else is already focused
+    setTimeout(() => {
+        if (!wrapper.contains(document.activeElement) || document.activeElement === document.body) {
+            titleInput.focus();
+        }
+    }, 50);
 
     // Description input
     const descInput = wrapper.querySelector('.question-description-input');
@@ -567,7 +571,8 @@ function setupEditorEvents(wrapper, question) {
             markDirty();
 
             // Focus the new option's input
-            const newOptionInput = wrapper.querySelector(
+            // Search in document because renderQuestions() replaced the wrapper
+            const newOptionInput = document.querySelector(
                 `.option-editor[data-option-id="${newOptionId}"] .option-label-input`
             );
             if (newOptionInput) {
