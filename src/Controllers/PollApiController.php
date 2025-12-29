@@ -15,6 +15,7 @@ use App\Services\LogService;
 use App\Services\AccessControlService;
 use App\Services\MailService;
 use App\Services\TurnstileService;
+use App\Services\ModerationService;
 
 class PollApiController extends ApiController
 {
@@ -33,6 +34,12 @@ class PollApiController extends ApiController
             if (!TurnstileService::verify($turnstileToken)) {
                 return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
             }
+        }
+
+        // Content moderation check
+        $moderationResult = $this->moderateContent($data);
+        if ($moderationResult !== null) {
+            return $moderationResult;
         }
 
         try {
@@ -127,6 +134,15 @@ class PollApiController extends ApiController
                     'MODE_LOCKED',
                     400
                 );
+            }
+        }
+
+        // Content moderation check (only if content changed)
+        if ($this->hasContentChanges($data)) {
+            $fullData = $this->mergeWithExistingPoll($poll, $data);
+            $moderationResult = $this->moderateContent($fullData);
+            if ($moderationResult !== null) {
+                return $moderationResult;
             }
         }
 
@@ -911,5 +927,92 @@ class PollApiController extends ApiController
             'format' => 'preflib',
             'questions' => $exports,
         ]);
+    }
+
+    /**
+     * Check content through moderation service
+     * Returns error response if flagged, null if OK
+     */
+    private function moderateContent(array $data): ?array
+    {
+        $content = ModerationService::buildContentString($data);
+        $result = ModerationService::moderate($content);
+
+        if (!$result['ok']) {
+            // Log API errors for debugging
+            LogService::getInstance()->log('moderation.error', null, $this->user()?->id, null, [
+                'error' => $result['error'] ?? 'Unknown error',
+                'content' => $content,
+            ]);
+            return $this->error(
+                'Unable to process content. Please try again later.',
+                'MODERATION_ERROR',
+                503
+            );
+        }
+
+        if ($result['flagged']) {
+            $message = ModerationService::getFlaggedMessage($result);
+            // Log full details for sysadmin review
+            LogService::getInstance()->log('moderation.flagged', null, $this->user()?->id, null, [
+                'content' => $content,
+                'flagged_categories' => $result['flagged_categories'] ?? [],
+                'all_scores' => $result['all_scores'] ?? [],
+                'api_flagged' => $result['api_flagged'] ?? false,
+            ]);
+            return $this->error($message, 'CONTENT_FLAGGED', 400);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if the update contains content changes (vs just settings)
+     */
+    private function hasContentChanges(array $data): bool
+    {
+        $contentKeys = ['title', 'description', 'questions'];
+        foreach ($contentKeys as $key) {
+            if (array_key_exists($key, $data)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Merge update data with existing poll for full moderation
+     */
+    private function mergeWithExistingPoll(Poll $poll, array $data): array
+    {
+        $poll->loadQuestions();
+
+        $merged = [
+            'title' => $data['title'] ?? $poll->title,
+            'description' => $data['description'] ?? $poll->description,
+        ];
+
+        // If questions provided, use those; otherwise use existing
+        if (isset($data['questions'])) {
+            $merged['questions'] = $data['questions'];
+        } else {
+            $merged['questions'] = [];
+            foreach ($poll->questions as $q) {
+                $qData = [
+                    'text' => $q->text,
+                    'description' => $q->description,
+                    'options' => [],
+                ];
+                foreach ($q->options as $o) {
+                    $qData['options'][] = [
+                        'label' => $o->label,
+                        'description' => $o->description,
+                    ];
+                }
+                $merged['questions'][] = $qData;
+            }
+        }
+
+        return $merged;
     }
 }

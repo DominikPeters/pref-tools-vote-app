@@ -173,6 +173,106 @@ ob_start();
                 </div>
             </section>
 
+            <!-- Content Moderation -->
+            <section class="card config-section">
+                <h2>Content Moderation</h2>
+                <p class="section-description">Automatic content moderation using OpenAI's Moderation API. Requires an OpenAI API key above.</p>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="moderation_enabled" name="moderation.enabled" value="1">
+                        <span>Enable content moderation</span>
+                    </label>
+                    <span class="form-hint">When enabled, poll content is checked for inappropriate material on create/update.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="moderation_fail_open" name="moderation.fail_open" value="1">
+                        <span>Fail open on API errors</span>
+                    </label>
+                    <span class="form-hint">If the moderation API fails, allow content to be saved anyway. Disable for stricter enforcement.</span>
+                </div>
+
+                <h3>Category Thresholds</h3>
+                <p class="form-hint" style="margin-bottom: var(--spacing-md);">
+                    Adjust how sensitive each category is. Lower values = stricter (block more content). Higher values = more permissive.
+                    Range: 0.0 (block everything) to 1.0 (block nothing).
+                </p>
+
+                <div class="moderation-thresholds">
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_sexual">Sexual</label>
+                            <input type="number" id="threshold_sexual" name="moderation.threshold.sexual" class="form-control" min="0" max="1" step="0.05" placeholder="0.8">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_sexual_minors">Sexual/Minors</label>
+                            <input type="number" id="threshold_sexual_minors" name="moderation.threshold.sexual_minors" class="form-control" min="0" max="1" step="0.01" placeholder="0.01">
+                        </div>
+                    </div>
+
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_harassment">Harassment</label>
+                            <input type="number" id="threshold_harassment" name="moderation.threshold.harassment" class="form-control" min="0" max="1" step="0.05" placeholder="0.7">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_harassment_threatening">Harassment/Threatening</label>
+                            <input type="number" id="threshold_harassment_threatening" name="moderation.threshold.harassment_threatening" class="form-control" min="0" max="1" step="0.05" placeholder="0.5">
+                        </div>
+                    </div>
+
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_hate">Hate</label>
+                            <input type="number" id="threshold_hate" name="moderation.threshold.hate" class="form-control" min="0" max="1" step="0.05" placeholder="0.7">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_hate_threatening">Hate/Threatening</label>
+                            <input type="number" id="threshold_hate_threatening" name="moderation.threshold.hate_threatening" class="form-control" min="0" max="1" step="0.05" placeholder="0.5">
+                        </div>
+                    </div>
+
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_illicit">Illicit</label>
+                            <input type="number" id="threshold_illicit" name="moderation.threshold.illicit" class="form-control" min="0" max="1" step="0.05" placeholder="0.8">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_illicit_violent">Illicit/Violent</label>
+                            <input type="number" id="threshold_illicit_violent" name="moderation.threshold.illicit_violent" class="form-control" min="0" max="1" step="0.05" placeholder="0.5">
+                        </div>
+                    </div>
+
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_self_harm">Self-Harm</label>
+                            <input type="number" id="threshold_self_harm" name="moderation.threshold.self_harm" class="form-control" min="0" max="1" step="0.05" placeholder="0.7">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_self_harm_intent">Self-Harm/Intent</label>
+                            <input type="number" id="threshold_self_harm_intent" name="moderation.threshold.self_harm_intent" class="form-control" min="0" max="1" step="0.05" placeholder="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_self_harm_instructions">Self-Harm/Instructions</label>
+                            <input type="number" id="threshold_self_harm_instructions" name="moderation.threshold.self_harm_instructions" class="form-control" min="0" max="1" step="0.05" placeholder="0.3">
+                        </div>
+                    </div>
+
+                    <div class="threshold-group">
+                        <div class="form-group">
+                            <label for="threshold_violence">Violence</label>
+                            <input type="number" id="threshold_violence" name="moderation.threshold.violence" class="form-control" min="0" max="1" step="0.05" placeholder="0.8">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_violence_graphic">Violence/Graphic</label>
+                            <input type="number" id="threshold_violence_graphic" name="moderation.threshold.violence_graphic" class="form-control" min="0" max="1" step="0.05" placeholder="0.6">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Notifications -->
             <section class="card config-section">
                 <h2>Notifications</h2>

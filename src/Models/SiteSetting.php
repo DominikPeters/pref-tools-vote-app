@@ -38,6 +38,23 @@ class SiteSetting
         'api.turnstile_site_key' => '',
         'api.turnstile_secret_key' => '',
 
+        // Content moderation
+        'moderation.enabled' => '0',
+        'moderation.fail_open' => '1',
+        'moderation.threshold.sexual' => '0.8',
+        'moderation.threshold.sexual_minors' => '0.01',
+        'moderation.threshold.harassment' => '0.7',
+        'moderation.threshold.harassment_threatening' => '0.5',
+        'moderation.threshold.hate' => '0.7',
+        'moderation.threshold.hate_threatening' => '0.5',
+        'moderation.threshold.illicit' => '0.8',
+        'moderation.threshold.illicit_violent' => '0.5',
+        'moderation.threshold.self_harm' => '0.7',
+        'moderation.threshold.self_harm_intent' => '0.5',
+        'moderation.threshold.self_harm_instructions' => '0.3',
+        'moderation.threshold.violence' => '0.8',
+        'moderation.threshold.violence_graphic' => '0.6',
+
         // Notifications
         'notifications.sysadmin_email' => '',
 

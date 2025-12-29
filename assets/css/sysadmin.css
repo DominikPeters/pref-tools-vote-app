@@ -493,3 +493,39 @@ input[data-secret].has-value:not(:focus) {
     font-family: var(--font-mono);
     letter-spacing: 0.1em;
 }
+
+/* --------------------------------------------------------------------------
+   Moderation Thresholds
+   -------------------------------------------------------------------------- */
+.moderation-thresholds {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.threshold-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.threshold-group .form-group {
+    margin: 0;
+}
+
+.threshold-group label {
+    font-size: 0.875rem;
+}
+
+.threshold-group input[type="number"] {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .threshold-group {
+        grid-template-columns: 1fr 1fr;
+    }
+}
