@@ -6,6 +6,7 @@ use App\Auth;
 use App\Models\User;
 use App\Models\Poll;
 use App\Models\Response;
+use App\Models\SiteSetting;
 use App\Services\LogService;
 
 class AuthApiController extends ApiController
@@ -15,6 +16,11 @@ class AuthApiController extends ApiController
      */
     public function register(array $params): array
     {
+        // Check if registration is enabled
+        if (!SiteSetting::getBool('site.registration_enabled', true)) {
+            return $this->error('User registration is currently disabled', 'REGISTRATION_DISABLED', 403);
+        }
+
         $data = $this->getBody();
 
         $validation = $this->validate($data ?? [], [

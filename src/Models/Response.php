@@ -142,6 +142,11 @@ class Response
             $updateData['voter_name'] = $data['voter_name'];
         }
 
+        // Link response to user account if editing while logged in
+        if (array_key_exists('user_id', $data) && $data['user_id'] !== null && $this->userId === null) {
+            $updateData['user_id'] = $data['user_id'];
+        }
+
         $db->update('responses', $updateData, 'id = :id', ['id' => $this->id]);
 
         // Update answers if provided

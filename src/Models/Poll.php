@@ -108,6 +108,22 @@ class Poll
     }
 
     /**
+     * Find polls where a user has voted (has a response with user_id)
+     */
+    public static function findVotedByUserId(int $userId): array
+    {
+        $db = Database::getInstance();
+        $rows = $db->fetchAll(
+            "SELECT DISTINCT p.* FROM polls p
+             INNER JOIN responses r ON r.poll_id = p.id
+             WHERE r.user_id = :user_id
+             ORDER BY r.created_at DESC",
+            ['user_id' => $userId]
+        );
+        return array_map(fn($row) => self::fromRow($row), $rows);
+    }
+
+    /**
      * Get all polls (for sysadmin)
      */
     public static function all(int $limit = 100, int $offset = 0): array
@@ -321,6 +337,28 @@ class Poll
             "SELECT COUNT(*) FROM responses WHERE poll_id = :poll_id",
             ['poll_id' => $this->id]
         );
+    }
+
+    /**
+     * Check if results are publicly viewable
+     */
+    public function areResultsViewable(): bool
+    {
+        if ($this->visibility === 'private') {
+            return false;
+        }
+        if ($this->visibilityTiming === 'during') {
+            return true;
+        }
+        return $this->status === 'closed';
+    }
+
+    /**
+     * Check if voting is currently available
+     */
+    public function isVotingOpen(): bool
+    {
+        return $this->status === 'open';
     }
 
     /**

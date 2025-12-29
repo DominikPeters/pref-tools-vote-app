@@ -216,6 +216,9 @@ abstract class TestCase extends BaseTestCase
         $router->get('/api/sysadmin/polls', [\App\Controllers\SysadminApiController::class, 'listPolls']);
         $router->delete('/api/sysadmin/polls/:pollId', [\App\Controllers\SysadminApiController::class, 'deletePoll']);
         $router->get('/api/sysadmin/logs', [\App\Controllers\SysadminApiController::class, 'listLogs']);
+        $router->get('/api/sysadmin/settings', [\App\Controllers\SysadminApiController::class, 'getSettings']);
+        $router->put('/api/sysadmin/settings', [\App\Controllers\SysadminApiController::class, 'updateSettings']);
+        $router->post('/api/sysadmin/settings/test-email', [\App\Controllers\SysadminApiController::class, 'testEmail']);
 
         return $router;
     }

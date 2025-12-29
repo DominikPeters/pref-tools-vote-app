@@ -5,7 +5,7 @@
  * form submission, validation, and progress saving.
  */
 
-import { api, showToast } from './app.js';
+import { api, showToast, setButtonLoading, clearButtonLoading } from './app.js';
 import { renderQuestion } from './question-renderer.js';
 
 // ==========================================================================
@@ -81,29 +81,31 @@ function initForm() {
             return;
         }
 
+        const submitBtn = form.querySelector('button[type="submit"]');
+
         try {
+            if (submitBtn) setButtonLoading(submitBtn);
+
             const isEditing = form.dataset.editing === 'true';
             await api.post(`/api/polls/${publicId}/responses`, formData);
 
             clearProgress();
 
-            showToast(isEditing ? 'Response updated!' : 'Vote submitted successfully!', 'success');
-
-            setTimeout(() => {
-                const container = document.querySelector('.poll-container');
-                container.innerHTML = `
-                    <div class="container">
-                        <div class="card" style="text-align: center;">
-                            <h2>Thank you!</h2>
-                            <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
-                            <p style="color: var(--color-text-muted);">
-                                You can close this page or <a href="javascript:location.reload()">edit your response</a>.
-                            </p>
-                        </div>
+            // Show thank you message immediately (no toast needed)
+            const container = document.querySelector('.poll-container');
+            container.innerHTML = `
+                <div class="container">
+                    <div class="card" style="text-align: center;">
+                        <h2>Thank you!</h2>
+                        <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
+                        <p style="color: var(--color-text-muted);">
+                            You can close this page or <a href="javascript:location.reload()">edit your response</a>.
+                        </p>
                     </div>
-                `;
-            }, 1000);
+                </div>
+            `;
         } catch (err) {
+            if (submitBtn) clearButtonLoading(submitBtn);
             showToast(err.message, 'error');
         }
     });

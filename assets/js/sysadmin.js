@@ -2,6 +2,8 @@
  * Sysadmin Dashboard JavaScript
  */
 
+import { showConfirmModal, showToast } from './app.js';
+
 const BASE_PATH = window.BASE_PATH || '';
 
 // State
@@ -23,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (path.endsWith('/sysadmin/logs')) {
         loadLogs();
         initModal();
+    } else if (path.endsWith('/sysadmin/config')) {
+        initConfig();
     }
 });
 
@@ -109,21 +113,25 @@ async function updateUserRole(userId, newRole) {
             body: JSON.stringify({ role: newRole })
         });
     } catch (error) {
-        alert(`Failed to update role: ${error.message}`);
+        showToast(`Failed to update role: ${error.message}`, 'error');
         loadUsers(currentPage.users);
     }
 }
 
 async function deleteUser(userId, email) {
-    if (!confirm(`Are you sure you want to delete user "${email}"? This action cannot be undone.`)) {
-        return;
-    }
+    const confirmed = await showConfirmModal({
+        title: 'Delete User',
+        message: `Are you sure you want to delete user "${email}"? This action cannot be undone.`,
+        confirmText: 'Delete User',
+    });
+
+    if (!confirmed) return;
 
     try {
         await apiRequest(`/users/${userId}`, { method: 'DELETE' });
         loadUsers(currentPage.users);
     } catch (error) {
-        alert(`Failed to delete user: ${error.message}`);
+        showToast(`Failed to delete user: ${error.message}`, 'error');
     }
 }
 
@@ -181,15 +189,19 @@ async function loadPolls(offset = 0) {
 }
 
 async function deletePoll(pollId, title) {
-    if (!confirm(`Are you sure you want to delete poll "${title}"? This will also delete all responses. This action cannot be undone.`)) {
-        return;
-    }
+    const confirmed = await showConfirmModal({
+        title: 'Delete Poll',
+        message: `Are you sure you want to delete poll "${title}"? This will also delete all responses. This action cannot be undone.`,
+        confirmText: 'Delete Poll',
+    });
+
+    if (!confirmed) return;
 
     try {
         await apiRequest(`/polls/${pollId}`, { method: 'DELETE' });
         loadPolls(currentPage.polls);
     } catch (error) {
-        alert(`Failed to delete poll: ${error.message}`);
+        showToast(`Failed to delete poll: ${error.message}`, 'error');
     }
 }
 
@@ -313,5 +325,198 @@ function renderPagination(container, total, offset, pageSize, loadFn) {
 
     container.querySelector('.next-btn')?.addEventListener('click', () => {
         loadFn(offset + pageSize);
+    });
+}
+
+// ============================================
+// Config
+// ============================================
+
+// Track which secret fields have existing values
+let secretFieldsWithValues = new Set();
+
+async function initConfig() {
+    await loadConfig();
+    initConfigForm();
+    initSecretFields();
+    initTestEmail();
+}
+
+async function loadConfig() {
+    try {
+        const data = await apiRequest('/settings');
+        populateConfigForm(data.settings);
+    } catch (error) {
+        showToast(`Failed to load settings: ${error.message}`, 'error');
+    }
+}
+
+function populateConfigForm(settings) {
+    const form = document.getElementById('configForm');
+
+    for (const [key, value] of Object.entries(settings)) {
+        const inputName = key;
+        const input = form.querySelector(`[name="${inputName}"]`);
+
+        if (!input) continue;
+
+        if (input.type === 'checkbox') {
+            input.checked = value === '1' || value === 'true' || value === true;
+        } else if (input.dataset.secret === 'true') {
+            // Handle masked secret fields
+            if (value && !isMaskedValue(value)) {
+                // Actual value (shouldn't happen from API)
+                input.value = value;
+            } else if (value && isMaskedValue(value)) {
+                // Masked value - show it and track that a value exists
+                input.value = value;
+                input.classList.add('has-value');
+                secretFieldsWithValues.add(inputName);
+                // Show clear button
+                const clearBtn = input.parentElement.querySelector('.clear-secret-btn');
+                if (clearBtn) clearBtn.style.display = 'inline-flex';
+            } else {
+                input.value = '';
+                input.classList.remove('has-value');
+                secretFieldsWithValues.delete(inputName);
+            }
+        } else {
+            input.value = value || '';
+        }
+    }
+}
+
+function isMaskedValue(value) {
+    return typeof value === 'string' && value.startsWith('••');
+}
+
+function initConfigForm() {
+    const form = document.getElementById('configForm');
+    const saveBtn = document.getElementById('saveConfigBtn');
+    const saveStatus = document.getElementById('saveStatus');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        saveBtn.disabled = true;
+        saveStatus.textContent = 'Saving...';
+        saveStatus.className = 'status-message loading';
+
+        try {
+            const settings = collectFormSettings(form);
+            await apiRequest('/settings', {
+                method: 'PUT',
+                body: JSON.stringify({ settings })
+            });
+
+            saveStatus.textContent = 'Settings saved successfully';
+            saveStatus.className = 'status-message success';
+
+            // Reload to get fresh masked values
+            await loadConfig();
+
+            setTimeout(() => {
+                saveStatus.textContent = '';
+            }, 3000);
+
+        } catch (error) {
+            saveStatus.textContent = `Error: ${error.message}`;
+            saveStatus.className = 'status-message error';
+        } finally {
+            saveBtn.disabled = false;
+        }
+    });
+}
+
+function collectFormSettings(form) {
+    const settings = {};
+    const formData = new FormData(form);
+
+    // Get all inputs including unchecked checkboxes
+    const inputs = form.querySelectorAll('input, select, textarea');
+
+    for (const input of inputs) {
+        const name = input.name;
+        if (!name) continue;
+
+        if (input.type === 'checkbox') {
+            settings[name] = input.checked ? '1' : '0';
+        } else if (input.dataset.secret === 'true') {
+            // Only include secret fields if they've been modified
+            const value = input.value;
+            if (value && !isMaskedValue(value)) {
+                // User entered a new value
+                settings[name] = value;
+            }
+            // If masked or empty, don't include (keep existing value)
+        } else {
+            settings[name] = input.value;
+        }
+    }
+
+    return settings;
+}
+
+function initSecretFields() {
+    // Handle clear buttons for secret fields
+    document.querySelectorAll('.clear-secret-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const input = document.getElementById(targetId);
+            if (input) {
+                input.value = '';
+                input.classList.remove('has-value');
+                input.type = 'password';
+                input.focus();
+                btn.style.display = 'none';
+                secretFieldsWithValues.delete(input.name);
+            }
+        });
+    });
+
+    // When user focuses on a masked secret field, clear it for new input
+    document.querySelectorAll('input[data-secret="true"]').forEach(input => {
+        input.addEventListener('focus', () => {
+            if (isMaskedValue(input.value)) {
+                input.value = '';
+                input.classList.remove('has-value');
+            }
+        });
+
+        // When user leaves the field empty after clearing, restore masked indicator
+        input.addEventListener('blur', () => {
+            if (input.value === '' && secretFieldsWithValues.has(input.name)) {
+                // User cleared it but didn't enter new value - will keep existing on save
+                input.placeholder = 'Leave empty to keep existing';
+            }
+        });
+    });
+}
+
+function initTestEmail() {
+    const testBtn = document.getElementById('testEmailBtn');
+    const testStatus = document.getElementById('testEmailStatus');
+
+    if (!testBtn) return;
+
+    testBtn.addEventListener('click', async () => {
+        testBtn.disabled = true;
+        testStatus.textContent = 'Sending...';
+        testStatus.className = 'status-message loading';
+
+        try {
+            const data = await apiRequest('/settings/test-email', {
+                method: 'POST'
+            });
+
+            testStatus.textContent = data.message || 'Test email sent!';
+            testStatus.className = 'status-message success';
+
+        } catch (error) {
+            testStatus.textContent = `Error: ${error.message}`;
+            testStatus.className = 'status-message error';
+        } finally {
+            testBtn.disabled = false;
+        }
     });
 }

@@ -14,6 +14,7 @@ ob_start();
                 <a href="<?= basePath() ?>/sysadmin/polls">Polls</a>
                 <a href="<?= basePath() ?>/sysadmin/logs">Logs</a>
                 <a href="<?= basePath() ?>/sysadmin/stats">Stats</a>
+                <a href="<?= basePath() ?>/sysadmin/config">Config</a>
             </nav>
         </header>
 
@@ -62,6 +63,10 @@ ob_start();
                 <a href="<?= basePath() ?>/sysadmin/stats" class="quick-link-card">
                     <h4>Statistics</h4>
                     <p>Detailed system statistics and analytics</p>
+                </a>
+                <a href="<?= basePath() ?>/sysadmin/config" class="quick-link-card">
+                    <h4>Site Config</h4>
+                    <p>Email, API keys, and site settings</p>
                 </a>
             </div>
         </div>

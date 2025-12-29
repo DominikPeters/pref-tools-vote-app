@@ -14,6 +14,7 @@ ob_start();
                 <a href="<?= basePath() ?>/sysadmin/polls">Polls</a>
                 <a href="<?= basePath() ?>/sysadmin/logs">Logs</a>
                 <a href="<?= basePath() ?>/sysadmin/stats" class="active">Stats</a>
+                <a href="<?= basePath() ?>/sysadmin/config">Config</a>
             </nav>
         </header>
 

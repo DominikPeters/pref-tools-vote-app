@@ -96,6 +96,18 @@ class SysadminController
     }
 
     /**
+     * GET /sysadmin/config - Site configuration
+     */
+    public function config(array $params): void
+    {
+        $user = $this->requireSysadmin();
+
+        view('sysadmin/config', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * Get system statistics
      */
     private function getStats(): array

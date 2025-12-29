@@ -2,7 +2,7 @@
  * Admin Panel JavaScript
  */
 
-import { api, showToast, copyToClipboard, basePath } from './app.js';
+import { api, showToast, showConfirmModal, setButtonLoading, clearButtonLoading, copyToClipboard, basePath } from './app.js';
 
 let pollData = null;
 
@@ -37,8 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `${basePath}/${publicId}/admin/${adminToken}/edit`;
     });
 
-    document.getElementById('deletePoll')?.addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this vote? This cannot be undone.')) {
+    document.getElementById('deletePoll')?.addEventListener('click', async () => {
+        const confirmed = await showConfirmModal({
+            title: 'Delete Poll',
+            message: 'Are you sure you want to delete this poll? This action cannot be undone and all responses will be lost.',
+            confirmText: 'Delete Poll',
+        });
+        if (confirmed) {
             deletePoll(publicId, adminToken);
         }
     });
@@ -79,6 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
             input.select();
         });
     });
+
+    // Claim poll button
+    const claimBtn = document.getElementById('claimPoll');
+    if (claimBtn) {
+        claimBtn.addEventListener('click', () => claimPoll(publicId, adminToken));
+    }
 });
 
 async function loadVote(publicId, adminToken) {
@@ -167,41 +178,63 @@ function formatAnswers(answers) {
 }
 
 async function publishPoll(publicId, adminToken) {
+    const btn = document.getElementById('publishPoll');
     try {
+        if (btn) setButtonLoading(btn);
         await api.put(`/api/polls/${publicId}/admin/${adminToken}`, { status: 'open' });
-        showToast('Poll published!', 'success');
-        setTimeout(() => location.reload(), 1000);
+        location.reload();
     } catch (err) {
+        if (btn) clearButtonLoading(btn);
         showToast(err.message, 'error');
     }
 }
 
 async function closePoll(publicId, adminToken) {
+    const btn = document.getElementById('closePoll');
     try {
+        if (btn) setButtonLoading(btn);
         await api.post(`/api/polls/${publicId}/admin/${adminToken}/close`);
-        showToast('Voting closed', 'success');
-        setTimeout(() => location.reload(), 1000);
+        location.reload();
     } catch (err) {
+        if (btn) clearButtonLoading(btn);
         showToast(err.message, 'error');
     }
 }
 
 async function reopenPoll(publicId, adminToken) {
+    const btn = document.getElementById('reopenPoll');
     try {
+        if (btn) setButtonLoading(btn);
         await api.post(`/api/polls/${publicId}/admin/${adminToken}/reopen`);
-        showToast('Voting reopened', 'success');
-        setTimeout(() => location.reload(), 1000);
+        location.reload();
     } catch (err) {
+        if (btn) clearButtonLoading(btn);
         showToast(err.message, 'error');
     }
 }
 
 async function deletePoll(publicId, adminToken) {
+    const btn = document.getElementById('deletePoll');
     try {
+        if (btn) setButtonLoading(btn);
         await api.delete(`/api/polls/${publicId}/admin/${adminToken}`);
-        showToast('Poll deleted', 'success');
-        setTimeout(() => window.location.href = basePath + '/', 1000);
+        window.location.href = basePath + '/';
     } catch (err) {
+        if (btn) clearButtonLoading(btn);
+        showToast(err.message, 'error');
+    }
+}
+
+async function claimPoll(publicId, adminToken) {
+    const btn = document.getElementById('claimPoll');
+    try {
+        if (btn) setButtonLoading(btn);
+        await api.post('/api/user/claim-poll', { public_id: publicId, admin_token: adminToken });
+        showToast('Poll claimed to your account', 'success');
+        // Reload to update the UI (removes claim button, hides bookmark hint)
+        location.reload();
+    } catch (err) {
+        if (btn) clearButtonLoading(btn);
         showToast(err.message, 'error');
     }
 }

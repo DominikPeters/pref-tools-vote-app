@@ -4,7 +4,7 @@
  * Shared logic for rendering results on both admin and public views.
  */
 
-import { api, escapeHtml } from './app.js';
+import { api, escapeHtml, showUndoToast } from './app.js';
 import { renderReport, getReportTypeName, getReportTypeIcon } from './report-types/index.js';
 
 /**
@@ -143,18 +143,18 @@ function renderReportCard(container, report, options) {
 
     let headerHtml = `
         <div class="report-header">
-            ${isAdmin ? '<span class="report-drag-handle" title="Drag to reorder">⠿</span>' : ''}
+            ${isAdmin ? '<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">⠿</span>' : ''}
             <span class="report-name">${escapeHtml(typeName)}</span>
     `;
 
     if (isAdmin) {
         headerHtml += `
             <div class="report-actions">
-                ${hasConfig ? '<button class="btn-icon edit-config" title="Settings">⚙️</button>' : ''}
-                <button class="btn-icon toggle-public" title="${report.is_public ? 'Make private' : 'Make public'}">
+                ${hasConfig ? '<button class="btn-icon edit-config" data-tooltip="Settings">⚙️</button>' : ''}
+                <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
                     ${report.is_public ? '👁' : '🔒'}
                 </button>
-                <button class="btn-icon delete-report" title="Delete">🗑</button>
+                <button class="btn-icon delete-report" data-tooltip="Delete analysis">🗑</button>
             </div>
         `;
     }
@@ -195,16 +195,34 @@ function renderReportCard(container, report, options) {
             }
         });
 
-        deleteBtn?.addEventListener('click', async (e) => {
+        deleteBtn?.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (!confirm('Delete this analysis?')) return;
 
-            try {
-                await api.delete(`/api/polls/${publicId}/admin/${adminToken}/reports/${report.id}`);
-                card.remove();
-            } catch (err) {
-                console.error('Failed to delete report:', err);
-            }
+            // Hide card immediately
+            card.style.display = 'none';
+
+            // Track if delete should proceed
+            let shouldDelete = true;
+
+            // Show undo toast
+            const undoToast = showUndoToast('Analysis deleted', () => {
+                // Undo - show card again
+                shouldDelete = false;
+                card.style.display = '';
+            });
+
+            // Delete from server after undo period
+            setTimeout(async () => {
+                if (!shouldDelete) return;
+                try {
+                    await api.delete(`/api/polls/${publicId}/admin/${adminToken}/reports/${report.id}`);
+                    card.remove();
+                } catch (err) {
+                    console.error('Failed to delete report:', err);
+                    // Show card again on error
+                    card.style.display = '';
+                }
+            }, 5100); // Slightly after toast dismisses
         });
     }
 

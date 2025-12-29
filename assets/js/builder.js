@@ -9,7 +9,7 @@
  * Click on a question to edit, click outside to collapse back to display.
  */
 
-import { api, generateTempId, showToast, basePath } from './app.js';
+import { api, generateTempId, showToast, showUndoToast, setButtonLoading, clearButtonLoading, basePath } from './app.js';
 import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
 
 // ==========================================================================
@@ -171,7 +171,8 @@ function setupClickHandling() {
         if (e.target.closest('.add-question-wrapper') ||
             e.target.closest('.builder-actions') ||
             e.target.closest('.settings-panel') ||
-            e.target.closest('.poll-meta')) {
+            e.target.closest('.poll-meta') ||
+            e.target.closest('.toast')) {
             return;
         }
 
@@ -217,7 +218,7 @@ function renderQuestions() {
 
         // Drag handle is always present (visible on hover or always in edit mode)
         const dragHandle = `
-            <div class="drag-handle-question" title="Drag to reorder">
+            <div class="drag-handle-question" data-tooltip="Drag to reorder" data-tooltip-pos="right">
                 <span class="drag-dots">&#8942;&#8942;</span>
             </div>
         `;
@@ -356,24 +357,24 @@ function renderQuestionEditor(question, index, questionNumber) {
         <div class="question-editor ${isSectionHeader ? 'section-header-editor' : ''}">
             <div class="editor-accent-bar"></div>
             <div class="editor-toolbar">
-                <button type="button" class="btn-icon copy-question" title="Duplicate">
+                <button type="button" class="btn-icon copy-question" data-tooltip="Duplicate">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon delete-question" title="Delete">
+                <button type="button" class="btn-icon delete-question" data-tooltip="Delete question">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon move-up" title="Move up" ${index === 0 ? 'disabled' : ''}>
+                <button type="button" class="btn-icon move-up" data-tooltip="Move up" ${index === 0 ? 'disabled' : ''}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15"></polyline>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon move-down" title="Move down" ${index === state.questions.length - 1 ? 'disabled' : ''}>
+                <button type="button" class="btn-icon move-down" data-tooltip="Move down" ${index === state.questions.length - 1 ? 'disabled' : ''}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -421,10 +422,10 @@ function renderQuestionEditor(question, index, questionNumber) {
 function renderOptionEditor(option, index, question) {
     return `
         <div class="option-editor" data-option-id="${option._id}">
-            <span class="option-drag-handle" title="Drag to reorder">&#9776;</span>
+            <span class="option-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">&#9776;</span>
             <span class="option-type-indicator">${getOptionIndicator(question.type)}</span>
             <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="Option ${index + 1}">
-            <button type="button" class="btn-icon delete-option" title="Delete option">
+            <button type="button" class="btn-icon delete-option" data-tooltip="Delete option" data-tooltip-pos="left">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -507,12 +508,23 @@ function setupEditorEvents(wrapper, question) {
     // Delete button
     wrapper.querySelector('.delete-question').addEventListener('click', (e) => {
         e.stopPropagation();
-        if (confirm('Delete this question?')) {
-            state.questions = state.questions.filter(q => q._id !== question._id);
-            activeQuestionId = null;
+        const questionIndex = state.questions.findIndex(q => q._id === question._id);
+        const deletedQuestion = state.questions[questionIndex];
+
+        // Remove question immediately
+        state.questions.splice(questionIndex, 1);
+        activeQuestionId = null;
+        renderQuestions();
+        markDirty();
+
+        // Show undo toast
+        showUndoToast('Question deleted', () => {
+            // Restore the question at its original position
+            state.questions.splice(questionIndex, 0, deletedQuestion);
+            activeQuestionId = deletedQuestion._id;
             renderQuestions();
             markDirty();
-        }
+        });
     });
 
     // Copy/duplicate button
@@ -697,9 +709,23 @@ function setupOptionEvents(optionsList, question) {
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (question.options.length > 2) {
-                question.options = question.options.filter(o => o._id !== optionId);
+                const optionIndex = question.options.findIndex(o => o._id === optionId);
+                const deletedOption = question.options[optionIndex];
+                const currentQuestionId = question._id; // Preserve edit mode
+
+                // Remove option immediately
+                question.options.splice(optionIndex, 1);
                 renderQuestions();
                 markDirty();
+
+                // Show undo toast
+                showUndoToast('Option deleted', () => {
+                    // Restore the option at its original position
+                    question.options.splice(optionIndex, 0, deletedOption);
+                    activeQuestionId = currentQuestionId; // Keep question in edit mode
+                    renderQuestions();
+                    markDirty();
+                });
             } else {
                 showToast('Need at least 2 options', 'error');
             }
@@ -924,7 +950,11 @@ function setupAutoSave() {
 // ==========================================================================
 
 async function saveDraft() {
+    const saveBtn = document.getElementById('saveBtn');
+
     try {
+        if (saveBtn) setButtonLoading(saveBtn);
+
         const data = prepareData();
         if (!state.publicId) {
             data.status = 'draft';
@@ -946,16 +976,16 @@ async function saveDraft() {
         }
 
         if (window.POLL_DATA) {
-            showToast('Saved! Returning to admin...', 'success');
-            setTimeout(() => {
-                window.location.href = `${basePath}/${state.publicId}/admin/${state.adminToken}`;
-            }, 1000);
+            // Edit mode - redirect without success toast
+            window.location.href = `${basePath}/${state.publicId}/admin/${state.adminToken}`;
         } else {
+            // Create mode - show success toast with link, stay on page
+            if (saveBtn) clearButtonLoading(saveBtn);
             showToast('Saved! View in <a href="' + basePath + '/dashboard">Dashboard</a>', 'success');
-            const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) saveBtn.textContent = 'Update Draft';
         }
     } catch (err) {
+        if (saveBtn) clearButtonLoading(saveBtn);
         showToast(err.message, 'error');
     }
 }
@@ -979,7 +1009,11 @@ async function publishPoll() {
         }
     }
 
+    const publishBtn = document.getElementById('publishBtn');
+
     try {
+        if (publishBtn) setButtonLoading(publishBtn);
+
         const data = prepareData();
         data.status = 'open';
 
@@ -996,6 +1030,7 @@ async function publishPoll() {
         const adminUrl = result.admin_url || `${basePath}/${state.publicId}/admin/${state.adminToken}`;
         window.location.href = adminUrl;
     } catch (err) {
+        if (publishBtn) clearButtonLoading(publishBtn);
         showToast(err.message, 'error');
     }
 }

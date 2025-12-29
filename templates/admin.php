@@ -24,7 +24,7 @@ ob_start();
                 </div>
             </div>
             <div class="admin-header-actions">
-                <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>" class="btn">Results & Analysis</a>
+                <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>" class="btn btn-primary">Results & Analysis</a>
                 <button type="button" class="btn btn-primary" id="editPoll">Edit Poll</button>
                 <button type="button" class="btn btn-outline-danger" id="deletePoll">Delete</button>
             </div>
@@ -39,20 +39,23 @@ ob_start();
                         <label>Voting Link <span class="label-hint">(share with participants)</span></label>
                         <div class="copy-field">
                             <input type="text" id="publicLink" readonly value="<?= e(url($poll->publicId)) ?>">
-                            <a href="<?= e(url($poll->publicId)) ?>" target="_blank" class="btn btn-secondary btn-icon-only" title="Open in new tab">
+                            <a href="<?= e(url($poll->publicId)) ?>" target="_blank" class="btn btn-secondary btn-icon-only" data-tooltip="Open in new tab" aria-label="Open in new tab">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>
                             <button type="button" class="btn btn-secondary copy-btn" data-target="publicLink">Copy</button>
                         </div>
                     </div>
                     <div class="share-link-group">
-                        <label>Admin Link <span class="label-hint">(bookmark this!)</span></label>
+                        <label>Admin Link<?php if ($poll->userId !== $user?->id): ?> <span class="label-hint">(bookmark this!)</span><?php endif; ?></label>
                         <div class="copy-field">
                             <input type="text" id="adminLink" readonly value="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>">
-                            <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>" target="_blank" class="btn btn-secondary btn-icon-only" title="Open in new tab">
+                            <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken)) ?>" target="_blank" class="btn btn-secondary btn-icon-only" data-tooltip="Open in new tab" aria-label="Open in new tab">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>
                             <button type="button" class="btn btn-secondary copy-btn" data-target="adminLink">Copy</button>
+                            <?php if ($poll->userId === null && $user !== null): ?>
+                                <button type="button" class="btn btn-primary" id="claimPoll" data-tooltip="Link this poll to your account">Claim</button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

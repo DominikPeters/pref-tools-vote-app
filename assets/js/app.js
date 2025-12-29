@@ -124,6 +124,139 @@ export function showToast(message, type = 'info') {
     }, 3000);
 }
 
+/**
+ * Show a toast with an undo button for reversible actions
+ * @param {string} message - The message to display
+ * @param {Function} onUndo - Callback when undo is clicked
+ * @param {number} duration - How long to show the toast (ms)
+ * @returns {Object} - Object with dismiss() method
+ */
+export function showUndoToast(message, onUndo, duration = 5000) {
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-undo';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        background: #1e293b;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    `;
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message;
+    toast.appendChild(messageSpan);
+
+    const undoBtn = document.createElement('button');
+    undoBtn.textContent = 'Undo';
+    undoBtn.style.cssText = `
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+    `;
+    undoBtn.addEventListener('mouseenter', () => {
+        undoBtn.style.background = 'rgba(255,255,255,0.1)';
+    });
+    undoBtn.addEventListener('mouseleave', () => {
+        undoBtn.style.background = 'transparent';
+    });
+    toast.appendChild(undoBtn);
+
+    document.body.appendChild(toast);
+
+    let dismissed = false;
+    let undone = false;
+    let timeoutId;
+
+    const dismiss = () => {
+        if (dismissed) return;
+        dismissed = true;
+        clearTimeout(timeoutId);
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    };
+
+    undoBtn.addEventListener('click', () => {
+        if (undone) return;
+        undone = true;
+        onUndo();
+        dismiss();
+    });
+
+    timeoutId = setTimeout(dismiss, duration);
+
+    return { dismiss, isUndone: () => undone };
+}
+
+/**
+ * Show a confirmation modal for destructive actions
+ * @param {Object} options - Modal configuration
+ * @param {string} options.title - Modal title
+ * @param {string} options.message - Modal message
+ * @param {string} [options.confirmText='Delete'] - Confirm button text
+ * @param {string} [options.cancelText='Cancel'] - Cancel button text
+ * @param {boolean} [options.danger=true] - Whether to style confirm as danger
+ * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
+ */
+export function showConfirmModal({ title, message, confirmText = 'Delete', cancelText = 'Cancel', danger = true }) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-modal-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirm-modal">
+                <div class="confirm-modal-header">
+                    <h3>${escapeHtml(title)}</h3>
+                </div>
+                <div class="confirm-modal-body">
+                    <p>${escapeHtml(message)}</p>
+                </div>
+                <div class="confirm-modal-actions">
+                    <button class="btn btn-secondary btn-cancel">${escapeHtml(cancelText)}</button>
+                    <button class="btn ${danger ? 'btn-danger' : 'btn-primary'} btn-confirm">${escapeHtml(confirmText)}</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const close = (result) => {
+            overlay.remove();
+            resolve(result);
+        };
+
+        overlay.querySelector('.btn-cancel').addEventListener('click', () => close(false));
+        overlay.querySelector('.btn-confirm').addEventListener('click', () => close(true));
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close(false);
+        });
+
+        // Focus the cancel button by default (safer)
+        overlay.querySelector('.btn-cancel').focus();
+
+        // Handle escape key
+        const handleKeydown = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', handleKeydown);
+                close(false);
+            }
+        };
+        document.addEventListener('keydown', handleKeydown);
+    });
+}
+
 // Add toast animations
 const style = document.createElement('style');
 style.textContent = `
@@ -138,8 +271,37 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Initialize tooltips - add aria-label for accessibility
+function initTooltips() {
+    document.querySelectorAll('[data-tooltip]').forEach(el => {
+        if (!el.hasAttribute('aria-label')) {
+            el.setAttribute('aria-label', el.dataset.tooltip);
+        }
+    });
+}
+
+// Observe DOM for dynamically added tooltips
+const tooltipObserver = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+            if (node.nodeType === 1) { // Element node
+                if (node.hasAttribute?.('data-tooltip') && !node.hasAttribute('aria-label')) {
+                    node.setAttribute('aria-label', node.dataset.tooltip);
+                }
+                node.querySelectorAll?.('[data-tooltip]:not([aria-label])').forEach(el => {
+                    el.setAttribute('aria-label', el.dataset.tooltip);
+                });
+            }
+        });
+    });
+});
+
 // Initialize common elements
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize tooltips
+    initTooltips();
+    tooltipObserver.observe(document.body, { childList: true, subtree: true });
+
     // Copy buttons
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -170,6 +332,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+/**
+ * Set a button to loading state
+ * @param {HTMLElement} btn - The button element
+ */
+export function setButtonLoading(btn) {
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+}
+
+/**
+ * Remove loading state from a button
+ * @param {HTMLElement} btn - The button element
+ */
+export function clearButtonLoading(btn) {
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+}
 
 // Export basePath for other modules
 export { basePath };

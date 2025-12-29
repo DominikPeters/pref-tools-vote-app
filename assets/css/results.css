@@ -2,13 +2,70 @@
  * Results & Reports Styles
  */
 
+/* Results Header - matches admin-header-top pattern */
+.results-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.results-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.results-header-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.results-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.results-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.results-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .results-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .results-header-actions {
+        width: 100%;
+    }
+
+    .results-header-actions .btn {
+        flex: 1;
+    }
+}
+
 /* Report Cards */
 .report-card {
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-bottom: 1rem;
-    overflow: hidden;
 }
 
 .report-header {
@@ -18,6 +75,7 @@
     padding: 0.75rem 1rem;
     background: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
 }
 
 .report-drag-handle {

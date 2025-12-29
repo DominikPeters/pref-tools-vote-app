@@ -86,10 +86,12 @@ class PageController
         }
 
         $polls = Poll::findByUserId($user->id);
+        $votedPolls = Poll::findVotedByUserId($user->id);
 
         view('dashboard', [
             'user' => $user,
             'polls' => $polls,
+            'votedPolls' => $votedPolls,
         ]);
     }
 

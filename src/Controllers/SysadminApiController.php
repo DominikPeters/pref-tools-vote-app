@@ -6,7 +6,9 @@ use App\Auth;
 use App\Database;
 use App\Models\User;
 use App\Models\Poll;
+use App\Models\SiteSetting;
 use App\Services\LogService;
+use App\Services\MailService;
 
 class SysadminApiController
 {
@@ -241,5 +243,123 @@ class SysadminApiController
             'limit' => $limit,
             'offset' => $offset,
         ];
+    }
+
+    /**
+     * GET /api/sysadmin/settings - Get all site settings
+     */
+    public function getSettings(array $params): array
+    {
+        if ($error = $this->requireSysadmin()) {
+            return $error;
+        }
+
+        return [
+            'settings' => SiteSetting::allMasked(),
+        ];
+    }
+
+    /**
+     * PUT /api/sysadmin/settings - Update site settings
+     */
+    public function updateSettings(array $params): array
+    {
+        if ($error = $this->requireSysadmin()) {
+            return $error;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        if (!isset($input['settings']) || !is_array($input['settings'])) {
+            return ['error' => 'Settings object required', 'status' => 400];
+        }
+
+        $validKeys = array_keys(SiteSetting::DEFAULTS);
+        $updates = [];
+        $changedKeys = [];
+
+        foreach ($input['settings'] as $key => $value) {
+            // Only accept known setting keys
+            if (!in_array($key, $validKeys, true)) {
+                continue;
+            }
+
+            // Skip masked values (user didn't change them)
+            if (is_string($value) && SiteSetting::isMaskedValue($value)) {
+                continue;
+            }
+
+            // Convert booleans to string '1' or '0'
+            if (is_bool($value)) {
+                $value = $value ? '1' : '0';
+            }
+
+            $updates[$key] = $value;
+            $changedKeys[] = $key;
+        }
+
+        if (!empty($updates)) {
+            SiteSetting::setMany($updates);
+
+            // Log the change (don't include actual values for sensitive keys)
+            $logData = ['keys' => $changedKeys];
+            $currentUser = Auth::getInstance()->user();
+            LogService::getInstance()->log('sysadmin.settings.updated', null, $currentUser->id, null, $logData);
+        }
+
+        return [
+            'settings' => SiteSetting::allMasked(),
+            'updated' => count($updates),
+        ];
+    }
+
+    /**
+     * POST /api/sysadmin/settings/test-email - Send a test email
+     */
+    public function testEmail(array $params): array
+    {
+        if ($error = $this->requireSysadmin()) {
+            return $error;
+        }
+
+        // Check if mail is enabled
+        if (!SiteSetting::getBool('mail.enabled')) {
+            return ['error' => 'Email is not enabled in settings', 'status' => 400];
+        }
+
+        // Get sysadmin email
+        $toEmail = SiteSetting::get('notifications.sysadmin_email');
+        if (empty($toEmail)) {
+            return ['error' => 'Sysadmin notification email is not configured', 'status' => 400];
+        }
+
+        // Get current user for logging
+        $currentUser = Auth::getInstance()->user();
+
+        try {
+            $mailService = new MailService();
+            $siteName = SiteSetting::get('site.name', 'Pref.Tools Vote');
+
+            $result = $mailService->send(
+                $toEmail,
+                "[{$siteName}] Test Email",
+                "This is a test email from {$siteName}.\n\nIf you received this email, your SMTP configuration is working correctly.\n\nSent at: " . date('Y-m-d H:i:s T')
+            );
+
+            if ($result) {
+                LogService::getInstance()->log('sysadmin.email.test_sent', null, $currentUser->id, null, [
+                    'to' => $toEmail,
+                ]);
+                return ['success' => true, 'message' => "Test email sent to {$toEmail}"];
+            } else {
+                return ['error' => 'Failed to send test email. Check your SMTP settings.', 'status' => 500];
+            }
+        } catch (\Exception $e) {
+            LogService::getInstance()->log('sysadmin.email.test_failed', null, $currentUser->id, null, [
+                'to' => $toEmail,
+                'error' => $e->getMessage(),
+            ]);
+            return ['error' => 'Email error: ' . $e->getMessage(), 'status' => 500];
+        }
     }
 }

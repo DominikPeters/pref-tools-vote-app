@@ -529,12 +529,64 @@ textarea {
     margin-bottom: var(--spacing-xl);
 }
 
+.votes-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+
+.votes-section .section-header h2 {
+    margin: 0;
+}
+
 .votes-list {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.poll-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
     gap: var(--spacing-md);
 }
 
+.vote-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vote-info h3,
+.vote-info .poll-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.poll-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.poll-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+/* Legacy class support */
 .vote-item {
     display: flex;
     align-items: center;
@@ -544,14 +596,9 @@ textarea {
     border-radius: var(--radius-md);
 }
 
-.vote-info h3 {
-    margin: 0 0 var(--spacing-xs);
-    font-size: 1rem;
-}
-
 .vote-meta {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: var(--spacing-md);
     font-size: 0.75rem;
     color: var(--color-text-muted);
@@ -858,6 +905,206 @@ textarea {
 }
 
 /* --------------------------------------------------------------------------
+   Tooltips
+   -------------------------------------------------------------------------- */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 6px 10px;
+    background: var(--color-text);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.3;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border: 5px solid transparent;
+    border-top-color: var(--color-text);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before,
+[data-tooltip]:focus::after,
+[data-tooltip]:focus::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tooltip positions */
+[data-tooltip-pos="bottom"]::after {
+    bottom: auto;
+    top: 100%;
+    transform: translateX(-50%) translateY(4px);
+}
+
+[data-tooltip-pos="bottom"]::before {
+    bottom: auto;
+    top: 100%;
+    transform: translateX(-50%) translateY(-4px);
+    border-top-color: transparent;
+    border-bottom-color: var(--color-text);
+}
+
+[data-tooltip-pos="left"]::after {
+    bottom: auto;
+    top: 50%;
+    left: auto;
+    right: 100%;
+    transform: translateY(-50%) translateX(-4px);
+}
+
+[data-tooltip-pos="left"]::before {
+    bottom: auto;
+    top: 50%;
+    left: auto;
+    right: 100%;
+    transform: translateY(-50%) translateX(4px);
+    border-top-color: transparent;
+    border-left-color: var(--color-text);
+}
+
+[data-tooltip-pos="right"]::after {
+    bottom: auto;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%) translateX(4px);
+}
+
+[data-tooltip-pos="right"]::before {
+    bottom: auto;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%) translateX(-4px);
+    border-top-color: transparent;
+    border-right-color: var(--color-text);
+}
+
+/* --------------------------------------------------------------------------
+   Confirm Modal
+   -------------------------------------------------------------------------- */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.confirm-modal {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 400px;
+    width: 90%;
+    animation: scaleIn 0.15s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.confirm-modal-header {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm);
+}
+
+.confirm-modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.confirm-modal-body {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--color-text-muted);
+}
+
+.confirm-modal-body p {
+    margin: 0;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+/* --------------------------------------------------------------------------
+   Button Loading State
+   -------------------------------------------------------------------------- */
+.btn.btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-top: -8px;
+    margin-left: -8px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
+}
+
+.btn-primary.btn-loading::after,
+.btn-success.btn-loading::after,
+.btn-danger.btn-loading::after,
+.btn-warning.btn-loading::after {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+}
+
+.btn-secondary.btn-loading::after {
+    border-color: rgba(0, 0, 0, 0.15);
+    border-top-color: var(--color-text);
+}
+
+@keyframes btn-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
@@ -885,16 +1132,24 @@ textarea {
         text-align: center;
     }
 
+    .votes-section .section-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .poll-item,
     .vote-item {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-md);
     }
 
+    .poll-actions,
     .vote-actions {
         width: 100%;
     }
 
+    .poll-actions .btn,
     .vote-actions .btn {
         flex: 1;
     }

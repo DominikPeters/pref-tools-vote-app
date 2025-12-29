@@ -23,6 +23,9 @@ if (needsInstall()) {
     exit;
 }
 
+// Check maintenance mode
+checkMaintenanceMode();
+
 // Initialize router
 $router = new Router();
 
@@ -44,6 +47,7 @@ $router->get('/sysadmin/users', [SysadminController::class, 'users']);
 $router->get('/sysadmin/polls', [SysadminController::class, 'polls']);
 $router->get('/sysadmin/logs', [SysadminController::class, 'logs']);
 $router->get('/sysadmin/stats', [SysadminController::class, 'stats']);
+$router->get('/sysadmin/config', [SysadminController::class, 'config']);
 
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
@@ -105,6 +109,9 @@ $router->delete('/api/sysadmin/users/:userId', [SysadminApiController::class, 'd
 $router->get('/api/sysadmin/polls', [SysadminApiController::class, 'listPolls']);
 $router->delete('/api/sysadmin/polls/:pollId', [SysadminApiController::class, 'deletePoll']);
 $router->get('/api/sysadmin/logs', [SysadminApiController::class, 'listLogs']);
+$router->get('/api/sysadmin/settings', [SysadminApiController::class, 'getSettings']);
+$router->put('/api/sysadmin/settings', [SysadminApiController::class, 'updateSettings']);
+$router->post('/api/sysadmin/settings/test-email', [SysadminApiController::class, 'testEmail']);
 
 // ============================================
 // Dispatch Request

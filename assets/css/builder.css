@@ -169,13 +169,13 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     position: relative;
-    overflow: hidden;
 }
 
 /* Accent bar at top (like MS Forms) */
 .editor-accent-bar {
     height: 4px;
     background: var(--color-primary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 /* Toolbar (copy, delete, move buttons) */

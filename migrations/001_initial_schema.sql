@@ -174,6 +174,13 @@ CREATE TABLE action_log (
     data            TEXT NULL
 );
 
+-- Site settings (key-value configuration store)
+CREATE TABLE site_settings (
+    `key`           VARCHAR(100) PRIMARY KEY,
+    value           TEXT NULL,
+    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes
 CREATE INDEX idx_polls_public_id ON polls(public_id);
 CREATE INDEX idx_polls_user_id ON polls(user_id);

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Auth;
 use App\Models\User;
+use App\Models\SiteSetting;
 
 class AuthApiTest extends TestCase
 {
@@ -64,6 +65,34 @@ class AuthApiTest extends TestCase
         ]);
 
         $this->assertError($response, 'REGISTRATION_FAILED');
+    }
+
+    public function test_registration_fails_when_disabled(): void
+    {
+        // Disable registration
+        SiteSetting::set('site.registration_enabled', '0');
+
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'email' => 'newuser@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertError($response, 'REGISTRATION_DISABLED');
+        $this->assertEquals('User registration is currently disabled', $response['error']);
+    }
+
+    public function test_registration_works_when_enabled(): void
+    {
+        // Explicitly enable registration
+        SiteSetting::set('site.registration_enabled', '1');
+
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'email' => 'enabled@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('user', $response);
     }
 
     public function test_user_can_login(): void

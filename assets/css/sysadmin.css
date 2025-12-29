@@ -407,3 +407,85 @@
         font-size: 2rem;
     }
 }
+
+/* --------------------------------------------------------------------------
+   Config Page
+   -------------------------------------------------------------------------- */
+.config-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.config-section h2 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.config-section h3 {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-xs);
+    font-size: 1rem;
+}
+
+.section-description {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-lg);
+    font-size: 0.875rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.secret-input-wrapper {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+}
+
+.secret-input-wrapper input {
+    flex: 1;
+}
+
+.secret-input-wrapper .clear-secret-btn {
+    margin-top: 0;
+    white-space: nowrap;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+.form-actions-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.status-message {
+    font-size: 0.875rem;
+}
+
+.status-message.success {
+    color: var(--color-success);
+}
+
+.status-message.error {
+    color: var(--color-danger);
+}
+
+.status-message.loading {
+    color: var(--color-text-muted);
+}
+
+/* Secret field with masked value */
+input[data-secret].has-value:not(:focus) {
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+}

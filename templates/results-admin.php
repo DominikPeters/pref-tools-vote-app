@@ -8,8 +8,16 @@ ob_start();
 <div class="results-container results-admin">
     <div class="container">
         <header class="results-header">
-            <h1>Results & Analysis</h1>
-            <div class="poll-title"><?= e($poll->title) ?></div>
+            <div class="results-header-top">
+                <div class="results-header-title">
+                    <span class="results-label">Results & Analysis</span>
+                    <h1><?= e($poll->title) ?></h1>
+                </div>
+                <div class="results-header-actions">
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>" class="btn btn-secondary">Back to Admin</a>
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary" target="_blank">View Public Results</a>
+                </div>
+            </div>
             <p class="admin-notice">Configure which analyses to show publicly</p>
         </header>
 
@@ -19,10 +27,6 @@ ob_start();
             </div>
         </div>
 
-        <footer class="results-footer">
-            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>" class="btn btn-secondary">Back to Admin</a>
-            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn" target="_blank">View Public Results</a>
-        </footer>
     </div>
 </div>
 

@@ -90,6 +90,40 @@ if (!$needsInstall) {
 }
 
 /**
+ * Check if maintenance mode is enabled and user is not a sysadmin
+ * Must be called after Auth is available
+ */
+function checkMaintenanceMode(): void
+{
+    // Skip if not installed yet
+    if (needsInstall()) {
+        return;
+    }
+
+    // Skip API requests for now (let controllers handle it)
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($uri, '/api/') !== false) {
+        return;
+    }
+
+    // Check maintenance mode setting
+    if (!\App\Models\SiteSetting::getBool('site.maintenance_mode', false)) {
+        return;
+    }
+
+    // Allow sysadmins through
+    $user = \App\Auth::getInstance()->user();
+    if ($user && $user->isSysadmin()) {
+        return;
+    }
+
+    // Show maintenance page
+    http_response_code(503);
+    view('maintenance', []);
+    exit;
+}
+
+/**
  * Helper function to render a template
  */
 function render(string $template, array $data = []): string
