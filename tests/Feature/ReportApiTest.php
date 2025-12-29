@@ -242,9 +242,141 @@ class ReportApiTest extends TestCase
 
         $this->assertSuccess($response);
         $result = $response['report']['cached_result'];
-        
+
         $this->assertEquals('schulze', $result['rule']);
         $this->assertCount(1, $result['winners']);
         $this->assertEquals($rankingQuestion->options[0]->id, $result['winners'][0]['option_id']);
+    }
+
+    // ========== Raw Data Export Tests ==========
+
+    public function test_admin_can_export_raw_data(): void
+    {
+        $rankingQuestion = $this->createQuestion($this->poll->id, [
+            'type' => 'ranking',
+            'options' => [['label' => 'Alice'], ['label' => 'Bob'], ['label' => 'Carol']]
+        ]);
+
+        $report = Report::create([
+            'question_id' => $rankingQuestion->id,
+            'report_type' => 'raw_data_export',
+            'is_public' => false
+        ]);
+
+        // Submit a ranking response
+        Response::create($this->poll->id, [
+            'answers' => [$rankingQuestion->id => [
+                $rankingQuestion->options[0]->id,
+                $rankingQuestion->options[1]->id,
+                $rankingQuestion->options[2]->id
+            ]]
+        ]);
+
+        $response = $this->callApi(
+            'GET',
+            "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export",
+            [],
+            ['admin_token' => $this->poll->adminToken]
+        );
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('file_name', $response);
+        $this->assertArrayHasKey('data_type', $response);
+        $this->assertEquals('SOC', $response['data_type']);
+        $this->assertEquals('export.soc', $response['file_name']);
+        $this->assertStringContainsString('# DATA TYPE: soc', $response['data']);
+        $this->assertStringContainsString('# ALTERNATIVE NAME 1: Alice', $response['data']);
+    }
+
+    public function test_public_can_export_when_report_is_public(): void
+    {
+        $this->poll->update(['visibility' => 'public', 'visibility_timing' => 'during']);
+
+        $report = Report::create([
+            'question_id' => $this->question->id,
+            'report_type' => 'raw_data_export',
+            'is_public' => true
+        ]);
+
+        Response::create($this->poll->id, [
+            'answers' => [$this->question->id => $this->question->options[0]->id]
+        ]);
+
+        // No admin token - public access
+        $response = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export");
+
+        $this->assertSuccess($response);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertEquals('SOI', $response['data_type']);
+    }
+
+    public function test_public_cannot_export_when_report_is_private(): void
+    {
+        $report = Report::create([
+            'question_id' => $this->question->id,
+            'report_type' => 'raw_data_export',
+            'is_public' => false
+        ]);
+
+        // No admin token - should fail
+        $response = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export");
+
+        $this->assertError($response, 'UNAUTHORIZED');
+    }
+
+    public function test_export_only_works_for_raw_data_export_reports(): void
+    {
+        $report = Report::create([
+            'question_id' => $this->question->id,
+            'report_type' => 'choice_counts',
+            'is_public' => true
+        ]);
+
+        $response = $this->callApi(
+            'GET',
+            "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export",
+            [],
+            ['admin_token' => $this->poll->adminToken]
+        );
+
+        $this->assertError($response, 'INVALID_REPORT_TYPE');
+    }
+
+    public function test_export_returns_404_for_nonexistent_report(): void
+    {
+        $response = $this->callApi(
+            'GET',
+            "/api/polls/{$this->poll->publicId}/reports/99999/export",
+            [],
+            ['admin_token' => $this->poll->adminToken]
+        );
+
+        $this->assertError($response, 'REPORT_NOT_FOUND');
+    }
+
+    public function test_export_returns_404_for_report_from_different_poll(): void
+    {
+        $otherPoll = $this->createPoll();
+        $otherQuestion = $this->createQuestion($otherPoll->id, [
+            'type' => 'single_choice',
+            'options' => [['label' => 'X']]
+        ]);
+
+        $report = Report::create([
+            'question_id' => $otherQuestion->id,
+            'report_type' => 'raw_data_export',
+            'is_public' => true
+        ]);
+
+        // Try to access report from other poll
+        $response = $this->callApi(
+            'GET',
+            "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export",
+            [],
+            ['admin_token' => $this->poll->adminToken]
+        );
+
+        $this->assertError($response, 'REPORT_NOT_FOUND');
     }
 }

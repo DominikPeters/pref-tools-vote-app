@@ -165,7 +165,7 @@ function renderReportCard(container, report, options) {
 
     // Render the report content
     const contentContainer = card.querySelector('.report-content');
-    renderReport(contentContainer, report);
+    renderReport(contentContainer, report, { publicId, adminToken });
 
     // Bind admin actions
     if (isAdmin) {

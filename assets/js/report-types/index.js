@@ -15,6 +15,7 @@ import { renderYNACounts } from './yna-counts.js';
 import { renderMajorityJudgment } from './majority-judgment.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
+import { renderRawDataExport } from './raw-data-export.js';
 
 const renderers = {
     'choice_counts': renderChoiceCounts,
@@ -27,14 +28,16 @@ const renderers = {
     'majority_judgment': renderMajorityJudgment,
     'multi_rule_comparison': renderMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
+    'raw_data_export': renderRawDataExport,
 };
 
 /**
  * Render a report into a container
  * @param {HTMLElement} container - The container to render into
  * @param {Object} report - The report object with cachedResult
+ * @param {Object} [context] - Optional context with publicId and adminToken for on-demand fetching
  */
-export function renderReport(container, report) {
+export function renderReport(container, report, context = {}) {
     const renderer = renderers[report.report_type];
 
     if (!renderer) {
@@ -47,8 +50,11 @@ export function renderReport(container, report) {
         return;
     }
 
+    // Include report.id in context for renderers that need it
+    const fullContext = { ...context, reportId: report.id };
+
     try {
-        renderer(container, report.cached_result, report.config);
+        renderer(container, report.cached_result, report.config, fullContext);
     } catch (err) {
         console.error('Error rendering report:', err);
         container.innerHTML = '<p class="report-error">Failed to render report.</p>';
@@ -70,6 +76,7 @@ export function getReportTypeName(type) {
         'majority_judgment': 'Majority Judgment',
         'multi_rule_comparison': 'Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
+        'raw_data_export': 'Export Raw Vote Data',
     };
     return names[type] || type;
 }
@@ -86,6 +93,7 @@ export function getReportTypeIcon(type) {
         'majority_judgment': 'scale-balanced',
         'multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
+        'raw_data_export': 'file-export',
     };
     return icons[type] || 'chart-bar';
 }

@@ -314,7 +314,7 @@ function showEditConfigModal(report, publicId, adminToken) {
                 const contentContainer = card.querySelector('.report-content');
                 report.config = result.report.config;
                 report.cached_result = result.report.cached_result;
-                renderReport(contentContainer, report);
+                renderReport(contentContainer, report, { publicId, adminToken });
             }
 
             showToast('Settings saved', 'success');
@@ -385,7 +385,7 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
 
     // Render the report content
     const contentContainer = card.querySelector('.report-content');
-    renderReport(contentContainer, report);
+    renderReport(contentContainer, report, { publicId, adminToken });
 
     // Bind actions
     const editConfigBtn = card.querySelector('.edit-config');

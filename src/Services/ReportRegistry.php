@@ -85,6 +85,9 @@ class ReportRegistry
         // Matrix/table reports
         self::register('response_matrix', new Reports\ResponseMatrixReport());
 
+        // Data export reports
+        self::register('raw_data_export', new Reports\RawDataExportReport());
+
         self::$initialized = true;
     }
 }

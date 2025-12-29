@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\Report;
 use App\Models\Response;
 use App\Services\LogService;
+use App\Services\PrefLibExporter;
 use App\Services\ReportRegistry;
 use App\Services\VotingRulesRegistry;
 
@@ -322,6 +323,73 @@ class ReportApiController extends ApiController
         } catch (\Exception $e) {
             return $this->error('Failed to compute report: ' . $e->getMessage(), 'COMPUTE_FAILED', 500);
         }
+    }
+
+    /**
+     * GET /api/polls/:publicId/reports/:reportId/export
+     * Generate PrefLib export on-demand (not cached)
+     * Accessible if report is public OR valid admin token provided
+     */
+    public function exportPrefLib(array $params): array
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
+        }
+
+        $report = Report::find((int) $params['reportId']);
+
+        if (!$report) {
+            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+        }
+
+        // Verify report belongs to this poll
+        $question = Question::find($report->questionId);
+        if (!$question || $question->pollId !== $poll->id) {
+            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+        }
+
+        // Check authorization: report is public OR valid admin token
+        $adminToken = $_GET['admin_token'] ?? null;
+        $isAdmin = $adminToken && $poll->verifyAdminToken($adminToken);
+
+        if (!$report->isPublic && !$isAdmin) {
+            return $this->error('Not authorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Verify this is a raw_data_export report
+        if ($report->reportType !== 'raw_data_export') {
+            return $this->error('Export not available for this report type', 'INVALID_REPORT_TYPE', 400);
+        }
+
+        if (!PrefLibExporter::isSupported($question)) {
+            return $this->error('Question type not supported for export', 'UNSUPPORTED_TYPE', 400);
+        }
+
+        // Load responses
+        $responses = Response::findByPollId($poll->id);
+        foreach ($responses as $response) {
+            $response->loadAnswers();
+        }
+
+        // Generate export
+        $dataType = PrefLibExporter::getDataType($question);
+        $fileName = 'export.' . $dataType;
+
+        $exportData = PrefLibExporter::export($question, $responses, [
+            'file_name' => $fileName,
+        ]);
+
+        if ($exportData === null) {
+            return $this->error('Failed to generate export', 'EXPORT_FAILED', 500);
+        }
+
+        return $this->success([
+            'data' => $exportData,
+            'file_name' => $fileName,
+            'data_type' => strtoupper($dataType),
+        ]);
     }
 
     /**
