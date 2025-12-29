@@ -8,6 +8,19 @@ import { api, escapeHtml, showUndoToast } from './app.js';
 import { renderReport, getReportTypeName, getReportTypeIcon } from './report-types/index.js';
 
 /**
+ * Format an ISO date string for display
+ */
+function formatDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+/**
  * Load and render results for a poll
  *
  * @param {string} publicId - The poll's public ID
@@ -70,9 +83,24 @@ function renderResults(container, poll, reports, options) {
 
     let html = '';
 
-    // Response count summary
+    // Poll summary card
+    const questionCount = poll.questions.filter(q => q.type !== 'section_header').length;
+    const responseCount = poll.response_count ?? 0;
+
+    let dateInfo = '';
+    if (poll.closed_at) {
+        dateInfo = `Closed ${formatDate(poll.closed_at)}`;
+    } else if (poll.created_at) {
+        dateInfo = `Created ${formatDate(poll.created_at)}`;
+    }
+
     html += `<div class="results-summary card">
-        <p>Results for <strong>${escapeHtml(poll.title)}</strong></p>
+        <div class="summary-stats">
+            <span class="stat"><strong>${responseCount}</strong> response${responseCount !== 1 ? 's' : ''}</span>
+            <span class="stat">${questionCount} question${questionCount !== 1 ? 's' : ''}</span>
+            <span class="status-badge status-${poll.status}">${poll.status}</span>
+            ${dateInfo ? `<span class="stat date-info">${dateInfo}</span>` : ''}
+        </div>
     </div>`;
 
     // Render each question
@@ -133,33 +161,41 @@ function renderResults(container, poll, reports, options) {
 function renderReportCard(container, report, options) {
     const { isAdmin, publicId, adminToken, configurableTypes, onEditConfig } = options;
 
+    // Text blocks in public view: no card styling, no header
+    const isPublicTextBlock = report.report_type === 'text_block' && !isAdmin;
+
     const card = document.createElement('div');
-    card.className = 'report-card';
+    card.className = isPublicTextBlock ? 'report-card report-card-plain' : 'report-card';
     card.dataset.reportId = report.id;
 
     const typeName = getReportTypeName(report.report_type);
     const icon = getReportTypeIcon(report.report_type);
     const hasConfig = configurableTypes?.has(report.report_type);
 
-    let headerHtml = `
-        <div class="report-header">
-            ${isAdmin ? '<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">⠿</span>' : ''}
-            <span class="report-name">${escapeHtml(typeName)}</span>
-    `;
+    let headerHtml = '';
 
-    if (isAdmin) {
-        headerHtml += `
-            <div class="report-actions">
-                ${hasConfig ? '<button class="btn-icon edit-config" data-tooltip="Settings">⚙️</button>' : ''}
-                <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
-                    ${report.is_public ? '👁' : '🔒'}
-                </button>
-                <button class="btn-icon delete-report" data-tooltip="Delete analysis">🗑</button>
-            </div>
+    // Skip header for public text blocks
+    if (!isPublicTextBlock) {
+        headerHtml = `
+            <div class="report-header">
+                ${isAdmin ? '<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">⠿</span>' : ''}
+                <span class="report-name">${escapeHtml(typeName)}</span>
         `;
-    }
 
-    headerHtml += `</div>`;
+        if (isAdmin) {
+            headerHtml += `
+                <div class="report-actions">
+                    ${hasConfig ? '<button class="btn-icon edit-config" data-tooltip="Settings">⚙️</button>' : ''}
+                    <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
+                        ${report.is_public ? '👁' : '🔒'}
+                    </button>
+                    <button class="btn-icon delete-report" data-tooltip="Delete analysis">🗑</button>
+                </div>
+            `;
+        }
+
+        headerHtml += `</div>`;
+    }
 
     card.innerHTML = headerHtml + '<div class="report-content"></div>';
 

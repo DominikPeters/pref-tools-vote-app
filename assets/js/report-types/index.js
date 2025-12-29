@@ -16,6 +16,7 @@ import { renderMajorityJudgment } from './majority-judgment.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
+import { renderTextBlock } from './text-block.js';
 
 const renderers = {
     'choice_counts': renderChoiceCounts,
@@ -29,6 +30,7 @@ const renderers = {
     'multi_rule_comparison': renderMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
+    'text_block': renderTextBlock,
 };
 
 /**
@@ -77,6 +79,7 @@ export function getReportTypeName(type) {
         'multi_rule_comparison': 'Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
         'raw_data_export': 'Export Raw Vote Data',
+        'text_block': 'Text Block',
     };
     return names[type] || type;
 }
@@ -94,6 +97,7 @@ export function getReportTypeIcon(type) {
         'multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',
+        'text_block': 'file-lines',
     };
     return icons[type] || 'chart-bar';
 }

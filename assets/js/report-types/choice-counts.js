@@ -29,7 +29,6 @@ export function renderChoiceCounts(container, data, config) {
                     `;
                 }).join('')}
             </div>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

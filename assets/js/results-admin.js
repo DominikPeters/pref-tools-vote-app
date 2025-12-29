@@ -238,6 +238,10 @@ function renderConfigField(field, currentValue, questionId) {
             `;
         });
         html += `</div>`;
+    } else if (field.type === 'textarea') {
+        const placeholder = field.placeholder ? `placeholder="${escapeHtml(field.placeholder)}"` : '';
+        html += `<textarea id="config-${field.name}" name="${field.name}"
+                          class="form-control" rows="6" ${placeholder}>${escapeHtml(currentValue || '')}</textarea>`;
     } else {
         html += `<input type="text" id="config-${field.name}" name="${field.name}"
                         value="${currentValue || ''}" class="form-control">`;

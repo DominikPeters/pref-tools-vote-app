@@ -25,7 +25,6 @@ export function renderVotingRuleWinner(container, data, config) {
             <p class="rule-name">${escapeHtml(rule_name)}</p>
             ${is_tie ? '<p class="tie-notice">Tie between:</p>' : '<p class="winner-label">Winner</p>'}
             <div class="winner-name">${winnerNames}</div>
-            <p class="report-note">${total_responses} ranking${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

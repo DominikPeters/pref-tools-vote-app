@@ -67,7 +67,6 @@ export function renderResponseMatrix(container, data, config) {
                     </tbody>
                 </table>
             </div>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

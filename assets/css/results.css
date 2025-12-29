@@ -68,6 +68,16 @@
     margin-bottom: 1rem;
 }
 
+.report-card.report-card-plain {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.report-card.report-card-plain .report-content {
+    padding: 0;
+}
+
 .report-header {
     display: flex;
     align-items: center;
@@ -369,6 +379,28 @@
     padding: 0.5rem 1rem;
     border-radius: 4px;
     margin-bottom: 1rem;
+}
+
+/* Summary Stats */
+.results-summary .summary-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: center;
+}
+
+.results-summary .stat {
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.results-summary .stat strong {
+    font-weight: 600;
+}
+
+.results-summary .date-info {
+    color: #9ca3af;
+    font-size: 0.85rem;
 }
 
 /* Result Notes */
@@ -1006,4 +1038,75 @@ label.checkbox-item {
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* Text Block Report - Markdown Content */
+.report-text-block .markdown-content {
+    line-height: 1.6;
+    color: #374151;
+}
+
+.report-text-block .markdown-content h1,
+.report-text-block .markdown-content h2,
+.report-text-block .markdown-content h3,
+.report-text-block .markdown-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.report-text-block .markdown-content h1 { font-size: 1.5rem; }
+.report-text-block .markdown-content h2 { font-size: 1.25rem; }
+.report-text-block .markdown-content h3 { font-size: 1.1rem; }
+
+.report-text-block .markdown-content p {
+    margin-bottom: 0.75rem;
+}
+
+.report-text-block .markdown-content ul,
+.report-text-block .markdown-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.report-text-block .markdown-content li {
+    margin-bottom: 0.25rem;
+}
+
+.report-text-block .markdown-content code {
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.875em;
+}
+
+.report-text-block .markdown-content pre {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 0.75rem;
+}
+
+.report-text-block .markdown-content pre code {
+    padding: 0;
+    background: none;
+}
+
+.report-text-block .markdown-content blockquote {
+    border-left: 3px solid #d1d5db;
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.report-text-block .markdown-content a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.report-text-block .markdown-content a:hover {
+    color: #1d4ed8;
 }

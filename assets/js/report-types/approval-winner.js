@@ -25,7 +25,6 @@ export function renderApprovalWinner(container, data, config) {
                 <span class="winner-count">${winnerCount} vote${winnerCount !== 1 ? 's' : ''}</span>
                 <span class="winner-percent">(${winnerPercentage}%)</span>
             </div>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

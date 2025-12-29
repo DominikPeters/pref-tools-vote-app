@@ -76,7 +76,6 @@ export function renderMajorityJudgment(container, data, config) {
             <div class="mj-legend">
                 ${legendItems}
             </div>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

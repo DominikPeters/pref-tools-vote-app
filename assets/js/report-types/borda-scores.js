@@ -31,7 +31,6 @@ export function renderBordaScores(container, data, config) {
                     `;
                 }).join('')}
             </div>
-            <p class="report-note">${total_responses} ranking${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

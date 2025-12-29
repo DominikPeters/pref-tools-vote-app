@@ -255,6 +255,7 @@ function renderQuestions() {
 function getRequiredBehavior(question) {
     if (question.type === 'section_header') return { hidden: true };
     if (question.type === 'ranking') return { disabled: true, forced: true };
+    // ranking_truncated uses min setting to control required behavior
     return { disabled: false };
 }
 
@@ -291,6 +292,24 @@ function renderTypeSettings(question) {
                     <label>
                         <span>Max:</span>
                         <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="All">
+                    </label>
+                </div>
+            `;
+
+        case 'ranking_truncated':
+            const rtMin = settings.min ?? 0;
+            const rtOptionCount = question.options?.length || 0;
+            const rtMax = settings.max;
+            const rtMaxDisplay = (rtMax === null || rtMax === undefined || rtMax >= rtOptionCount) ? '' : rtMax;
+            return `
+                <div class="type-settings ranking-truncated-settings" data-option-count="${rtOptionCount}">
+                    <label>
+                        <span>Min:</span>
+                        <input type="number" class="setting-min" value="${rtMin}" min="0" max="${rtOptionCount}">
+                    </label>
+                    <label>
+                        <span>Max:</span>
+                        <input type="number" class="setting-max" value="${rtMaxDisplay}" min="1" max="${rtOptionCount}" placeholder="All">
                     </label>
                 </div>
             `;
@@ -595,11 +614,11 @@ function setupTypeSettingsEvents(wrapper, question) {
         question.settings = {};
     }
 
-    // Approval min/max settings
+    // Min/max settings (approval and ranking_truncated share this pattern)
     const minInput = wrapper.querySelector('.setting-min');
     const maxInput = wrapper.querySelector('.setting-max');
-    const approvalSettings = wrapper.querySelector('.approval-settings');
-    const optionCount = approvalSettings ? parseInt(approvalSettings.dataset.optionCount) || 0 : 0;
+    const minMaxSettings = wrapper.querySelector('.approval-settings, .ranking-truncated-settings');
+    const optionCount = minMaxSettings ? parseInt(minMaxSettings.dataset.optionCount) || 0 : 0;
 
     if (minInput && maxInput) {
         minInput.addEventListener('change', (e) => {

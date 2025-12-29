@@ -52,7 +52,6 @@ export function renderYNACounts(container, data, config) {
                     ${rows}
                 </tbody>
             </table>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSingleChoice();
     initApproval();
     initRankings();
+    initTruncatedRankings();
     initStarRatings();
     initGradeButtons();
     initYnaButtons();
@@ -192,6 +193,7 @@ function collectFormData() {
                 break;
 
             case 'ranking':
+            case 'ranking_truncated':
                 const rankingInput = block.querySelector('.ranking-value');
                 if (rankingInput?.value) {
                     answer = JSON.parse(rankingInput.value);
@@ -265,6 +267,25 @@ function validateForm(data) {
             if (count < min) {
                 return `Please select at least ${min} option(s) for "${question.text}"`;
             }
+        }
+    }
+
+    // Validate ranking_truncated min/max constraints
+    const truncatedQuestions = document.querySelectorAll('.question-display[data-type="ranking_truncated"]');
+    for (const block of truncatedQuestions) {
+        const questionId = block.dataset.questionId;
+        const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
+        const min = question?.settings?.min ?? 0;
+        const max = question?.settings?.max ?? null;
+
+        const answer = data.answers[questionId];
+        const count = Array.isArray(answer) ? answer.length : 0;
+
+        if (min > 0 && count < min) {
+            return `Please rank at least ${min} option(s) for "${question.text}"`;
+        }
+        if (max !== null && count > max) {
+            return `Please rank at most ${max} option(s) for "${question.text}"`;
         }
     }
 
@@ -372,6 +393,105 @@ function initRankings() {
             onEnd: () => {
                 updateValue();
             }
+        });
+    });
+}
+
+/**
+ * Initialize truncated rankings with linked SortableJS lists
+ * Users can drag options from "available" to "ranked" and vice versa
+ */
+function initTruncatedRankings() {
+    const ITEM_HEIGHT = 42; // Approximate height of item + gap
+
+    document.querySelectorAll('.ranking-truncated-options').forEach(container => {
+        const questionId = container.dataset.questionId;
+        const availableList = container.querySelector('.ranking-available-list');
+        const rankedList = container.querySelector('.ranking-ranked-list');
+        const input = container.querySelector('.ranking-value');
+        const placeholder = container.querySelector('.ranking-drop-placeholder');
+        const hintEl = container.querySelector('.ranking-truncated-hint');
+
+        // Get settings from poll data
+        const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
+        const totalOptions = question?.options?.length || 0;
+        const min = question?.settings?.min ?? 0;
+        const maxSetting = question?.settings?.max; // null means no limit
+        const effectiveMax = maxSetting ?? totalOptions;
+
+        // Show constraint hint
+        const hasMax = maxSetting !== null && maxSetting !== undefined;
+        if (min > 0 || hasMax) {
+            let hintText = '';
+            if (min > 0 && hasMax) {
+                hintText = min === maxSetting ? `Rank exactly ${min}` : `Rank ${min} to ${maxSetting} options`;
+            } else if (min > 0) {
+                hintText = `Rank at least ${min} options`;
+            } else if (hasMax) {
+                hintText = `Rank up to ${maxSetting} options`;
+            }
+            hintEl.textContent = hintText;
+            hintEl.style.display = '';
+        } else {
+            hintEl.textContent = 'Drag options to rank them (top = best)';
+            hintEl.style.display = '';
+        }
+
+        // Update list min-heights to always show space for one more item (up to limit)
+        const updateMinHeights = () => {
+            const rankedCount = rankedList.querySelectorAll('.ranking-truncated-item').length;
+            const availableCount = availableList.querySelectorAll('.ranking-truncated-item').length;
+
+            // Ranked list: show space for current items + 1, up to max
+            const rankedSlots = Math.min(rankedCount + 1, effectiveMax);
+            rankedList.style.minHeight = `${rankedSlots * ITEM_HEIGHT}px`;
+
+            // Available list: show space for current items + 1, up to total options
+            const availableSlots = Math.min(availableCount + 1, totalOptions);
+            availableList.style.minHeight = `${availableSlots * ITEM_HEIGHT}px`;
+        };
+
+        const updateValue = () => {
+            const order = Array.from(rankedList.querySelectorAll('.ranking-truncated-item'))
+                .map(item => parseInt(item.dataset.optionId));
+            input.value = order.length > 0 ? JSON.stringify(order) : '';
+
+            // Toggle placeholder visibility
+            placeholder.style.display = order.length > 0 ? 'none' : '';
+
+            // Update min-heights after changes
+            updateMinHeights();
+        };
+
+        // Initialize value and min-heights
+        updateValue();
+
+        // Shared group name for linked sorting
+        const groupName = `ranking-truncated-${questionId}`;
+
+        // Available list - can pull from ranked, puts into ranked
+        new Sortable(availableList, {
+            group: groupName,
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: updateValue
+        });
+
+        // Ranked list - can pull from available, enforces max via group.put
+        new Sortable(rankedList, {
+            group: {
+                name: groupName,
+                // Control whether items can be added to this list
+                put: function() {
+                    const currentCount = rankedList.querySelectorAll('.ranking-truncated-item').length;
+                    return currentCount < effectiveMax;
+                }
+            },
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: updateValue
         });
     });
 }
@@ -528,6 +648,12 @@ function initProgressSaving() {
         const observer = new MutationObserver(saveProgress);
         observer.observe(list, { childList: true });
     });
+
+    // Watch for truncated ranking changes (both lists)
+    document.querySelectorAll('.ranking-available-list, .ranking-ranked-list').forEach(list => {
+        const observer = new MutationObserver(saveProgress);
+        observer.observe(list, { childList: true });
+    });
 }
 
 function restoreProgress() {
@@ -616,6 +742,54 @@ function prefillForm(response) {
                         });
 
                         input.value = JSON.stringify(answer);
+                    }
+                }
+                break;
+
+            case 'ranking_truncated':
+                if (Array.isArray(answer)) {
+                    const availableList = block.querySelector('.ranking-available-list');
+                    const rankedList = block.querySelector('.ranking-ranked-list');
+                    const input = block.querySelector('.ranking-value');
+                    const placeholder = block.querySelector('.ranking-drop-placeholder');
+
+                    if (availableList && rankedList && input) {
+                        // Gather all items from both lists
+                        const allItems = [
+                            ...Array.from(availableList.querySelectorAll('.ranking-truncated-item')),
+                            ...Array.from(rankedList.querySelectorAll('.ranking-truncated-item'))
+                        ];
+                        const itemMap = {};
+                        allItems.forEach(item => {
+                            itemMap[item.dataset.optionId] = item;
+                        });
+
+                        // Clear both lists
+                        availableList.innerHTML = '';
+                        rankedList.innerHTML = '';
+
+                        // Move answered items to ranked list in order
+                        const rankedIds = new Set();
+                        answer.forEach(id => {
+                            if (itemMap[id]) {
+                                rankedList.appendChild(itemMap[id]);
+                                rankedIds.add(String(id));
+                            }
+                        });
+
+                        // Move remaining items to available list
+                        allItems.forEach(item => {
+                            if (!rankedIds.has(item.dataset.optionId)) {
+                                availableList.appendChild(item);
+                            }
+                        });
+
+                        input.value = JSON.stringify(answer);
+
+                        // Toggle placeholder visibility
+                        if (placeholder) {
+                            placeholder.style.display = answer.length > 0 ? 'none' : '';
+                        }
                     }
                 }
                 break;

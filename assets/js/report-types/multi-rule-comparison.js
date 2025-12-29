@@ -57,7 +57,6 @@ export function renderMultiRuleComparison(container, data, config) {
                     ${resultRows}
                 </tbody>
             </table>
-            <p class="report-note">${total_responses} response${total_responses !== 1 ? 's' : ''}</p>
         </div>
     `;
 

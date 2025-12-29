@@ -8,6 +8,7 @@
 :root {
     --color-primary: #2563eb;
     --color-primary-dark: #1d4ed8;
+    --color-primary-muted: hsl(221, 70%, 80%);
     --color-secondary: #64748b;
     --color-success: #22c55e;
     --color-warning: #f59e0b;

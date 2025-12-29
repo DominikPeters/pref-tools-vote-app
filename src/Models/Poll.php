@@ -458,6 +458,9 @@ class Poll
             'requires_password' => $this->accessMode === 'password',
             'requires_identity' => $this->requiresIdentity(),
             'locale' => $this->locale,
+            'created_at' => $this->createdAt?->format('c'),
+            'closed_at' => $this->closedAt?->format('c'),
+            'response_count' => $this->getResponseCount(),
             'questions' => array_map(fn($q) => $q->toArray(), $this->questions),
         ];
     }

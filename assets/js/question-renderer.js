@@ -114,6 +114,33 @@ export function renderQuestionInput(question, disabled = false) {
                 </div>
             `;
 
+        case 'ranking_truncated':
+            return `
+                <div class="ranking-truncated-options" data-question-id="${question.id || question._id}">
+                    <div class="ranking-truncated-hint"></div>
+                    <div class="ranking-truncated-zones">
+                        <div class="ranking-zone ranking-zone-available">
+                            <div class="ranking-zone-header">Available options</div>
+                            <ul class="ranking-available-list">
+                                ${options.map(o => `
+                                    <li class="ranking-truncated-item" data-option-id="${o.id || o._id}">
+                                        <span class="drag-handle">&#9776;</span>
+                                        <span class="option-label">${escapeHtml(o.label)}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="ranking-zone ranking-zone-ranked">
+                            <div class="ranking-zone-header">Your ranking</div>
+                            <ol class="ranking-ranked-list">
+                            </ol>
+                            <div class="ranking-drop-placeholder">Drag options here to rank them</div>
+                        </div>
+                    </div>
+                    <input type="hidden" class="ranking-value" name="q_${question.id || question._id}">
+                </div>
+            `;
+
         case 'star':
             const starCount = question.settings?.starCount || 5;
             return `
@@ -135,7 +162,16 @@ export function renderQuestionInput(question, disabled = false) {
         case 'grade':
             const defaultGrades = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'];
             const grades = question.settings?.grades || defaultGrades;
-            const useButtons = grades.length <= 3;
+            // Estimate button row width to decide between buttons vs dropdown
+            const estimateButtonRowWidth = (gradeList) => {
+                const BUTTON_FIXED = 33; // padding (16*2) + border (~1)
+                const CHAR_WIDTH = 7;    // approximate px per character
+                const GAP = 6;           // spacing-xs gap between buttons
+                const buttonsWidth = gradeList.reduce((sum, g) => sum + BUTTON_FIXED + g.length * CHAR_WIDTH, 0);
+                const gapsWidth = (gradeList.length - 1) * GAP;
+                return buttonsWidth + gapsWidth;
+            };
+            const useButtons = estimateButtonRowWidth(grades) <= 350;
 
             if (useButtons) {
                 return `
@@ -203,6 +239,7 @@ export function getQuestionTypeLabel(type) {
         'single_choice': 'Single Choice',
         'approval': 'Approval (Multiple Choice)',
         'ranking': 'Ranking',
+        'ranking_truncated': 'Ranking (Partial)',
         'star': 'Star Rating',
         'grade': 'Grades',
         'yes_no_abstain': 'Yes / No / Abstain',
@@ -216,7 +253,7 @@ export function getQuestionTypeLabel(type) {
  * Question types that require options
  */
 export const OPTION_TYPES = [
-    'single_choice', 'approval', 'ranking', 'star', 'grade', 'yes_no_abstain'
+    'single_choice', 'approval', 'ranking', 'ranking_truncated', 'star', 'grade', 'yes_no_abstain'
 ];
 
 /**
@@ -226,6 +263,7 @@ export const QUESTION_TYPES = [
     { value: 'single_choice', label: 'Single Choice' },
     { value: 'approval', label: 'Approval (Multiple Choice)' },
     { value: 'ranking', label: 'Ranking' },
+    { value: 'ranking_truncated', label: 'Ranking (Partial)' },
     { value: 'star', label: 'Star Rating' },
     { value: 'grade', label: 'Grades' },
     { value: 'yes_no_abstain', label: 'Yes / No / Abstain' },

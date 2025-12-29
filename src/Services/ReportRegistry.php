@@ -88,6 +88,9 @@ class ReportRegistry
         // Data export reports
         self::register('raw_data_export', new Reports\RawDataExportReport());
 
+        // Text/narrative reports
+        self::register('text_block', new Reports\TextBlockReport());
+
         self::$initialized = true;
     }
 }
