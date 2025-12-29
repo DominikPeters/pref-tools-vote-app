@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../pref_voting/autoload.php';
 use PrefVoting\Profile;
 use PrefVoting\ProfileWithTies;
 use PrefVoting\Ranking;
+use PrefVoting\GradeProfile;
 
 class ProfileBuilder
 {
@@ -204,5 +205,239 @@ class ProfileBuilder
             $labels[$option->id] = $option->label;
         }
         return $labels;
+    }
+
+    /**
+     * Grade presets with their grade order (highest to lowest)
+     */
+    public const GRADE_PRESETS = [
+        'default' => ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'],
+        'a-f' => ['A', 'B', 'C', 'D', 'E', 'F'],
+        'plus-minus' => ['++', '+', '0', '−', '−−'],
+        'pass-fail' => ['Pass', 'Fail'],
+    ];
+
+    /**
+     * Build a GradeProfile from grade or star responses
+     *
+     * @param Question $question The grade/star question
+     * @param Response[] $responses Array of Response objects with loaded answers
+     * @return GradeProfile
+     */
+    public static function fromGradeResponses(Question $question, array $responses): GradeProfile
+    {
+        $question->loadOptions();
+        $options = $question->options;
+
+        // Build candidate map: option ID -> index and names
+        $candidates = [];
+        $cmap = [];
+        foreach ($options as $index => $option) {
+            $candidates[] = $index;
+            $cmap[$index] = $option->label;
+        }
+
+        // Determine grades and their order
+        $grades = self::getGradesForQuestion($question);
+        $gradeOrder = $grades; // First is highest, last is lowest
+
+        // For star ratings, convert to numeric grades (1 to N)
+        if ($question->type === 'star') {
+            $starCount = $question->settings['starCount'] ?? 5;
+            $grades = range($starCount, 1, -1); // e.g., [5, 4, 3, 2, 1] for 5 stars
+            $gradeOrder = $grades;
+        }
+
+        // Build grade display map
+        $gmap = [];
+        foreach ($grades as $g) {
+            $gmap[$g] = (string) $g;
+        }
+
+        // Create option ID to candidate index mapping
+        $optionToCandidateMap = [];
+        foreach ($options as $index => $option) {
+            $optionToCandidateMap[$option->id] = $index;
+        }
+
+        // Collect grade functions from responses
+        $gradeMaps = [];
+        $gcounts = [];
+
+        foreach ($responses as $response) {
+            $answer = self::getAnswerForQuestion($response, $question->id);
+            if ($answer === null) {
+                continue;
+            }
+
+            $value = $answer->getValue();
+            if (!is_array($value) || empty($value)) {
+                continue;
+            }
+
+            // Build grade map: candidate index -> grade
+            $gradeMap = [];
+            foreach ($value as $optionId => $gradeValue) {
+                if (!isset($optionToCandidateMap[$optionId])) {
+                    continue;
+                }
+                $candIdx = $optionToCandidateMap[$optionId];
+
+                // For stars, value is already numeric
+                if ($question->type === 'star') {
+                    if (is_numeric($gradeValue) && in_array((int)$gradeValue, $grades)) {
+                        $gradeMap[$candIdx] = (int) $gradeValue;
+                    }
+                } else {
+                    // For grades, we need to match the grade (stored lowercase) to our grade list
+                    $matchedGrade = self::matchGrade($gradeValue, $grades);
+                    if ($matchedGrade !== null) {
+                        $gradeMap[$candIdx] = $matchedGrade;
+                    }
+                }
+            }
+
+            if (empty($gradeMap)) {
+                continue;
+            }
+
+            // Aggregate identical grade maps
+            $key = serialize($gradeMap);
+            if (isset($gcounts[$key])) {
+                $gcounts[$key]++;
+            } else {
+                $gradeMaps[] = $gradeMap;
+                $gcounts[$key] = 1;
+            }
+        }
+
+        // Normalize counts to match grade maps array
+        $finalCounts = [];
+        foreach ($gradeMaps as $gradeMap) {
+            $key = serialize($gradeMap);
+            $finalCounts[] = $gcounts[$key];
+        }
+
+        // Handle empty case
+        if (empty($gradeMaps)) {
+            $gradeMaps = [];
+            $finalCounts = [];
+        }
+
+        return new GradeProfile(
+            $gradeMaps,
+            $grades,
+            $finalCounts,
+            $candidates,
+            $cmap,
+            $gmap,
+            $gradeOrder
+        );
+    }
+
+    /**
+     * Get the list of grades for a question (in order from highest to lowest)
+     */
+    public static function getGradesForQuestion(Question $question): array
+    {
+        if ($question->type === 'star') {
+            $starCount = $question->settings['starCount'] ?? 5;
+            return range($starCount, 1, -1);
+        }
+
+        // For grade questions, check if using a preset or custom grades
+        $settings = $question->settings ?? [];
+        $preset = $settings['preset'] ?? 'default';
+
+        if ($preset !== 'custom' && isset(self::GRADE_PRESETS[$preset])) {
+            return self::GRADE_PRESETS[$preset];
+        }
+
+        // Custom grades from settings
+        if (isset($settings['grades']) && is_array($settings['grades'])) {
+            return $settings['grades'];
+        }
+
+        // Default fallback
+        return self::GRADE_PRESETS['default'];
+    }
+
+    /**
+     * Match a stored grade value (often lowercase) to the actual grade in the list
+     */
+    private static function matchGrade(string $storedValue, array $grades): mixed
+    {
+        // Direct match first
+        if (in_array($storedValue, $grades, true)) {
+            return $storedValue;
+        }
+
+        // Case-insensitive match
+        $storedLower = strtolower($storedValue);
+        foreach ($grades as $grade) {
+            if (strtolower((string)$grade) === $storedLower) {
+                return $grade;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get Yes/No/Abstain counts from responses
+     *
+     * @param Question $question The yes_no_abstain question
+     * @param Response[] $responses Array of Response objects with loaded answers
+     * @return array ['counts' => [optionId => ['yes' => n, 'no' => n, 'abstain' => n]], 'total' => n]
+     */
+    public static function getYNACounts(Question $question, array $responses): array
+    {
+        $question->loadOptions();
+        $counts = [];
+
+        // Initialize counts for all options
+        foreach ($question->options as $option) {
+            $counts[$option->id] = [
+                'yes' => 0,
+                'no' => 0,
+                'abstain' => 0,
+            ];
+        }
+
+        $totalResponses = 0;
+
+        foreach ($responses as $response) {
+            $answer = self::getAnswerForQuestion($response, $question->id);
+            if ($answer === null) {
+                continue;
+            }
+
+            $value = $answer->getValue();
+            if (!is_array($value)) {
+                continue;
+            }
+
+            $totalResponses++;
+
+            foreach ($value as $optionId => $vote) {
+                if (!isset($counts[$optionId])) {
+                    continue;
+                }
+
+                $vote = strtolower((string) $vote);
+                if ($vote === 'yes' || $vote === 'y') {
+                    $counts[$optionId]['yes']++;
+                } elseif ($vote === 'no' || $vote === 'n') {
+                    $counts[$optionId]['no']++;
+                } elseif ($vote === 'abstain' || $vote === 'a') {
+                    $counts[$optionId]['abstain']++;
+                }
+            }
+        }
+
+        return [
+            'counts' => $counts,
+            'total' => $totalResponses,
+        ];
     }
 }

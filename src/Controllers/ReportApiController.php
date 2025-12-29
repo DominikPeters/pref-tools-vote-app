@@ -8,6 +8,7 @@ use App\Models\Report;
 use App\Models\Response;
 use App\Services\LogService;
 use App\Services\ReportRegistry;
+use App\Services\VotingRulesRegistry;
 
 class ReportApiController extends ApiController
 {
@@ -29,8 +30,8 @@ class ReportApiController extends ApiController
 
         $reports = Report::findPublicByPollId($poll->id);
 
-        // Ensure reports have computed results
-        $this->ensureReportsComputed($poll, $reports);
+        // Ensure reports have computed results (public view)
+        $this->ensureReportsComputed($poll, $reports, false);
 
         return $this->success([
             'reports' => array_map(fn($r) => $r->toPublicArray(), $reports),
@@ -54,8 +55,8 @@ class ReportApiController extends ApiController
 
         $reports = Report::findByPollId($poll->id);
 
-        // Ensure reports have computed results
-        $this->ensureReportsComputed($poll, $reports);
+        // Ensure reports have computed results (admin view)
+        $this->ensureReportsComputed($poll, $reports, true);
 
         return $this->success([
             'reports' => array_map(fn($r) => $r->toArray(), $reports),
@@ -81,12 +82,17 @@ class ReportApiController extends ApiController
 
         // Get available types for each question
         $typesByQuestion = [];
+        // Get voting rules for each question type
+        $votingRulesByQuestion = [];
+
         foreach ($poll->questions as $question) {
             $typesByQuestion[$question->id] = ReportRegistry::getTypesForQuestionType($question->type);
+            $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
         }
 
         return $this->success([
             'types_by_question' => $typesByQuestion,
+            'voting_rules_by_question' => $votingRulesByQuestion,
             'all_types' => ReportRegistry::all(),
         ]);
     }
@@ -343,7 +349,7 @@ class ReportApiController extends ApiController
     /**
      * Compute a single report
      */
-    private function computeReport(Poll $poll, Report $report): void
+    private function computeReport(Poll $poll, Report $report, bool $isAdmin = true): void
     {
         $handler = ReportRegistry::get($report->reportType);
         if (!$handler) {
@@ -360,14 +366,19 @@ class ReportApiController extends ApiController
             $response->loadAnswers();
         }
 
-        $result = $handler->compute($question, $responses, $report->config);
+        // Build config with privacy context for reports that need it
+        $config = $report->config ?? [];
+        $config['is_admin'] = $isAdmin;
+        $config['poll_visibility'] = $poll->visibility;
+
+        $result = $handler->compute($question, $responses, $config);
         $report->updateCache($result);
     }
 
     /**
      * Ensure all reports have computed results
      */
-    private function ensureReportsComputed(Poll $poll, array $reports): void
+    private function ensureReportsComputed(Poll $poll, array $reports, bool $isAdmin = false): void
     {
         $responses = null;
 
@@ -385,7 +396,12 @@ class ReportApiController extends ApiController
                 if ($handler) {
                     $question = Question::find($report->questionId);
                     if ($question) {
-                        $result = $handler->compute($question, $responses, $report->config);
+                        // Build config with privacy context
+                        $config = $report->config ?? [];
+                        $config['is_admin'] = $isAdmin;
+                        $config['poll_visibility'] = $poll->visibility;
+
+                        $result = $handler->compute($question, $responses, $config);
                         $report->updateCache($result);
                     }
                 }

@@ -65,11 +65,25 @@ class ReportRegistry
         }
 
         // Register all report types
+        // Basic reports for single_choice/approval
         self::register('choice_counts', new Reports\ChoiceCountsReport());
         self::register('approval_winner', new Reports\ApprovalWinnerReport());
+
+        // Ranking-based reports
         self::register('borda_scores', new Reports\BordaScoresReport());
         self::register('pairwise_margins', new Reports\PairwiseMarginsReport());
         self::register('voting_rule_winner', new Reports\VotingRuleWinnerReport());
+        self::register('condorcet_winner', new Reports\CondorcetWinnerReport());
+        self::register('multi_rule_comparison', new Reports\MultiRuleComparisonReport());
+
+        // Grade-based reports
+        self::register('majority_judgment', new Reports\MajorityJudgmentReport());
+
+        // Yes/No/Abstain reports
+        self::register('yna_counts', new Reports\YNACountsReport());
+
+        // Matrix/table reports
+        self::register('response_matrix', new Reports\ResponseMatrixReport());
 
         self::$initialized = true;
     }

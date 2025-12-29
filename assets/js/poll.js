@@ -110,7 +110,13 @@ function initForm() {
             if (submitBtn) setButtonLoading(submitBtn);
 
             const isEditing = form.dataset.editing === 'true';
-            await api.post(`/api/polls/${publicId}/responses`, formData);
+            
+            // Include token from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const apiUrl = `/api/polls/${publicId}/responses` + (token ? `?token=${encodeURIComponent(token)}` : '');
+            
+            await api.post(apiUrl, formData);
 
             clearProgress();
 

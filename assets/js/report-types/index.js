@@ -10,6 +10,11 @@ import { renderApprovalWinner } from './approval-winner.js';
 import { renderBordaScores } from './borda-scores.js';
 import { renderPairwiseMargins } from './pairwise-margins.js';
 import { renderVotingRuleWinner } from './voting-rule-winner.js';
+import { renderCondorcetWinner } from './condorcet-winner.js';
+import { renderYNACounts } from './yna-counts.js';
+import { renderMajorityJudgment } from './majority-judgment.js';
+import { renderMultiRuleComparison } from './multi-rule-comparison.js';
+import { renderResponseMatrix } from './response-matrix.js';
 
 const renderers = {
     'choice_counts': renderChoiceCounts,
@@ -17,6 +22,11 @@ const renderers = {
     'borda_scores': renderBordaScores,
     'pairwise_margins': renderPairwiseMargins,
     'voting_rule_winner': renderVotingRuleWinner,
+    'condorcet_winner': renderCondorcetWinner,
+    'yna_counts': renderYNACounts,
+    'majority_judgment': renderMajorityJudgment,
+    'multi_rule_comparison': renderMultiRuleComparison,
+    'response_matrix': renderResponseMatrix,
 };
 
 /**
@@ -55,6 +65,11 @@ export function getReportTypeName(type) {
         'borda_scores': 'Borda Scores',
         'pairwise_margins': 'Pairwise Margins',
         'voting_rule_winner': 'Voting Rule Winner',
+        'condorcet_winner': 'Condorcet Winner',
+        'yna_counts': 'Yes/No/Abstain Tallies',
+        'majority_judgment': 'Majority Judgment',
+        'multi_rule_comparison': 'Multi-Rule Comparison',
+        'response_matrix': 'Response Matrix',
     };
     return names[type] || type;
 }
@@ -66,6 +81,11 @@ export function getReportTypeIcon(type) {
         'borda_scores': 'chart-bar',
         'pairwise_margins': 'diagram-project',
         'voting_rule_winner': 'trophy',
+        'condorcet_winner': 'crown',
+        'yna_counts': 'check-circle',
+        'majority_judgment': 'scale-balanced',
+        'multi_rule_comparison': 'table',
+        'response_matrix': 'table-cells',
     };
     return icons[type] || 'chart-bar';
 }

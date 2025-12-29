@@ -4,23 +4,10 @@ namespace App\Services\Reports;
 
 use App\Models\Question;
 use App\Services\ProfileBuilder;
-use PrefVoting\ScoringMethods;
-use PrefVoting\C1Methods;
-use PrefVoting\MarginBasedMethods;
-use PrefVoting\IterativeMethods;
+use App\Services\VotingRulesRegistry;
 
 class VotingRuleWinnerReport extends BaseReport
 {
-    // Available voting rules
-    public const RULES = [
-        'plurality' => 'Plurality',
-        'borda' => 'Borda Count',
-        'copeland' => 'Copeland',
-        'schulze' => 'Schulze (Beat Path)',
-        'ranked_pairs' => 'Ranked Pairs',
-        'irv' => 'Instant Runoff (IRV)',
-    ];
-
     public function getType(): string
     {
         return 'voting_rule_winner';
@@ -38,7 +25,7 @@ class VotingRuleWinnerReport extends BaseReport
 
     public function getSupportedQuestionTypes(): array
     {
-        return ['ranking', 'ranking_truncated', 'ranking_with_ties'];
+        return ['ranking', 'ranking_truncated', 'ranking_with_ties', 'grade', 'star'];
     }
 
     public function getIcon(): string
@@ -48,11 +35,7 @@ class VotingRuleWinnerReport extends BaseReport
 
     public function getConfigSchema(): ?array
     {
-        $options = [];
-        foreach (self::RULES as $value => $label) {
-            $options[] = ['value' => $value, 'label' => $label];
-        }
-
+        // Options populated dynamically based on question type in frontend
         return [
             'fields' => [
                 [
@@ -60,7 +43,8 @@ class VotingRuleWinnerReport extends BaseReport
                     'type' => 'select',
                     'label' => 'Voting Rule',
                     'required' => true,
-                    'options' => $options,
+                    'options' => [], // Populated dynamically
+                    'dynamicOptions' => 'votingRules',
                     'default' => 'schulze',
                 ],
             ],
@@ -70,15 +54,25 @@ class VotingRuleWinnerReport extends BaseReport
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $rule = $config['rule'] ?? 'schulze';
-        $profile = ProfileBuilder::fromRankingResponses($question, $responses);
         $labels = ProfileBuilder::getOptionLabels($question);
+        $allRules = VotingRulesRegistry::getRulesForQuestionType($question->type);
 
-        // Get the voting method
-        $method = $this->getVotingMethod($rule);
+        // Get the voting method from registry
+        $method = VotingRulesRegistry::getMethod($rule, $question->type);
         if ($method === null) {
             return [
-                'error' => "Unknown voting rule: {$rule}",
+                'error' => "Unknown or unsupported voting rule: {$rule}",
             ];
+        }
+
+        // Build appropriate profile
+        $profileType = VotingRulesRegistry::getProfileType($question->type);
+        if ($profileType === 'ranking') {
+            $profile = ProfileBuilder::fromRankingResponses($question, $responses);
+        } elseif ($profileType === 'grade') {
+            $profile = ProfileBuilder::fromGradeResponses($question, $responses);
+        } else {
+            return ['error' => 'Unsupported question type'];
         }
 
         // Compute winners
@@ -102,23 +96,10 @@ class VotingRuleWinnerReport extends BaseReport
 
         return [
             'rule' => $rule,
-            'rule_name' => self::RULES[$rule] ?? $rule,
+            'rule_name' => $allRules[$rule]['name'] ?? $rule,
             'winners' => $winners,
             'is_tie' => count($winners) > 1,
             'total_responses' => count($responses),
         ];
-    }
-
-    private function getVotingMethod(string $rule): ?callable
-    {
-        return match ($rule) {
-            'plurality' => ScoringMethods::plurality(),
-            'borda' => ScoringMethods::borda(),
-            'copeland' => C1Methods::copeland(),
-            'schulze' => MarginBasedMethods::beatPath(),
-            'ranked_pairs' => MarginBasedMethods::rankedPairs(),
-            'irv' => IterativeMethods::instantRunoff(),
-            default => null,
-        };
     }
 }

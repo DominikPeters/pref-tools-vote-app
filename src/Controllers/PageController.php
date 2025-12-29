@@ -146,23 +146,38 @@ class PageController
             }
         }
 
-        // Check token-based access
+        // Check for token-based access in URL and store in session if valid
+        $token = $_GET['token'] ?? null;
+        if ($token) {
+            $accessToken = \App\Models\AccessToken::findByToken($poll->id, $token);
+            if ($accessToken && !$accessToken->usedAt) {
+                $_SESSION['poll_token_' . $poll->publicId] = $token;
+            } elseif ($accessToken && $accessToken->usedAt) {
+                // If token is already used, we can show an error immediately
+                http_response_code(403);
+                view('error', [
+                    'title' => 'Access Link Used',
+                    'message' => 'This access link has already been used.',
+                ]);
+                return;
+            }
+            // Check email invitations too
+            $emailInvite = \App\Models\EmailInvitation::findByToken($poll->id, $token);
+            if ($emailInvite && !$emailInvite->usedAt) {
+                $_SESSION['poll_token_' . $poll->publicId] = $token;
+            } elseif ($emailInvite && $emailInvite->usedAt) {
+                http_response_code(403);
+                view('error', [
+                    'title' => 'Invitation Used',
+                    'message' => 'This invitation link has already been used.',
+                ]);
+                return;
+            }
+        }
+
+        // Enforce token-based access if required by access mode
         if ($poll->accessMode === 'token') {
-            $token = $_GET['token'] ?? null;
-            if ($token) {
-                $accessToken = \App\Models\AccessToken::findByToken($poll->id, $token);
-                if ($accessToken && !$accessToken->usedAt) {
-                    // Valid token, store in session
-                    $_SESSION['poll_token_' . $poll->publicId] = $token;
-                } elseif (!$accessToken) {
-                    http_response_code(403);
-                    view('error', [
-                        'title' => 'Invalid Access Token',
-                        'message' => 'The access token is invalid or has expired.',
-                    ]);
-                    return;
-                }
-            } elseif (empty($_SESSION['poll_token_' . $poll->publicId])) {
+            if (empty($_SESSION['poll_token_' . $poll->publicId])) {
                 http_response_code(403);
                 view('error', [
                     'title' => 'Access Token Required',

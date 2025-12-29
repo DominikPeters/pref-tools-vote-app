@@ -123,6 +123,30 @@ function showReportDrawer(questionId, publicId, adminToken) {
 }
 
 /**
+ * Collect config values from a form, handling checkboxes arrays
+ */
+function collectFormConfig(form, fields) {
+    const config = {};
+    const formData = new FormData(form);
+
+    fields.forEach(field => {
+        if (field.type === 'checkboxes') {
+            // Collect all checked values as array
+            config[field.name] = formData.getAll(`${field.name}[]`);
+        } else if (field.type === 'checkbox') {
+            config[field.name] = formData.has(field.name);
+        } else {
+            const value = formData.get(field.name);
+            if (value !== null) {
+                config[field.name] = value;
+            }
+        }
+    });
+
+    return config;
+}
+
+/**
  * Show configuration step for reports that need it (creation mode)
  * Only shows required fields during creation
  */
@@ -144,7 +168,7 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
     formHtml += '<form class="config-form">';
 
     requiredFields.forEach(field => {
-        formHtml += renderConfigField(field, field.default);
+        formHtml += renderConfigField(field, field.default, questionId);
     });
 
     formHtml += `
@@ -166,13 +190,7 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
     // Bind form submit
     configStep.querySelector('.config-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const formData = new FormData(e.target);
-        const config = {};
-        for (const [key, value] of formData.entries()) {
-            config[key] = value;
-        }
-
+        const config = collectFormConfig(e.target, typeData.config_schema.fields);
         await addReport(questionId, reportType, config, publicId, adminToken);
         drawer.remove();
     });
@@ -181,9 +199,9 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
 /**
  * Render a single config field
  */
-function renderConfigField(field, currentValue) {
+function renderConfigField(field, currentValue, questionId) {
     let html = `<div class="form-group">`;
-    html += `<label for="config-${field.name}">${escapeHtml(field.label)}</label>`;
+    html += `<label>${escapeHtml(field.label)}</label>`;
 
     if (field.type === 'select' && field.options) {
         html += `<select id="config-${field.name}" name="${field.name}" class="form-control">`;
@@ -195,6 +213,31 @@ function renderConfigField(field, currentValue) {
     } else if (field.type === 'checkbox') {
         const checked = currentValue ? 'checked' : '';
         html += `<input type="checkbox" id="config-${field.name}" name="${field.name}" ${checked} class="form-checkbox">`;
+    } else if (field.type === 'checkboxes') {
+        // Get options from dynamicOptions if specified
+        let options = field.options || [];
+        if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
+            options = availableTypes.voting_rules_by_question[questionId] || [];
+        }
+
+        // currentValue is an array of selected values
+        const selectedValues = Array.isArray(currentValue) ? currentValue : [];
+
+        html += `<div class="checkboxes-list" data-field-name="${field.name}">`;
+        options.forEach(opt => {
+            // Default rules are pre-checked if no current selection
+            const isChecked = selectedValues.length > 0
+                ? selectedValues.includes(opt.value)
+                : opt.default;
+            const checked = isChecked ? 'checked' : '';
+            html += `
+                <label class="checkbox-item">
+                    <input type="checkbox" name="${field.name}[]" value="${opt.value}" ${checked}>
+                    <span class="checkbox-label">${escapeHtml(opt.label)}</span>
+                </label>
+            `;
+        });
+        html += `</div>`;
     } else {
         html += `<input type="text" id="config-${field.name}" name="${field.name}"
                         value="${currentValue || ''}" class="form-control">`;
@@ -225,7 +268,7 @@ function showEditConfigModal(report, publicId, adminToken) {
     let fieldsHtml = '';
     typeData.config_schema.fields.forEach(field => {
         const currentValue = report.config?.[field.name] ?? field.default;
-        fieldsHtml += renderConfigField(field, currentValue);
+        fieldsHtml += renderConfigField(field, currentValue, report.question_id);
     });
 
     overlay.innerHTML = `
@@ -257,18 +300,7 @@ function showEditConfigModal(report, publicId, adminToken) {
     // Bind form submit
     overlay.querySelector('.config-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const formData = new FormData(e.target);
-        const config = { ...report.config }; // Preserve existing config
-        for (const [key, value] of formData.entries()) {
-            config[key] = value;
-        }
-        // Handle unchecked checkboxes
-        typeData.config_schema.fields.forEach(field => {
-            if (field.type === 'checkbox' && !formData.has(field.name)) {
-                config[field.name] = false;
-            }
-        });
+        const config = collectFormConfig(e.target, typeData.config_schema.fields);
 
         try {
             const result = await api.put(
@@ -332,16 +364,8 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
     card.className = 'report-card';
     card.dataset.reportId = report.id;
 
-    const typeNames = {
-        'choice_counts': 'Vote Counts',
-        'approval_winner': 'Approval Winner',
-        'borda_scores': 'Borda Scores',
-        'pairwise_margins': 'Pairwise Margins',
-        'voting_rule_winner': 'Voting Rule Winner',
-    };
-
-    const typeName = typeNames[report.report_type] || report.report_type;
     const typeData = availableTypes?.all_types?.find(t => t.type === report.report_type);
+    const typeName = typeData?.name || report.report_type;
     const hasConfig = typeData?.has_config;
 
     card.innerHTML = `
