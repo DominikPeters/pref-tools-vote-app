@@ -1,17 +1,50 @@
 /**
  * Results Page JavaScript
+ *
+ * Displays public results using the report system.
+ * Falls back to legacy rendering if no reports are configured.
  */
 
-import { api, showToast } from './app.js';
+import { api, escapeHtml, showToast } from './app.js';
+import { loadAndRenderResults } from './results-core.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.results-content');
     if (!container) return;
 
     const publicId = container.dataset.publicId;
+    const resultsData = document.getElementById('resultsData');
 
-    loadResults(publicId);
+    // Try to load reports first
+    loadResultsWithReports(publicId, resultsData);
 });
+
+async function loadResultsWithReports(publicId, container) {
+    try {
+        // Check if there are any public reports
+        const reportsResult = await api.get(`/api/polls/${publicId}/reports`);
+        const reports = reportsResult.reports || [];
+
+        if (reports.length > 0) {
+            // Use the new report system
+            await loadAndRenderResults(publicId, {
+                container,
+                isAdmin: false,
+            });
+        } else {
+            // Fall back to legacy rendering
+            loadLegacyResults(publicId, container);
+        }
+    } catch (err) {
+        console.error('Failed to load reports, falling back to legacy:', err);
+        loadLegacyResults(publicId, container);
+    }
+}
+
+// Legacy rendering function (kept for backwards compatibility)
+async function loadLegacyResults(publicId, container) {
+    loadResults(publicId);
+}
 
 async function loadResults(publicId) {
     const container = document.getElementById('resultsData');
@@ -311,10 +344,4 @@ function renderYnaResults(options, answers) {
             }).join('')}
         </div>
     `;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

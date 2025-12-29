@@ -1,0 +1,407 @@
+/**
+ * Results & Reports Styles
+ */
+
+/* Report Cards */
+.report-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.report-drag-handle {
+    cursor: grab;
+    color: #9ca3af;
+    font-size: 1.25rem;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.report-drag-handle:hover {
+    color: #6b7280;
+}
+
+.report-drag-handle:active {
+    cursor: grabbing;
+}
+
+.report-name {
+    flex-grow: 1;
+    font-weight: 600;
+    color: #374151;
+}
+
+.report-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Report drag states */
+.report-ghost {
+    opacity: 0.4;
+}
+
+.report-chosen {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.report-drag {
+    opacity: 0.9;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+}
+
+.report-content {
+    padding: 1rem;
+}
+
+/* Report Drawer */
+.report-drawer {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.btn-close:hover {
+    color: #374151;
+}
+
+.drawer-content {
+    padding: 1rem;
+}
+
+.report-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+.report-type-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.report-type-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.type-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.type-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Config Step */
+.config-step h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.config-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.config-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.config-form .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Winner Card */
+.report-winner-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.winner-label,
+.tie-notice {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+}
+
+.tie-notice {
+    color: #d97706;
+}
+
+.winner-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.winner-stats {
+    color: #6b7280;
+}
+
+.winner-count {
+    font-weight: 600;
+}
+
+.rule-name {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin: 0 0 0.5rem 0;
+}
+
+/* Bar Charts */
+.bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.bar-rank {
+    flex-shrink: 0;
+    width: 2rem;
+    font-weight: 600;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.bar-label {
+    flex-shrink: 0;
+    width: 120px;
+    font-weight: 500;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bar-container {
+    flex-grow: 1;
+    height: 24px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    min-width: 4px;
+}
+
+.bar-value {
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Pairwise Margins Graph */
+.report-pairwise-margins {
+    text-align: center;
+}
+
+.pairwise-graph {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.candidate-node {
+    fill: #fff;
+    stroke: #3b82f6;
+    stroke-width: 2;
+}
+
+.candidate-node.condorcet-winner {
+    fill: #fef3c7;
+    stroke: #d97706;
+}
+
+.candidate-label {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #374151;
+}
+
+.margin-label {
+    font-size: 14px;
+    font-weight: 600;
+    fill: #374151;
+}
+
+.condorcet-notice {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+/* Result Notes */
+.result-note,
+.report-note {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 1rem;
+}
+
+.no-data {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Question Reports Container */
+.question-reports {
+    margin-bottom: 1rem;
+}
+
+.no-reports {
+    color: #9ca3af;
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+/* Admin Notice */
+.admin-notice {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Add Report Button */
+.btn-add-report {
+    margin-top: 0.5rem;
+}
+
+/* Loading & Error States */
+.report-loading {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.report-error {
+    color: #dc2626;
+}
+
+/* Config Modal */
+.config-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.config-modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.config-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.config-modal .modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.config-modal .config-form {
+    padding: 1rem;
+}
+
+.config-modal .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}

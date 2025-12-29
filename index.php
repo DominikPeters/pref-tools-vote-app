@@ -14,6 +14,7 @@ use App\Controllers\PollApiController;
 use App\Controllers\AuthApiController;
 use App\Controllers\SysadminController;
 use App\Controllers\SysadminApiController;
+use App\Controllers\ReportApiController;
 
 // Check if installation is needed
 if (needsInstall()) {
@@ -50,6 +51,7 @@ $router->post('/:publicId', [PageController::class, 'poll']);
 $router->get('/:publicId/results', [PageController::class, 'results']);
 $router->get('/:publicId/admin/:adminToken', [PageController::class, 'admin']);
 $router->get('/:publicId/admin/:adminToken/edit', [PageController::class, 'builder']);
+$router->get('/:publicId/admin/:adminToken/results', [PageController::class, 'resultsAdmin']);
 
 // ============================================
 // API Routes (JSON)
@@ -79,6 +81,16 @@ $router->delete('/api/polls/:publicId/responses/:responseId', [PollApiController
 
 // Export
 $router->get('/api/polls/:publicId/admin/:adminToken/export', [PollApiController::class, 'export']);
+
+// Reports
+$router->get('/api/polls/:publicId/reports', [ReportApiController::class, 'listPublic']);
+$router->get('/api/polls/:publicId/admin/:adminToken/reports', [ReportApiController::class, 'list']);
+$router->get('/api/polls/:publicId/admin/:adminToken/reports/types', [ReportApiController::class, 'availableTypes']);
+$router->post('/api/polls/:publicId/admin/:adminToken/reports', [ReportApiController::class, 'create']);
+$router->put('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [ReportApiController::class, 'update']);
+$router->delete('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [ReportApiController::class, 'delete']);
+$router->post('/api/polls/:publicId/admin/:adminToken/reports/reorder', [ReportApiController::class, 'reorder']);
+$router->post('/api/polls/:publicId/admin/:adminToken/reports/:reportId/compute', [ReportApiController::class, 'recompute']);
 
 // User dashboard
 $router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);

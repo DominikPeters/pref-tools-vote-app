@@ -7,6 +7,7 @@ use App\Models\Poll;
 use App\Models\Question;
 use App\Models\Option;
 use App\Models\Response;
+use App\Models\Report;
 use App\Services\LogService;
 
 class PollApiController extends ApiController
@@ -259,6 +260,9 @@ class PollApiController extends ApiController
                 ]);
             }
 
+            // Invalidate report caches
+            Report::invalidateCacheForPoll($poll->id);
+
             $response->loadAnswers();
 
             return $this->success([
@@ -365,6 +369,9 @@ class PollApiController extends ApiController
                 'by' => 'voter',
             ]);
 
+            // Invalidate report caches
+            Report::invalidateCacheForPoll($poll->id);
+
             return $this->success(['response' => $response->toArray()]);
         } catch (\Exception $e) {
             return $this->error('Failed to update response: ' . $e->getMessage(), 'UPDATE_FAILED', 500);
@@ -410,6 +417,9 @@ class PollApiController extends ApiController
         ]);
 
         $response->delete();
+
+        // Invalidate report caches
+        Report::invalidateCacheForPoll($poll->id);
 
         return $this->success();
     }

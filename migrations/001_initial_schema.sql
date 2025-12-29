@@ -112,6 +112,21 @@ CREATE TABLE answers (
     FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
 );
 
+-- Reports (configurable result analyses per question)
+CREATE TABLE reports (
+    id              INTEGER PRIMARY KEY AUTO_INCREMENT,
+    question_id     INTEGER NOT NULL,
+    report_type     VARCHAR(50) NOT NULL,
+    config          TEXT NULL,
+    position        INTEGER NOT NULL DEFAULT 0,
+    is_public       BOOLEAN NOT NULL DEFAULT 0,
+    cached_result   TEXT NULL,
+    computed_at     DATETIME NULL,
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+);
+
 -- Access tokens (for token-based access mode)
 CREATE TABLE access_tokens (
     id              INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -167,6 +182,7 @@ CREATE INDEX idx_options_question_id ON options(question_id);
 CREATE INDEX idx_responses_poll_id ON responses(poll_id);
 CREATE INDEX idx_responses_voter_token ON responses(voter_token);
 CREATE INDEX idx_answers_response_id ON answers(response_id);
+CREATE INDEX idx_reports_question_id ON reports(question_id);
 CREATE INDEX idx_access_tokens_token ON access_tokens(token);
 CREATE INDEX idx_email_invitations_token ON email_invitations(token);
 CREATE INDEX idx_action_log_poll_id ON action_log(poll_id);

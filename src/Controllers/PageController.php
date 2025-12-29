@@ -263,4 +263,38 @@ class PageController
             'user' => Auth::getInstance()->user(),
         ]);
     }
+
+    /**
+     * GET /:publicId/admin/:adminToken/results - Admin results page
+     */
+    public function resultsAdmin(array $params): void
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        if (!$poll) {
+            http_response_code(404);
+            view('error', [
+                'title' => 'Poll Not Found',
+                'message' => 'The poll you are looking for does not exist.',
+            ]);
+            return;
+        }
+
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
+            http_response_code(403);
+            view('error', [
+                'title' => 'Access Denied',
+                'message' => 'Invalid admin token.',
+            ]);
+            return;
+        }
+
+        $poll->loadQuestions();
+
+        view('results-admin', [
+            'poll' => $poll,
+            'adminToken' => $params['adminToken'],
+            'user' => Auth::getInstance()->user(),
+        ]);
+    }
 }

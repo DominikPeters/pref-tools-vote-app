@@ -24,6 +24,7 @@ ob_start();
                 </div>
             </div>
             <div class="admin-header-actions">
+                <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>" class="btn">Results & Analysis</a>
                 <button type="button" class="btn btn-primary" id="editPoll">Edit Poll</button>
                 <button type="button" class="btn btn-outline-danger" id="deletePoll">Delete</button>
             </div>

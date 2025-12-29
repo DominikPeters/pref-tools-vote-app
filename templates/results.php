@@ -1,6 +1,7 @@
 <?php
 $title = 'Results: ' . e($poll->title) . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/results.js'];
+$extraCss = ['/assets/css/results.css'];
 ob_start();
 ?>
 

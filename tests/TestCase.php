@@ -193,6 +193,16 @@ abstract class TestCase extends BaseTestCase
         // Export
         $router->get('/api/polls/:publicId/admin/:adminToken/export', [\App\Controllers\PollApiController::class, 'export']);
 
+        // Report routes
+        $router->get('/api/polls/:publicId/reports', [\App\Controllers\ReportApiController::class, 'listPublic']);
+        $router->get('/api/polls/:publicId/admin/:adminToken/reports', [\App\Controllers\ReportApiController::class, 'list']);
+        $router->get('/api/polls/:publicId/admin/:adminToken/reports/types', [\App\Controllers\ReportApiController::class, 'availableTypes']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/reports', [\App\Controllers\ReportApiController::class, 'create']);
+        $router->put('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [\App\Controllers\ReportApiController::class, 'update']);
+        $router->delete('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [\App\Controllers\ReportApiController::class, 'delete']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/reports/reorder', [\App\Controllers\ReportApiController::class, 'reorder']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/reports/:reportId/compute', [\App\Controllers\ReportApiController::class, 'recompute']);
+
         // User dashboard
         $router->get('/api/user/polls', [\App\Controllers\AuthApiController::class, 'userPolls']);
         $router->get('/api/user/responses', [\App\Controllers\AuthApiController::class, 'userResponses']);

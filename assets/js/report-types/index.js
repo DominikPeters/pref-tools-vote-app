@@ -1,0 +1,71 @@
+/**
+ * Report Types Registry
+ *
+ * Maps report types to their renderer modules.
+ * Renderers are lazy-loaded for performance.
+ */
+
+import { renderChoiceCounts } from './choice-counts.js';
+import { renderApprovalWinner } from './approval-winner.js';
+import { renderBordaScores } from './borda-scores.js';
+import { renderPairwiseMargins } from './pairwise-margins.js';
+import { renderVotingRuleWinner } from './voting-rule-winner.js';
+
+const renderers = {
+    'choice_counts': renderChoiceCounts,
+    'approval_winner': renderApprovalWinner,
+    'borda_scores': renderBordaScores,
+    'pairwise_margins': renderPairwiseMargins,
+    'voting_rule_winner': renderVotingRuleWinner,
+};
+
+/**
+ * Render a report into a container
+ * @param {HTMLElement} container - The container to render into
+ * @param {Object} report - The report object with cachedResult
+ */
+export function renderReport(container, report) {
+    const renderer = renderers[report.report_type];
+
+    if (!renderer) {
+        container.innerHTML = `<p class="report-error">Unknown report type: ${report.report_type}</p>`;
+        return;
+    }
+
+    if (!report.cached_result) {
+        container.innerHTML = '<p class="report-loading">Computing results...</p>';
+        return;
+    }
+
+    try {
+        renderer(container, report.cached_result, report.config);
+    } catch (err) {
+        console.error('Error rendering report:', err);
+        container.innerHTML = '<p class="report-error">Failed to render report.</p>';
+    }
+}
+
+/**
+ * Get report type metadata
+ */
+export function getReportTypeName(type) {
+    const names = {
+        'choice_counts': 'Vote Counts',
+        'approval_winner': 'Approval Winner',
+        'borda_scores': 'Borda Scores',
+        'pairwise_margins': 'Pairwise Margins',
+        'voting_rule_winner': 'Voting Rule Winner',
+    };
+    return names[type] || type;
+}
+
+export function getReportTypeIcon(type) {
+    const icons = {
+        'choice_counts': 'chart-bar',
+        'approval_winner': 'trophy',
+        'borda_scores': 'chart-bar',
+        'pairwise_margins': 'diagram-project',
+        'voting_rule_winner': 'trophy',
+    };
+    return icons[type] || 'chart-bar';
+}

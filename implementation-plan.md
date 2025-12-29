@@ -58,7 +58,8 @@ pref-tools-vote/
 │   ├── home.php                # Landing page
 │   ├── builder.php             # Form builder page
 │   ├── poll.php                # Voter-facing form
-│   ├── results.php             # Results page
+│   ├── results.php             # Public results page
+│   ├── results-admin.php       # Admin results & analysis page
 │   ├── admin.php               # Admin panel
 │   ├── dashboard.php           # User dashboard
 │   ├── login.php               # Login/register page
@@ -452,8 +453,9 @@ Alternatively, the entire form structure can be saved in one `PUT /api/polls/:pu
 pref.tools/vote/                      → Landing page
 pref.tools/vote/create                → Form builder (new vote)
 pref.tools/vote/ABC123                → Voter form OR results (if closed + public)
-pref.tools/vote/ABC123/admin/XYZ789   → Admin panel
 pref.tools/vote/ABC123/results        → Public results (if enabled)
+pref.tools/vote/ABC123/admin/XYZ789   → Admin panel
+pref.tools/vote/ABC123/admin/XYZ789/results → Admin results & analysis
 pref.tools/vote/dashboard             → User dashboard (logged in)
 pref.tools/vote/login                 → Login/register
 pref.tools/vote/api/*                 → API endpoints
@@ -656,11 +658,27 @@ public function createVote(array $data, ?User $user): Vote {
 - [-] Voter-facing i18n (delayed for now)
 
 ### Phase 4: Admin & Results
-- [ ] Admin panel template
-- [ ] Close/reopen poll
-- [ ] Raw results display (approval matrix style)
+- [x] Admin panel template
+- [x] Close/reopen poll
+- [x] Results computation system (see below)
 - [ ] Action log viewer (per-poll)
-- [ ] Export (JSON, CSV, PrefLib)
+- [x] Export (JSON, CSV, PrefLib)
+
+**Results Architecture (implemented):**
+Configurable report system where admins add report types per question. Reports are cached and invalidated on vote changes.
+
+Key components:
+- `src/Models/Report.php` - Report model with caching
+- `src/Services/ReportRegistry.php` - Maps report types to handlers
+- `src/Services/Reports/*.php` - Report handlers (BaseReport, ChoiceCountsReport, BordaScoresReport, PairwiseMarginsReport, VotingRuleWinnerReport)
+- `src/Services/ProfileBuilder.php` - Converts responses to pref_voting library profiles
+- `src/Controllers/ReportApiController.php` - CRUD API for reports
+- `assets/js/results-core.js` - Shared frontend rendering
+- `assets/js/report-types/*.js` - Frontend renderers
+
+Current report types: `choice_counts`, `approval_winner`, `borda_scores`, `pairwise_margins`, `voting_rule_winner`
+
+Future report types: `response_matrix`, `ranking_list`, `condorcet_winner`, `multi_rule_comparison`, `voting_rule_explanation`, `abc_winners`, `average_scores`, `score_distribution`, `majority_judgment`, `yna_counts`
 
 ### Phase 5: Polish & Compliance
 - [ ] User dashboard
@@ -683,8 +701,8 @@ public function createVote(array $data, ?User $user): Vote {
 - [ ] Yes/No/Abstain
 
 ### Future Phases
-- [ ] Voting rule computation
-- [ ] Results builder interface
+- [x] Voting rule computation (implemented via pref_voting library integration)
+- [x] Results builder interface (admin can add/remove/reorder reports per question)
 - [ ] OAuth login
 - [ ] Magic links
 - [ ] Passkeys
