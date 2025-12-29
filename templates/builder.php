@@ -1,8 +1,15 @@
 <?php
+use App\Services\TurnstileService;
+
 $isEditing = isset($poll) && $poll !== null;
+$isLoggedIn = isset($user) && $user;
 $title = ($isEditing ? 'Edit: ' . e($poll->title) : 'Create Poll') . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/builder.css'];
 $extraJs = ['/assets/js/builder.js'];
+
+// Turnstile is only needed for anonymous users creating new polls
+$needsTurnstile = !$isEditing && !$isLoggedIn && TurnstileService::isConfigured();
+$turnstileSiteKey = $needsTurnstile ? TurnstileService::getSiteKey() : '';
 ob_start();
 ?>
 
@@ -10,6 +17,18 @@ ob_start();
 <script>
     window.POLL_DATA = <?= json_encode($poll->toAdminArray()) ?>;
     window.ADMIN_TOKEN = <?= json_encode($adminToken) ?>;
+</script>
+<?php endif; ?>
+
+<?php if ($needsTurnstile): ?>
+<script>
+    window.TURNSTILE_ENABLED = true;
+    window.TURNSTILE_SITE_KEY = <?= json_encode($turnstileSiteKey) ?>;
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<?php else: ?>
+<script>
+    window.TURNSTILE_ENABLED = false;
 </script>
 <?php endif; ?>
 
@@ -69,85 +88,57 @@ ob_start();
                 </button>
             </div>
 
-            <!-- Settings Panel -->
+            <!-- Voting Mode -->
+            <section class="voting-mode-panel card">
+                <h2>Voting Mode</h2>
+                <p class="section-description">Choose how voters will access your poll and how their votes are recorded.</p>
+
+                <div class="mode-options">
+                    <label class="mode-option">
+                        <input type="radio" name="votingMode" value="open" checked>
+                        <div class="mode-card">
+                            <h3>Open</h3>
+                            <p>Anyone with the link can vote. One vote per browser.</p>
+                        </div>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="votingMode" value="identified">
+                        <div class="mode-card">
+                            <h3>Identified</h3>
+                            <p>One vote per person via access tokens or email invitations. Votes are linked to identity.</p>
+                        </div>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="votingMode" value="secret_ballot">
+                        <div class="mode-card">
+                            <h3>Secret Ballot</h3>
+                            <p>One vote per person, but votes are completely anonymous. Cannot be changed after submission.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="modeLockWarning" class="warning-banner" style="display: none;">
+                    <strong>Voting mode is locked.</strong> Responses have been submitted. Delete all responses to change the mode.
+                </div>
+            </section>
+
+            <!-- Display Options -->
             <section class="settings-panel card">
-                <h2>Settings</h2>
+                <h2>Display Options</h2>
 
                 <div class="settings-group">
-                    <h3>
-                        Voter Information
-                        <span class="info-icon" data-tooltip="Control whether voters must provide their name when submitting" data-tooltip-pos="right">?</span>
-                    </h3>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="collectName">
-                        <span>Collect voter names</span>
-                    </label>
-                </div>
-
-                <div class="settings-group">
-                    <h3>
-                        Privacy
-                        <span class="info-icon" data-tooltip="Controls who can see the submitted responses and voter identities" data-tooltip-pos="right">?</span>
-                    </h3>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="visibility" value="private" checked>
-                            <span>Private (only admin can see responses)</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="visibility" value="anonymous">
-                            <span>Anonymous (everyone can see responses, but not who voted)</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="visibility" value="full">
-                            <span>Public (everyone can see who voted what)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <h3>
-                        When are results visible?
-                        <span class="info-icon" data-tooltip="Choose when voters can view the poll results and analysis" data-tooltip-pos="right">?</span>
-                    </h3>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="visibilityTiming" value="after_close" checked>
-                            <span>After voting closes</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="visibilityTiming" value="during">
-                            <span>During voting (live results)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <h3>
-                        Editing
-                        <span class="info-icon" data-tooltip="Control whether voters can modify responses after submission" data-tooltip-pos="right">?</span>
-                    </h3>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="allowEditOwn" checked>
-                        <span>Voters can edit their own response</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="allowEditAny">
-                        <span>Anyone can edit any response (Doodle-style)</span>
-                    </label>
-                </div>
-
-                <div class="settings-group">
-                    <h3>
-                        Options Display
-                        <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
-                    </h3>
                     <label class="checkbox-label">
                         <input type="checkbox" id="randomizeOptions">
                         <span>Randomize option order for each voter</span>
+                        <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
                     </label>
                 </div>
             </section>
+
+            <?php if ($needsTurnstile): ?>
+            <!-- Turnstile container (invisible) -->
+            <div id="turnstileContainer" class="turnstile-container"></div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

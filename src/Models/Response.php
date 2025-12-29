@@ -93,6 +93,19 @@ class Response
     }
 
     /**
+     * Find a response by user ID and poll ID
+     */
+    public static function findByUserIdAndPollId(int $userId, int $pollId): ?self
+    {
+        $db = Database::getInstance();
+        $row = $db->fetch(
+            "SELECT * FROM responses WHERE user_id = :user_id AND poll_id = :poll_id",
+            ['user_id' => $userId, 'poll_id' => $pollId]
+        );
+        return $row ? self::fromRow($row) : null;
+    }
+
+    /**
      * Create a new response
      */
     public static function create(int $pollId, array $data): self

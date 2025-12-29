@@ -8,6 +8,7 @@ use App\Models\Poll;
 use App\Models\Response;
 use App\Models\SiteSetting;
 use App\Services\LogService;
+use App\Services\TurnstileService;
 
 class AuthApiController extends ApiController
 {
@@ -30,6 +31,14 @@ class AuthApiController extends ApiController
 
         if ($validation) {
             return $validation;
+        }
+
+        // Verify Turnstile token if configured
+        if (TurnstileService::isConfigured()) {
+            $turnstileToken = $data['turnstile_token'] ?? '';
+            if (!TurnstileService::verify($turnstileToken)) {
+                return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
+            }
         }
 
         try {

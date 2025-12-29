@@ -15,6 +15,8 @@ use App\Controllers\AuthApiController;
 use App\Controllers\SysadminController;
 use App\Controllers\SysadminApiController;
 use App\Controllers\ReportApiController;
+use App\Controllers\TokenApiController;
+use App\Controllers\InvitationApiController;
 
 // Check if installation is needed
 if (needsInstall()) {
@@ -77,6 +79,9 @@ $router->post('/api/polls/:publicId/admin/:adminToken/close', [PollApiController
 $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [PollApiController::class, 'reopen']);
 $router->post('/api/polls/:publicId/admin/:adminToken/duplicate', [PollApiController::class, 'duplicate']);
 
+// Poll reports (user reports of inappropriate content)
+$router->post('/api/polls/:publicId/report', [PollApiController::class, 'report']);
+
 // Responses (poll responses)
 $router->post('/api/polls/:publicId/responses', [PollApiController::class, 'submitResponse']);
 $router->get('/api/polls/:publicId/responses', [PollApiController::class, 'listResponses']);
@@ -96,6 +101,18 @@ $router->put('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [Report
 $router->delete('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [ReportApiController::class, 'delete']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reports/reorder', [ReportApiController::class, 'reorder']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reports/:reportId/compute', [ReportApiController::class, 'recompute']);
+
+// Access Tokens
+$router->get('/api/polls/:publicId/admin/:adminToken/tokens', [TokenApiController::class, 'list']);
+$router->post('/api/polls/:publicId/admin/:adminToken/tokens', [TokenApiController::class, 'generate']);
+$router->put('/api/polls/:publicId/admin/:adminToken/tokens/:tokenId', [TokenApiController::class, 'update']);
+$router->delete('/api/polls/:publicId/admin/:adminToken/tokens/:tokenId', [TokenApiController::class, 'delete']);
+
+// Email Invitations
+$router->get('/api/polls/:publicId/admin/:adminToken/invitations', [InvitationApiController::class, 'list']);
+$router->post('/api/polls/:publicId/admin/:adminToken/invitations', [InvitationApiController::class, 'send']);
+$router->post('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId/resend', [InvitationApiController::class, 'resend']);
+$router->delete('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId', [InvitationApiController::class, 'delete']);
 
 // User dashboard
 $router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);

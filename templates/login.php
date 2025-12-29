@@ -1,5 +1,9 @@
 <?php
+use App\Services\TurnstileService;
+
 $title = 'Login - Pref.Tools Vote';
+$turnstileSiteKey = TurnstileService::getSiteKey();
+$turnstileEnabled = TurnstileService::isConfigured();
 ob_start();
 ?>
 
@@ -52,6 +56,10 @@ ob_start();
 
                 <div class="form-error" id="registerError"></div>
 
+                <?php if ($turnstileEnabled): ?>
+                <div id="turnstileContainer" class="turnstile-container"></div>
+                <?php endif; ?>
+
                 <button type="submit" class="btn btn-primary btn-block">Create Account</button>
             </form>
 
@@ -62,11 +70,58 @@ ob_start();
     </div>
 </div>
 
+<?php if ($turnstileEnabled): ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<?php endif; ?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.auth-tab');
     const forms = document.querySelectorAll('.auth-form');
     const basePath = window.BASE_PATH || '';
+
+    // Turnstile integration
+    const turnstileEnabled = <?= $turnstileEnabled ? 'true' : 'false' ?>;
+    const turnstileSiteKey = '<?= e($turnstileSiteKey) ?>';
+    let turnstileWidgetId = null;
+    let turnstileToken = null;
+
+    function initTurnstile() {
+        if (!turnstileEnabled || !window.turnstile || turnstileWidgetId !== null) return;
+
+        const container = document.getElementById('turnstileContainer');
+        if (!container) return;
+
+        turnstileWidgetId = turnstile.render(container, {
+            sitekey: turnstileSiteKey,
+            callback: function(token) {
+                turnstileToken = token;
+            },
+            'refresh-expired': 'auto',
+            size: 'invisible'
+        });
+    }
+
+    // Initialize Turnstile when register email field gains focus
+    const registerEmailInput = document.getElementById('registerEmail');
+    if (registerEmailInput && turnstileEnabled) {
+        registerEmailInput.addEventListener('focus', function() {
+            // Wait for Turnstile script to load if needed
+            if (window.turnstile) {
+                initTurnstile();
+            } else {
+                // Check periodically for script to load
+                const checkInterval = setInterval(function() {
+                    if (window.turnstile) {
+                        clearInterval(checkInterval);
+                        initTurnstile();
+                    }
+                }, 100);
+                // Stop checking after 10 seconds
+                setTimeout(function() { clearInterval(checkInterval); }, 10000);
+            }
+        }, { once: true });
+    }
 
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -158,14 +213,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Check Turnstile if enabled
+        if (turnstileEnabled && !turnstileToken) {
+            errorEl.textContent = 'Please wait for security verification to complete';
+            return;
+        }
+
         try {
+            const requestBody = {
+                email: document.getElementById('registerEmail').value,
+                password: password
+            };
+
+            // Include Turnstile token if available
+            if (turnstileToken) {
+                requestBody.turnstile_token = turnstileToken;
+            }
+
             const response = await fetch(basePath + '/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: document.getElementById('registerEmail').value,
-                    password: password
-                })
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();
@@ -175,6 +243,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 await claimAndRedirect(redirectTo);
             } else {
                 errorEl.textContent = data.error || 'Registration failed';
+                // Reset Turnstile on error
+                if (turnstileWidgetId !== null && window.turnstile) {
+                    turnstile.reset(turnstileWidgetId);
+                    turnstileToken = null;
+                }
             }
         } catch (err) {
             errorEl.textContent = 'An error occurred. Please try again.';

@@ -1,7 +1,20 @@
 <?php
 $title = 'Admin: ' . e($poll->title) . ' - Pref.Tools Vote';
+$extraCss = ['/assets/css/admin.css'];
 $extraJs = ['/assets/js/admin.js'];
 ob_start();
+
+// Voting mode labels
+$votingModeLabels = [
+    'open' => 'Open',
+    'identified' => 'Identified',
+    'secret_ballot' => 'Secret Ballot',
+];
+$votingModeDescriptions = [
+    'open' => 'Anyone with the link can vote. One vote per browser.',
+    'identified' => 'One vote per person via access tokens or email invitations. Votes are linked to identity.',
+    'secret_ballot' => 'One vote per person, but votes are completely anonymous. Cannot be changed after submission.',
+];
 ?>
 
 <div class="admin-container">
@@ -108,6 +121,62 @@ ob_start();
                 </div>
             </section>
 
+            <!-- Voting Mode -->
+            <section class="card voting-mode-section">
+                <h2>Voting Mode</h2>
+                <div class="voting-mode-display">
+                    <span class="voting-mode-badge mode-<?= e($poll->votingMode) ?>"><?= e($votingModeLabels[$poll->votingMode] ?? $poll->votingMode) ?></span>
+                    <p class="voting-mode-description"><?= e($votingModeDescriptions[$poll->votingMode] ?? '') ?></p>
+                    <?php if ($poll->modeLockedAt): ?>
+                    <p class="mode-locked-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Voting mode is locked. Responses have been submitted.
+                    </p>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <?php if ($poll->votingMode !== 'open'): ?>
+            <!-- Access Management -->
+            <section class="card access-section">
+                <h2>Access Management</h2>
+                <p class="section-description">Manage who can vote in this <?= $poll->votingMode === 'secret_ballot' ? 'secret ballot' : 'identified' ?> poll.</p>
+
+                <div class="access-tabs">
+                    <button type="button" class="access-tab active" data-tab="tokens">Access Tokens</button>
+                    <button type="button" class="access-tab" data-tab="invitations">Email Invitations</button>
+                </div>
+
+                <!-- Access Tokens Tab -->
+                <div class="access-tab-content" id="tokensTab">
+                    <div class="token-generate">
+                        <div class="token-generate-inputs">
+                            <input type="number" id="tokenCount" min="1" max="100" value="10" class="input-small">
+                            <input type="text" id="tokenLabelPrefix" placeholder="Label prefix (optional)" class="input-medium">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="generateTokens">Generate Tokens</button>
+                    </div>
+                    <div id="tokensList" class="tokens-list">
+                        <p class="loading">Loading tokens...</p>
+                    </div>
+                </div>
+
+                <!-- Email Invitations Tab -->
+                <div class="access-tab-content" id="invitationsTab" style="display: none;">
+                    <div id="mailConfigWarning" class="warning-banner" style="display: none;">
+                        <strong>Email not configured.</strong> Ask your system administrator to configure SMTP settings.
+                    </div>
+                    <div class="invitation-send">
+                        <textarea id="invitationEmails" placeholder="Enter email addresses (one per line, or comma-separated)" rows="3"></textarea>
+                        <button type="button" class="btn btn-primary" id="sendInvitations">Send Invitations</button>
+                    </div>
+                    <div id="invitationsList" class="invitations-list">
+                        <p class="loading">Loading invitations...</p>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+
             <!-- Responses -->
             <section class="card responses-section">
                 <div class="section-header">
@@ -129,25 +198,57 @@ ob_start();
                 </div>
             </section>
 
-            <!-- Settings Summary -->
-            <section class="card settings-summary">
-                <h2>Settings</h2>
-                <dl class="settings-list">
-                    <dt>Visibility:</dt>
-                    <dd><?= e($poll->visibility) ?> (<?= e($poll->visibilityTiming) ?>)</dd>
+            <!-- Privacy & Display Settings -->
+            <section class="card settings-section">
+                <div class="section-header">
+                    <h2>Privacy & Display Settings</h2>
+                    <button type="button" class="btn btn-secondary btn-small" id="saveSettings" style="display: none;">Save Changes</button>
+                </div>
 
-                    <dt>Collect Names:</dt>
-                    <dd><?= $poll->collectName ? 'Yes' : 'No' ?></dd>
+                <div class="settings-form">
+                    <div class="settings-row">
+                        <div class="setting-group">
+                            <label for="settingVisibility">Results Visibility</label>
+                            <select id="settingVisibility" class="setting-input">
+                                <option value="private" <?= $poll->visibility === 'private' ? 'selected' : '' ?>>Private (admin only)</option>
+                                <option value="anonymous" <?= $poll->visibility === 'anonymous' ? 'selected' : '' ?>>Anonymous (responses without names)</option>
+                                <option value="full" <?= $poll->visibility === 'full' ? 'selected' : '' ?>>Full (responses with names)</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="settingVisibilityTiming">Show Results</label>
+                            <select id="settingVisibilityTiming" class="setting-input">
+                                <option value="during" <?= $poll->visibilityTiming === 'during' ? 'selected' : '' ?>>While voting is open</option>
+                                <option value="after_close" <?= $poll->visibilityTiming === 'after_close' ? 'selected' : '' ?>>After voting closes</option>
+                            </select>
+                        </div>
+                    </div>
 
-                    <dt>Edit Own Response:</dt>
-                    <dd><?= $poll->allowEditOwn ? 'Yes' : 'No' ?></dd>
-
-                    <dt>Edit Any Response:</dt>
-                    <dd><?= $poll->allowEditAny ? 'Yes' : 'No' ?></dd>
-
-                    <dt>Randomize Options:</dt>
-                    <dd><?= $poll->randomizeOptions ? 'Yes' : 'No' ?></dd>
-                </dl>
+                    <div class="settings-row settings-checkboxes">
+                        <label class="checkbox-label <?= $poll->votingMode === 'secret_ballot' ? 'disabled' : '' ?>">
+                            <input type="checkbox" id="settingCollectName" <?= $poll->collectName ? 'checked' : '' ?> <?= $poll->votingMode === 'secret_ballot' ? 'disabled' : '' ?>>
+                            <span>Collect voter name</span>
+                            <?php if ($poll->votingMode === 'secret_ballot'): ?>
+                            <span class="setting-hint">(disabled for secret ballot)</span>
+                            <?php endif; ?>
+                        </label>
+                        <label class="checkbox-label <?= $poll->votingMode === 'secret_ballot' ? 'disabled' : '' ?>">
+                            <input type="checkbox" id="settingAllowEditOwn" <?= $poll->allowEditOwn ? 'checked' : '' ?> <?= $poll->votingMode === 'secret_ballot' ? 'disabled' : '' ?>>
+                            <span>Allow voters to edit their response</span>
+                            <?php if ($poll->votingMode === 'secret_ballot'): ?>
+                            <span class="setting-hint">(disabled for secret ballot)</span>
+                            <?php endif; ?>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="settingAllowEditAny" <?= $poll->allowEditAny ? 'checked' : '' ?>>
+                            <span>Allow anyone to edit any response</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="settingRandomizeOptions" <?= $poll->randomizeOptions ? 'checked' : '' ?>>
+                            <span>Randomize option order for each voter</span>
+                        </label>
+                    </div>
+                </div>
             </section>
         </div>
     </div>

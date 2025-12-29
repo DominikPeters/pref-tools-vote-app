@@ -194,6 +194,18 @@ abstract class TestCase extends BaseTestCase
         // Export
         $router->get('/api/polls/:publicId/admin/:adminToken/export', [\App\Controllers\PollApiController::class, 'export']);
 
+        // Token routes
+        $router->get('/api/polls/:publicId/admin/:adminToken/tokens', [\App\Controllers\TokenApiController::class, 'list']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/tokens', [\App\Controllers\TokenApiController::class, 'generate']);
+        $router->put('/api/polls/:publicId/admin/:adminToken/tokens/:tokenId', [\App\Controllers\TokenApiController::class, 'update']);
+        $router->delete('/api/polls/:publicId/admin/:adminToken/tokens/:tokenId', [\App\Controllers\TokenApiController::class, 'delete']);
+
+        // Invitation routes
+        $router->get('/api/polls/:publicId/admin/:adminToken/invitations', [\App\Controllers\InvitationApiController::class, 'list']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/invitations', [\App\Controllers\InvitationApiController::class, 'send']);
+        $router->post('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId/resend', [\App\Controllers\InvitationApiController::class, 'resend']);
+        $router->delete('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId', [\App\Controllers\InvitationApiController::class, 'delete']);
+
         // Report routes
         $router->get('/api/polls/:publicId/reports', [\App\Controllers\ReportApiController::class, 'listPublic']);
         $router->get('/api/polls/:publicId/admin/:adminToken/reports', [\App\Controllers\ReportApiController::class, 'list']);

@@ -1,0 +1,172 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\Poll;
+use App\Models\EmailInvitation;
+use App\Services\InvitationService;
+
+class InvitationApiController extends ApiController
+{
+    private InvitationService $invitationService;
+
+    public function __construct()
+    {
+        $this->invitationService = new InvitationService();
+    }
+
+    /**
+     * Get poll with admin authentication
+     */
+    private function getPollWithAdminAuth(array $params): ?Poll
+    {
+        $poll = Poll::findByPublicId($params['publicId'] ?? '');
+        if (!$poll) {
+            return null;
+        }
+
+        if (!$poll->verifyAdminToken($params['adminToken'] ?? '')) {
+            return null;
+        }
+
+        return $poll;
+    }
+
+    /**
+     * List all email invitations for a poll
+     * GET /api/polls/:publicId/admin/:adminToken/invitations
+     */
+    public function list(array $params): array
+    {
+        $poll = $this->getPollWithAdminAuth($params);
+        if (!$poll) {
+            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        $invitations = EmailInvitation::findByPollId($poll->id);
+
+        return $this->success([
+            'invitations' => array_map(function ($inv) use ($poll) {
+                $arr = $inv->toArray();
+                $arr['url'] = url($poll->publicId . '?token=' . $inv->token);
+                return $arr;
+            }, $invitations),
+            'mail_configured' => $this->invitationService->isMailConfigured(),
+        ]);
+    }
+
+    /**
+     * Send email invitations
+     * POST /api/polls/:publicId/admin/:adminToken/invitations
+     */
+    public function send(array $params): array
+    {
+        $poll = $this->getPollWithAdminAuth($params);
+        if (!$poll) {
+            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        if (!$this->invitationService->isMailConfigured()) {
+            return $this->error(
+                'Email is not configured. Please configure SMTP settings in the sysadmin panel.',
+                'MAIL_NOT_CONFIGURED',
+                400
+            );
+        }
+
+        $data = $this->getBody() ?? [];
+        $emailsRaw = $data['emails'] ?? '';
+
+        // Parse emails - support comma, semicolon, newline separators
+        $emails = preg_split('/[\s,;]+/', $emailsRaw, -1, PREG_SPLIT_NO_EMPTY);
+        $emails = array_filter($emails);
+
+        if (empty($emails)) {
+            return $this->error('No valid email addresses provided', 'NO_EMAILS', 400);
+        }
+
+        $results = $this->invitationService->sendInvitations($poll, $emails);
+
+        // Get updated list
+        $invitations = EmailInvitation::findByPollId($poll->id);
+
+        return $this->success([
+            'sent_count' => count($results['sent']),
+            'failed_count' => count($results['failed']),
+            'existing_count' => count($results['existing']),
+            'sent' => $results['sent'],
+            'failed' => $results['failed'],
+            'existing' => $results['existing'],
+            'invitations' => array_map(function ($inv) use ($poll) {
+                $arr = $inv->toArray();
+                $arr['url'] = url($poll->publicId . '?token=' . $inv->token);
+                return $arr;
+            }, $invitations),
+        ]);
+    }
+
+    /**
+     * Resend an invitation
+     * POST /api/polls/:publicId/admin/:adminToken/invitations/:invitationId/resend
+     */
+    public function resend(array $params): array
+    {
+        $poll = $this->getPollWithAdminAuth($params);
+        if (!$poll) {
+            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        if (!$this->invitationService->isMailConfigured()) {
+            return $this->error(
+                'Email is not configured. Please configure SMTP settings in the sysadmin panel.',
+                'MAIL_NOT_CONFIGURED',
+                400
+            );
+        }
+
+        $invitation = EmailInvitation::find((int) ($params['invitationId'] ?? 0));
+        if (!$invitation || $invitation->pollId !== $poll->id) {
+            return $this->error('Invitation not found', 'NOT_FOUND', 404);
+        }
+
+        if ($invitation->usedAt) {
+            return $this->error('Cannot resend to an invitation that has already been used', 'ALREADY_USED', 400);
+        }
+
+        try {
+            $this->invitationService->resendInvitation($poll, $invitation);
+        } catch (\Exception $e) {
+            return $this->error('Failed to send email: ' . $e->getMessage(), 'SEND_FAILED', 500);
+        }
+
+        $arr = $invitation->toArray();
+        $arr['url'] = url($poll->publicId . '?token=' . $invitation->token);
+
+        return $this->success(['invitation' => $arr]);
+    }
+
+    /**
+     * Delete an invitation
+     * DELETE /api/polls/:publicId/admin/:adminToken/invitations/:invitationId
+     */
+    public function delete(array $params): array
+    {
+        $poll = $this->getPollWithAdminAuth($params);
+        if (!$poll) {
+            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        $invitation = EmailInvitation::find((int) ($params['invitationId'] ?? 0));
+        if (!$invitation || $invitation->pollId !== $poll->id) {
+            return $this->error('Invitation not found', 'NOT_FOUND', 404);
+        }
+
+        if ($invitation->usedAt) {
+            return $this->error('Cannot delete an invitation that has been used', 'ALREADY_USED', 400);
+        }
+
+        $invitation->delete();
+
+        return $this->success();
+    }
+}

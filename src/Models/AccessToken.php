@@ -13,6 +13,7 @@ class AccessToken
     public ?string $label = null;
     public ?\DateTime $usedAt = null;
     public ?int $responseId = null;
+    public bool $isSecretBallot = false;
     public \DateTime $createdAt;
 
     /**
@@ -27,6 +28,7 @@ class AccessToken
         $token->label = $row['label'];
         $token->usedAt = $row['used_at'] ? new \DateTime($row['used_at']) : null;
         $token->responseId = $row['response_id'] ? (int) $row['response_id'] : null;
+        $token->isSecretBallot = (bool) ($row['is_secret_ballot'] ?? false);
         $token->createdAt = new \DateTime($row['created_at']);
         return $token;
     }
@@ -94,22 +96,25 @@ class AccessToken
 
     /**
      * Mark the token as used
+     * For secret ballot, responseId should be null to avoid linking
      */
-    public function markUsed(?int $responseId = null): self
+    public function markUsed(?int $responseId = null, bool $isSecretBallot = false): self
     {
         $db = Database::getInstance();
         $db->update(
             'access_tokens',
             [
                 'used_at' => date('Y-m-d H:i:s'),
-                'response_id' => $responseId,
+                'response_id' => $isSecretBallot ? null : $responseId,
+                'is_secret_ballot' => $isSecretBallot ? 1 : 0,
             ],
             'id = :id',
             ['id' => $this->id]
         );
 
         $this->usedAt = new \DateTime();
-        $this->responseId = $responseId;
+        $this->responseId = $isSecretBallot ? null : $responseId;
+        $this->isSecretBallot = $isSecretBallot;
 
         return $this;
     }
@@ -135,6 +140,7 @@ class AccessToken
             'label' => $this->label,
             'used_at' => $this->usedAt?->format('c'),
             'response_id' => $this->responseId,
+            'is_secret_ballot' => $this->isSecretBallot,
             'created_at' => $this->createdAt->format('c'),
             'is_used' => $this->usedAt !== null,
         ];

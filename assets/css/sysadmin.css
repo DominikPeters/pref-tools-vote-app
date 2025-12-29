@@ -427,8 +427,12 @@
 
 .section-description {
     color: var(--color-text-muted);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
     font-size: 0.875rem;
+}
+
+.config-section .form-group {
+    margin: var(--spacing-sm) 0;
 }
 
 .form-row {

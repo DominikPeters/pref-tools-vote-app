@@ -8,7 +8,13 @@ use App\Models\Question;
 use App\Models\Option;
 use App\Models\Response;
 use App\Models\Report;
+use App\Models\AccessToken;
+use App\Models\EmailInvitation;
+use App\Models\SiteSetting;
 use App\Services\LogService;
+use App\Services\AccessControlService;
+use App\Services\MailService;
+use App\Services\TurnstileService;
 
 class PollApiController extends ApiController
 {
@@ -20,6 +26,14 @@ class PollApiController extends ApiController
         $data = $this->getBody() ?? [];
 
         $userId = $this->user()?->id;
+
+        // Verify Turnstile token for anonymous users if configured
+        if ($userId === null && TurnstileService::isConfigured()) {
+            $turnstileToken = $data['turnstile_token'] ?? '';
+            if (!TurnstileService::verify($turnstileToken)) {
+                return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
+            }
+        }
 
         try {
             $poll = Poll::create($data, $userId);
@@ -104,6 +118,17 @@ class PollApiController extends ApiController
         }
 
         $data = $this->getBody() ?? [];
+
+        // Prevent voting_mode change if mode is locked
+        if (isset($data['voting_mode']) && $poll->isModeLocked()) {
+            if ($data['voting_mode'] !== $poll->votingMode) {
+                return $this->error(
+                    'Cannot change voting mode after responses exist. Delete all responses first.',
+                    'MODE_LOCKED',
+                    400
+                );
+            }
+        }
 
         try {
             $poll = $poll->update($data);
@@ -269,6 +294,91 @@ class PollApiController extends ApiController
     }
 
     /**
+     * POST /api/polls/:publicId/report - Report a poll for inappropriate content
+     */
+    public function report(array $params): array
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        // Always return success to prevent probing for valid poll IDs
+        if (!$poll) {
+            return $this->success(['message' => 'Report received']);
+        }
+
+        $data = $this->getBody() ?? [];
+        $reason = $data['reason'] ?? '';
+        $note = $data['note'] ?? '';
+
+        // Validate reason
+        $validReasons = [
+            'spam' => 'Spam or misleading content',
+            'harassment' => 'Harassment or hate speech',
+            'doxxing' => 'Personal information exposure (doxxing)',
+            'illegal' => 'Illegal activity or content',
+            'impersonation' => 'Impersonation or fraud',
+            'phishing' => 'Malware or phishing attempt',
+            'copyright' => 'Copyright or trademark violation',
+            'other' => 'Other',
+        ];
+
+        if (!isset($validReasons[$reason])) {
+            return $this->error('Invalid reason', 'INVALID_REASON', 400);
+        }
+
+        // Require note for "other" reason
+        if ($reason === 'other' && empty(trim($note))) {
+            return $this->error('Please provide details for your report', 'NOTE_REQUIRED', 400);
+        }
+
+        // Get reporter IP
+        $reporterIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        // Get sysadmin email
+        $sysadminEmail = SiteSetting::get('notifications.sysadmin_email', '');
+
+        if (!empty($sysadminEmail)) {
+            try {
+                $mailService = new MailService();
+
+                if ($mailService->isConfigured()) {
+                    // Render email template
+                    $emailHtml = $this->renderReportEmail($poll, $reason, $validReasons[$reason], $note, $reporterIp);
+
+                    $mailService->send(
+                        $sysadminEmail,
+                        '[Poll Report] ' . $poll->title,
+                        $emailHtml,
+                        true
+                    );
+
+                    LogService::getInstance()->log('poll.reported', $poll->id, $this->user()?->id, null, [
+                        'reason' => $reason,
+                        'reporter_ip' => $reporterIp,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Log but don't expose email failures to user
+                error_log("Failed to send poll report email: " . $e->getMessage());
+            }
+        }
+
+        return $this->success(['message' => 'Report received']);
+    }
+
+    /**
+     * Render the poll report email template
+     */
+    private function renderReportEmail(Poll $poll, string $reasonKey, string $reasonLabel, string $note, string $reporterIp): string
+    {
+        $pollUrl = url($poll->publicId);
+        $timestamp = date('Y-m-d H:i:s T');
+
+        ob_start();
+        include __DIR__ . '/../../templates/emails/report.php';
+        return ob_get_clean();
+    }
+
+    /**
      * POST /api/polls/:publicId/responses - Submit a poll response
      */
     public function submitResponse(array $params): array
@@ -284,25 +394,68 @@ class PollApiController extends ApiController
         }
 
         $data = $this->getBody() ?? [];
+        $identity = null;
 
-        // Check for existing response by voter token (from cookie)
+        // For identified/secret ballot modes, validate access
+        if ($poll->requiresIdentity()) {
+            $accessService = new AccessControlService();
+            $token = $_GET['token'] ?? $_SESSION['poll_token_' . $poll->publicId] ?? null;
+            $access = $accessService->validateAccess($poll, $token);
+
+            if (!$access['allowed']) {
+                return $this->error($access['error'], 'ACCESS_DENIED', 403);
+            }
+
+            $identity = $access['identity'];
+        }
+
+        // Check for existing response by voter token (from cookie) - only for open/identified modes
         $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $existingResponse = null;
 
-        if ($voterToken) {
+        if ($voterToken && $poll->votingMode !== 'secret_ballot') {
             $existingResponse = Response::findByVoterToken($poll->id, $voterToken);
         }
 
-        if ($existingResponse && !$poll->allowEditOwn && !$poll->allowEditAny) {
+        // Secret ballot: never allow editing
+        if ($poll->votingMode === 'secret_ballot' && $existingResponse) {
+            return $this->error('You have already voted in this secret ballot', 'ALREADY_VOTED', 400);
+        }
+
+        // Check edit permissions for non-secret modes
+        if ($existingResponse && !$poll->canEditResponse()) {
             return $this->error('You have already submitted a response', 'ALREADY_SUBMITTED', 400);
         }
 
         try {
+            // Build response data based on voting mode
             $responseData = [
-                'voter_name' => $poll->collectName ? ($data['voter_name'] ?? null) : null,
-                'user_id' => $this->user()?->id,
                 'answers' => $data['answers'] ?? [],
             ];
+
+            // Secret ballot: no identity, no names, no user linking
+            if ($poll->votingMode === 'secret_ballot') {
+                $responseData['voter_name'] = null;
+                $responseData['user_id'] = null;
+                $responseData['access_token_id'] = null;
+            } else {
+                // Identified or open mode
+                $responseData['voter_name'] = $poll->canCollectName() && $poll->collectName
+                    ? ($data['voter_name'] ?? null)
+                    : null;
+                $responseData['user_id'] = $this->user()?->id;
+
+                // Link to access token/invitation for identified mode
+                if ($identity) {
+                    if ($identity['type'] === 'token') {
+                        $responseData['access_token_id'] = $identity['token_id'];
+                    }
+                    // For email invitations, we can optionally use email as name
+                    if ($identity['type'] === 'email' && !$responseData['voter_name'] && $poll->collectName) {
+                        $responseData['voter_name'] = $identity['email'];
+                    }
+                }
+            }
 
             if ($existingResponse) {
                 $response = $existingResponse->update($responseData);
@@ -313,21 +466,33 @@ class PollApiController extends ApiController
             } else {
                 $response = Response::create($poll->id, $responseData);
 
-                // Set voter token cookie
-                setcookie(
-                    'voter_token_' . $poll->publicId,
-                    $response->voterToken,
-                    [
-                        'expires' => time() + 86400 * 365, // 1 year
-                        'path' => '/',
-                        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-                        'httponly' => true,
-                        'samesite' => 'Lax',
-                    ]
-                );
+                // Lock the voting mode on first response
+                $poll->lockMode();
+
+                // Mark access token/invitation as used
+                if ($identity) {
+                    $accessService = new AccessControlService();
+                    $accessService->markAccessUsed($poll, $identity, $response->id);
+                }
+
+                // Set voter token cookie (not for secret ballot - they can't edit anyway)
+                if ($poll->votingMode !== 'secret_ballot') {
+                    setcookie(
+                        'voter_token_' . $poll->publicId,
+                        $response->voterToken,
+                        [
+                            'expires' => time() + 86400 * 365, // 1 year
+                            'path' => '/',
+                            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                            'httponly' => true,
+                            'samesite' => 'Lax',
+                        ]
+                    );
+                }
 
                 LogService::getInstance()->log('response.submitted', $poll->id, $this->user()?->id, $response->id, [
                     'voter_name' => $response->voterName,
+                    'voting_mode' => $poll->votingMode,
                 ]);
             }
 
@@ -338,7 +503,7 @@ class PollApiController extends ApiController
 
             return $this->success([
                 'response' => $response->toArray(),
-                'voter_token' => $response->voterToken,
+                'voter_token' => $poll->votingMode !== 'secret_ballot' ? $response->voterToken : null,
             ]);
         } catch (\Exception $e) {
             return $this->error('Failed to submit response: ' . $e->getMessage(), 'SUBMIT_FAILED', 500);
@@ -408,6 +573,11 @@ class PollApiController extends ApiController
             return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
+        // Secret ballot responses cannot be edited
+        if ($poll->votingMode === 'secret_ballot') {
+            return $this->error('Secret ballot responses cannot be edited', 'EDIT_NOT_ALLOWED', 403);
+        }
+
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
@@ -418,10 +588,12 @@ class PollApiController extends ApiController
         $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $canEdit = false;
 
-        if ($poll->allowEditAny) {
-            $canEdit = true;
-        } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
-            $canEdit = true;
+        if ($poll->canEditResponse()) {
+            if ($poll->allowEditAny) {
+                $canEdit = true;
+            } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
+                $canEdit = true;
+            }
         }
 
         if (!$canEdit) {
@@ -460,6 +632,11 @@ class PollApiController extends ApiController
             return $this->error('Poll not found', 'NOT_FOUND', 404);
         }
 
+        // Secret ballot responses cannot be deleted by voters
+        if ($poll->votingMode === 'secret_ballot') {
+            return $this->error('Secret ballot responses cannot be deleted', 'DELETE_NOT_ALLOWED', 403);
+        }
+
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
@@ -470,10 +647,12 @@ class PollApiController extends ApiController
         $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
         $canDelete = false;
 
-        if ($poll->allowEditAny) {
-            $canDelete = true;
-        } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
-            $canDelete = true;
+        if ($poll->canEditResponse()) {
+            if ($poll->allowEditAny) {
+                $canDelete = true;
+            } elseif ($poll->allowEditOwn && $voterToken && $response->verifyVoterToken($voterToken)) {
+                $canDelete = true;
+            }
         }
 
         if (!$canDelete) {

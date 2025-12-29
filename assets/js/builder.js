@@ -19,25 +19,24 @@ import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-rendere
 const defaultState = {
     title: 'Untitled Poll',
     description: '',
-    settings: {
-        collectName: false,
-        visibility: 'private',
-        visibilityTiming: 'after_close',
-        allowEditOwn: true,
-        allowEditAny: false,
-        randomizeOptions: false,
-    },
+    votingMode: 'open',
+    randomizeOptions: false,
     questions: [],
     publicId: null,
     adminToken: null,
     isDirty: false,
+    modeLocked: false, // True if voting mode is locked (responses exist)
 };
 
-const state = { ...defaultState, settings: { ...defaultState.settings }, questions: [] };
+const state = { ...defaultState, questions: [] };
 
 let isEditMode = false;  // True if editing an existing poll (vs creating new)
 let activeQuestionId = null;  // Currently editing question ID
 let questionsSortable = null;  // SortableJS instance for questions
+
+// Turnstile integration for anonymous users
+let turnstileWidgetId = null;
+let turnstileToken = null;
 
 // ==========================================================================
 // Initialization
@@ -74,43 +73,25 @@ function initElements() {
         markDirty();
     });
 
-    // Settings
-    document.getElementById('collectName').addEventListener('change', (e) => {
-        state.settings.collectName = e.target.checked;
-        markDirty();
-    });
-
-    document.querySelectorAll('input[name="visibility"]').forEach(input => {
+    // Voting mode
+    document.querySelectorAll('input[name="votingMode"]').forEach(input => {
         input.addEventListener('change', (e) => {
-            state.settings.visibility = e.target.value;
+            state.votingMode = e.target.value;
             markDirty();
         });
     });
 
-    document.querySelectorAll('input[name="visibilityTiming"]').forEach(input => {
-        input.addEventListener('change', (e) => {
-            state.settings.visibilityTiming = e.target.value;
-            markDirty();
-        });
-    });
-
-    document.getElementById('allowEditOwn').addEventListener('change', (e) => {
-        state.settings.allowEditOwn = e.target.checked;
-        markDirty();
-    });
-
-    document.getElementById('allowEditAny').addEventListener('change', (e) => {
-        state.settings.allowEditAny = e.target.checked;
-        markDirty();
-    });
-
+    // Display options
     document.getElementById('randomizeOptions').addEventListener('change', (e) => {
-        state.settings.randomizeOptions = e.target.checked;
+        state.randomizeOptions = e.target.checked;
         markDirty();
     });
 
-    // Add question button
-    document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
+    // Add question button - also initializes Turnstile for anonymous users
+    document.getElementById('addQuestionBtn').addEventListener('click', () => {
+        initTurnstile();
+        addQuestion();
+    });
 
     // Action buttons
     const saveBtn = document.getElementById('saveBtn');
@@ -203,12 +184,27 @@ function render() {
     document.getElementById('pollTitle').value = state.title;
     document.getElementById('pollDescription').value = state.description;
 
-    document.getElementById('collectName').checked = state.settings.collectName;
-    document.querySelector(`input[name="visibility"][value="${state.settings.visibility}"]`).checked = true;
-    document.querySelector(`input[name="visibilityTiming"][value="${state.settings.visibilityTiming}"]`).checked = true;
-    document.getElementById('allowEditOwn').checked = state.settings.allowEditOwn;
-    document.getElementById('allowEditAny').checked = state.settings.allowEditAny;
-    document.getElementById('randomizeOptions').checked = state.settings.randomizeOptions;
+    // Voting mode
+    const votingModeInput = document.querySelector(`input[name="votingMode"][value="${state.votingMode}"]`);
+    if (votingModeInput) votingModeInput.checked = true;
+
+    // Mode lock warning
+    const modeLockWarning = document.getElementById('modeLockWarning');
+    if (modeLockWarning) {
+        modeLockWarning.style.display = state.modeLocked ? '' : 'none';
+    }
+
+    // Disable voting mode inputs if locked
+    document.querySelectorAll('input[name="votingMode"]').forEach(input => {
+        input.disabled = state.modeLocked;
+        const modeCard = input.closest('.mode-option');
+        if (modeCard) {
+            modeCard.classList.toggle('disabled', state.modeLocked);
+        }
+    });
+
+    // Display options
+    document.getElementById('randomizeOptions').checked = state.randomizeOptions;
 
     renderQuestions();
 }
@@ -562,12 +558,22 @@ function setupEditorEvents(wrapper, question) {
 
         // Add option button
         wrapper.querySelector('.btn-add-option').addEventListener('click', () => {
+            const newOptionId = generateTempId();
             question.options.push({
-                _id: generateTempId(),
+                _id: newOptionId,
                 label: `Option ${question.options.length + 1}`,
             });
             renderQuestions();
             markDirty();
+
+            // Focus the new option's input
+            const newOptionInput = wrapper.querySelector(
+                `.option-editor[data-option-id="${newOptionId}"] .option-label-input`
+            );
+            if (newOptionInput) {
+                newOptionInput.focus();
+                newOptionInput.select();
+            }
         });
     }
 
@@ -896,14 +902,9 @@ function loadFromServer(voteData, adminToken) {
     state.adminToken = adminToken;
     state.isDirty = false;
 
-    state.settings = {
-        collectName: voteData.collect_name || false,
-        visibility: voteData.visibility || 'private',
-        visibilityTiming: voteData.visibility_timing || 'after_close',
-        allowEditOwn: voteData.allow_edit_own !== false,
-        allowEditAny: voteData.allow_edit_any || false,
-        randomizeOptions: voteData.randomize_options || false,
-    };
+    state.votingMode = voteData.voting_mode || 'open';
+    state.randomizeOptions = voteData.randomize_options || false;
+    state.modeLocked = !!voteData.mode_locked_at;
 
     state.questions = (voteData.questions || []).map(q => ({
         _id: generateTempId(),
@@ -931,7 +932,9 @@ function clearLocalStorage() {
 function resetForm() {
     state.title = defaultState.title;
     state.description = defaultState.description;
-    state.settings = { ...defaultState.settings };
+    state.votingMode = defaultState.votingMode;
+    state.randomizeOptions = defaultState.randomizeOptions;
+    state.modeLocked = false;
     state.questions = [];
     state.publicId = null;
     state.adminToken = null;
@@ -976,6 +979,11 @@ async function saveDraft() {
         if (state.publicId && state.adminToken) {
             result = await api.put(`/api/polls/${state.publicId}/admin/${state.adminToken}`, data);
         } else {
+            // Include Turnstile token for new polls
+            const token = getTurnstileToken();
+            if (token) {
+                data.turnstile_token = token;
+            }
             result = await api.post('/api/polls', data);
             state.publicId = result.vote.public_id;
             state.adminToken = result.vote.admin_token;
@@ -999,6 +1007,7 @@ async function saveDraft() {
     } catch (err) {
         if (saveBtn) clearButtonLoading(saveBtn);
         showToast(err.message, 'error');
+        resetTurnstile();
     }
 }
 
@@ -1021,6 +1030,12 @@ async function publishPoll() {
         }
     }
 
+    // Check Turnstile if required for new polls
+    if (window.TURNSTILE_ENABLED && !state.publicId && !getTurnstileToken()) {
+        showToast('Please wait for security verification to complete', 'error');
+        return;
+    }
+
     const publishBtn = document.getElementById('publishBtn');
 
     try {
@@ -1033,6 +1048,11 @@ async function publishPoll() {
         if (state.publicId && state.adminToken) {
             result = await api.put(`/api/polls/${state.publicId}/admin/${state.adminToken}`, data);
         } else {
+            // Include Turnstile token for new polls
+            const token = getTurnstileToken();
+            if (token) {
+                data.turnstile_token = token;
+            }
             result = await api.post('/api/polls', data);
         }
 
@@ -1044,6 +1064,7 @@ async function publishPoll() {
     } catch (err) {
         if (publishBtn) clearButtonLoading(publishBtn);
         showToast(err.message, 'error');
+        resetTurnstile();
     }
 }
 
@@ -1051,12 +1072,8 @@ function prepareData() {
     return {
         title: state.title,
         description: state.description,
-        visibility: state.settings.visibility,
-        visibility_timing: state.settings.visibilityTiming,
-        collect_name: state.settings.collectName,
-        allow_edit_own: state.settings.allowEditOwn,
-        allow_edit_any: state.settings.allowEditAny,
-        randomize_options: state.settings.randomizeOptions,
+        voting_mode: state.votingMode,
+        randomize_options: state.randomizeOptions,
         questions: state.questions.map((q, index) => ({
             id: q.id,
             type: q.type,
@@ -1072,6 +1089,51 @@ function prepareData() {
             })),
         })),
     };
+}
+
+// ==========================================================================
+// Turnstile Integration
+// ==========================================================================
+
+/**
+ * Initialize Turnstile for anonymous users
+ * Called when user clicks "Add Question" button
+ */
+function initTurnstile() {
+    // Only for anonymous users creating new polls
+    if (!window.TURNSTILE_ENABLED || isEditMode) return;
+    if (!window.turnstile || turnstileWidgetId !== null) return;
+
+    const container = document.getElementById('turnstileContainer');
+    if (!container) return;
+
+    turnstileWidgetId = turnstile.render(container, {
+        sitekey: window.TURNSTILE_SITE_KEY,
+        callback: (token) => {
+            turnstileToken = token;
+        },
+        'refresh-expired': 'auto',
+        size: 'invisible'
+    });
+}
+
+/**
+ * Get Turnstile token if available
+ * Returns null if Turnstile is not enabled or not initialized
+ */
+function getTurnstileToken() {
+    if (!window.TURNSTILE_ENABLED || isEditMode) return null;
+    return turnstileToken;
+}
+
+/**
+ * Reset Turnstile widget (call on error)
+ */
+function resetTurnstile() {
+    if (turnstileWidgetId !== null && window.turnstile) {
+        turnstile.reset(turnstileWidgetId);
+        turnstileToken = null;
+    }
 }
 
 // ==========================================================================

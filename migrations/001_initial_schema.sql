@@ -33,6 +33,10 @@ CREATE TABLE polls (
     access_mode     VARCHAR(20) NOT NULL DEFAULT 'link',
     access_password VARCHAR(255) NULL,
 
+    voting_mode     VARCHAR(20) NOT NULL DEFAULT 'open',
+    access_methods  TEXT NULL,
+    mode_locked_at  DATETIME NULL,
+
     locale          VARCHAR(10) NOT NULL DEFAULT 'en',
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -136,6 +140,7 @@ CREATE TABLE access_tokens (
     label           VARCHAR(255) NULL,
     used_at         DATETIME NULL,
     response_id     INTEGER NULL,
+    is_secret_ballot BOOLEAN NOT NULL DEFAULT 0,
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -153,6 +158,7 @@ CREATE TABLE email_invitations (
     sent_at         DATETIME NULL,
     used_at         DATETIME NULL,
     response_id     INTEGER NULL,
+    is_secret_ballot BOOLEAN NOT NULL DEFAULT 0,
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

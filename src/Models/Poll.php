@@ -27,6 +27,10 @@ class Poll
     public string $accessMode = 'link'; // link, password, token, email, login
     public ?string $accessPassword = null;
 
+    public string $votingMode = 'open'; // open, identified, secret_ballot
+    public ?array $accessMethods = null; // ['link'], ['token', 'email'], etc.
+    public ?\DateTime $modeLockedAt = null;
+
     public string $locale = 'en';
 
     public ?\DateTime $createdAt = null;
@@ -61,6 +65,12 @@ class Poll
 
         $poll->accessMode = $row['access_mode'];
         $poll->accessPassword = $row['access_password'];
+
+        $poll->votingMode = $row['voting_mode'] ?? 'open';
+        $poll->accessMethods = isset($row['access_methods']) ? json_decode($row['access_methods'], true) : null;
+        $poll->modeLockedAt = isset($row['mode_locked_at']) && $row['mode_locked_at']
+            ? new \DateTime($row['mode_locked_at'])
+            : null;
 
         $poll->locale = $row['locale'];
 
@@ -192,6 +202,10 @@ class Poll
             'access_password' => isset($data['access_password'])
                 ? password_hash($data['access_password'], PASSWORD_DEFAULT)
                 : null,
+            'voting_mode' => $data['voting_mode'] ?? 'open',
+            'access_methods' => isset($data['access_methods'])
+                ? json_encode($data['access_methods'])
+                : null,
             'locale' => $data['locale'] ?? 'en',
             'created_at' => $now,
             'updated_at' => $now,
@@ -212,7 +226,7 @@ class Poll
         $allowedFields = [
             'user_id', 'title', 'description', 'status', 'visibility', 'visibility_timing',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
-            'randomize_options', 'access_mode', 'locale'
+            'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale'
         ];
 
         foreach ($allowedFields as $field) {
@@ -221,6 +235,10 @@ class Poll
                 // Convert booleans to integers
                 if (in_array($field, ['collect_name', 'allow_edit_own', 'allow_edit_any', 'randomize_options'])) {
                     $value = $value ? 1 : 0;
+                }
+                // JSON encode arrays
+                if ($field === 'access_methods' && is_array($value)) {
+                    $value = json_encode($value);
                 }
                 $updateData[$field] = $value;
             }
@@ -362,6 +380,63 @@ class Poll
     }
 
     /**
+     * Check if the voting mode is locked (cannot be changed)
+     */
+    public function isModeLocked(): bool
+    {
+        return $this->modeLockedAt !== null || $this->getResponseCount() > 0;
+    }
+
+    /**
+     * Lock the voting mode (called on first response)
+     */
+    public function lockMode(): void
+    {
+        if ($this->modeLockedAt !== null) {
+            return;
+        }
+
+        $db = Database::getInstance();
+        $now = date('Y-m-d H:i:s');
+
+        $db->update(
+            'polls',
+            ['mode_locked_at' => $now],
+            'id = :id',
+            ['id' => $this->id]
+        );
+
+        $this->modeLockedAt = new \DateTime($now);
+    }
+
+    /**
+     * Check if this poll can collect voter names
+     */
+    public function canCollectName(): bool
+    {
+        return $this->votingMode !== 'secret_ballot';
+    }
+
+    /**
+     * Check if responses can be edited in this poll
+     */
+    public function canEditResponse(): bool
+    {
+        if ($this->votingMode === 'secret_ballot') {
+            return false;
+        }
+        return $this->allowEditOwn || $this->allowEditAny;
+    }
+
+    /**
+     * Check if this poll requires voter identity (token/email/login)
+     */
+    public function requiresIdentity(): bool
+    {
+        return in_array($this->votingMode, ['identified', 'secret_ballot']);
+    }
+
+    /**
      * Convert to array for public JSON output (voter-facing)
      */
     public function toPublicArray(): array
@@ -373,12 +448,14 @@ class Poll
             'status' => $this->status,
             'visibility' => $this->visibility,
             'visibility_timing' => $this->visibilityTiming,
-            'collect_name' => $this->collectName,
-            'allow_edit_own' => $this->allowEditOwn,
-            'allow_edit_any' => $this->allowEditAny,
+            'collect_name' => $this->canCollectName() && $this->collectName,
+            'allow_edit_own' => $this->canEditResponse() && $this->allowEditOwn,
+            'allow_edit_any' => $this->canEditResponse() && $this->allowEditAny,
             'randomize_options' => $this->randomizeOptions,
             'access_mode' => $this->accessMode,
+            'voting_mode' => $this->votingMode,
             'requires_password' => $this->accessMode === 'password',
+            'requires_identity' => $this->requiresIdentity(),
             'locale' => $this->locale,
             'questions' => array_map(fn($q) => $q->toArray(), $this->questions),
         ];
@@ -405,6 +482,10 @@ class Poll
             'allow_edit_any' => $this->allowEditAny,
             'randomize_options' => $this->randomizeOptions,
             'access_mode' => $this->accessMode,
+            'voting_mode' => $this->votingMode,
+            'access_methods' => $this->accessMethods,
+            'mode_locked' => $this->isModeLocked(),
+            'mode_locked_at' => $this->modeLockedAt?->format('c'),
             'locale' => $this->locale,
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
@@ -429,6 +510,7 @@ class Poll
             'title' => $this->title,
             'status' => $this->status,
             'access_mode' => $this->accessMode,
+            'voting_mode' => $this->votingMode,
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
             'response_count' => $this->getResponseCount(),

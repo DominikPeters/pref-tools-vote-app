@@ -43,3 +43,4 @@ GEMINI.md
 .claude/settings.local.json
 /.phpunit.cache
 /coverage-data
+/lib/PHPMailer
