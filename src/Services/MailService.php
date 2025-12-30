@@ -43,8 +43,16 @@ class MailService
 
     /**
      * Send an email using PHPMailer
+     *
+     * @param string $to Recipient email address
+     * @param string $subject Email subject
+     * @param string $body Email body
+     * @param bool $isHtml Whether the body is HTML
+     * @param array $options Optional settings:
+     *                       - unsubscribe_url: URL for List-Unsubscribe header
+     *                       - one_click_url: URL for RFC 8058 one-click unsubscribe
      */
-    public function send(string $to, string $subject, string $body, bool $isHtml = false): bool
+    public function send(string $to, string $subject, string $body, bool $isHtml = false, array $options = []): bool
     {
         $mail = new PHPMailer(true);
 
@@ -73,6 +81,16 @@ class MailService
             // Recipients
             $mail->setFrom($this->fromAddress, $this->fromName);
             $mail->addAddress($to);
+
+            // Add List-Unsubscribe headers (RFC 8058)
+            if (!empty($options['one_click_url'])) {
+                // RFC 8058: List-Unsubscribe-Post enables one-click unsubscribe in email clients
+                $mail->addCustomHeader('List-Unsubscribe', '<' . $options['one_click_url'] . '>');
+                $mail->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+            } elseif (!empty($options['unsubscribe_url'])) {
+                // Fallback: just the List-Unsubscribe header without one-click
+                $mail->addCustomHeader('List-Unsubscribe', '<' . $options['unsubscribe_url'] . '>');
+            }
 
             // Content
             $mail->CharSet = 'UTF-8';

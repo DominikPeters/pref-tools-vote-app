@@ -94,9 +94,11 @@ class InvitationApiController extends ApiController
             'sent_count' => count($results['sent']),
             'failed_count' => count($results['failed']),
             'existing_count' => count($results['existing']),
+            'blocked_count' => count($results['blocked']),
             'sent' => $results['sent'],
             'failed' => $results['failed'],
             'existing' => $results['existing'],
+            'blocked' => $results['blocked'],
             'invitations' => array_map(function ($inv) use ($poll) {
                 $arr = $inv->toArray();
                 $arr['url'] = url($poll->publicId . '?token=' . $inv->token);
@@ -134,7 +136,15 @@ class InvitationApiController extends ApiController
         }
 
         try {
-            $this->invitationService->resendInvitation($poll, $invitation);
+            $result = $this->invitationService->resendInvitation($poll, $invitation);
+
+            if ($result['blocked']) {
+                return $this->error(
+                    'This email address has unsubscribed from invitation emails',
+                    'EMAIL_BLOCKED',
+                    400
+                );
+            }
         } catch (\Exception $e) {
             return $this->error('Failed to send email: ' . $e->getMessage(), 'SEND_FAILED', 500);
         }

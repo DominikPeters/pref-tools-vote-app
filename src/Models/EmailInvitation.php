@@ -12,6 +12,7 @@ class EmailInvitation
     public string $email;
     public string $token;
     public ?\DateTime $sentAt = null;
+    public ?\DateTime $clickedAt = null;
     public ?\DateTime $usedAt = null;
     public ?int $responseId = null;
     public bool $isSecretBallot = false;
@@ -28,6 +29,7 @@ class EmailInvitation
         $invitation->email = $row['email'];
         $invitation->token = $row['token'];
         $invitation->sentAt = $row['sent_at'] ? new \DateTime($row['sent_at']) : null;
+        $invitation->clickedAt = $row['clicked_at'] ?? null ? new \DateTime($row['clicked_at']) : null;
         $invitation->usedAt = $row['used_at'] ? new \DateTime($row['used_at']) : null;
         $invitation->responseId = $row['response_id'] ? (int) $row['response_id'] : null;
         $invitation->isSecretBallot = (bool) ($row['is_secret_ballot'] ?? false);
@@ -120,6 +122,27 @@ class EmailInvitation
     }
 
     /**
+     * Mark as clicked (when the invitation link is visited)
+     */
+    public function markClicked(): self
+    {
+        if ($this->clickedAt !== null) {
+            return $this; // Already marked
+        }
+
+        $db = Database::getInstance();
+        $db->update(
+            'email_invitations',
+            ['clicked_at' => date('Y-m-d H:i:s')],
+            'id = :id',
+            ['id' => $this->id]
+        );
+
+        $this->clickedAt = new \DateTime();
+        return $this;
+    }
+
+    /**
      * Mark as used
      * For secret ballot, responseId should be null to avoid linking
      */
@@ -164,11 +187,13 @@ class EmailInvitation
             'email' => $this->email,
             'token' => $this->token,
             'sent_at' => $this->sentAt?->format('c'),
+            'clicked_at' => $this->clickedAt?->format('c'),
             'used_at' => $this->usedAt?->format('c'),
             'response_id' => $this->responseId,
             'is_secret_ballot' => $this->isSecretBallot,
             'created_at' => $this->createdAt->format('c'),
             'is_sent' => $this->sentAt !== null,
+            'is_clicked' => $this->clickedAt !== null,
             'is_used' => $this->usedAt !== null,
         ];
     }

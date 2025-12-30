@@ -156,6 +156,7 @@ CREATE TABLE email_invitations (
     token           VARCHAR(32) UNIQUE NOT NULL,
 
     sent_at         DATETIME NULL,
+    clicked_at      DATETIME NULL,
     used_at         DATETIME NULL,
     response_id     INTEGER NULL,
     is_secret_ballot BOOLEAN NOT NULL DEFAULT 0,
@@ -164,6 +165,15 @@ CREATE TABLE email_invitations (
 
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
+);
+
+-- Email deliverability tracking (unsubscribes, future: soft blocks)
+CREATE TABLE email_deliverability (
+    email           VARCHAR(255) PRIMARY KEY,
+    unsubscribed_at DATETIME NULL,
+    data            TEXT NULL,
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Action log (for auditing/debugging)

@@ -24,20 +24,29 @@ class InvitationService
 
     /**
      * Send invitations to multiple email addresses
-     * Returns: ['sent' => [], 'failed' => [], 'existing' => []]
+     * Returns: ['sent' => [], 'failed' => [], 'existing' => [], 'blocked' => []]
      */
     public function sendInvitations(Poll $poll, array $emails): array
     {
-        $results = ['sent' => [], 'failed' => [], 'existing' => []];
+        $results = ['sent' => [], 'failed' => [], 'existing' => [], 'blocked' => []];
+
+        // Normalize emails
+        $emails = array_map(fn($e) => strtolower(trim($e)), $emails);
+        $emails = array_filter($emails);
+
+        // Check which emails are unsubscribed
+        $blockedStatus = UnsubscribeService::checkMultiple($emails);
 
         foreach ($emails as $email) {
-            $email = strtolower(trim($email));
-
             // Validate email
-            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                if (!empty($email)) {
-                    $results['failed'][] = ['email' => $email, 'reason' => 'Invalid email format'];
-                }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $results['failed'][] = ['email' => $email, 'reason' => 'Invalid email format'];
+                continue;
+            }
+
+            // Check if unsubscribed
+            if (!empty($blockedStatus[$email])) {
+                $results['blocked'][] = $email;
                 continue;
             }
 
@@ -67,12 +76,18 @@ class InvitationService
 
     /**
      * Resend invitation to a specific email
+     * Returns: ['success' => bool, 'blocked' => bool]
      */
-    public function resendInvitation(Poll $poll, EmailInvitation $invitation): bool
+    public function resendInvitation(Poll $poll, EmailInvitation $invitation): array
     {
+        // Check if email is unsubscribed
+        if (UnsubscribeService::isUnsubscribed($invitation->email)) {
+            return ['success' => false, 'blocked' => true];
+        }
+
         $this->sendInvitationEmail($poll, $invitation);
         $invitation->markSent();
-        return true;
+        return ['success' => true, 'blocked' => false];
     }
 
     /**
@@ -81,6 +96,8 @@ class InvitationService
     private function sendInvitationEmail(Poll $poll, EmailInvitation $invitation): void
     {
         $voteUrl = url($poll->publicId . '?token=' . $invitation->token);
+        $unsubscribeUrl = UnsubscribeService::generateUnsubscribeUrl($invitation->email);
+        $oneClickUrl = UnsubscribeService::generateOneClickUrl($invitation->email);
 
         $subject = "You're invited to vote: " . $poll->title;
 
@@ -88,9 +105,12 @@ class InvitationService
             'poll' => $poll,
             'voteUrl' => $voteUrl,
             'invitation' => $invitation,
+            'unsubscribeUrl' => $unsubscribeUrl,
         ]);
 
-        $this->mailer->send($invitation->email, $subject, $body, true);
+        $this->mailer->send($invitation->email, $subject, $body, true, [
+            'one_click_url' => $oneClickUrl,
+        ]);
     }
 
     /**

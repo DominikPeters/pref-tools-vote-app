@@ -17,6 +17,7 @@ use App\Controllers\SysadminApiController;
 use App\Controllers\ReportApiController;
 use App\Controllers\TokenApiController;
 use App\Controllers\InvitationApiController;
+use App\Controllers\UnsubscribeController;
 
 // Check if installation is needed
 if (needsInstall()) {
@@ -50,6 +51,10 @@ $router->get('/sysadmin/polls', [SysadminController::class, 'polls']);
 $router->get('/sysadmin/logs', [SysadminController::class, 'logs']);
 $router->get('/sysadmin/stats', [SysadminController::class, 'stats']);
 $router->get('/sysadmin/config', [SysadminController::class, 'config']);
+
+// Unsubscribe pages
+$router->get('/unsubscribe', [UnsubscribeController::class, 'showPage']);
+$router->post('/unsubscribe/one-click', [UnsubscribeController::class, 'handleOneClick']);
 
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
@@ -114,6 +119,9 @@ $router->get('/api/polls/:publicId/admin/:adminToken/invitations', [InvitationAp
 $router->post('/api/polls/:publicId/admin/:adminToken/invitations', [InvitationApiController::class, 'send']);
 $router->post('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId/resend', [InvitationApiController::class, 'resend']);
 $router->delete('/api/polls/:publicId/admin/:adminToken/invitations/:invitationId', [InvitationApiController::class, 'delete']);
+
+// Unsubscribe
+$router->post('/api/unsubscribe', [UnsubscribeController::class, 'handleApi']);
 
 // User dashboard
 $router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);

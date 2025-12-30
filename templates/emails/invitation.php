@@ -63,6 +63,13 @@
             color: #9ca3af;
             font-size: 14px;
         }
+        .unsubscribe-link {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+        .unsubscribe-link:hover {
+            color: #6b7280;
+        }
         .secret-ballot-notice {
             background-color: #fef3c7;
             border: 1px solid #fbbf24;
@@ -104,6 +111,13 @@
         <div class="footer">
             <p>This invitation link is unique to you. Please do not share it with others.</p>
             <p>Sent by <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
+            <?php if (!empty($unsubscribeUrl)): ?>
+            <p style="margin-top: 16px;">
+                <a href="<?= htmlspecialchars($unsubscribeUrl) ?>" class="unsubscribe-link">
+                    Don't want to receive future invitations? Unsubscribe
+                </a>
+            </p>
+            <?php endif; ?>
         </div>
     </div>
 </body>

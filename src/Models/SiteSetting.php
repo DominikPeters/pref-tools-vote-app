@@ -17,6 +17,7 @@ class SiteSetting
         'mail.smtp_password',
         'api.openai_key',
         'api.turnstile_secret_key',
+        'security.unsubscribe_secret',
     ];
 
     /**

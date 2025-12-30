@@ -61,6 +61,9 @@ class AccessControlService
                         'error' => 'This invitation link has already been used',
                     ];
                 }
+                // Track that the link was clicked (for deliverability tracking)
+                $emailInvite->markClicked();
+
                 return [
                     'allowed' => true,
                     'identity' => [

@@ -498,10 +498,14 @@ function initInvitationManagement(publicId, adminToken) {
             if (result.existing_count > 0) {
                 message += `, ${result.existing_count} already existed`;
             }
+            if (result.blocked_count > 0) {
+                message += `, ${result.blocked_count} blocked (unsubscribed)`;
+            }
             if (result.failed_count > 0) {
                 message += `, ${result.failed_count} failed`;
             }
-            showToast(message, result.failed_count > 0 ? 'warning' : 'success');
+            const hasWarnings = result.failed_count > 0 || result.blocked_count > 0;
+            showToast(message, hasWarnings ? 'warning' : 'success');
             emailsInput.value = '';
         } catch (err) {
             showToast(err.message, 'error');

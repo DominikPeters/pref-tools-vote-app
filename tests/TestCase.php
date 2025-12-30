@@ -222,6 +222,9 @@ abstract class TestCase extends BaseTestCase
         $router->get('/api/user/responses', [\App\Controllers\AuthApiController::class, 'userResponses']);
         $router->post('/api/user/claim-poll', [\App\Controllers\AuthApiController::class, 'claimPoll']);
 
+        // Unsubscribe routes
+        $router->post('/api/unsubscribe', [\App\Controllers\UnsubscribeController::class, 'handleApi']);
+
         // Sysadmin routes
         $router->get('/api/sysadmin/stats', [\App\Controllers\SysadminApiController::class, 'stats']);
         $router->get('/api/sysadmin/users', [\App\Controllers\SysadminApiController::class, 'listUsers']);
