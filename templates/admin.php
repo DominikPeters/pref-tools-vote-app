@@ -224,17 +224,18 @@ $votingModeDescriptions = [
                     <div class="settings-row">
                         <div class="setting-group">
                             <label for="settingVisibility">Results Visibility</label>
-                            <select id="settingVisibility" class="setting-input">
+                            <?php
+                            // Show "anonymous" option only for non-secret polls that collect names
+                            $showAnonymousOption = $poll->votingMode !== 'secret_ballot' && $poll->collectName;
+                            ?>
+                            <select id="settingVisibility" class="setting-input" data-show-anonymous="<?= $showAnonymousOption ? 'true' : 'false' ?>">
                                 <option value="private" <?= $poll->visibility === 'private' ? 'selected' : '' ?>>Private (admin only)</option>
-                                <option value="anonymous" <?= $poll->visibility === 'anonymous' ? 'selected' : '' ?>>Anonymous (responses without names)</option>
-                                <option value="full" <?= $poll->visibility === 'full' ? 'selected' : '' ?>>Full (responses with names)</option>
-                            </select>
-                        </div>
-                        <div class="setting-group">
-                            <label for="settingVisibilityTiming">Show Results</label>
-                            <select id="settingVisibilityTiming" class="setting-input">
-                                <option value="during" <?= $poll->visibilityTiming === 'during' ? 'selected' : '' ?>>While voting is open</option>
-                                <option value="after_close" <?= $poll->visibilityTiming === 'after_close' ? 'selected' : '' ?>>After voting closes</option>
+                                <?php if ($showAnonymousOption): ?>
+                                <option value="anonymous" <?= $poll->visibility === 'anonymous' ? 'selected' : '' ?>>Public (responses without names)</option>
+                                <option value="full" <?= $poll->visibility === 'full' ? 'selected' : '' ?>>Public (responses with names)</option>
+                                <?php else: ?>
+                                <option value="full" <?= $poll->visibility !== 'private' ? 'selected' : '' ?>>Public</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>

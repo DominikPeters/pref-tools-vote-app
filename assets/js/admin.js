@@ -17,6 +17,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const publicId = container.dataset.publicId;
     const adminToken = container.dataset.adminToken;
 
+    // Check for close toast from sessionStorage (shown after poll close)
+    const closeToastData = sessionStorage.getItem('closeToast');
+    if (closeToastData) {
+        sessionStorage.removeItem('closeToast');
+        const data = JSON.parse(closeToastData);
+        showToast(`${data.message} <a href="${data.link}">${data.linkText}</a>`, 'info');
+    }
+
     // Load poll data first, then responses (so formatAnswers has pollData)
     await loadVote(publicId, adminToken);
     loadResponses(publicId, adminToken);
@@ -250,7 +258,18 @@ async function closePoll(publicId, adminToken) {
     const btn = document.getElementById('closePoll');
     try {
         if (btn) setButtonLoading(btn);
-        await api.post(`/api/polls/${publicId}/admin/${adminToken}/close`);
+        const result = await api.post(`/api/polls/${publicId}/admin/${adminToken}/close`);
+
+        // If results are private, show a toast suggesting to make them public
+        if (result.poll && result.poll.visibility === 'private') {
+            // Store message in sessionStorage to show after reload
+            sessionStorage.setItem('closeToast', JSON.stringify({
+                message: 'Poll closed. Results are currently private.',
+                link: `${basePath}/${publicId}/admin/${adminToken}/results`,
+                linkText: 'Manage results'
+            }));
+        }
+
         location.reload();
     } catch (err) {
         if (btn) clearButtonLoading(btn);
@@ -686,7 +705,6 @@ function initSettings(publicId, adminToken) {
 
     const settingInputs = [
         'settingVisibility',
-        'settingVisibilityTiming',
         'settingCollectName',
         'settingAllowEditOwn',
         'settingAllowEditAny',
@@ -708,7 +726,6 @@ function initSettings(publicId, adminToken) {
     saveBtn.addEventListener('click', async () => {
         const data = {
             visibility: document.getElementById('settingVisibility')?.value,
-            visibility_timing: document.getElementById('settingVisibilityTiming')?.value,
             collect_name: document.getElementById('settingCollectName')?.checked,
             allow_edit_own: document.getElementById('settingAllowEditOwn')?.checked,
             allow_edit_any: document.getElementById('settingAllowEditAny')?.checked,

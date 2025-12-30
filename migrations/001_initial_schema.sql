@@ -29,7 +29,6 @@ CREATE TABLE polls (
 
     status            VARCHAR(20) NOT NULL DEFAULT 'draft',
     visibility        VARCHAR(20) NOT NULL DEFAULT 'private',
-    visibility_timing VARCHAR(20) NOT NULL DEFAULT 'after_close',
     collect_name      BOOLEAN NOT NULL DEFAULT 0,
     name_visibility   VARCHAR(20) NULL,
     allow_edit_own    BOOLEAN NOT NULL DEFAULT 1,

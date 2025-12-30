@@ -46,6 +46,7 @@ $router->get('/', [PageController::class, 'home']);
 $router->get('/create', [PageController::class, 'builder']);
 $router->get('/login', [PageController::class, 'login']);
 $router->get('/dashboard', [PageController::class, 'dashboard']);
+$router->get('/privacy', [PageController::class, 'privacy']);
 
 // Sysadmin pages
 $router->get('/sysadmin', [SysadminController::class, 'dashboard']);

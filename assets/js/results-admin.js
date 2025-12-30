@@ -18,7 +18,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminToken = container.dataset.adminToken;
 
     initResultsAdmin(publicId, adminToken, container);
+    initVisibilityControl(publicId, adminToken);
 });
+
+/**
+ * Initialize the visibility dropdown control
+ */
+function initVisibilityControl(publicId, adminToken) {
+    const visibilitySelect = document.getElementById('resultsVisibility');
+    if (!visibilitySelect) return;
+
+    visibilitySelect.addEventListener('change', async () => {
+        const newVisibility = visibilitySelect.value;
+
+        try {
+            await api.put(`/api/polls/${publicId}/admin/${adminToken}`, {
+                visibility: newVisibility,
+            });
+            showToast('Visibility updated', 'success');
+        } catch (err) {
+            console.error('Failed to update visibility:', err);
+            showToast('Failed to update visibility', 'error');
+        }
+    });
+}
 
 async function initResultsAdmin(publicId, adminToken, container) {
     // Fetch available types first

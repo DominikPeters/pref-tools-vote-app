@@ -141,6 +141,24 @@ export function renderQuestionInput(question, disabled = false) {
                 </div>
             `;
 
+        case 'ranking_with_ties':
+            return `
+                <div class="ranking-ties-options" data-question-id="${question.id || question._id}">
+                    <p class="ranking-hint">Drag to reorder. Items in the same group are tied.</p>
+                    <div class="ranking-ties-container">
+                        <div class="indifference-class">
+                            ${options.map(o => `
+                                <div class="ranking-ties-item" data-option-id="${o.id || o._id}" draggable="true">
+                                    <span class="drag-handle">&#9776;</span>
+                                    <span class="option-label">${escapeHtml(o.label)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <input type="hidden" class="ranking-value" name="q_${question.id || question._id}">
+                </div>
+            `;
+
         case 'star':
             const starCount = question.settings?.starCount || 5;
             return `
@@ -240,6 +258,7 @@ export function getQuestionTypeLabel(type) {
         'approval': 'Approval (Multiple Choice)',
         'ranking': 'Ranking',
         'ranking_truncated': 'Ranking (Partial)',
+        'ranking_with_ties': 'Ranking (With Ties)',
         'star': 'Star Rating',
         'grade': 'Grades',
         'yes_no_abstain': 'Yes / No / Abstain',
@@ -253,7 +272,7 @@ export function getQuestionTypeLabel(type) {
  * Question types that require options
  */
 export const OPTION_TYPES = [
-    'single_choice', 'approval', 'ranking', 'ranking_truncated', 'star', 'grade', 'yes_no_abstain'
+    'single_choice', 'approval', 'ranking', 'ranking_truncated', 'ranking_with_ties', 'star', 'grade', 'yes_no_abstain'
 ];
 
 /**
@@ -264,6 +283,7 @@ export const QUESTION_TYPES = [
     { value: 'approval', label: 'Approval (Multiple Choice)' },
     { value: 'ranking', label: 'Ranking' },
     { value: 'ranking_truncated', label: 'Ranking (Partial)' },
+    { value: 'ranking_with_ties', label: 'Ranking (With Ties)' },
     { value: 'star', label: 'Star Rating' },
     { value: 'grade', label: 'Grades' },
     { value: 'yes_no_abstain', label: 'Yes / No / Abstain' },

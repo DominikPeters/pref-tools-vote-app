@@ -16,8 +16,7 @@ class Poll
     public ?string $description = null;
 
     public string $status = 'draft'; // draft, open, closed
-    public string $visibility = 'private'; // private, anonymous, names_only, full
-    public string $visibilityTiming = 'after_close'; // during, after_close
+    public string $visibility = 'private'; // private, anonymous, full
     public bool $collectName = false;
     public ?string $nameVisibility = null;
     public bool $allowEditOwn = true;
@@ -56,7 +55,6 @@ class Poll
 
         $poll->status = $row['status'];
         $poll->visibility = $row['visibility'];
-        $poll->visibilityTiming = $row['visibility_timing'];
         $poll->collectName = (bool) $row['collect_name'];
         $poll->nameVisibility = $row['name_visibility'];
         $poll->allowEditOwn = (bool) $row['allow_edit_own'];
@@ -192,7 +190,6 @@ class Poll
             'description' => $data['description'] ?? null,
             'status' => $data['status'] ?? 'draft',
             'visibility' => $data['visibility'] ?? 'private',
-            'visibility_timing' => $data['visibility_timing'] ?? 'after_close',
             'collect_name' => ($data['collect_name'] ?? false) ? 1 : 0,
             'name_visibility' => $data['name_visibility'] ?? null,
             'allow_edit_own' => ($data['allow_edit_own'] ?? true) ? 1 : 0,
@@ -224,7 +221,7 @@ class Poll
         $updateData = ['updated_at' => date('Y-m-d H:i:s')];
 
         $allowedFields = [
-            'user_id', 'title', 'description', 'status', 'visibility', 'visibility_timing',
+            'user_id', 'title', 'description', 'status', 'visibility',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
             'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale'
         ];
@@ -362,13 +359,7 @@ class Poll
      */
     public function areResultsViewable(): bool
     {
-        if ($this->visibility === 'private') {
-            return false;
-        }
-        if ($this->visibilityTiming === 'during') {
-            return true;
-        }
-        return $this->status === 'closed';
+        return $this->visibility !== 'private';
     }
 
     /**
@@ -447,7 +438,6 @@ class Poll
             'description' => $this->description,
             'status' => $this->status,
             'visibility' => $this->visibility,
-            'visibility_timing' => $this->visibilityTiming,
             'collect_name' => $this->canCollectName() && $this->collectName,
             'allow_edit_own' => $this->canEditResponse() && $this->allowEditOwn,
             'allow_edit_any' => $this->canEditResponse() && $this->allowEditAny,
@@ -479,7 +469,6 @@ class Poll
             'description' => $this->description,
             'status' => $this->status,
             'visibility' => $this->visibility,
-            'visibility_timing' => $this->visibilityTiming,
             'collect_name' => $this->collectName,
             'name_visibility' => $this->nameVisibility,
             'allow_edit_own' => $this->allowEditOwn,

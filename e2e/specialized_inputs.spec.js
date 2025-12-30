@@ -7,10 +7,6 @@ test.describe('Specialized Input Types', () => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Star Rating Test');
 
-    // Set results to be visible during voting
-    await page.check('input[name="visibilityTiming"][value="during"]');
-    await page.check('input[name="visibility"][value="anonymous"]');
-
     // Add Star Rating question
     await page.click('#addQuestionBtn');
     const q1 = page.locator('.question-wrapper').last();
@@ -27,7 +23,13 @@ test.describe('Specialized Input Types', () => {
     await q1.locator('.setting-star-count').fill('3');
 
     await page.click('#publishBtn');
+    await expect(page).toHaveURL(/\/admin\//);
     const publicUrl = await page.locator('#publicLink').inputValue();
+
+    // Set results visibility to public
+    await page.selectOption('#settingVisibility', 'full');
+    await page.click('#saveSettings');
+    await expect(page.locator('text=Settings saved')).toBeVisible();
 
     // Vote
     await freshPage.goto(publicUrl);

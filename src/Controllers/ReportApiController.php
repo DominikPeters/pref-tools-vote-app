@@ -403,15 +403,7 @@ class ReportApiController extends ApiController
             return true;
         }
 
-        if ($poll->visibility === 'private') {
-            return false;
-        }
-
-        if ($poll->visibilityTiming === 'after_close' && $poll->status !== 'closed') {
-            return false;
-        }
-
-        return true;
+        return $poll->visibility !== 'private';
     }
 
     /**

@@ -46,7 +46,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application.</p>
+            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy">Privacy Policy</a></p>
         </div>
     </footer>
 

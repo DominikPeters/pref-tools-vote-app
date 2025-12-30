@@ -165,7 +165,6 @@ class PollApiTest extends TestCase
         $response = $this->callApi('POST', '/api/polls', [
             'title' => 'Configured Poll',
             'visibility' => 'anonymous',
-            'visibility_timing' => 'during',
             'collect_name' => true,
             'allow_edit_own' => false,
             'randomize_options' => true,
@@ -173,7 +172,6 @@ class PollApiTest extends TestCase
 
         $this->assertSuccess($response);
         $this->assertEquals('anonymous', $response['poll']['visibility']);
-        $this->assertEquals('during', $response['poll']['visibility_timing']);
         $this->assertTrue($response['poll']['collect_name']);
         $this->assertFalse($response['poll']['allow_edit_own']);
         $this->assertTrue($response['poll']['randomize_options']);

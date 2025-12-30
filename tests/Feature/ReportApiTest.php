@@ -78,7 +78,7 @@ class ReportApiTest extends TestCase
 
     public function test_can_list_reports_public(): void
     {
-        $this->poll->update(['visibility' => 'public', 'visibility_timing' => 'during']);
+        $this->poll->update(['visibility' => 'full']);
 
         Report::create([
             'question_id' => $this->question->id,
@@ -197,21 +197,15 @@ class ReportApiTest extends TestCase
 
     public function test_public_visibility_rules(): void
     {
+        // Private visibility blocks access
         $this->poll->update(['visibility' => 'private']);
-        
+
         $response = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/reports");
         $this->assertError($response, 'NOT_VISIBLE');
 
-        $this->poll->update([
-            'visibility' => 'public',
-            'visibility_timing' => 'after_close',
-            'status' => 'open'
-        ]);
-        
-        $response = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/reports");
-        $this->assertError($response, 'NOT_VISIBLE');
+        // Non-private visibility allows access
+        $this->poll->update(['visibility' => 'full']);
 
-        $this->poll->update(['status' => 'closed']);
         $response = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/reports");
         $this->assertSuccess($response);
     }
@@ -291,7 +285,7 @@ class ReportApiTest extends TestCase
 
     public function test_public_can_export_when_report_is_public(): void
     {
-        $this->poll->update(['visibility' => 'public', 'visibility_timing' => 'during']);
+        $this->poll->update(['visibility' => 'full']);
 
         $report = Report::create([
             'question_id' => $this->question->id,

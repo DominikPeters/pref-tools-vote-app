@@ -24,7 +24,25 @@ ob_start();
                     <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary" target="_blank">View Public Results</a>
                 </div>
             </div>
-            <p class="admin-notice">Configure which analyses to show publicly</p>
+            <div class="results-visibility-bar">
+                <div class="visibility-control">
+                    <label for="resultsVisibility">Results Visibility:</label>
+                    <?php
+                    // Show "anonymous" option only for non-secret polls that collect names
+                    $showAnonymousOption = $poll->votingMode !== 'secret_ballot' && $poll->collectName;
+                    ?>
+                    <select id="resultsVisibility" class="setting-input" data-show-anonymous="<?= $showAnonymousOption ? 'true' : 'false' ?>">
+                        <option value="private" <?= $poll->visibility === 'private' ? 'selected' : '' ?>>Private (admin only)</option>
+                        <?php if ($showAnonymousOption): ?>
+                        <option value="anonymous" <?= $poll->visibility === 'anonymous' ? 'selected' : '' ?>>Public (responses without names)</option>
+                        <option value="full" <?= $poll->visibility === 'full' ? 'selected' : '' ?>>Public (responses with names)</option>
+                        <?php else: ?>
+                        <option value="full" <?= $poll->visibility !== 'private' ? 'selected' : '' ?>>Public</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <p class="admin-notice">Configure results visibility and which analyses to show publicly. Changes to visibility are saved automatically.</p>
+            </div>
         </header>
 
         <div class="results-admin-content" data-public-id="<?= e($poll->publicId) ?>" data-admin-token="<?= e($adminToken) ?>">

@@ -92,7 +92,6 @@ test.describe('Thank You Message Buttons', () => {
         title: 'Public Results Poll',
         status: 'open',
         visibility: 'anonymous',
-        visibility_timing: 'during',
         questions: [{ type: 'single_choice', text: 'Q1', options: [{ label: 'A' }, { label: 'B' }] }]
       }
     });

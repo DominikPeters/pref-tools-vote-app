@@ -66,10 +66,6 @@ test.describe('Extended Poll Features', () => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Multi-type Poll');
 
-    // Set results to be visible during voting
-    await page.check('input[name="visibilityTiming"][value="during"]');
-    await page.check('input[name="visibility"][value="anonymous"]');
-
     // Question 1: Single Choice (default)
     await page.click('#addQuestionBtn');
     const q1 = page.locator('.question-wrapper').last();
@@ -106,6 +102,11 @@ test.describe('Extended Poll Features', () => {
     await page.click('#publishBtn');
     await expect(page).toHaveURL(/\/admin\//);
     const publicUrl = await page.locator('#publicLink').inputValue();
+
+    // Set results visibility to public
+    await page.selectOption('#settingVisibility', 'full');
+    await page.click('#saveSettings');
+    await expect(page.locator('text=Settings saved')).toBeVisible();
 
     // Vote on the poll
     await freshPage.goto(publicUrl);

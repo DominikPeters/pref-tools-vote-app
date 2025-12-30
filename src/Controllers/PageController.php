@@ -231,14 +231,7 @@ class PageController
         }
 
         // Check if results are visible
-        $canView = false;
-        if ($poll->visibility !== 'private') {
-            if ($poll->visibilityTiming === 'during' || $poll->status === 'closed') {
-                $canView = true;
-            }
-        }
-
-        if (!$canView) {
+        if ($poll->visibility === 'private') {
             http_response_code(403);
             view('error', [
                 'title' => 'Results Not Available',
@@ -320,6 +313,36 @@ class PageController
             'poll' => $poll,
             'adminToken' => $params['adminToken'],
             'user' => Auth::getInstance()->user(),
+        ]);
+    }
+
+    /**
+     * GET /privacy - Privacy policy page
+     */
+    public function privacy(array $params): void
+    {
+        $filePath = __DIR__ . '/../../PRIVACY_POLICY.md';
+
+        if (!file_exists($filePath)) {
+            http_response_code(404);
+            view('error', [
+                'title' => 'Privacy Policy Not Found',
+                'message' => 'The privacy policy document is not available.',
+            ]);
+            return;
+        }
+
+        $markdown = file_get_contents($filePath);
+
+        require_once __DIR__ . '/../../lib/Parsedown/Parsedown.php';
+        $parsedown = new \Parsedown();
+        $parsedown->setSafeMode(true);
+        $parsedown->setBreaksEnabled(true);
+        $html = $parsedown->text($markdown);
+
+        view('privacy', [
+            'user' => Auth::getInstance()->user(),
+            'content' => $html,
         ]);
     }
 }

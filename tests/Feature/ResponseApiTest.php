@@ -145,9 +145,8 @@ class ResponseApiTest extends TestCase
     {
         // Create poll with visible responses
         $poll = $this->createPoll([
-            'status' => 'closed',
+            'status' => 'open',
             'visibility' => 'anonymous',
-            'visibility_timing' => 'after_close',
         ]);
         $question = $this->createQuestion($poll->id);
 
@@ -168,46 +167,13 @@ class ResponseApiTest extends TestCase
     public function test_cannot_list_responses_when_private(): void
     {
         $poll = $this->createPoll([
-            'status' => 'closed',
+            'status' => 'open',
             'visibility' => 'private',
         ]);
 
         $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
 
         $this->assertError($response, 'NOT_VISIBLE');
-    }
-
-    public function test_cannot_list_responses_before_close_if_after_close_timing(): void
-    {
-        $poll = $this->createPoll([
-            'status' => 'open',
-            'visibility' => 'anonymous',
-            'visibility_timing' => 'after_close',
-        ]);
-
-        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
-
-        $this->assertError($response, 'NOT_VISIBLE');
-    }
-
-    public function test_can_list_responses_during_voting_if_during_timing(): void
-    {
-        $poll = $this->createPoll([
-            'status' => 'open',
-            'visibility' => 'anonymous',
-            'visibility_timing' => 'during',
-        ]);
-        $question = $this->createQuestion($poll->id);
-
-        // Submit a response
-        Response::create($poll->id, [
-            'answers' => [$question->id => $question->options[0]->id],
-        ]);
-
-        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses");
-
-        $this->assertSuccess($response);
-        $this->assertCount(1, $response['responses']);
     }
 
     public function test_admin_can_always_see_responses(): void

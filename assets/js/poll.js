@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initApproval();
     initRankings();
     initTruncatedRankings();
+    initRankingWithTies();
     initStarRatings();
     initGradeButtons();
     initYnaButtons();
@@ -186,6 +187,13 @@ function collectFormData() {
                 const rankingInput = block.querySelector('.ranking-value');
                 if (rankingInput?.value) {
                     answer = JSON.parse(rankingInput.value);
+                }
+                break;
+
+            case 'ranking_with_ties':
+                const tiesInput = block.querySelector('.ranking-value');
+                if (tiesInput?.value) {
+                    answer = JSON.parse(tiesInput.value);
                 }
                 break;
 
@@ -485,6 +493,164 @@ function initTruncatedRankings() {
     });
 }
 
+/**
+ * Initialize ranking with ties (weak orders) using native drag and drop API
+ * Fully vertical layout: indifference classes stack vertically, items within classes stack vertically
+ */
+function initRankingWithTies() {
+    document.querySelectorAll('.ranking-ties-options').forEach(container => {
+        const rankingContainer = container.querySelector('.ranking-ties-container');
+        const input = container.querySelector('.ranking-value');
+        const items = container.querySelectorAll('.ranking-ties-item');
+
+        // Helper: Create an empty indifference class
+        function createEmptyIndifferenceClass() {
+            const emptyClass = document.createElement('div');
+            emptyClass.classList.add('indifference-class');
+            return emptyClass;
+        }
+
+        // Helper: Remove all empty indifference classes
+        function removeEmptyIndifferenceClasses() {
+            const emptyClasses = [...rankingContainer.querySelectorAll('.indifference-class')].filter(ic => {
+                return ic.querySelectorAll('.ranking-ties-item').length === 0;
+            });
+            emptyClasses.forEach(ic => ic.remove());
+        }
+
+        // Helper: Update rank labels on all indifference classes
+        function updateRankLabels() {
+            const classes = rankingContainer.querySelectorAll('.indifference-class:has(.ranking-ties-item)');
+            classes.forEach((ic, index) => {
+                const rank = index + 1;
+                const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
+                ic.dataset.rank = `${rank}${suffix}`;
+            });
+        }
+
+        // Helper: Update hidden input value
+        function updateValue() {
+            const result = {};
+            const classes = rankingContainer.querySelectorAll('.indifference-class');
+            let rank = 0;
+            classes.forEach(ic => {
+                const classItems = ic.querySelectorAll('.ranking-ties-item');
+                if (classItems.length > 0) {
+                    rank++;
+                    classItems.forEach(item => {
+                        result[item.dataset.optionId] = rank;
+                    });
+                }
+            });
+            input.value = JSON.stringify(result);
+            updateRankLabels();
+        }
+
+        // Helper: Get indifference class at Y position
+        function getIndifferenceClassAtY(y) {
+            const classes = [...rankingContainer.querySelectorAll('.indifference-class')];
+            let targetClass = classes.find(ic => {
+                const rect = ic.getBoundingClientRect();
+                return y <= rect.top + rect.height;
+            });
+            if (!targetClass) {
+                targetClass = classes[classes.length - 1];
+            }
+            return targetClass;
+        }
+
+        // Helper: Get item at Y position within an indifference class
+        function getItemAtY(indifferenceClass, y) {
+            const classItems = [...indifferenceClass.querySelectorAll('.ranking-ties-item:not(.dragging)')];
+            let nextItem = classItems.find(item => {
+                const rect = item.getBoundingClientRect();
+                return y <= rect.top + rect.height / 2;
+            });
+            return nextItem;
+        }
+
+        // Set up drag events on each item
+        items.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                item.dataset.justStartedDragging = 'true';
+                e.dataTransfer.setData('text/plain', item.dataset.optionId);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            item.addEventListener('dragend', () => {
+                removeEmptyIndifferenceClasses();
+                item.classList.remove('dragging');
+                updateValue();
+            });
+        });
+
+        // Set up dragover on the container
+        rankingContainer.addEventListener('dragover', (e) => {
+            const item = rankingContainer.querySelector('.dragging');
+            if (!item) return;
+
+            // Check if item originates from this container
+            if (!item.closest('.ranking-ties-container') || item.closest('.ranking-ties-container') !== rankingContainer) {
+                return;
+            }
+            e.preventDefault();
+
+            // Find target indifference class
+            const indifferenceClass = getIndifferenceClassAtY(e.clientY);
+            if (!indifferenceClass) return;
+
+            // Is the target class currently empty?
+            const indifferenceClassEmpty = indifferenceClass.querySelectorAll('.ranking-ties-item').length === 0;
+
+            // Check if we stayed in the same class
+            const stayedInSameClass = indifferenceClass === item.parentElement;
+            const justStartedDragging = item.dataset.justStartedDragging === 'true';
+            item.dataset.justStartedDragging = '';
+
+            // Place item within the target class
+            const afterElement = getItemAtY(indifferenceClass, e.clientY);
+            const shouldAnimate = !stayedInSameClass && !indifferenceClassEmpty;
+            const animationOptions = { duration: 70, easing: 'ease-in-out' };
+
+            if (afterElement == null) {
+                if (shouldAnimate) {
+                    item.animate([{ marginTop: 'var(--indifference-class-gap)' }, { marginTop: '0' }], animationOptions);
+                }
+                indifferenceClass.appendChild(item);
+            } else {
+                if (shouldAnimate) {
+                    item.animate([{ marginBottom: 'var(--indifference-class-gap)' }, { marginBottom: '0' }], animationOptions);
+                }
+                indifferenceClass.insertBefore(item, afterElement);
+            }
+
+            // Skip unnecessary updates
+            if (stayedInSameClass && !justStartedDragging) {
+                return;
+            }
+
+            // Delete empty indifference classes
+            removeEmptyIndifferenceClasses();
+
+            // Create empty drop targets above and below when class has 2+ items
+            if (indifferenceClass.querySelectorAll('.ranking-ties-item').length >= 2) {
+                // Above
+                const aboveEmpty = createEmptyIndifferenceClass();
+                rankingContainer.insertBefore(aboveEmpty, indifferenceClass);
+                // Below
+                const belowEmpty = createEmptyIndifferenceClass();
+                rankingContainer.insertBefore(belowEmpty, indifferenceClass.nextElementSibling);
+            }
+
+            updateRankLabels();
+        });
+
+        // Initialize value and rank labels
+        updateValue();
+    });
+}
+
 function initStarRatings() {
     document.querySelectorAll('.star-options').forEach(container => {
         const input = container.querySelector('.star-value');
@@ -643,6 +809,12 @@ function initProgressSaving() {
         const observer = new MutationObserver(saveProgress);
         observer.observe(list, { childList: true });
     });
+
+    // Watch for ranking with ties changes (observe all indifference classes and container)
+    document.querySelectorAll('.ranking-ties-container').forEach(container => {
+        const observer = new MutationObserver(saveProgress);
+        observer.observe(container, { childList: true, subtree: true });
+    });
 }
 
 function restoreProgress() {
@@ -779,6 +951,55 @@ function prefillForm(response) {
                         if (placeholder) {
                             placeholder.style.display = answer.length > 0 ? 'none' : '';
                         }
+                    }
+                }
+                break;
+
+            case 'ranking_with_ties':
+                if (typeof answer === 'object' && !Array.isArray(answer)) {
+                    const container = block.querySelector('.ranking-ties-container');
+                    const input = block.querySelector('.ranking-value');
+
+                    if (container && input) {
+                        // Get all items
+                        const allItems = Array.from(container.querySelectorAll('.ranking-ties-item'));
+                        const itemMap = {};
+                        allItems.forEach(item => {
+                            itemMap[item.dataset.optionId] = item;
+                        });
+
+                        // Group items by rank
+                        const rankGroups = {};
+                        Object.entries(answer).forEach(([optionId, rank]) => {
+                            if (!rankGroups[rank]) {
+                                rankGroups[rank] = [];
+                            }
+                            if (itemMap[optionId]) {
+                                rankGroups[rank].push(itemMap[optionId]);
+                            }
+                        });
+
+                        // Sort ranks and rebuild container
+                        const sortedRanks = Object.keys(rankGroups).map(Number).sort((a, b) => a - b);
+
+                        // Clear container
+                        container.innerHTML = '';
+
+                        // Create indifference classes for each rank group
+                        sortedRanks.forEach((rank, index) => {
+                            const indifferenceClass = document.createElement('div');
+                            indifferenceClass.classList.add('indifference-class');
+                            const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
+                            indifferenceClass.dataset.rank = `${index + 1}${suffix}`;
+
+                            rankGroups[rank].forEach(item => {
+                                indifferenceClass.appendChild(item);
+                            });
+
+                            container.appendChild(indifferenceClass);
+                        });
+
+                        input.value = JSON.stringify(answer);
                     }
                 }
                 break;

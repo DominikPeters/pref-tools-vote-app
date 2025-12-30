@@ -261,7 +261,6 @@ class PollApiController extends ApiController
                 'title' => $poll->title . ' (copy)',
                 'description' => $poll->description,
                 'visibility' => $poll->visibility,
-                'visibility_timing' => $poll->visibilityTiming,
                 'collect_name' => $poll->collectName,
                 'allow_edit_own' => $poll->allowEditOwn,
                 'allow_edit_any' => $poll->allowEditAny,
@@ -926,15 +925,7 @@ class PollApiController extends ApiController
             return true;
         }
 
-        if ($poll->visibility === 'private') {
-            return false;
-        }
-
-        if ($poll->visibilityTiming === 'after_close' && $poll->status !== 'closed') {
-            return false;
-        }
-
-        return true;
+        return $poll->visibility !== 'private';
     }
 
     /**
