@@ -5,10 +5,11 @@
  */
 
 import { api, escapeHtml, showToast, showUndoToast } from './app.js';
-import { loadAndRenderResults, fetchAvailableTypes, createReport, renderReport } from './results-core.js';
+import { loadAndRenderResults, fetchAvailableTypes, createReport, renderReport, getIcon } from './results-core.js';
 
 let currentPollData = null;
 let availableTypes = null;
+let currentReports = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.results-admin-content');
@@ -59,7 +60,7 @@ async function initResultsAdmin(publicId, adminToken, container) {
     );
 
     // Load and render results
-    await loadAndRenderResults(publicId, {
+    const results = await loadAndRenderResults(publicId, {
         container: document.getElementById('resultsData'),
         adminToken,
         isAdmin: true,
@@ -68,12 +69,9 @@ async function initResultsAdmin(publicId, adminToken, container) {
         onEditConfig: (report) => showEditConfigModal(report, publicId, adminToken),
     });
 
-    // Also load poll data for reference
-    try {
-        const result = await api.get(`/api/polls/${publicId}`);
-        currentPollData = result.poll;
-    } catch (err) {
-        console.error('Failed to load poll data:', err);
+    if (results) {
+        currentPollData = results.poll;
+        currentReports = results.reports;
     }
 }
 
@@ -104,6 +102,11 @@ function showReportDrawer(questionId, publicId, adminToken) {
     drawer = document.createElement('div');
     drawer.className = 'report-drawer';
 
+    // Get currently active reports for this question to disable duplicates of non-configurable types
+    const activeReportTypes = currentReports
+        .filter(r => r.question_id == questionId)
+        .map(r => r.report_type);
+
     drawer.innerHTML = `
         <div class="drawer-header">
             <span>Add Analysis</span>
@@ -111,12 +114,24 @@ function showReportDrawer(questionId, publicId, adminToken) {
         </div>
         <div class="drawer-content">
             <div class="report-type-grid">
-                ${types.map(type => `
-                    <button class="report-type-card" data-type="${type.type}" data-requires-config="${type.requires_config}">
-                        <div class="type-name">${escapeHtml(type.name)}</div>
-                        <div class="type-description">${escapeHtml(type.description)}</div>
-                    </button>
-                `).join('')}
+                ${types.map(type => {
+                    const isAlreadySelected = activeReportTypes.includes(type.type);
+                    const isDisabled = !type.has_config && isAlreadySelected;
+                    const disabledAttr = isDisabled ? 'disabled' : '';
+                    const disabledClass = isDisabled ? 'disabled' : '';
+                    const tooltip = isDisabled ? 'This analysis is already added' : '';
+
+                    return `
+                        <button class="report-type-card ${disabledClass}" 
+                                data-type="${type.type}" 
+                                data-requires-config="${type.requires_config}"
+                                ${disabledAttr}
+                                ${tooltip ? `title="${escapeHtml(tooltip)}"` : ''}>
+                            <div class="type-name">${escapeHtml(type.name)}</div>
+                            <div class="type-description">${escapeHtml(type.description)}</div>
+                        </button>
+                    `;
+                }).join('')}
             </div>
             <div class="config-step" style="display: none;"></div>
         </div>
@@ -224,18 +239,33 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
  */
 function renderConfigField(field, currentValue, questionId) {
     let html = `<div class="form-group">`;
-    html += `<label>${escapeHtml(field.label)}</label>`;
+    
+    // For single checkboxes, we don't want the double label
+    if (field.type !== 'checkbox') {
+        html += `<label>${escapeHtml(field.label)}</label>`;
+    }
 
-    if (field.type === 'select' && field.options) {
+    if (field.type === 'select') {
+        // Get options from dynamicOptions if specified
+        let options = field.options || [];
+        if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
+            options = availableTypes.voting_rules_by_question[questionId] || [];
+        }
+
         html += `<select id="config-${field.name}" name="${field.name}" class="form-control">`;
-        field.options.forEach(opt => {
+        options.forEach(opt => {
             const selected = opt.value === currentValue ? 'selected' : '';
             html += `<option value="${opt.value}" ${selected}>${escapeHtml(opt.label)}</option>`;
         });
         html += `</select>`;
     } else if (field.type === 'checkbox') {
         const checked = currentValue ? 'checked' : '';
-        html += `<input type="checkbox" id="config-${field.name}" name="${field.name}" ${checked} class="form-checkbox">`;
+        html += `
+            <label class="checkbox-item">
+                <input type="checkbox" id="config-${field.name}" name="${field.name}" ${checked}>
+                <span class="checkbox-label">${escapeHtml(field.label)}</span>
+            </label>
+        `;
     } else if (field.type === 'checkboxes') {
         // Get options from dynamicOptions if specified
         let options = field.options || [];
@@ -265,6 +295,19 @@ function renderConfigField(field, currentValue, questionId) {
         const placeholder = field.placeholder ? `placeholder="${escapeHtml(field.placeholder)}"` : '';
         html += `<textarea id="config-${field.name}" name="${field.name}"
                           class="form-control" rows="6" ${placeholder}>${escapeHtml(currentValue || '')}</textarea>`;
+    } else if (field.type === 'number') {
+        let max = field.max;
+        if (field.dynamicMax === 'numOptions' && questionId && currentPollData?.questions) {
+            const question = currentPollData.questions.find(q => q.id == questionId);
+            if (question && question.options) {
+                max = question.options.length;
+            }
+        }
+
+        html += `<input type="number" id="config-${field.name}" name="${field.name}"
+                        value="${currentValue || ''}" class="form-control"
+                        ${field.min !== undefined ? `min="${field.min}"` : ''}
+                        ${max !== undefined ? `max="${max}"` : ''}>`;
     } else {
         html += `<input type="text" id="config-${field.name}" name="${field.name}"
                         value="${currentValue || ''}" class="form-control">`;
@@ -362,8 +405,10 @@ async function addReport(questionId, reportType, config, publicId, adminToken) {
             question_id: questionId,
             report_type: reportType,
             config: config,
-            is_public: false,
+            is_public: true,
         });
+
+        currentReports.push(report);
 
         // Add the report card to the UI
         const reportsContainer = document.querySelector(`.question-reports[data-question-id="${questionId}"]`);
@@ -397,14 +442,14 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
 
     card.innerHTML = `
         <div class="report-header">
-            <span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">⠿</span>
+            <span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">${getIcon('menu')}</span>
             <span class="report-name">${escapeHtml(typeName)}</span>
             <div class="report-actions">
-                ${hasConfig ? '<button class="btn-icon edit-config" data-tooltip="Settings">⚙️</button>' : ''}
+                ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="Settings">${getIcon('settings')}</button>` : ''}
                 <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
-                    ${report.is_public ? '👁' : '🔒'}
+                    ${getIcon(report.is_public ? 'eye' : 'lock')}
                 </button>
-                <button class="btn-icon delete-report" data-tooltip="Delete analysis">🗑</button>
+                <button class="btn-icon delete-report" data-tooltip="Delete analysis">${getIcon('trash')}</button>
             </div>
         </div>
         <div class="report-content"></div>
@@ -432,8 +477,8 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
                 { is_public: !report.is_public }
             );
             report.is_public = result.report.is_public;
-            toggleBtn.textContent = report.is_public ? '👁' : '🔒';
-            toggleBtn.title = report.is_public ? 'Make private' : 'Make public';
+            toggleBtn.innerHTML = getIcon(report.is_public ? 'eye' : 'lock');
+            toggleBtn.setAttribute('data-tooltip', report.is_public ? 'Make private' : 'Make public');
         } catch (err) {
             console.error('Failed to toggle visibility:', err);
         }
@@ -460,6 +505,7 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
             if (!shouldDelete) return;
             try {
                 await api.delete(`/api/polls/${publicId}/admin/${adminToken}/reports/${report.id}`);
+                currentReports = currentReports.filter(r => r.id !== report.id);
                 card.remove();
             } catch (err) {
                 console.error('Failed to delete report:', err);

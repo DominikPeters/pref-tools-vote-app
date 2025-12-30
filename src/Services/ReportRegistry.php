@@ -73,8 +73,10 @@ class ReportRegistry
         self::register('borda_scores', new Reports\BordaScoresReport());
         self::register('pairwise_margins', new Reports\PairwiseMarginsReport());
         self::register('voting_rule_winner', new Reports\VotingRuleWinnerReport());
+        self::register('abc_winner', new Reports\ABCWinnerReport());
         self::register('condorcet_winner', new Reports\CondorcetWinnerReport());
         self::register('multi_rule_comparison', new Reports\MultiRuleComparisonReport());
+        self::register('abc_multi_rule_comparison', new Reports\ABCMultiRuleComparisonReport());
 
         // Grade-based reports
         self::register('majority_judgment', new Reports\MajorityJudgmentReport());

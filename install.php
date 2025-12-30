@@ -236,6 +236,7 @@ function handleAdminSetup() {
     try {
         $auth = \App\Auth::getInstance();
         $user = $auth->register($email, $password, $name, \App\Models\User::ROLE_SYSADMIN);
+        $user->markEmailVerified();
 
         \App\Services\LogService::getInstance()->log('user.registered', null, $user->id, null, [
             'via' => 'installer',

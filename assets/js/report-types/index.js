@@ -14,6 +14,8 @@ import { renderCondorcetWinner } from './condorcet-winner.js';
 import { renderYNACounts } from './yna-counts.js';
 import { renderMajorityJudgment } from './majority-judgment.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
+import { renderABCWinner } from './abc-winner.js';
+import { renderABCMultiRuleComparison } from './abc-multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
@@ -24,10 +26,12 @@ const renderers = {
     'borda_scores': renderBordaScores,
     'pairwise_margins': renderPairwiseMargins,
     'voting_rule_winner': renderVotingRuleWinner,
+    'abc_winner': renderABCWinner,
     'condorcet_winner': renderCondorcetWinner,
     'yna_counts': renderYNACounts,
     'majority_judgment': renderMajorityJudgment,
     'multi_rule_comparison': renderMultiRuleComparison,
+    'abc_multi_rule_comparison': renderABCMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
     'text_block': renderTextBlock,
@@ -73,10 +77,12 @@ export function getReportTypeName(type) {
         'borda_scores': 'Borda Scores',
         'pairwise_margins': 'Pairwise Margins',
         'voting_rule_winner': 'Voting Rule Winner',
+        'abc_winner': 'ABC Voting Rule Winner',
         'condorcet_winner': 'Condorcet Winner',
         'yna_counts': 'Yes/No/Abstain Tallies',
         'majority_judgment': 'Majority Judgment',
         'multi_rule_comparison': 'Multi-Rule Comparison',
+        'abc_multi_rule_comparison': 'ABC Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
         'raw_data_export': 'Export Raw Vote Data',
         'text_block': 'Text Block',
@@ -91,10 +97,12 @@ export function getReportTypeIcon(type) {
         'borda_scores': 'chart-bar',
         'pairwise_margins': 'diagram-project',
         'voting_rule_winner': 'trophy',
+        'abc_winner': 'trophy',
         'condorcet_winner': 'crown',
         'yna_counts': 'check-circle',
         'majority_judgment': 'scale-balanced',
         'multi_rule_comparison': 'table',
+        'abc_multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',
         'text_block': 'file-lines',

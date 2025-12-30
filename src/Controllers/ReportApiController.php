@@ -88,7 +88,12 @@ class ReportApiController extends ApiController
 
         foreach ($poll->questions as $question) {
             $typesByQuestion[$question->id] = ReportRegistry::getTypesForQuestionType($question->type);
-            $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
+            
+            if ($question->type === 'approval') {
+                $votingRulesByQuestion[$question->id] = \App\Services\ABCRulesRegistry::getRulesAsOptions();
+            } else {
+                $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
+            }
         }
 
         return $this->success([

@@ -7,6 +7,31 @@
 import { api, escapeHtml, showUndoToast } from './app.js';
 import { renderReport, getReportTypeName, getReportTypeIcon } from './report-types/index.js';
 
+// SVG Icons (Feather Icons style)
+const icons = {
+    menu: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
+
+    settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+
+    eye: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+
+    lock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+
+    trash: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+};
+
+function getIcon(name, size = 16) {
+    const icon = icons[name];
+    if (!icon) return '';
+    if (size !== 16) {
+        return icon.replace(/width="16" height="16"/, `width="${size}" height="${size}"`);
+    }
+    return icon;
+}
+
+// Export for use in results-admin.js
+export { getIcon };
+
 /**
  * Format an ISO date string for display
  */
@@ -56,6 +81,8 @@ export async function loadAndRenderResults(publicId, options = {}) {
 
         // Render results
         renderResults(container, poll, reports, { isAdmin, adminToken, publicId, ...options });
+
+        return { poll, reports };
 
     } catch (err) {
         console.error('Failed to load results:', err);
@@ -178,18 +205,18 @@ function renderReportCard(container, report, options) {
     if (!isPublicTextBlock) {
         headerHtml = `
             <div class="report-header">
-                ${isAdmin ? '<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">⠿</span>' : ''}
+                ${isAdmin ? `<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">${getIcon('menu')}</span>` : ''}
                 <span class="report-name">${escapeHtml(typeName)}</span>
         `;
 
         if (isAdmin) {
             headerHtml += `
                 <div class="report-actions">
-                    ${hasConfig ? '<button class="btn-icon edit-config" data-tooltip="Settings">⚙️</button>' : ''}
+                    ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="Settings">${getIcon('settings')}</button>` : ''}
                     <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
-                        ${report.is_public ? '👁' : '🔒'}
+                        ${getIcon(report.is_public ? 'eye' : 'lock')}
                     </button>
-                    <button class="btn-icon delete-report" data-tooltip="Delete analysis">🗑</button>
+                    <button class="btn-icon delete-report" data-tooltip="Delete analysis">${getIcon('trash')}</button>
                 </div>
             `;
         }
@@ -224,8 +251,8 @@ function renderReportCard(container, report, options) {
                     { is_public: !report.is_public }
                 );
                 report.is_public = result.report.is_public;
-                toggleBtn.textContent = report.is_public ? '👁' : '🔒';
-                toggleBtn.title = report.is_public ? 'Make private' : 'Make public';
+                toggleBtn.innerHTML = getIcon(report.is_public ? 'eye' : 'lock');
+                toggleBtn.setAttribute('data-tooltip', report.is_public ? 'Make private' : 'Make public');
             } catch (err) {
                 console.error('Failed to toggle visibility:', err);
             }

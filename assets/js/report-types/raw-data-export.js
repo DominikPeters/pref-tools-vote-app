@@ -14,6 +14,19 @@ const eyeOffIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" 
 const checkIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 const spinnerIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
 
+/**
+ * Get human-readable description for PrefLib format codes
+ */
+function getFormatDescription(dataType) {
+    const descriptions = {
+        'SOC': 'Strict Orders - Complete (full rankings, no ties)',
+        'SOI': 'Strict Orders - Incomplete (partial rankings, no ties)',
+        'TOI': 'Tie Orders - Incomplete (partial rankings with ties)',
+        'CAT': 'Categorical Preferences (approval/ratings)',
+    };
+    return descriptions[dataType] || dataType;
+}
+
 export function renderRawDataExport(container, data, config, context = {}) {
     if (!data.supported) {
         container.innerHTML = `<p class="report-error">${escapeHtml(data.error || 'Export not supported for this question type.')}</p>`;
@@ -29,7 +42,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
     const html = `
         <div class="report-raw-export">
             <div class="export-info">
-                <span class="export-badge">${escapeHtml(data_type)} format</span>
+                <span class="export-badge" data-tooltip="Preflib Format: ${getFormatDescription(data_type)}">${escapeHtml(data_type)} format</span>
                 <span class="export-stats">${total_responses} response${total_responses !== 1 ? 's' : ''}</span>
             </div>
 

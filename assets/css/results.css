@@ -31,8 +31,6 @@
 /* Results Header - matches admin-header-top pattern */
 .results-header {
     margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
 }
 
 .results-header-top {
@@ -116,19 +114,24 @@
 
 .report-drag-handle {
     cursor: grab;
-    color: #9ca3af;
-    font-size: 1.25rem;
-    line-height: 1;
+    opacity: 0.5;
     user-select: none;
-    transition: color 0.2s;
+    transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .report-drag-handle:hover {
-    color: #6b7280;
+    opacity: 0.8;
 }
 
 .report-drag-handle:active {
     cursor: grabbing;
+}
+
+.report-drag-handle svg {
+    display: block;
 }
 
 .report-name {
@@ -160,13 +163,19 @@
     border: none;
     padding: 0.25rem;
     cursor: pointer;
-    font-size: 1rem;
     opacity: 0.7;
     transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-icon:hover {
     opacity: 1;
+}
+
+.btn-icon svg {
+    display: block;
 }
 
 .report-content {
@@ -227,6 +236,17 @@
 .report-type-card:hover {
     border-color: #3b82f6;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.report-type-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f9fafb;
+}
+
+.report-type-card.disabled:hover {
+    border-color: #e5e7eb;
+    box-shadow: none;
 }
 
 .type-name {
@@ -434,7 +454,6 @@
 .report-note {
     font-size: 0.875rem;
     color: #6b7280;
-    margin-top: 1rem;
 }
 
 .no-data {
@@ -1196,4 +1215,103 @@ label.checkbox-item {
     .results-visibility-bar .admin-notice {
         width: 100%;
     }
+}
+
+/* ==========================================================================
+   ABC Reports (Multi-Winner)
+   ========================================================================== */
+
+.abc-winner .committee-size {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.committees-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.abc-committee {
+    width: 100%;
+    max-width: 400px;
+}
+
+.committee-idx {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.committee-members {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.committee-members li {
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border: 1px solid #dbeafe;
+}
+
+.abc-multi-rule .committee-size {
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 0;
+}
+
+.abc-multi-rule .rule-committee {
+    line-height: 1.5;
+}
+
+/* Explanation styles */
+.explanation-container {
+    /* text-align: left; */
+    padding-top: 1rem;
+}
+
+.explanation-content {
+    text-align: left;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-size: 0.9375rem;
+}
+
+.abcvoting-explanation h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+}
+
+.abcvoting-explanation h4 {
+    font-size: 1rem;
+    margin: 1.25rem 0 0.5rem 0;
+    color: #374151;
+}
+
+.abcvoting-explanation ul {
+    margin: 0.5rem 0 0 1.25rem;
+    padding: 0;
+}
+
+.abcvoting-explanation li {
+    margin-bottom: 0.375rem;
+    color: #4b5563;
 }

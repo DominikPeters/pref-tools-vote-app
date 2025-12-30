@@ -82,13 +82,61 @@ class VotingRulesRegistry
     ];
 
     /**
-     * Voting rules for rankings with ties and truncated/incomplete rankings (ProfileWithTies)
-     * Used for: ranking_with_ties and ranking_truncated question types
+     * Voting rules for truncated/incomplete linear rankings (ProfileWithTies)
+     * Used for: ranking_truncated question type
      *
      * Note: Excludes borda, plurality, and IRV since they require complete linear rankings.
-     * Only includes margin-based methods that work correctly with incomplete or tied ballots.
+     * Only includes margin-based methods that work correctly with incomplete ballots.
      */
     public const TRUNCATED_RANKING_RULES = [
+        // Default rules (shown first, pre-selected in multi-rule comparison)
+        'schulze' => [
+            'name' => 'Schulze (Beat Path)',
+            'description' => 'Finds the candidate with the strongest path of pairwise victories',
+            'default' => true,
+        ],
+        'ranked_pairs' => [
+            'name' => 'Ranked Pairs',
+            'description' => 'Tideman\'s method: locks in pairwise victories from strongest to weakest',
+            'default' => true,
+        ],
+
+        // Additional rules
+        'copeland' => [
+            'name' => 'Copeland',
+            'description' => 'Counts pairwise wins minus losses',
+            'default' => false,
+        ],
+        'minimax' => [
+            'name' => 'Minimax',
+            'description' => 'Minimizes the worst pairwise defeat',
+            'default' => false,
+        ],
+        'split_cycle' => [
+            'name' => 'Split Cycle',
+            'description' => 'Defeats only count if not part of a cycle',
+            'default' => false,
+        ],
+        'stable_voting' => [
+            'name' => 'Stable Voting',
+            'description' => 'Resistant to strategic voting through stability criterion',
+            'default' => false,
+        ],
+        'top_cycle' => [
+            'name' => 'Top Cycle (Smith Set)',
+            'description' => 'Returns the smallest set that beats all others',
+            'default' => false,
+        ],
+    ];
+
+    /**
+     * Voting rules for rankings with ties (ProfileWithTies)
+     * Used for: ranking_with_ties question type
+     *
+     * Note: Excludes borda, plurality, and IRV since they require complete linear rankings.
+     * Only includes margin-based methods that work correctly with tied ballots.
+     */
+    public const RANKING_WITH_TIES_RULES = [
         // Default rules (shown first, pre-selected in multi-rule comparison)
         'schulze' => [
             'name' => 'Schulze (Beat Path)',
@@ -200,7 +248,8 @@ class VotingRulesRegistry
     {
         return match ($questionType) {
             'ranking' => self::RANKING_RULES,
-            'ranking_with_ties', 'ranking_truncated' => self::TRUNCATED_RANKING_RULES,
+            'ranking_truncated' => self::TRUNCATED_RANKING_RULES,
+            'ranking_with_ties' => self::RANKING_WITH_TIES_RULES,
             'grade', 'star' => self::GRADE_RULES,
             default => [],
         };

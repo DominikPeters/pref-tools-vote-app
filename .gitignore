@@ -46,3 +46,4 @@ GEMINI.md
 /lib/PHPMailer
 secrets.txt
 scripts/moderation_calibration_results.json
+/.gemini-clipboard

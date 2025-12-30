@@ -51,6 +51,10 @@ test.describe('Installation Flow', () => {
     // Should be on homepage now
     await expect(page).toHaveURL('/');
     await expect(page.locator('h1')).toContainText('Create and Share Polls');
+
+    // Check dashboard - should NOT show verification banner
+    await page.goto('/dashboard');
+    await expect(page.locator('.verification-banner')).not.toBeVisible();
   });
 
   test('validates sysadmin email is required', async ({ page, freshInstall }) => {

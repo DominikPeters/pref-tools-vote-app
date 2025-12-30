@@ -46,6 +46,13 @@ class MultiRuleComparisonReport extends BaseReport
                     'options' => [], // Populated dynamically based on question type
                     'dynamicOptions' => 'votingRules', // Signal to frontend to fetch dynamically
                 ],
+                [
+                    'name' => 'show_summary',
+                    'type' => 'checkbox',
+                    'label' => 'Show win count summary',
+                    'required' => true,
+                    'default' => true,
+                ],
             ],
         ];
     }
