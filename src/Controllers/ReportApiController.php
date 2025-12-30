@@ -85,6 +85,8 @@ class ReportApiController extends ApiController
         $typesByQuestion = [];
         // Get voting rules for each question type
         $votingRulesByQuestion = [];
+        // Get social welfare functions for each question type
+        $swfsByQuestion = [];
 
         foreach ($poll->questions as $question) {
             $typesByQuestion[$question->id] = ReportRegistry::getTypesForQuestionType($question->type);
@@ -94,11 +96,14 @@ class ReportApiController extends ApiController
             } else {
                 $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
             }
+
+            $swfsByQuestion[$question->id] = \App\Services\SocialWelfareFunctionRegistry::getSWFsAsOptions($question->type);
         }
 
         return $this->success([
             'types_by_question' => $typesByQuestion,
             'voting_rules_by_question' => $votingRulesByQuestion,
+            'social_welfare_functions_by_question' => $swfsByQuestion,
             'all_types' => ReportRegistry::all(),
         ]);
     }

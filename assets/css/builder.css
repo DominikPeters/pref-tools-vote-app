@@ -227,9 +227,10 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    padding: var(--spacing-lg);
     padding-top: var(--spacing-xl);
+    padding-left: var(--spacing-lg);
     padding-right: 150px; /* Make room for toolbar */
+    padding-bottom: var(--spacing-md);
 }
 
 .question-number {
@@ -278,6 +279,19 @@
 .question-description-input:focus {
     outline: none;
     border-bottom-color: var(--color-border);
+}
+
+.btn-add-description {
+    background: none;
+    border: none;
+    color: var(--color-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: block;
+}
+
+.btn-add-description:hover {
+    text-decoration: underline;
 }
 
 /* Editor options list */

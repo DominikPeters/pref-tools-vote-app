@@ -10,10 +10,12 @@ import { renderApprovalWinner } from './approval-winner.js';
 import { renderBordaScores } from './borda-scores.js';
 import { renderPairwiseMargins } from './pairwise-margins.js';
 import { renderVotingRuleWinner } from './voting-rule-winner.js';
+import { renderRankAggregation } from './rank-aggregation.js';
 import { renderCondorcetWinner } from './condorcet-winner.js';
 import { renderYNACounts } from './yna-counts.js';
 import { renderMajorityJudgment } from './majority-judgment.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
+import { renderMultiSWFComparison } from './multi-swf-comparison.js';
 import { renderABCWinner } from './abc-winner.js';
 import { renderABCMultiRuleComparison } from './abc-multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
@@ -26,11 +28,13 @@ const renderers = {
     'borda_scores': renderBordaScores,
     'pairwise_margins': renderPairwiseMargins,
     'voting_rule_winner': renderVotingRuleWinner,
+    'rank_aggregation': renderRankAggregation,
     'abc_winner': renderABCWinner,
     'condorcet_winner': renderCondorcetWinner,
     'yna_counts': renderYNACounts,
     'majority_judgment': renderMajorityJudgment,
     'multi_rule_comparison': renderMultiRuleComparison,
+    'multi_swf_comparison': renderMultiSWFComparison,
     'abc_multi_rule_comparison': renderABCMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
@@ -77,11 +81,13 @@ export function getReportTypeName(type) {
         'borda_scores': 'Borda Scores',
         'pairwise_margins': 'Pairwise Margins',
         'voting_rule_winner': 'Voting Rule Winner',
+        'rank_aggregation': 'Rank Aggregation',
         'abc_winner': 'ABC Voting Rule Winner',
         'condorcet_winner': 'Condorcet Winner',
         'yna_counts': 'Yes/No/Abstain Tallies',
         'majority_judgment': 'Majority Judgment',
         'multi_rule_comparison': 'Multi-Rule Comparison',
+        'multi_swf_comparison': 'Rank Aggregation Rule Comparison',
         'abc_multi_rule_comparison': 'ABC Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
         'raw_data_export': 'Export Raw Vote Data',
@@ -97,11 +103,13 @@ export function getReportTypeIcon(type) {
         'borda_scores': 'chart-bar',
         'pairwise_margins': 'diagram-project',
         'voting_rule_winner': 'trophy',
+        'rank_aggregation': 'list-ol',
         'abc_winner': 'trophy',
         'condorcet_winner': 'crown',
         'yna_counts': 'check-circle',
         'majority_judgment': 'scale-balanced',
         'multi_rule_comparison': 'table',
+        'multi_swf_comparison': 'columns',
         'abc_multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',

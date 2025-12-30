@@ -415,7 +415,8 @@ function renderQuestionEditor(question, index, questionNumber) {
             </div>
 
             <div class="editor-description">
-                <textarea class="question-description-input" placeholder="Description (optional)">${escapeAttr(question.description || '')}</textarea>
+                <button type="button" class="btn-add-description" style="${question.description ? 'display: none' : ''}">+ Add description</button>
+                <textarea class="question-description-input" style="${!question.description ? 'display: none' : ''}" placeholder="Description (optional)">${escapeAttr(question.description || '')}</textarea>
             </div>
 
             ${showOptions ? `
@@ -492,9 +493,30 @@ function setupEditorEvents(wrapper, question) {
 
     // Description input
     const descInput = wrapper.querySelector('.question-description-input');
+    const addDescBtn = wrapper.querySelector('.btn-add-description');
+
+    if (addDescBtn) {
+        addDescBtn.addEventListener('click', () => {
+            addDescBtn.style.display = 'none';
+            descInput.style.display = 'block';
+            descInput.focus();
+        });
+    }
+
     descInput.addEventListener('input', (e) => {
         question.description = e.target.value;
         markDirty();
+    });
+
+    descInput.addEventListener('blur', (e) => {
+        if (!e.target.value.trim()) {
+            question.description = ''; // Normalize to empty string
+            if (addDescBtn) {
+                addDescBtn.style.display = 'block';
+                descInput.style.display = 'none';
+            }
+            markDirty();
+        }
     });
 
     // Type selector

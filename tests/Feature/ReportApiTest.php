@@ -242,6 +242,36 @@ class ReportApiTest extends TestCase
         $this->assertEquals($rankingQuestion->options[0]->id, $result['winners'][0]['option_id']);
     }
 
+    public function test_rank_aggregation_report(): void
+    {
+        $rankingQuestion = $this->createQuestion($this->poll->id, [
+            'type' => 'ranking',
+            'options' => [['label' => 'A'], ['label' => 'B'], ['label' => 'C']]
+        ]);
+
+        $report = Report::create([
+            'question_id' => $rankingQuestion->id,
+            'report_type' => 'rank_aggregation',
+            'config' => ['swf' => 'kemeny_young']
+        ]);
+
+        // Submit responses
+        Response::create($this->poll->id, ['answers' => [$rankingQuestion->id => [
+            $rankingQuestion->options[0]->id,
+            $rankingQuestion->options[1]->id,
+            $rankingQuestion->options[2]->id
+        ]]]);
+
+        $response = $this->callApi('POST', "/api/polls/{$this->poll->publicId}/admin/{$this->poll->adminToken}/reports/{$report->id}/compute");
+
+        $this->assertSuccess($response);
+        $result = $response['report']['cached_result'];
+
+        $this->assertEquals('kemeny_young', $result['swf']);
+        $this->assertNotEmpty($result['rankings']);
+        $this->assertEquals($rankingQuestion->options[0]->id, $result['rankings'][0][0][0]['option_id']);
+    }
+
     // ========== Raw Data Export Tests ==========
 
     public function test_admin_can_export_raw_data(): void

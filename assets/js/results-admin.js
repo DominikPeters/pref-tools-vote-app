@@ -250,6 +250,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
+            options = availableTypes.social_welfare_functions_by_question[questionId] || [];
         }
 
         html += `<select id="config-${field.name}" name="${field.name}" class="form-control">`;
@@ -271,6 +273,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
+            options = availableTypes.social_welfare_functions_by_question[questionId] || [];
         }
 
         // currentValue is an array of selected values
