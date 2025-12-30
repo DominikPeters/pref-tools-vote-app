@@ -144,23 +144,25 @@ class EmailInvitation
 
     /**
      * Mark as used
-     * For secret ballot, responseId should be null to avoid linking
+     * For secret ballot: no timestamp (to prevent correlation), no responseId linking
      */
     public function markUsed(?int $responseId = null, bool $isSecretBallot = false): self
     {
         $db = Database::getInstance();
-        $db->update(
-            'email_invitations',
-            [
-                'used_at' => date('Y-m-d H:i:s'),
-                'response_id' => $isSecretBallot ? null : $responseId,
-                'is_secret_ballot' => $isSecretBallot ? 1 : 0,
-            ],
-            'id = :id',
-            ['id' => $this->id]
-        );
 
-        $this->usedAt = new \DateTime();
+        // For secret ballot, don't store timestamp to prevent timing correlation attacks
+        $updateData = [
+            'response_id' => $isSecretBallot ? null : $responseId,
+            'is_secret_ballot' => $isSecretBallot ? 1 : 0,
+        ];
+
+        if (!$isSecretBallot) {
+            $updateData['used_at'] = date('Y-m-d H:i:s');
+            $this->usedAt = new \DateTime();
+        }
+
+        $db->update('email_invitations', $updateData, 'id = :id', ['id' => $this->id]);
+
         $this->responseId = $isSecretBallot ? null : $responseId;
         $this->isSecretBallot = $isSecretBallot;
 
@@ -174,6 +176,14 @@ class EmailInvitation
     {
         $db = Database::getInstance();
         $db->delete('email_invitations', 'id = :id', ['id' => $this->id]);
+    }
+
+    /**
+     * Check if this invitation has been used
+     */
+    public function isUsed(): bool
+    {
+        return $this->usedAt !== null || $this->isSecretBallot;
     }
 
     /**
@@ -194,7 +204,7 @@ class EmailInvitation
             'created_at' => $this->createdAt->format('c'),
             'is_sent' => $this->sentAt !== null,
             'is_clicked' => $this->clickedAt !== null,
-            'is_used' => $this->usedAt !== null,
+            'is_used' => $this->isUsed(),
         ];
     }
 }

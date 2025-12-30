@@ -265,11 +265,13 @@ class VotingModeTest extends TestCase
             'answers' => [$question->id => $question->options[0]->id],
         ], ['token' => $token->token]);
 
-        // Token should be marked used but NOT linked to response
+        // Token should be marked as secret ballot (used) but NOT linked to response
+        // and without a timestamp (for privacy - prevents timing correlation)
         $token = AccessToken::find($token->id);
-        $this->assertNotNull($token->usedAt);
+        $this->assertNull($token->usedAt); // No timestamp for secret ballot privacy
         $this->assertNull($token->responseId); // Not linked for secret ballot
         $this->assertTrue($token->isSecretBallot);
+        $this->assertTrue($token->isUsed()); // Still reports as used via isSecretBallot flag
     }
 
     public function test_secret_ballot_ignores_voter_name(): void

@@ -17,6 +17,7 @@ abstract class TestCase extends BaseTestCase
         // Reset singletons for test isolation
         Database::reset();
         Auth::reset();
+        \App\Services\LogService::reset();
 
         // Initialize fresh database for each test
         $this->initializeDatabase();
@@ -39,6 +40,7 @@ abstract class TestCase extends BaseTestCase
         // Reset singletons
         Database::reset();
         Auth::reset();
+        \App\Services\LogService::reset();
     }
 
     /**
@@ -124,8 +126,8 @@ abstract class TestCase extends BaseTestCase
         $_SERVER['REQUEST_URI'] = $uri;
         $_GET = $params;
 
-        // For POST/PUT, set up the input stream
-        if (in_array($method, ['POST', 'PUT', 'PATCH']) && !empty($data)) {
+        // For POST/PUT/DELETE, set up the input stream
+        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE']) && !empty($data)) {
             $this->setJsonInput($data);
         }
 
@@ -194,6 +196,8 @@ abstract class TestCase extends BaseTestCase
         $router->get('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'getResponse']);
         $router->put('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'updateResponse']);
         $router->delete('/api/polls/:publicId/responses/:responseId', [\App\Controllers\PollApiController::class, 'deleteResponse']);
+        $router->post('/api/polls/:publicId/responses/:responseId/withdraw', [\App\Controllers\PollApiController::class, 'withdrawResponse']);
+        $router->delete('/api/polls/:publicId/admin/:adminToken/responses', [\App\Controllers\PollApiController::class, 'deleteAllResponses']);
 
         // Export
         $router->get('/api/polls/:publicId/admin/:adminToken/export', [\App\Controllers\PollApiController::class, 'export']);
@@ -225,6 +229,10 @@ abstract class TestCase extends BaseTestCase
         $router->get('/api/user/polls', [\App\Controllers\AuthApiController::class, 'userPolls']);
         $router->get('/api/user/responses', [\App\Controllers\AuthApiController::class, 'userResponses']);
         $router->post('/api/user/claim-poll', [\App\Controllers\AuthApiController::class, 'claimPoll']);
+        $router->get('/api/user/data', [\App\Controllers\AuthApiController::class, 'userData']);
+        $router->get('/api/user/export', [\App\Controllers\AuthApiController::class, 'exportData']);
+        $router->get('/api/user/deletion-preview', [\App\Controllers\AuthApiController::class, 'deletionPreview']);
+        $router->delete('/api/user', [\App\Controllers\AuthApiController::class, 'deleteAccount']);
 
         // Unsubscribe routes
         $router->post('/api/unsubscribe', [\App\Controllers\UnsubscribeController::class, 'handleApi']);

@@ -70,6 +70,10 @@ class SiteSetting
 
         // Session
         'session.lifetime' => '120',
+
+        // Privacy/GDPR
+        'privacy.retention_days' => '90',
+        'privacy.last_cleanup' => '',
     ];
 
     /**

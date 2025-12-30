@@ -100,10 +100,53 @@ ob_start();
         <section class="card account-section">
             <h2>Account</h2>
             <p>Logged in as: <strong><?= e($user->name) ?></strong> &lt;<?= e($user->email) ?>&gt;</p>
-            <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm">
-                <button type="submit" class="btn btn-secondary">Log Out</button>
-            </form>
+            <div class="account-actions">
+                <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary">Log Out</button>
+                </form>
+            </div>
         </section>
+
+        <section class="card data-section">
+            <h2>Your Data</h2>
+            <p>Under GDPR, you have the right to access and export all data we have about you.</p>
+            <div class="data-actions">
+                <button type="button" class="btn btn-secondary" id="viewDataBtn">View My Data</button>
+                <button type="button" class="btn btn-secondary" id="exportDataBtn">Export My Data</button>
+                <button type="button" class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+            </div>
+        </section>
+
+        <!-- View Data Modal -->
+        <div class="modal" id="viewDataModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h2>Your Personal Data</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body" id="dataModalBody">
+                    <p>Loading...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Account Modal -->
+        <div class="modal" id="deleteAccountModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Delete Your Account</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body" id="deleteAccountBody">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

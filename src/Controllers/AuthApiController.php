@@ -368,6 +368,283 @@ class AuthApiController extends ApiController
     }
 
     /**
+     * DELETE /api/user - Delete own account (self-service)
+     */
+    public function deleteAccount(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $data = $this->getBody();
+
+        // Require password confirmation
+        $validation = $this->validate($data ?? [], [
+            'password' => 'required',
+            'poll_action' => 'required|in:delete_all,keep_all',
+        ]);
+
+        if ($validation) {
+            return $validation;
+        }
+
+        $user = $this->user();
+
+        // Verify password
+        if (!Auth::verifyPassword($data['password'], $user->passwordHash)) {
+            return $this->error('Incorrect password', 'INVALID_PASSWORD', 403);
+        }
+
+        // Prevent sysadmin self-deletion (they should be demoted first)
+        if ($user->isSysadmin()) {
+            return $this->error(
+                'Sysadmins cannot delete their own account. Please have another sysadmin remove your role first.',
+                'SYSADMIN_CANNOT_SELF_DELETE',
+                403
+            );
+        }
+
+        // Handle polls based on poll_action
+        $polls = Poll::findByUserId($user->id);
+        $pollCount = count($polls);
+
+        if ($data['poll_action'] === 'delete_all') {
+            // Delete all polls (cascades to questions, options, responses, answers)
+            foreach ($polls as $poll) {
+                LogService::getInstance()->log('poll.deleted', $poll->id, $user->id, null, [
+                    'title' => $poll->title,
+                    'reason' => 'account_deletion',
+                ]);
+                $poll->delete();
+            }
+        } else {
+            // Keep polls but orphan them (set user_id to NULL)
+            foreach ($polls as $poll) {
+                $poll->update(['user_id' => null]);
+                LogService::getInstance()->log('poll.orphaned', $poll->id, $user->id, null, [
+                    'title' => $poll->title,
+                    'reason' => 'account_deletion',
+                ]);
+            }
+        }
+
+        // Log the deletion before actually deleting
+        LogService::getInstance()->log('user.self_deleted', null, $user->id, null, [
+            'email' => $user->email,
+            'poll_action' => $data['poll_action'],
+            'poll_count' => $pollCount,
+        ]);
+
+        // Delete the user
+        $user->delete();
+
+        // Clear the session
+        $auth = Auth::getInstance();
+        $auth->logout();
+
+        return $this->success([
+            'message' => 'Account deleted successfully',
+            'polls_affected' => $pollCount,
+        ]);
+    }
+
+    /**
+     * GET /api/user/data - Full transparency data access (GDPR Art. 15)
+     * Returns all personal data the system has about the user
+     */
+    public function userData(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $user = $this->user();
+
+        // Get all responses with full metadata
+        $responses = Response::findByUserId($user->id);
+        $responseData = [];
+        foreach ($responses as $response) {
+            $poll = Poll::find($response->pollId);
+            $response->loadAnswers();
+
+            // Build answer details
+            $answerDetails = [];
+            if ($poll) {
+                $questions = \App\Models\Question::findByPollId($poll->id);
+                foreach ($response->answers as $answer) {
+                    $question = null;
+                    foreach ($questions as $q) {
+                        if ($q->id === $answer->questionId) {
+                            $question = $q;
+                            break;
+                        }
+                    }
+
+                    $answerDetails[] = [
+                        'question_id' => $answer->questionId,
+                        'question_text' => $question ? $question->text : null,
+                        'answer_value' => $answer->getValue(),
+                    ];
+                }
+            }
+
+            $responseData[] = [
+                'id' => $response->id,
+                'poll' => $poll ? [
+                    'public_id' => $poll->publicId,
+                    'title' => $poll->title,
+                ] : null,
+                'status' => $response->status,
+                'voter_name' => $response->voterName,
+                'ip_address' => $response->ipAddress,
+                'user_agent' => $response->userAgent,
+                'created_at' => $response->createdAt?->format('c'),
+                'updated_at' => $response->updatedAt?->format('c'),
+                'withdrawn_at' => $response->withdrawnAt?->format('c'),
+                'answers' => $answerDetails,
+            ];
+        }
+
+        // Get action logs for this user
+        $logs = LogService::getInstance()->getLogsForUser($user->id, 500);
+        $logData = array_map(fn($log) => [
+            'action' => $log['action'],
+            'created_at' => $log['created_at'],
+            'ip_address' => $log['ip_address'],
+            'data' => $log['data'] ? json_decode($log['data'], true) : null,
+        ], $logs);
+
+        return $this->success([
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'role' => $user->role,
+                'email_verified_at' => $user->emailVerifiedAt?->format('c'),
+                'created_at' => $user->createdAt?->format('c'),
+                'updated_at' => $user->updatedAt?->format('c'),
+            ],
+            'responses' => $responseData,
+            'activity_logs' => $logData,
+            'data_collected' => [
+                'description' => 'This data shows all information we have stored about you.',
+                'ip_addresses' => 'Stored temporarily for security. Anonymized after 90 days.',
+                'responses' => 'Your poll responses. You can withdraw individual responses.',
+            ],
+        ]);
+    }
+
+    /**
+     * GET /api/user/export - Data portability export (GDPR Art. 20)
+     * Returns user data in a portable machine-readable format
+     */
+    public function exportData(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $user = $this->user();
+
+        // Get all responses with full metadata
+        $responses = Response::findByUserId($user->id);
+        $responseData = [];
+        foreach ($responses as $response) {
+            $poll = Poll::find($response->pollId);
+            $response->loadAnswers();
+
+            // Build answer details
+            $answerDetails = [];
+            if ($poll) {
+                $questions = \App\Models\Question::findByPollId($poll->id);
+                foreach ($response->answers as $answer) {
+                    $question = null;
+                    foreach ($questions as $q) {
+                        if ($q->id === $answer->questionId) {
+                            $question = $q;
+                            break;
+                        }
+                    }
+
+                    $answerDetails[] = [
+                        'question_id' => $answer->questionId,
+                        'question_text' => $question ? $question->text : null,
+                        'answer_value' => $answer->getValue(),
+                    ];
+                }
+            }
+
+            $responseData[] = [
+                'poll_title' => $poll ? $poll->title : null,
+                'poll_public_id' => $poll ? $poll->publicId : null,
+                'status' => $response->status,
+                'voter_name' => $response->voterName,
+                'submitted_at' => $response->createdAt?->format('c'),
+                'updated_at' => $response->updatedAt?->format('c'),
+                'withdrawn_at' => $response->withdrawnAt?->format('c'),
+                'answers' => $answerDetails,
+            ];
+        }
+
+        // Get polls created by this user
+        $polls = Poll::findByUserId($user->id);
+        $pollData = array_map(fn($poll) => [
+            'public_id' => $poll->publicId,
+            'title' => $poll->title,
+            'description' => $poll->description,
+            'status' => $poll->status,
+            'created_at' => $poll->createdAt?->format('c'),
+        ], $polls);
+
+        return $this->success([
+            'export_format' => 'json',
+            'export_date' => date('c'),
+            'profile' => [
+                'email' => $user->email,
+                'name' => $user->name,
+                'created_at' => $user->createdAt?->format('c'),
+            ],
+            'polls_created' => $pollData,
+            'poll_responses' => $responseData,
+        ]);
+    }
+
+    /**
+     * GET /api/user/deletion-preview - Preview what will be affected by account deletion
+     */
+    public function deletionPreview(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $user = $this->user();
+        $polls = Poll::findByUserId($user->id);
+
+        $pollSummaries = [];
+        foreach ($polls as $poll) {
+            $pollSummaries[] = [
+                'public_id' => $poll->publicId,
+                'title' => $poll->title,
+                'status' => $poll->status,
+                'response_count' => $poll->getResponseCount(),
+                'admin_url' => url("{$poll->publicId}/admin/{$poll->adminToken}"),
+            ];
+        }
+
+        return $this->success([
+            'can_delete' => !$user->isSysadmin(),
+            'is_sysadmin' => $user->isSysadmin(),
+            'poll_count' => count($polls),
+            'polls' => $pollSummaries,
+        ]);
+    }
+
+    /**
      * Helper: Send verification email to user
      */
     private function sendVerificationEmail(User $user): void

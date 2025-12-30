@@ -23,6 +23,14 @@ class LogService
     }
 
     /**
+     * Reset the singleton instance (used in tests)
+     */
+    public static function reset(): void
+    {
+        self::$instance = null;
+    }
+
+    /**
      * Log an action
      */
     public function log(

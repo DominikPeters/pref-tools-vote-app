@@ -473,6 +473,8 @@ class PollApiController extends ApiController
                 }
             }
 
+            $isSecretBallot = $poll->votingMode === 'secret_ballot';
+
             if ($existingResponse) {
                 $response = $existingResponse->update($responseData);
 
@@ -480,7 +482,8 @@ class PollApiController extends ApiController
                     'by' => 'voter',
                 ]);
             } else {
-                $response = Response::create($poll->id, $responseData);
+                // For secret ballot, don't store IP/user_agent for privacy
+                $response = Response::create($poll->id, $responseData, $isSecretBallot);
 
                 // Lock the voting mode on first response
                 $poll->lockMode();
@@ -492,7 +495,7 @@ class PollApiController extends ApiController
                 }
 
                 // Set voter token cookie (not for secret ballot - they can't edit anyway)
-                if ($poll->votingMode !== 'secret_ballot') {
+                if (!$isSecretBallot) {
                     setcookie(
                         'voter_token_' . $poll->publicId,
                         $response->voterToken,
@@ -506,10 +509,13 @@ class PollApiController extends ApiController
                     );
                 }
 
-                LogService::getInstance()->log('response.submitted', $poll->id, $this->user()?->id, $response->id, [
-                    'voter_name' => $response->voterName,
-                    'voting_mode' => $poll->votingMode,
-                ]);
+                // For secret ballot, don't log response details to prevent any correlation
+                if (!$isSecretBallot) {
+                    LogService::getInstance()->log('response.submitted', $poll->id, $this->user()?->id, $response->id, [
+                        'voter_name' => $response->voterName,
+                        'voting_mode' => $poll->votingMode,
+                    ]);
+                }
             }
 
             // Invalidate report caches
@@ -688,6 +694,111 @@ class PollApiController extends ApiController
         Report::invalidateCacheForPoll($poll->id);
 
         return $this->success();
+    }
+
+    /**
+     * POST /api/polls/:publicId/responses/:responseId/withdraw - Withdraw response (soft delete)
+     * Unlike delete, this is always available for non-secret-ballot responses
+     * Marks the response as withdrawn, clears answers and personal data, but prevents re-voting
+     */
+    public function withdrawResponse(array $params): array
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
+        }
+
+        // Secret ballot responses cannot be withdrawn (voter has no way to identify their response)
+        if ($poll->votingMode === 'secret_ballot') {
+            return $this->error('Secret ballot responses cannot be withdrawn', 'WITHDRAW_NOT_ALLOWED', 403);
+        }
+
+        $response = Response::find((int) $params['responseId']);
+
+        if (!$response || $response->pollId !== $poll->id) {
+            return $this->error('Response not found', 'NOT_FOUND', 404);
+        }
+
+        // Already withdrawn
+        if ($response->isWithdrawn()) {
+            return $this->error('Response has already been withdrawn', 'ALREADY_WITHDRAWN', 400);
+        }
+
+        // Check ownership - voter must prove they own this response
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
+        $canWithdraw = false;
+
+        // Method 1: Voter token from cookie
+        if ($voterToken && $response->verifyVoterToken($voterToken)) {
+            $canWithdraw = true;
+        }
+
+        // Method 2: Logged in user owns this response
+        if ($this->user() && $response->userId === $this->user()->id) {
+            $canWithdraw = true;
+        }
+
+        if (!$canWithdraw) {
+            return $this->error('Cannot withdraw this response', 'WITHDRAW_NOT_ALLOWED', 403);
+        }
+
+        $voterName = $response->voterName;
+
+        LogService::getInstance()->log('response.withdrawn', $poll->id, $this->user()?->id, $response->id, [
+            'voter_name' => $voterName,
+        ]);
+
+        $response->withdraw();
+
+        // Invalidate report caches
+        Report::invalidateCacheForPoll($poll->id);
+
+        return $this->success(['response' => $response->toArray()]);
+    }
+
+    /**
+     * DELETE /api/polls/:publicId/admin/:adminToken/responses - Delete all responses
+     */
+    public function deleteAllResponses(array $params): array
+    {
+        $poll = Poll::findByPublicId($params['publicId']);
+
+        if (!$poll) {
+            return $this->error('Poll not found', 'NOT_FOUND', 404);
+        }
+
+        if (!$poll->verifyAdminToken($params['adminToken'])) {
+            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+        }
+
+        // Get confirmation from request body
+        $data = $this->getBody();
+        if (empty($data['confirm']) || $data['confirm'] !== true) {
+            return $this->error('Confirmation required', 'CONFIRMATION_REQUIRED', 400);
+        }
+
+        // Get all responses (including withdrawn ones for complete cleanup)
+        $responses = Response::findByPollId($poll->id, true);
+        $count = count($responses);
+
+        // Delete all responses
+        foreach ($responses as $response) {
+            $response->delete();
+        }
+
+        // Invalidate report caches
+        Report::invalidateCacheForPoll($poll->id);
+
+        // Log the action
+        LogService::getInstance()->log('poll.responses_deleted_all', $poll->id, $this->user()?->id, null, [
+            'count' => $count,
+        ]);
+
+        return $this->success([
+            'message' => 'All responses deleted',
+            'count' => $count,
+        ]);
     }
 
     /**

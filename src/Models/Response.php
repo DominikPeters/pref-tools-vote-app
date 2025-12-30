@@ -7,6 +7,9 @@ use App\Services\TokenService;
 
 class Response
 {
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_WITHDRAWN = 'withdrawn';
+
     public ?int $id = null;
     public int $pollId;
 
@@ -17,6 +20,9 @@ class Response
 
     public ?string $ipAddress = null;
     public ?string $userAgent = null;
+
+    public string $status = self::STATUS_ACTIVE;
+    public ?\DateTime $withdrawnAt = null;
 
     public ?\DateTime $createdAt = null;
     public ?\DateTime $updatedAt = null;
@@ -38,6 +44,10 @@ class Response
         $response->userId = $row['user_id'] ? (int) $row['user_id'] : null;
         $response->ipAddress = $row['ip_address'];
         $response->userAgent = $row['user_agent'];
+        $response->status = $row['status'] ?? self::STATUS_ACTIVE;
+        $response->withdrawnAt = isset($row['withdrawn_at']) && $row['withdrawn_at']
+            ? new \DateTime($row['withdrawn_at'])
+            : null;
         $response->createdAt = new \DateTime($row['created_at']);
         $response->updatedAt = new \DateTime($row['updated_at']);
         return $response;
@@ -55,15 +65,45 @@ class Response
 
     /**
      * Find responses by poll ID
+     * @param bool $includeWithdrawn Whether to include withdrawn responses (default: false)
      */
-    public static function findByPollId(int $pollId): array
+    public static function findByPollId(int $pollId, bool $includeWithdrawn = false): array
     {
         $db = Database::getInstance();
-        $rows = $db->fetchAll(
-            "SELECT * FROM responses WHERE poll_id = :poll_id ORDER BY created_at ASC",
-            ['poll_id' => $pollId]
-        );
+        $sql = "SELECT * FROM responses WHERE poll_id = :poll_id";
+        if (!$includeWithdrawn) {
+            $sql .= " AND status = '" . self::STATUS_ACTIVE . "'";
+        }
+        $sql .= " ORDER BY created_at ASC";
+        $rows = $db->fetchAll($sql, ['poll_id' => $pollId]);
         return array_map(fn($row) => self::fromRow($row), $rows);
+    }
+
+    /**
+     * Count responses by poll ID (active only by default)
+     */
+    public static function countByPollId(int $pollId, bool $includeWithdrawn = false): int
+    {
+        $db = Database::getInstance();
+        $sql = "SELECT COUNT(*) as count FROM responses WHERE poll_id = :poll_id";
+        if (!$includeWithdrawn) {
+            $sql .= " AND status = '" . self::STATUS_ACTIVE . "'";
+        }
+        $row = $db->fetch($sql, ['poll_id' => $pollId]);
+        return (int) $row['count'];
+    }
+
+    /**
+     * Count withdrawn responses for a poll
+     */
+    public static function countWithdrawnByPollId(int $pollId): int
+    {
+        $db = Database::getInstance();
+        $row = $db->fetch(
+            "SELECT COUNT(*) as count FROM responses WHERE poll_id = :poll_id AND status = :status",
+            ['poll_id' => $pollId, 'status' => self::STATUS_WITHDRAWN]
+        );
+        return (int) $row['count'];
     }
 
     /**
@@ -107,13 +147,20 @@ class Response
 
     /**
      * Create a new response
+     * @param bool $isSecretBallot If true, no IP/user_agent is stored for privacy
      */
-    public static function create(int $pollId, array $data): self
+    public static function create(int $pollId, array $data, bool $isSecretBallot = false): self
     {
         $db = Database::getInstance();
 
         $now = date('Y-m-d H:i:s');
         $voterToken = TokenService::generateVoterToken();
+
+        // For secret ballot, don't store IP address or user agent for privacy
+        $ipAddress = $isSecretBallot ? null : ($_SERVER['REMOTE_ADDR'] ?? null);
+        $userAgent = $isSecretBallot ? null : (isset($_SERVER['HTTP_USER_AGENT'])
+            ? substr($_SERVER['HTTP_USER_AGENT'], 0, 500)
+            : null);
 
         $id = $db->insert('responses', [
             'poll_id' => $pollId,
@@ -121,10 +168,8 @@ class Response
             'voter_token' => $voterToken,
             'access_token_id' => $data['access_token_id'] ?? null,
             'user_id' => $data['user_id'] ?? null,
-            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT'])
-                ? substr($_SERVER['HTTP_USER_AGENT'], 0, 500)
-                : null,
+            'ip_address' => $ipAddress,
+            'user_agent' => $userAgent,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -189,6 +234,57 @@ class Response
     }
 
     /**
+     * Withdraw the response (soft delete)
+     * - Marks status as withdrawn
+     * - Deletes all answers (the actual vote content)
+     * - Clears voter_name, ip_address, user_agent for privacy
+     * - Keeps voter_token, access_token_id, user_id to prevent re-voting
+     */
+    public function withdraw(): self
+    {
+        $db = Database::getInstance();
+
+        // Delete all answers
+        $db->delete('answers', 'response_id = :response_id', ['response_id' => $this->id]);
+
+        // Update response to withdrawn status and clear personal data
+        $now = date('Y-m-d H:i:s');
+        $db->update('responses', [
+            'status' => self::STATUS_WITHDRAWN,
+            'withdrawn_at' => $now,
+            'voter_name' => null,
+            'ip_address' => null,
+            'user_agent' => null,
+            'updated_at' => $now,
+        ], 'id = :id', ['id' => $this->id]);
+
+        $this->status = self::STATUS_WITHDRAWN;
+        $this->withdrawnAt = new \DateTime($now);
+        $this->voterName = null;
+        $this->ipAddress = null;
+        $this->userAgent = null;
+        $this->answers = [];
+
+        return $this;
+    }
+
+    /**
+     * Check if this response has been withdrawn
+     */
+    public function isWithdrawn(): bool
+    {
+        return $this->status === self::STATUS_WITHDRAWN;
+    }
+
+    /**
+     * Check if this response is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
      * Load answers for this response
      */
     public function loadAnswers(): self
@@ -212,8 +308,10 @@ class Response
     {
         $data = [
             'id' => $this->id,
+            'status' => $this->status,
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
+            'withdrawn_at' => $this->withdrawnAt?->format('c'),
             'answers' => [],
         ];
 

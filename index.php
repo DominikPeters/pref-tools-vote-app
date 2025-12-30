@@ -29,6 +29,9 @@ if (needsInstall()) {
 // Check maintenance mode
 checkMaintenanceMode();
 
+// Maybe run data cleanup (10% probability, then 24h check)
+\App\Services\CleanupService::maybeRun();
+
 // Initialize router
 $router = new Router();
 
@@ -97,6 +100,8 @@ $router->get('/api/polls/:publicId/responses', [PollApiController::class, 'listR
 $router->get('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'getResponse']);
 $router->put('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'updateResponse']);
 $router->delete('/api/polls/:publicId/responses/:responseId', [PollApiController::class, 'deleteResponse']);
+$router->post('/api/polls/:publicId/responses/:responseId/withdraw', [PollApiController::class, 'withdrawResponse']);
+$router->delete('/api/polls/:publicId/admin/:adminToken/responses', [PollApiController::class, 'deleteAllResponses']);
 
 // Export
 $router->get('/api/polls/:publicId/admin/:adminToken/export', [PollApiController::class, 'export']);
@@ -131,6 +136,10 @@ $router->post('/api/unsubscribe', [UnsubscribeController::class, 'handleApi']);
 $router->get('/api/user/polls', [AuthApiController::class, 'userPolls']);
 $router->get('/api/user/responses', [AuthApiController::class, 'userResponses']);
 $router->post('/api/user/claim-poll', [AuthApiController::class, 'claimPoll']);
+$router->get('/api/user/data', [AuthApiController::class, 'userData']);
+$router->get('/api/user/export', [AuthApiController::class, 'exportData']);
+$router->get('/api/user/deletion-preview', [AuthApiController::class, 'deletionPreview']);
+$router->delete('/api/user', [AuthApiController::class, 'deleteAccount']);
 
 // Sysadmin API
 $router->get('/api/sysadmin/stats', [SysadminApiController::class, 'stats']);

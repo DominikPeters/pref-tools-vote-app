@@ -33,7 +33,8 @@ class AccessControlService
             // Check access tokens
             $accessToken = AccessToken::findByToken($poll->id, $token);
             if ($accessToken) {
-                if ($accessToken->usedAt) {
+                // Token is used if usedAt is set OR isSecretBallot is true (for secret ballots, no timestamp is stored)
+                if ($accessToken->usedAt || $accessToken->isSecretBallot) {
                     return [
                         'allowed' => false,
                         'identity' => null,
@@ -54,7 +55,8 @@ class AccessControlService
             // Check email invitations
             $emailInvite = EmailInvitation::findByToken($poll->id, $token);
             if ($emailInvite) {
-                if ($emailInvite->usedAt) {
+                // Invitation is used if usedAt is set OR isSecretBallot is true
+                if ($emailInvite->usedAt || $emailInvite->isSecretBallot) {
                     return [
                         'allowed' => false,
                         'identity' => null,

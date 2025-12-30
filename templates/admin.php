@@ -204,6 +204,7 @@ $votingModeDescriptions = [
                             <button type="button" class="btn btn-secondary btn-small" id="exportJson">Export JSON</button>
                             <button type="button" class="btn btn-secondary btn-small" id="exportCsv">Export CSV</button>
                         </div>
+                        <button type="button" class="btn btn-outline-danger btn-small" id="deleteAllResponses" data-tooltip="Permanently delete all responses">Delete All</button>
                     </div>
                 </div>
                 <p class="responses-hint">Showing a summary of responses. For detailed analysis and charts, visit the <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>">Results & Analysis</a> page.</p>

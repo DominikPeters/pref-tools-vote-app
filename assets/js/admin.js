@@ -82,6 +82,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportData(publicId, adminToken, 'csv');
     });
 
+    // Delete all responses
+    document.getElementById('deleteAllResponses')?.addEventListener('click', async () => {
+        const responseCount = document.getElementById('responseCount')?.textContent || '0';
+        const confirmed = await showConfirmModal({
+            title: 'Delete All Responses',
+            message: `Are you sure you want to permanently delete all ${responseCount} response(s)? This action cannot be undone.`,
+            confirmText: 'Delete All Responses',
+        });
+        if (confirmed) {
+            deleteAllResponses(publicId, adminToken);
+        }
+    });
+
     // Copy buttons
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -263,6 +276,26 @@ async function deletePoll(publicId, adminToken) {
         if (btn) setButtonLoading(btn);
         await api.delete(`/api/polls/${publicId}/admin/${adminToken}`);
         window.location.href = basePath + '/';
+    } catch (err) {
+        if (btn) clearButtonLoading(btn);
+        showToast(err.message, 'error');
+    }
+}
+
+async function deleteAllResponses(publicId, adminToken) {
+    const btn = document.getElementById('deleteAllResponses');
+    try {
+        if (btn) setButtonLoading(btn);
+        const result = await api.delete(`/api/polls/${publicId}/admin/${adminToken}/responses`, {
+            confirm: true,
+        });
+        showToast(`Deleted ${result.count} response(s)`, 'success');
+
+        // Update UI
+        document.getElementById('responseCount').textContent = '0';
+        loadResponses(publicId, adminToken);
+
+        if (btn) clearButtonLoading(btn);
     } catch (err) {
         if (btn) clearButtonLoading(btn);
         showToast(err.message, 'error');

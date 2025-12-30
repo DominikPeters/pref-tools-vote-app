@@ -96,23 +96,25 @@ class AccessToken
 
     /**
      * Mark the token as used
-     * For secret ballot, responseId should be null to avoid linking
+     * For secret ballot: no timestamp (to prevent correlation), no responseId linking
      */
     public function markUsed(?int $responseId = null, bool $isSecretBallot = false): self
     {
         $db = Database::getInstance();
-        $db->update(
-            'access_tokens',
-            [
-                'used_at' => date('Y-m-d H:i:s'),
-                'response_id' => $isSecretBallot ? null : $responseId,
-                'is_secret_ballot' => $isSecretBallot ? 1 : 0,
-            ],
-            'id = :id',
-            ['id' => $this->id]
-        );
 
-        $this->usedAt = new \DateTime();
+        // For secret ballot, don't store timestamp to prevent timing correlation attacks
+        $updateData = [
+            'response_id' => $isSecretBallot ? null : $responseId,
+            'is_secret_ballot' => $isSecretBallot ? 1 : 0,
+        ];
+
+        if (!$isSecretBallot) {
+            $updateData['used_at'] = date('Y-m-d H:i:s');
+            $this->usedAt = new \DateTime();
+        }
+
+        $db->update('access_tokens', $updateData, 'id = :id', ['id' => $this->id]);
+
         $this->responseId = $isSecretBallot ? null : $responseId;
         $this->isSecretBallot = $isSecretBallot;
 
@@ -129,6 +131,14 @@ class AccessToken
     }
 
     /**
+     * Check if this token has been used
+     */
+    public function isUsed(): bool
+    {
+        return $this->usedAt !== null || $this->isSecretBallot;
+    }
+
+    /**
      * Convert to array
      */
     public function toArray(): array
@@ -142,7 +152,7 @@ class AccessToken
             'response_id' => $this->responseId,
             'is_secret_ballot' => $this->isSecretBallot,
             'created_at' => $this->createdAt->format('c'),
-            'is_used' => $this->usedAt !== null,
+            'is_used' => $this->isUsed(),
         ];
     }
 }

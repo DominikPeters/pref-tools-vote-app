@@ -99,12 +99,17 @@ CREATE TABLE responses (
     ip_address      VARCHAR(45) NULL,
     user_agent      VARCHAR(500) NULL,
 
+    status          VARCHAR(20) NOT NULL DEFAULT 'active',
+    withdrawn_at    DATETIME NULL,
+
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
+
+CREATE INDEX idx_responses_status ON responses(status);
 
 -- Individual answers within a response
 CREATE TABLE answers (
