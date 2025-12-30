@@ -13,6 +13,7 @@ class InvitationApiTest extends TestCase
         // Create an unverified user
         $user = $this->createUser('unverified@example.com', 'password123');
         $this->assertFalse($user->isEmailVerified());
+        $this->actingAs($user);
 
         // Create a poll owned by this user
         $poll = $this->createPoll(['title' => 'Test Poll'], $user->id);
@@ -31,6 +32,7 @@ class InvitationApiTest extends TestCase
         $user = $this->createUser('verified@example.com', 'password123');
         $user->markEmailVerified();
         $this->assertTrue($user->isEmailVerified());
+        $this->actingAs($user);
 
         // Create a poll owned by this user
         $poll = $this->createPoll(['title' => 'Test Poll'], $user->id);
@@ -43,27 +45,23 @@ class InvitationApiTest extends TestCase
 
         // Either success or mail not configured - not EMAIL_NOT_VERIFIED
         $this->assertTrue(
-            $response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED',
+            ($response['ok'] ?? false) || ($response['code'] ?? '') === 'MAIL_NOT_CONFIGURED',
             'Expected success or MAIL_NOT_CONFIGURED, got: ' . ($response['code'] ?? 'unknown')
         );
     }
 
-    public function test_anonymous_poll_can_send_invitations(): void
+    public function test_anonymous_poll_cannot_send_invitations_when_logged_out(): void
     {
         // Create a poll without an owner
         $poll = $this->createPoll(['title' => 'Anonymous Poll']);
         $this->assertNull($poll->userId);
 
-        // Try to send invitations - should pass verification check (no owner to check)
+        // Try to send invitations - should fail with AUTH_REQUIRED
         $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
             'emails' => 'voter@example.com',
         ]);
 
-        // Either success or mail not configured - not EMAIL_NOT_VERIFIED
-        $this->assertTrue(
-            $response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED',
-            'Expected success or MAIL_NOT_CONFIGURED, got: ' . ($response['code'] ?? 'unknown')
-        );
+        $this->assertError($response, 'AUTH_REQUIRED');
     }
 
     public function test_unverified_user_cannot_resend_invitation(): void
@@ -71,6 +69,7 @@ class InvitationApiTest extends TestCase
         // Create an unverified user
         $user = $this->createUser('unverified_resend@example.com', 'password123');
         $this->assertFalse($user->isEmailVerified());
+        $this->actingAs($user);
 
         // Create a poll owned by this user
         $poll = $this->createPoll(['title' => 'Test Poll'], $user->id);

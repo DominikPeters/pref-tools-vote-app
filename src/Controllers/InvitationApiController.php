@@ -52,6 +52,40 @@ class InvitationApiController extends ApiController
     }
 
     /**
+     * Check if the requirement for email invitations is met:
+     * User must be logged in and must be the owner of the poll.
+     */
+    private function checkOwnerRequirement(Poll $poll): ?array
+    {
+        $user = $this->user();
+        if (!$user) {
+            return $this->error(
+                'You must be logged in to use email invitations.',
+                'AUTH_REQUIRED',
+                401
+            );
+        }
+
+        if ($poll->userId === null) {
+            return $this->error(
+                'This poll must be linked to your account before you can send email invitations.',
+                'POLL_NOT_LINKED',
+                403
+            );
+        }
+
+        if ($poll->userId !== $user->id) {
+            return $this->error(
+                'Only the owner of this poll can manage email invitations.',
+                'NOT_OWNER',
+                403
+            );
+        }
+
+        return null;
+    }
+
+    /**
      * List all email invitations for a poll
      * GET /api/polls/:publicId/admin/:adminToken/invitations
      */
@@ -60,6 +94,12 @@ class InvitationApiController extends ApiController
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Check owner requirement
+        $requirementError = $this->checkOwnerRequirement($poll);
+        if ($requirementError) {
+            return $requirementError;
         }
 
         $invitations = EmailInvitation::findByPollId($poll->id);
@@ -83,6 +123,12 @@ class InvitationApiController extends ApiController
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Check owner requirement
+        $requirementError = $this->checkOwnerRequirement($poll);
+        if ($requirementError) {
+            return $requirementError;
         }
 
         // Check if poll owner has verified their email
@@ -143,6 +189,12 @@ class InvitationApiController extends ApiController
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
         }
 
+        // Check owner requirement
+        $requirementError = $this->checkOwnerRequirement($poll);
+        if ($requirementError) {
+            return $requirementError;
+        }
+
         // Check if poll owner has verified their email
         $verificationError = $this->checkOwnerEmailVerified($poll);
         if ($verificationError) {
@@ -195,6 +247,12 @@ class InvitationApiController extends ApiController
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Check owner requirement
+        $requirementError = $this->checkOwnerRequirement($poll);
+        if ($requirementError) {
+            return $requirementError;
         }
 
         $invitation = EmailInvitation::find((int) ($params['invitationId'] ?? 0));

@@ -150,16 +150,35 @@ $votingModeDescriptions = [
                 <!-- Email Invitations Tab -->
                 <div class="access-tab-content" id="invitationsTab">
                     <p class="tab-description">Send voting invitations directly to participants via email. Each invitation contains a unique link that allows a single vote.</p>
-                    <div id="mailConfigWarning" class="warning-banner" style="display: none;">
-                        <strong>Email not configured.</strong> Ask your system administrator to configure SMTP settings.
-                    </div>
-                    <div class="invitation-send">
-                        <textarea id="invitationEmails" placeholder="Enter email addresses (one per line, or comma-separated)" rows="3"></textarea>
-                        <button type="button" class="btn btn-primary" id="sendInvitations">Send Invitations</button>
-                    </div>
-                    <div id="invitationsList" class="invitations-list">
-                        <p class="loading">Loading invitations...</p>
-                    </div>
+                    
+                    <?php if (!$user || $poll->userId === null || $poll->userId !== $user->id): ?>
+                        <div class="info-banner">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <div class="info-banner-content">
+                                <strong>Account required.</strong>
+                                <p>Email invitations are only available for registered users. 
+                                <?php if (!$user): ?>
+                                    Please <a href="<?= e(url('login?return=' . urlencode('/' . $poll->publicId . '/admin/' . $adminToken))) ?>">log in or register</a> and link this poll to your account to use this feature.
+                                <?php elseif ($poll->userId === null): ?>
+                                    Please <button type="button" class="btn-link" id="claimPollInvite">link this poll to your account</button> to use this feature.
+                                <?php else: ?>
+                                    Only the poll owner can send email invitations.
+                                <?php endif; ?>
+                                </p>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div id="mailConfigWarning" class="warning-banner" style="display: none;">
+                            <strong>Email not configured.</strong> Ask your system administrator to configure SMTP settings.
+                        </div>
+                        <div class="invitation-send">
+                            <textarea id="invitationEmails" placeholder="Enter email addresses (one per line, or comma-separated)" rows="3"></textarea>
+                            <button type="button" class="btn btn-primary" id="sendInvitations">Send Invitations</button>
+                        </div>
+                        <div id="invitationsList" class="invitations-list">
+                            <p class="loading">Loading invitations...</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Manual Access Tokens Tab -->

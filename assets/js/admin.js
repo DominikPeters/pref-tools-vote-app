@@ -131,6 +131,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (claimBtn) {
         claimBtn.addEventListener('click', () => claimPoll(publicId, adminToken));
     }
+
+    const claimInviteBtn = document.getElementById('claimPollInvite');
+    if (claimInviteBtn) {
+        claimInviteBtn.addEventListener('click', () => claimPoll(publicId, adminToken));
+    }
 });
 
 async function loadVote(publicId, adminToken) {
