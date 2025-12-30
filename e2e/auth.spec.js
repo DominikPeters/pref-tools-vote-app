@@ -18,8 +18,8 @@ test.describe('Authentication', () => {
     await expect(freshPage).toHaveURL('/dashboard');
     await expect(freshPage.locator('h1')).toContainText('Dashboard');
 
-    // Should show user email in header
-    await expect(freshPage.locator('.user-email')).toContainText(adminCredentials.email);
+    // Should show user name in header
+    await expect(freshPage.locator('.user-name')).toContainText(adminCredentials.name);
 
     // Should show sysadmin link
     await expect(freshPage.locator('nav a:has-text("Sysadmin")')).toBeVisible();
@@ -95,6 +95,7 @@ test.describe('Authentication', () => {
     await freshPage.click('button.auth-tab:has-text("Register")');
 
     // Fill registration form
+    await freshPage.fill('#registerForm input[name="name"]', 'New Test User');
     await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
     await freshPage.fill('#registerForm input[name="password"]', 'newuserpassword123');
     await freshPage.fill('#registerForm input[name="password_confirm"]', 'newuserpassword123');
@@ -103,5 +104,75 @@ test.describe('Authentication', () => {
     // Should redirect to dashboard
     await expect(freshPage).toHaveURL('/dashboard');
     await expect(freshPage.locator('h1')).toContainText('Dashboard');
+
+    // Should show user name in header
+    await expect(freshPage.locator('.user-name')).toContainText('New Test User');
+  });
+
+  test('new user sees email verification banner', async ({ freshPage, uniqueEmail }) => {
+    await freshPage.goto('/login');
+
+    // Register a new user
+    await freshPage.click('button.auth-tab:has-text("Register")');
+    await freshPage.fill('#registerForm input[name="name"]', 'Unverified User');
+    await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
+    await freshPage.fill('#registerForm input[name="password"]', 'password12345');
+    await freshPage.fill('#registerForm input[name="password_confirm"]', 'password12345');
+    await freshPage.click('#registerForm button[type="submit"]');
+
+    // Should redirect to dashboard
+    await expect(freshPage).toHaveURL('/dashboard');
+
+    // Should show verification banner
+    await expect(freshPage.locator('.verification-banner')).toBeVisible();
+    await expect(freshPage.locator('.verification-banner')).toContainText('Verify your email address');
+
+    // Should show resend button
+    await expect(freshPage.locator('#resendVerificationBtn')).toBeVisible();
+  });
+
+  test('forgot password link shows forgot password form', async ({ freshPage }) => {
+    await freshPage.goto('/login');
+
+    // Click forgot password link
+    await freshPage.click('#showForgotPassword');
+
+    // Should show forgot password form
+    await expect(freshPage.locator('#forgotPasswordForm')).toBeVisible();
+    await expect(freshPage.locator('#forgotPasswordForm h2')).toContainText('Reset Password');
+
+    // Should have email input
+    await expect(freshPage.locator('#forgotEmail')).toBeVisible();
+
+    // Should have back to login link
+    await expect(freshPage.locator('#backToLogin')).toBeVisible();
+  });
+
+  test('can navigate back from forgot password to login', async ({ freshPage }) => {
+    await freshPage.goto('/login');
+
+    // Go to forgot password
+    await freshPage.click('#showForgotPassword');
+    await expect(freshPage.locator('#forgotPasswordForm')).toBeVisible();
+
+    // Click back to login
+    await freshPage.click('#backToLogin');
+
+    // Should show login form again
+    await expect(freshPage.locator('#loginForm')).toBeVisible();
+    await expect(freshPage.locator('#forgotPasswordForm')).not.toBeVisible();
+  });
+
+  test('forgot password form accepts email', async ({ freshPage }) => {
+    await freshPage.goto('/login');
+    await freshPage.click('#showForgotPassword');
+
+    // Fill in email
+    await freshPage.fill('#forgotEmail', 'test@example.com');
+    await freshPage.click('#forgotPasswordForm button[type="submit"]');
+
+    // Should show success message (or at least not fail with validation error)
+    // Note: Mail may not be configured, but we should see either success or mail error
+    await expect(freshPage.locator('#forgotSuccess, #forgotError')).toBeVisible();
   });
 });

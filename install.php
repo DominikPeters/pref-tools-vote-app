@@ -213,8 +213,13 @@ function handleAdminSetup() {
         require_once $basePath . '/src/bootstrap.php';
     }
 
+    $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
+
+    if (empty($name)) {
+        return 'Name is required.';
+    }
 
     if (empty($email)) {
         return 'Email is required.';
@@ -230,7 +235,7 @@ function handleAdminSetup() {
 
     try {
         $auth = \App\Auth::getInstance();
-        $user = $auth->register($email, $password, \App\Models\User::ROLE_SYSADMIN);
+        $user = $auth->register($email, $password, $name, \App\Models\User::ROLE_SYSADMIN);
 
         \App\Services\LogService::getInstance()->log('user.registered', null, $user->id, null, [
             'via' => 'installer',
@@ -515,6 +520,11 @@ function handleAdminSetup() {
                 <input type="hidden" name="step" value="admin">
 
                 <p>Create a sysadmin account to manage the entire application, including users, all polls, and view system logs.</p>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+                </div>
 
                 <div class="form-group">
                     <label>Email</label>

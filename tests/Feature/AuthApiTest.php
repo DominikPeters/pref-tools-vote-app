@@ -12,6 +12,7 @@ class AuthApiTest extends TestCase
     public function test_user_can_register(): void
     {
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'New User',
             'email' => 'newuser@example.com',
             'password' => 'password123',
         ]);
@@ -19,11 +20,23 @@ class AuthApiTest extends TestCase
         $this->assertSuccess($response);
         $this->assertArrayHasKey('user', $response);
         $this->assertEquals('newuser@example.com', $response['user']['email']);
+        $this->assertEquals('New User', $response['user']['name']);
+    }
+
+    public function test_registration_requires_name(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'email' => 'test@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertError($response, 'VALIDATION_ERROR');
     }
 
     public function test_registration_requires_email(): void
     {
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Test User',
             'password' => 'password123',
         ]);
 
@@ -33,6 +46,7 @@ class AuthApiTest extends TestCase
     public function test_registration_requires_valid_email(): void
     {
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Test User',
             'email' => 'not-an-email',
             'password' => 'password123',
         ]);
@@ -43,6 +57,7 @@ class AuthApiTest extends TestCase
     public function test_registration_requires_password_min_length(): void
     {
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'short',
         ]);
@@ -54,12 +69,14 @@ class AuthApiTest extends TestCase
     {
         // First registration
         $this->callApi('POST', '/api/auth/register', [
+            'name' => 'First User',
             'email' => 'duplicate@example.com',
             'password' => 'password123',
         ]);
 
         // Second registration with same email
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Second User',
             'email' => 'duplicate@example.com',
             'password' => 'password456',
         ]);
@@ -73,6 +90,7 @@ class AuthApiTest extends TestCase
         SiteSetting::set('site.registration_enabled', '0');
 
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'New User',
             'email' => 'newuser@example.com',
             'password' => 'password123',
         ]);
@@ -87,6 +105,7 @@ class AuthApiTest extends TestCase
         SiteSetting::set('site.registration_enabled', '1');
 
         $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Enabled User',
             'email' => 'enabled@example.com',
             'password' => 'password123',
         ]);
@@ -220,5 +239,181 @@ class AuthApiTest extends TestCase
         // Verify in database
         $updatedPoll = \App\Models\Poll::find($poll->id);
         $this->assertEquals($user->id, $updatedPoll->userId);
+    }
+
+    public function test_new_user_is_not_email_verified(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Unverified User',
+            'email' => 'unverified@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertFalse($response['user']['email_verified']);
+    }
+
+    public function test_verify_email_with_valid_token(): void
+    {
+        $user = $this->createUser('verify@example.com', 'password123');
+
+        // Set verification token directly
+        $token = bin2hex(random_bytes(32));
+        $user->setVerificationToken($token);
+
+        $response = $this->callApi('POST', '/api/auth/verify-email', [
+            'token' => $token,
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertTrue($response['user']['email_verified']);
+
+        // Verify in database
+        $updatedUser = User::find($user->id);
+        $this->assertTrue($updatedUser->isEmailVerified());
+    }
+
+    public function test_verify_email_with_invalid_token(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/verify-email', [
+            'token' => 'invalid_token_12345',
+        ]);
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_verify_email_with_expired_token(): void
+    {
+        $user = $this->createUser('expired@example.com', 'password123');
+
+        // Set verification token with expired time
+        $db = \App\Database::getInstance();
+        $token = bin2hex(random_bytes(32));
+        $expired = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
+        $db->update('users', [
+            'email_verification_token' => $token,
+            'email_verification_expires' => $expired,
+        ], 'id = :id', ['id' => $user->id]);
+
+        $response = $this->callApi('POST', '/api/auth/verify-email', [
+            'token' => $token,
+        ]);
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_resend_verification_when_not_verified(): void
+    {
+        $user = $this->createUser('resend@example.com', 'password123');
+        $this->actingAs($user);
+
+        // Note: This will fail if mail is not configured, but we test the flow
+        $response = $this->callApi('POST', '/api/auth/resend-verification');
+
+        // Either success (mail configured) or error (mail not configured)
+        $this->assertTrue($response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED');
+    }
+
+    public function test_resend_verification_when_already_verified(): void
+    {
+        $user = $this->createUser('verified@example.com', 'password123');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+
+        $response = $this->callApi('POST', '/api/auth/resend-verification');
+
+        $this->assertError($response, 'ALREADY_VERIFIED');
+    }
+
+    public function test_forgot_password_sends_email(): void
+    {
+        $user = $this->createUser('forgot@example.com', 'password123');
+
+        $response = $this->callApi('POST', '/api/auth/forgot-password', [
+            'email' => 'forgot@example.com',
+        ]);
+
+        // Should return success (or mail not configured error)
+        $this->assertTrue($response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED');
+    }
+
+    public function test_forgot_password_does_not_reveal_nonexistent_email(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/forgot-password', [
+            'email' => 'nonexistent@example.com',
+        ]);
+
+        // Should still return success to prevent email enumeration
+        $this->assertSuccess($response);
+    }
+
+    public function test_reset_password_with_valid_token(): void
+    {
+        $user = $this->createUser('reset@example.com', 'oldpassword');
+
+        // Set reset token directly
+        $token = bin2hex(random_bytes(32));
+        $user->setPasswordResetToken($token);
+
+        $response = $this->callApi('POST', '/api/auth/reset-password', [
+            'token' => $token,
+            'password' => 'newpassword123',
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Verify can login with new password
+        Auth::reset();
+        $loginResponse = $this->callApi('POST', '/api/auth/login', [
+            'email' => 'reset@example.com',
+            'password' => 'newpassword123',
+        ]);
+
+        $this->assertSuccess($loginResponse);
+    }
+
+    public function test_reset_password_with_invalid_token(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/reset-password', [
+            'token' => 'invalid_token_12345',
+            'password' => 'newpassword123',
+        ]);
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_reset_password_with_expired_token(): void
+    {
+        $user = $this->createUser('expired_reset@example.com', 'password123');
+
+        // Set reset token with expired time
+        $db = \App\Database::getInstance();
+        $token = bin2hex(random_bytes(32));
+        $expired = (new \DateTime('-2 hours'))->format('Y-m-d H:i:s');
+        $db->update('users', [
+            'password_reset_token' => $token,
+            'password_reset_expires' => $expired,
+        ], 'id = :id', ['id' => $user->id]);
+
+        $response = $this->callApi('POST', '/api/auth/reset-password', [
+            'token' => $token,
+            'password' => 'newpassword123',
+        ]);
+
+        $this->assertError($response, 'INVALID_TOKEN');
+    }
+
+    public function test_reset_password_requires_min_length(): void
+    {
+        $user = $this->createUser('minlen@example.com', 'password123');
+        $token = bin2hex(random_bytes(32));
+        $user->setPasswordResetToken($token);
+
+        $response = $this->callApi('POST', '/api/auth/reset-password', [
+            'token' => $token,
+            'password' => 'short',
+        ]);
+
+        $this->assertError($response, 'VALIDATION_ERROR');
     }
 }

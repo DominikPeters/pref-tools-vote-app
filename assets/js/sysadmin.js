@@ -84,6 +84,7 @@ async function loadUsers(offset = 0) {
 
             tr.dataset.userId = user.id;
             row.querySelector('.user-id').textContent = user.id;
+            row.querySelector('.user-name').textContent = user.name;
             row.querySelector('.user-email').textContent = user.email;
 
             const select = row.querySelector('.role-select');
@@ -102,7 +103,7 @@ async function loadUsers(offset = 0) {
         renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadUsers);
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="5" class="loading">Error loading users: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading">Error loading users: ${error.message}</td></tr>`;
     }
 }
 

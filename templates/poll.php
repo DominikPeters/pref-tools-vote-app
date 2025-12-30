@@ -54,7 +54,7 @@ ob_start();
                     <?php if ($poll->collectName): ?>
                         <div class="form-group name-field">
                             <label for="voterName">Your Name</label>
-                            <input type="text" id="voterName" name="voter_name" required>
+                            <input type="text" id="voterName" name="voter_name" required value="<?= !empty($user) ? e($user->name) : '' ?>">
                         </div>
                     <?php endif; ?>
 

@@ -29,6 +29,7 @@ ob_start();
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
                             <th>Created</th>
@@ -37,7 +38,7 @@ ob_start();
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="5" class="loading">Loading users...</td>
+                            <td colspan="6" class="loading">Loading users...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -50,6 +51,7 @@ ob_start();
 <template id="userRowTemplate">
     <tr data-user-id="">
         <td class="user-id"></td>
+        <td class="user-name"></td>
         <td class="user-email"></td>
         <td class="user-role">
             <select class="role-select">

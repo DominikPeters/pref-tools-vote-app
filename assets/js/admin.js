@@ -23,8 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Load access management data if not open mode
     if (document.querySelector('.access-section')) {
-        loadTokens(publicId, adminToken);
-        loadInvitations(publicId, adminToken);
+        // Load both tokens and invitations, then select the appropriate tab
+        await Promise.all([
+            loadTokens(publicId, adminToken),
+            loadInvitations(publicId, adminToken)
+        ]);
+        selectInitialTab();
         initAccessTabs();
         initTokenManagement(publicId, adminToken);
         initInvitationManagement(publicId, adminToken);
@@ -330,17 +334,33 @@ function escapeHtml(text) {
 function initAccessTabs() {
     document.querySelectorAll('.access-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            const targetTab = tab.dataset.tab;
-
-            // Update tab buttons
-            document.querySelectorAll('.access-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            // Show/hide tab content
-            document.getElementById('tokensTab').style.display = targetTab === 'tokens' ? '' : 'none';
-            document.getElementById('invitationsTab').style.display = targetTab === 'invitations' ? '' : 'none';
+            switchToTab(tab.dataset.tab);
         });
     });
+}
+
+function switchToTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.access-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tabName);
+    });
+
+    // Show/hide tab content
+    document.getElementById('tokensTab').style.display = tabName === 'tokens' ? '' : 'none';
+    document.getElementById('invitationsTab').style.display = tabName === 'invitations' ? '' : 'none';
+}
+
+function selectInitialTab() {
+    // If poll has tokens of one type but not the other, focus on the tab that has tokens
+    const hasManualTokens = tokensData.length > 0;
+    const hasEmailInvitations = invitationsData.length > 0;
+
+    if (hasManualTokens && !hasEmailInvitations) {
+        switchToTab('tokens');
+    } else if (hasEmailInvitations && !hasManualTokens) {
+        switchToTab('invitations');
+    }
+    // If both or neither have data, keep the default (invitations tab)
 }
 
 // ==========================================================================
@@ -407,6 +427,7 @@ function renderTokens() {
                     <tr>
                         <th>Token</th>
                         <th>Label</th>
+                        <th>Created</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -418,6 +439,7 @@ function renderTokens() {
                                 <code>${escapeHtml(token.token)}</code>
                             </td>
                             <td class="token-label">${escapeHtml(token.label || '-')}</td>
+                            <td class="token-created">${new Date(token.created_at).toLocaleDateString()}</td>
                             <td class="token-status">
                                 ${token.used_at
                                     ? `<span class="badge badge-used">Used</span>`

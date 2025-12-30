@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Poll;
 use App\Models\EmailInvitation;
+use App\Models\User;
 
 class InvitationService
 {
@@ -99,18 +100,40 @@ class InvitationService
         $unsubscribeUrl = UnsubscribeService::generateUnsubscribeUrl($invitation->email);
         $oneClickUrl = UnsubscribeService::generateOneClickUrl($invitation->email);
 
-        $subject = "You're invited to vote: " . $poll->title;
+        // Get poll creator's info if available
+        $inviterName = null;
+        $inviterEmail = null;
+        if ($poll->userId) {
+            $creator = User::find($poll->userId);
+            if ($creator) {
+                $inviterName = $creator->name;
+                $inviterEmail = $creator->email;
+            }
+        }
+
+        $subject = $inviterName
+            ? "{$inviterName} invited you to vote: {$poll->title}"
+            : "You're invited to vote: {$poll->title}";
 
         $body = $this->renderEmailTemplate('invitation', [
             'poll' => $poll,
             'voteUrl' => $voteUrl,
             'invitation' => $invitation,
             'unsubscribeUrl' => $unsubscribeUrl,
+            'inviterName' => $inviterName,
         ]);
 
-        $this->mailer->send($invitation->email, $subject, $body, true, [
+        $mailOptions = [
             'one_click_url' => $oneClickUrl,
-        ]);
+        ];
+
+        // Set reply-to as the poll creator
+        if ($inviterEmail) {
+            $mailOptions['reply_to'] = $inviterEmail;
+            $mailOptions['reply_to_name'] = $inviterName ?? '';
+        }
+
+        $this->mailer->send($invitation->email, $subject, $body, true, $mailOptions);
     }
 
     /**

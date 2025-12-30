@@ -23,4 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Handle resend verification email button
+    const resendBtn = document.getElementById('resendVerificationBtn');
+    if (resendBtn) {
+        resendBtn.addEventListener('click', async () => {
+            try {
+                setButtonLoading(resendBtn);
+                await api.post('/api/auth/resend-verification');
+                showToast('Verification email sent! Please check your inbox.', 'success');
+                clearButtonLoading(resendBtn);
+                resendBtn.textContent = 'Email Sent';
+                resendBtn.disabled = true;
+            } catch (err) {
+                clearButtonLoading(resendBtn);
+                showToast('Failed to send verification email: ' + err.message, 'error');
+            }
+        });
+    }
 });

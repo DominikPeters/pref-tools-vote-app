@@ -10,6 +10,23 @@ ob_start();
             <h1>Your Dashboard</h1>
         </header>
 
+        <?php if (!$user->isEmailVerified()): ?>
+        <div class="verification-banner" id="verificationBanner">
+            <div class="verification-content">
+                <svg class="verification-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div class="verification-text">
+                    <strong>Verify your email address</strong>
+                    <span>We've sent a verification link to <strong><?= e($user->email) ?></strong>. Please click the link to verify your email. You'll need to verify before sending poll invitations.</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-small" id="resendVerificationBtn">Resend Email</button>
+        </div>
+        <?php endif; ?>
+
         <section class="card votes-section">
             <div class="section-header">
                 <h2>Your Polls</h2>
@@ -82,7 +99,7 @@ ob_start();
 
         <section class="card account-section">
             <h2>Account</h2>
-            <p>Logged in as: <strong><?= e($user->email) ?></strong></p>
+            <p>Logged in as: <strong><?= e($user->name) ?></strong> &lt;<?= e($user->email) ?>&gt;</p>
             <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm">
                 <button type="submit" class="btn btn-secondary">Log Out</button>
             </form>

@@ -56,19 +56,19 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create a test user
      */
-    protected function createUser(string $email = 'test@example.com', string $password = 'password123'): \App\Models\User
+    protected function createUser(string $email = 'test@example.com', string $password = 'password123', string $name = 'Test User'): \App\Models\User
     {
         $auth = Auth::getInstance();
-        return $auth->register($email, $password);
+        return $auth->register($email, $password, $name);
     }
 
     /**
      * Create a test sysadmin user
      */
-    protected function createSysadmin(string $email = 'admin@example.com', string $password = 'password123'): \App\Models\User
+    protected function createSysadmin(string $email = 'admin@example.com', string $password = 'password123', string $name = 'Test Admin'): \App\Models\User
     {
         $auth = Auth::getInstance();
-        return $auth->register($email, $password, \App\Models\User::ROLE_SYSADMIN);
+        return $auth->register($email, $password, $name, \App\Models\User::ROLE_SYSADMIN);
     }
 
     /**
@@ -173,6 +173,10 @@ abstract class TestCase extends BaseTestCase
         $router->post('/api/auth/login', [\App\Controllers\AuthApiController::class, 'login']);
         $router->post('/api/auth/logout', [\App\Controllers\AuthApiController::class, 'logout']);
         $router->get('/api/auth/me', [\App\Controllers\AuthApiController::class, 'me']);
+        $router->post('/api/auth/verify-email', [\App\Controllers\AuthApiController::class, 'verifyEmail']);
+        $router->post('/api/auth/resend-verification', [\App\Controllers\AuthApiController::class, 'resendVerification']);
+        $router->post('/api/auth/forgot-password', [\App\Controllers\AuthApiController::class, 'forgotPassword']);
+        $router->post('/api/auth/reset-password', [\App\Controllers\AuthApiController::class, 'resetPassword']);
 
         // Poll routes
         $router->post('/api/polls', [\App\Controllers\PollApiController::class, 'create']);

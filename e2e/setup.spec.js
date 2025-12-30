@@ -17,6 +17,7 @@ const ADMIN_STATE_PATH = path.join(STATE_DIR, 'admin.json');
  * These are shared with fixtures.js for consistency.
  */
 const SYSADMIN = {
+  name: 'Test Admin',
   email: 'admin@example.com',
   password: 'testpassword123'
 };
@@ -48,6 +49,7 @@ setup('install app and create admin session', async ({ page }) => {
 
   // Step 4: Create sysadmin account
   await expect(page.locator('h1')).toContainText('Sysadmin Account');
+  await page.fill('input[name="name"]', SYSADMIN.name);
   await page.fill('input[name="email"]', SYSADMIN.email);
   await page.fill('input[name="password"]', SYSADMIN.password);
   await page.click('button:has-text("Complete Installation")');

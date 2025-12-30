@@ -143,26 +143,13 @@ $votingModeDescriptions = [
                 <p class="section-description">Manage who can vote in this <?= $poll->votingMode === 'secret_ballot' ? 'secret ballot' : 'identified' ?> poll.</p>
 
                 <div class="access-tabs">
-                    <button type="button" class="access-tab active" data-tab="tokens">Access Tokens</button>
-                    <button type="button" class="access-tab" data-tab="invitations">Email Invitations</button>
-                </div>
-
-                <!-- Access Tokens Tab -->
-                <div class="access-tab-content" id="tokensTab">
-                    <div class="token-generate">
-                        <div class="token-generate-inputs">
-                            <input type="number" id="tokenCount" min="1" max="100" value="10" class="input-small">
-                            <input type="text" id="tokenLabelPrefix" placeholder="Label prefix (optional)" class="input-medium">
-                        </div>
-                        <button type="button" class="btn btn-primary" id="generateTokens">Generate Tokens</button>
-                    </div>
-                    <div id="tokensList" class="tokens-list">
-                        <p class="loading">Loading tokens...</p>
-                    </div>
+                    <button type="button" class="access-tab active" data-tab="invitations">Email Invitations</button>
+                    <button type="button" class="access-tab" data-tab="tokens">Manual Access Tokens</button>
                 </div>
 
                 <!-- Email Invitations Tab -->
-                <div class="access-tab-content" id="invitationsTab" style="display: none;">
+                <div class="access-tab-content" id="invitationsTab">
+                    <p class="tab-description">Send voting invitations directly to participants via email. Each invitation contains a unique link that allows a single vote.</p>
                     <div id="mailConfigWarning" class="warning-banner" style="display: none;">
                         <strong>Email not configured.</strong> Ask your system administrator to configure SMTP settings.
                     </div>
@@ -172,6 +159,33 @@ $votingModeDescriptions = [
                     </div>
                     <div id="invitationsList" class="invitations-list">
                         <p class="loading">Loading invitations...</p>
+                    </div>
+                </div>
+
+                <!-- Manual Access Tokens Tab -->
+                <div class="access-tab-content" id="tokensTab" style="display: none;">
+                    <p class="tab-description">Generate access tokens and distribute them to voters yourself (e.g., via your own email, messaging app, or printed handouts). Each token allows a single vote.</p>
+                    <div class="token-generate">
+                        <div class="token-generate-field">
+                            <label for="tokenCount">
+                                Number of tokens
+                            </label>
+                            <input type="number" id="tokenCount" min="1" max="100" value="10">
+                        </div>
+                        <div class="token-generate-field">
+                            <label for="tokenLabelPrefix">
+                                Label prefix
+                                <span class="label-optional">(optional)</span>
+                                <span class="info-icon" data-tooltip="Labels help you identify tokens, e.g. 'Board Member' creates tokens labeled 'Board Member 1', 'Board Member 2', etc." data-tooltip-pos="top">?</span>
+                            </label>
+                            <input type="text" id="tokenLabelPrefix" placeholder="e.g. Board Member">
+                        </div>
+                        <div class="token-generate-action">
+                            <button type="button" class="btn btn-primary" id="generateTokens">Generate Tokens</button>
+                        </div>
+                    </div>
+                    <div id="tokensList" class="tokens-list">
+                        <p class="loading">Loading tokens...</p>
                     </div>
                 </div>
             </section>

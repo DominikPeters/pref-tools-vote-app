@@ -82,6 +82,12 @@ class MailService
             $mail->setFrom($this->fromAddress, $this->fromName);
             $mail->addAddress($to);
 
+            // Reply-To (optional)
+            if (!empty($options['reply_to'])) {
+                $replyToName = $options['reply_to_name'] ?? '';
+                $mail->addReplyTo($options['reply_to'], $replyToName);
+            }
+
             // Add List-Unsubscribe headers (RFC 8058)
             if (!empty($options['one_click_url'])) {
                 // RFC 8058: List-Unsubscribe-Post enables one-click unsubscribe in email clients

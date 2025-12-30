@@ -16,6 +16,7 @@ const STATE_DIR = path.join(__dirname, 'state');
  * Must match setup.spec.js
  */
 const SYSADMIN = {
+  name: 'Test Admin',
   email: 'admin@example.com',
   password: 'testpassword123'
 };
@@ -65,11 +66,13 @@ const test = base.test.extend({
     const context = await browser.newContext({ storageState: undefined });
     const page = await context.newPage();
 
+    const name = 'Test User';
     const password = 'testpassword123';
 
     // Register new user
     await page.goto('/login');
     await page.click('button.auth-tab:has-text("Register")');
+    await page.fill('#registerForm input[name="name"]', name);
     await page.fill('#registerForm input[name="email"]', uniqueEmail);
     await page.fill('#registerForm input[name="password"]', password);
     await page.fill('#registerForm input[name="password_confirm"]', password);
@@ -79,6 +82,7 @@ const test = base.test.extend({
     await use({
       page,
       context,
+      name,
       email: uniqueEmail,
       password
     });

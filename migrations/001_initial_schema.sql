@@ -3,45 +3,51 @@
 
 -- Users (optional accounts)
 CREATE TABLE users (
-    id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    email           VARCHAR(255) UNIQUE NOT NULL,
-    password_hash   VARCHAR(255) NOT NULL,
-    role            VARCHAR(20) NOT NULL DEFAULT 'user',
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                         INTEGER PRIMARY KEY AUTO_INCREMENT,
+    email                      VARCHAR(255) UNIQUE NOT NULL,
+    name                       VARCHAR(255) NOT NULL,
+    password_hash              VARCHAR(255) NOT NULL,
+    role                       VARCHAR(20) NOT NULL DEFAULT 'user',
+    email_verified_at          DATETIME NULL,
+    email_verification_token   VARCHAR(64) NULL,
+    email_verification_expires DATETIME NULL,
+    password_reset_token       VARCHAR(64) NULL,
+    password_reset_expires     DATETIME NULL,
+    created_at                 DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                 DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Polls (a form/poll instance)
 CREATE TABLE polls (
-    id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    public_id       VARCHAR(16) UNIQUE NOT NULL,
-    admin_token     VARCHAR(32) NOT NULL,
-    user_id         INTEGER NULL,
+    id                INTEGER PRIMARY KEY AUTO_INCREMENT,
+    public_id         VARCHAR(16) UNIQUE NOT NULL,
+    admin_token       VARCHAR(32) NOT NULL,
+    user_id           INTEGER NULL,
 
-    title           VARCHAR(500) NOT NULL,
-    description     TEXT NULL,
+    title             VARCHAR(500) NOT NULL,
+    description       TEXT NULL,
 
-    status          VARCHAR(20) NOT NULL DEFAULT 'draft',
-    visibility      VARCHAR(20) NOT NULL DEFAULT 'private',
+    status            VARCHAR(20) NOT NULL DEFAULT 'draft',
+    visibility        VARCHAR(20) NOT NULL DEFAULT 'private',
     visibility_timing VARCHAR(20) NOT NULL DEFAULT 'after_close',
-    collect_name    BOOLEAN NOT NULL DEFAULT 0,
-    name_visibility VARCHAR(20) NULL,
-    allow_edit_own  BOOLEAN NOT NULL DEFAULT 1,
-    allow_edit_any  BOOLEAN NOT NULL DEFAULT 0,
+    collect_name      BOOLEAN NOT NULL DEFAULT 0,
+    name_visibility   VARCHAR(20) NULL,
+    allow_edit_own    BOOLEAN NOT NULL DEFAULT 1,
+    allow_edit_any    BOOLEAN NOT NULL DEFAULT 0,
     randomize_options BOOLEAN NOT NULL DEFAULT 0,
 
-    access_mode     VARCHAR(20) NOT NULL DEFAULT 'link',
-    access_password VARCHAR(255) NULL,
+    access_mode       VARCHAR(20) NOT NULL DEFAULT 'link',
+    access_password   VARCHAR(255) NULL,
 
-    voting_mode     VARCHAR(20) NOT NULL DEFAULT 'open',
-    access_methods  TEXT NULL,
-    mode_locked_at  DATETIME NULL,
+    voting_mode       VARCHAR(20) NOT NULL DEFAULT 'open',
+    access_methods    TEXT NULL,
+    mode_locked_at    DATETIME NULL,
 
-    locale          VARCHAR(10) NOT NULL DEFAULT 'en',
+    locale            VARCHAR(10) NOT NULL DEFAULT 'en',
 
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    closed_at       DATETIME NULL,
+    created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    closed_at         DATETIME NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
@@ -133,16 +139,16 @@ CREATE TABLE reports (
 
 -- Access tokens (for token-based access mode)
 CREATE TABLE access_tokens (
-    id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    poll_id         INTEGER NOT NULL,
-    token           VARCHAR(32) UNIQUE NOT NULL,
+    id               INTEGER PRIMARY KEY AUTO_INCREMENT,
+    poll_id          INTEGER NOT NULL,
+    token            VARCHAR(32) UNIQUE NOT NULL,
 
-    label           VARCHAR(255) NULL,
-    used_at         DATETIME NULL,
-    response_id     INTEGER NULL,
+    label            VARCHAR(255) NULL,
+    used_at          DATETIME NULL,
+    response_id      INTEGER NULL,
     is_secret_ballot BOOLEAN NOT NULL DEFAULT 0,
 
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL
@@ -150,18 +156,18 @@ CREATE TABLE access_tokens (
 
 -- Email invitations (for email-based access mode)
 CREATE TABLE email_invitations (
-    id              INTEGER PRIMARY KEY AUTO_INCREMENT,
-    poll_id         INTEGER NOT NULL,
-    email           VARCHAR(255) NOT NULL,
-    token           VARCHAR(32) UNIQUE NOT NULL,
+    id               INTEGER PRIMARY KEY AUTO_INCREMENT,
+    poll_id          INTEGER NOT NULL,
+    email            VARCHAR(255) NOT NULL,
+    token            VARCHAR(32) UNIQUE NOT NULL,
 
-    sent_at         DATETIME NULL,
-    clicked_at      DATETIME NULL,
-    used_at         DATETIME NULL,
-    response_id     INTEGER NULL,
+    sent_at          DATETIME NULL,
+    clicked_at       DATETIME NULL,
+    used_at          DATETIME NULL,
+    response_id      INTEGER NULL,
     is_secret_ballot BOOLEAN NOT NULL DEFAULT 0,
 
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
     FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE SET NULL

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Poll;
+use App\Models\User;
 use App\Models\EmailInvitation;
 use App\Services\InvitationService;
 
@@ -30,6 +31,24 @@ class InvitationApiController extends ApiController
         }
 
         return $poll;
+    }
+
+    /**
+     * Check if poll owner is email verified (if poll has an owner)
+     */
+    private function checkOwnerEmailVerified(Poll $poll): ?array
+    {
+        if ($poll->userId) {
+            $owner = User::find($poll->userId);
+            if ($owner && !$owner->isEmailVerified()) {
+                return $this->error(
+                    'You must verify your email address before sending invitations. Please check your inbox for the verification link.',
+                    'EMAIL_NOT_VERIFIED',
+                    403
+                );
+            }
+        }
+        return null;
     }
 
     /**
@@ -64,6 +83,12 @@ class InvitationApiController extends ApiController
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Check if poll owner has verified their email
+        $verificationError = $this->checkOwnerEmailVerified($poll);
+        if ($verificationError) {
+            return $verificationError;
         }
 
         if (!$this->invitationService->isMailConfigured()) {
@@ -116,6 +141,12 @@ class InvitationApiController extends ApiController
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
             return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+        }
+
+        // Check if poll owner has verified their email
+        $verificationError = $this->checkOwnerEmailVerified($poll);
+        if ($verificationError) {
+            return $verificationError;
         }
 
         if (!$this->invitationService->isMailConfigured()) {

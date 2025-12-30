@@ -36,6 +36,7 @@ class DatabaseTest extends TestCase
 
         $id = $db->insert('users', [
             'email' => 'test@example.com',
+            'name' => 'Test User',
             'password_hash' => 'hashed',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -55,6 +56,7 @@ class DatabaseTest extends TestCase
 
         $id = $db->insert('users', [
             'email' => 'original@example.com',
+            'name' => 'Original User',
             'password_hash' => 'hashed',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -79,6 +81,7 @@ class DatabaseTest extends TestCase
 
         $id = $db->insert('users', [
             'email' => 'todelete@example.com',
+            'name' => 'To Delete',
             'password_hash' => 'hashed',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -100,6 +103,7 @@ class DatabaseTest extends TestCase
         for ($i = 1; $i <= 3; $i++) {
             $db->insert('users', [
                 'email' => "user{$i}@example.com",
+                'name' => "User {$i}",
                 'password_hash' => 'hashed',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -117,6 +121,7 @@ class DatabaseTest extends TestCase
 
         $db->insert('users', [
             'email' => 'count@example.com',
+            'name' => 'Count User',
             'password_hash' => 'hashed',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -144,6 +149,7 @@ class DatabaseTest extends TestCase
 
         $id = $db->insert('users', [
             'email' => 'transaction@example.com',
+            'name' => 'Transaction User',
             'password_hash' => 'hashed',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
