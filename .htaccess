@@ -15,6 +15,7 @@ RewriteRule ^(composer\.(json|lock)|phpunit\.xml|README\.md|LICENSE|\.gitignore)
 
 # Static assets - serve directly
 RewriteRule ^assets/ - [L]
+RewriteRule ^screenshots/ - [L]
 
 # Allow install.php direct access
 RewriteRule ^install\.php$ - [L]
