@@ -1,30 +1,22 @@
 /**
  * Text Block Report Renderer
- * Displays user-provided markdown content
+ * Displays user-provided markdown content (rendered on backend using Parsedown)
  */
 
-import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-
-// Configure marked for safety
-marked.setOptions({
-    breaks: true,  // Convert \n to <br>
-    gfm: true,     // GitHub Flavored Markdown
-});
-
 export function renderTextBlock(container, data, config) {
-    const { content } = data;
+    const { html } = data;
 
-    if (!content || content.trim() === '') {
+    if (!html || html.trim() === '') {
         container.innerHTML = '<p class="no-data">No content provided.</p>';
         return;
     }
 
-    // Parse markdown and render
-    const html = `
+    // Display pre-rendered HTML from backend
+    const markup = `
         <div class="report-text-block">
-            <div class="markdown-content">${marked.parse(content)}</div>
+            <div class="markdown-content">${html}</div>
         </div>
     `;
 
-    container.innerHTML = html;
+    container.innerHTML = markup;
 }

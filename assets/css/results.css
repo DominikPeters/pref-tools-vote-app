@@ -2,6 +2,32 @@
  * Results & Reports Styles
  */
 
+/* Results Footer */
+.results-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+    .results-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .results-footer .btn {
+        width: 100%;
+    }
+
+    .results-footer .report-link {
+        justify-content: center;
+    }
+}
+
 /* Results Header - matches admin-header-top pattern */
 .results-header {
     margin-bottom: 1.5rem;

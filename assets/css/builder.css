@@ -399,6 +399,22 @@
     margin: var(--spacing-lg) 0;
 }
 
+/* When questions list is empty, reduce top margin to avoid awkward gap */
+.questions-list:empty + .add-question-wrapper {
+    margin-top: 0;
+}
+
+/* When questions list is empty, style the add button with primary colors */
+.questions-list:empty + .add-question-wrapper .btn-add {
+    background: var(--color-bg-card);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.questions-list:empty + .add-question-wrapper .btn-add:hover {
+    background: var(--color-bg-hover);
+}
+
 /* --------------------------------------------------------------------------
    Settings Panel
    -------------------------------------------------------------------------- */

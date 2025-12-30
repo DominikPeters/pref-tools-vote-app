@@ -1,0 +1,156 @@
+/**
+ * Report Poll Styles
+ * Shared styles for the poll reporting functionality
+ */
+
+.report-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: color 0.15s ease;
+}
+
+.report-link:hover {
+    color: var(--color-text);
+}
+
+.report-link svg {
+    opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Report Modal
+   -------------------------------------------------------------------------- */
+.report-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-md);
+    animation: fadeIn 0.2s ease;
+}
+
+.report-modal {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: scaleIn 0.2s ease;
+}
+
+.report-modal-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.report-modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.report-modal-body {
+    padding: var(--spacing-lg);
+}
+
+.report-modal-body p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.9375rem;
+}
+
+.report-reasons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.report-reason {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.report-reason:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg);
+}
+
+.report-reason input[type="radio"] {
+    margin: 0;
+}
+
+.report-reason span {
+    font-size: 0.9375rem;
+}
+
+.report-note-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.report-note-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9375rem;
+}
+
+.report-note-group label .optional {
+    font-weight: normal;
+    color: var(--color-text-muted);
+}
+
+.report-note-group textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    resize: vertical;
+}
+
+.report-note-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.report-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

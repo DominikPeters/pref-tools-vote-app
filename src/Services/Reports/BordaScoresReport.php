@@ -24,7 +24,7 @@ class BordaScoresReport extends BaseReport
 
     public function getSupportedQuestionTypes(): array
     {
-        return ['ranking', 'ranking_truncated', 'ranking_with_ties'];
+        return ['ranking'];
     }
 
     public function getIcon(): string

@@ -58,8 +58,20 @@ class TextBlockReport extends BaseReport
 
     public function compute(Question $question, array $responses, ?array $config): array
     {
+        $markdown = $config['content'] ?? '';
+
+        if (empty(trim($markdown))) {
+            return ['html' => ''];
+        }
+
+        // Convert markdown to HTML using Parsedown
+        require_once __DIR__ . '/../../../lib/Parsedown/Parsedown.php';
+        $parsedown = new \Parsedown();
+        $parsedown->setSafeMode(true);
+        $html = $parsedown->text($markdown);
+
         return [
-            'content' => $config['content'] ?? '',
+            'html' => $html,
         ];
     }
 }

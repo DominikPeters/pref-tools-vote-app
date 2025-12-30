@@ -22,8 +22,8 @@ use PrefVoting\GradeMethods;
 class VotingRulesRegistry
 {
     /**
-     * Voting rules for ranking profiles (Profile, ProfileWithTies)
-     * Used for: ranking, ranking_truncated, ranking_with_ties question types
+     * Voting rules for complete linear rankings (Profile)
+     * Used for: ranking question type only
      */
     public const RANKING_RULES = [
         // Default rules (shown first, pre-selected in multi-rule comparison)
@@ -54,6 +54,54 @@ class VotingRulesRegistry
             'description' => 'Counts only first-place votes',
             'default' => false,
         ],
+        'copeland' => [
+            'name' => 'Copeland',
+            'description' => 'Counts pairwise wins minus losses',
+            'default' => false,
+        ],
+        'minimax' => [
+            'name' => 'Minimax',
+            'description' => 'Minimizes the worst pairwise defeat',
+            'default' => false,
+        ],
+        'split_cycle' => [
+            'name' => 'Split Cycle',
+            'description' => 'Defeats only count if not part of a cycle',
+            'default' => false,
+        ],
+        'stable_voting' => [
+            'name' => 'Stable Voting',
+            'description' => 'Resistant to strategic voting through stability criterion',
+            'default' => false,
+        ],
+        'top_cycle' => [
+            'name' => 'Top Cycle (Smith Set)',
+            'description' => 'Returns the smallest set that beats all others',
+            'default' => false,
+        ],
+    ];
+
+    /**
+     * Voting rules for rankings with ties and truncated/incomplete rankings (ProfileWithTies)
+     * Used for: ranking_with_ties and ranking_truncated question types
+     *
+     * Note: Excludes borda, plurality, and IRV since they require complete linear rankings.
+     * Only includes margin-based methods that work correctly with incomplete or tied ballots.
+     */
+    public const TRUNCATED_RANKING_RULES = [
+        // Default rules (shown first, pre-selected in multi-rule comparison)
+        'schulze' => [
+            'name' => 'Schulze (Beat Path)',
+            'description' => 'Finds the candidate with the strongest path of pairwise victories',
+            'default' => true,
+        ],
+        'ranked_pairs' => [
+            'name' => 'Ranked Pairs',
+            'description' => 'Tideman\'s method: locks in pairwise victories from strongest to weakest',
+            'default' => true,
+        ],
+
+        // Additional rules
         'copeland' => [
             'name' => 'Copeland',
             'description' => 'Counts pairwise wins minus losses',
@@ -151,7 +199,8 @@ class VotingRulesRegistry
     public static function getRulesForQuestionType(string $questionType): array
     {
         return match ($questionType) {
-            'ranking', 'ranking_truncated', 'ranking_with_ties' => self::RANKING_RULES,
+            'ranking' => self::RANKING_RULES,
+            'ranking_with_ties', 'ranking_truncated' => self::TRUNCATED_RANKING_RULES,
             'grade', 'star' => self::GRADE_RULES,
             default => [],
         };

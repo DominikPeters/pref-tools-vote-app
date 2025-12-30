@@ -1,6 +1,6 @@
 <?php
 $title = e($poll->title) . ' - Pref.Tools Vote';
-$extraCss = ['/assets/css/question.css', '/assets/css/poll.css'];
+$extraCss = ['/assets/css/question.css', '/assets/css/poll.css', '/assets/css/report.css'];
 $extraJs = ['/assets/js/poll.js'];
 $isEditing = isset($existingResponse) && $existingResponse !== null;
 ob_start();

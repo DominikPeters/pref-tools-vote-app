@@ -7,6 +7,7 @@
 
 import { api, escapeHtml, showToast } from './app.js';
 import { loadAndRenderResults } from './results-core.js';
+import { initReportButton } from './report.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.results-content');
@@ -17,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Try to load reports first
     loadResultsWithReports(publicId, resultsData);
+
+    // Initialize report button
+    initReportButton(publicId);
 });
 
 async function loadResultsWithReports(publicId, container) {
