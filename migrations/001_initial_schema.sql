@@ -46,6 +46,8 @@ CREATE TABLE polls (
 
     notify_on_response BOOLEAN NOT NULL DEFAULT 0,
 
+    thank_you_message TEXT NULL,
+
     created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_at         DATETIME NULL,

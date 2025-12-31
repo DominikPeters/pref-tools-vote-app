@@ -371,4 +371,71 @@ class PollApiTest extends TestCase
 
         $this->assertError($response, 'NOT_FOUND');
     }
+
+    public function test_can_create_poll_with_thank_you_message(): void
+    {
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'Poll with Thank You',
+            'thank_you_message' => '# Thanks!\n\nYour vote counts.',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('# Thanks!\n\nYour vote counts.', $response['poll']['thank_you_message']);
+    }
+
+    public function test_can_update_poll_thank_you_message(): void
+    {
+        $poll = $this->createPoll(['title' => 'Test Poll']);
+
+        // Initially null
+        $this->assertNull($poll->thankYouMessage);
+
+        // Set thank you message
+        $response = $this->callApi('PUT', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}", [
+            'thank_you_message' => '**Thank you** for participating!',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('**Thank you** for participating!', $response['poll']['thank_you_message']);
+
+        // Clear thank you message
+        $response2 = $this->callApi('PUT', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}", [
+            'thank_you_message' => null,
+        ]);
+
+        $this->assertSuccess($response2);
+        $this->assertNull($response2['poll']['thank_you_message']);
+    }
+
+    public function test_public_poll_data_includes_thank_you_message_html(): void
+    {
+        $poll = $this->createPoll([
+            'title' => 'Public Thank You Test',
+            'status' => 'open',
+        ]);
+
+        // Set thank you message with markdown
+        $this->callApi('PUT', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}", [
+            'thank_you_message' => '**Thank you!**',
+        ]);
+
+        // Get public poll data
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}");
+
+        $this->assertSuccess($response);
+        $this->assertEquals('**Thank you!**', $response['poll']['thank_you_message']);
+        $this->assertArrayHasKey('thank_you_message_html', $response['poll']);
+        $this->assertStringContainsString('<strong>Thank you!</strong>', $response['poll']['thank_you_message_html']);
+    }
+
+    public function test_thank_you_message_is_null_when_not_set(): void
+    {
+        $poll = $this->createPoll(['title' => 'No Thank You Message']);
+
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}");
+
+        $this->assertSuccess($response);
+        $this->assertNull($response['poll']['thank_you_message']);
+        $this->assertNull($response['poll']['thank_you_message_html']);
+    }
 }

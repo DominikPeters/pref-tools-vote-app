@@ -121,6 +121,82 @@ class PageController
     }
 
     /**
+     * POST /preview - Preview poll without saving to database
+     */
+    public function preview(array $params): void
+    {
+        // Read data from form POST (JSON string in 'data' field)
+        $jsonString = $_POST['data'] ?? null;
+
+        if (!$jsonString) {
+            // Also try reading raw JSON body
+            $jsonString = file_get_contents('php://input');
+        }
+
+        $data = json_decode($jsonString, true);
+
+        if (!$data) {
+            http_response_code(400);
+            view('error', [
+                'title' => 'Invalid Request',
+                'message' => 'Invalid JSON data provided.',
+            ]);
+            return;
+        }
+
+        // Build Poll object without saving
+        $poll = new Poll();
+        $poll->publicId = 'preview';
+        $poll->title = $data['title'] ?? 'Untitled Poll';
+        $poll->description = $data['description'] ?? null;
+        $poll->status = 'open';
+        $poll->visibility = 'private';
+        $poll->collectName = $data['collect_name'] ?? false;
+        $poll->allowEditOwn = $data['allow_edit_own'] ?? true;
+        $poll->allowEditAny = $data['allow_edit_any'] ?? false;
+        $poll->randomizeOptions = $data['randomize_options'] ?? false;
+        $poll->votingMode = $data['voting_mode'] ?? 'open';
+        $poll->thankYouMessage = $data['thank_you_message'] ?? null;
+
+        // Build Question objects
+        $questionIdCounter = 1;
+        $optionIdCounter = 1;
+
+        foreach ($data['questions'] ?? [] as $index => $qData) {
+            $question = new \App\Models\Question();
+            $question->id = $questionIdCounter++;
+            $question->pollId = 0;
+            $question->sortOrder = $qData['sort_order'] ?? $index;
+            $question->type = $qData['type'] ?? 'single_choice';
+            $question->text = $qData['text'] ?? '';
+            $question->description = $qData['description'] ?? null;
+            $question->required = $qData['required'] ?? true;
+            $question->settings = $qData['settings'] ?? null;
+
+            // Build Option objects
+            foreach ($qData['options'] ?? [] as $oIndex => $oData) {
+                $option = new \App\Models\Option();
+                $option->id = $optionIdCounter++;
+                $option->questionId = $question->id;
+                $option->sortOrder = $oData['sort_order'] ?? $oIndex;
+                $option->label = $oData['label'] ?? '';
+                $option->description = $oData['description'] ?? null;
+                $question->options[] = $option;
+            }
+
+            $poll->questions[] = $question;
+        }
+
+        view('poll', [
+            'poll' => $poll,
+            'user' => Auth::getInstance()->user(),
+            'existingResponse' => null,
+            'hasVoted' => false,
+            'isPreview' => true,
+        ]);
+    }
+
+    /**
      * GET /login - Login/register page
      */
     public function login(array $params): void

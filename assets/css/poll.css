@@ -88,6 +88,12 @@
     color: white;
 }
 
+.poll-status-banner.preview {
+    border: 1px solid var(--color-warning);
+    color: var(--color-warning);
+    font-weight: 500;
+}
+
 .editing-banner {
     background: var(--color-primary);
     color: white;

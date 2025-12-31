@@ -49,6 +49,7 @@ ob_start();
                 <?php else: ?>
                 <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;">Clear</button>
                 <?php endif; ?>
+                <button type="button" class="btn btn-secondary" id="previewBtn">Preview</button>
                 <?php if ($isEditing && $poll->status === 'draft'): ?>
                 <button type="button" class="btn btn-primary" id="saveBtn">Update Draft</button>
                 <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
@@ -67,12 +68,14 @@ ob_start();
     <div class="builder-main">
         <div class="container">
             <!-- Poll Metadata -->
-            <section class="card">
+            <section class="card poll-meta">
                 <div class="form-group">
                     <input type="text" id="pollTitle" class="input-title" placeholder="Untitled Poll" value="">
                 </div>
-                <div class="form-group">
-                    <textarea id="pollDescription" class="input-description" placeholder="Add a description (optional, Markdown supported)"></textarea>
+                <div class="form-group poll-description-group">
+                    <button type="button" class="btn-add-description" id="addPollDescriptionBtn">+ Add description</button>
+                    <textarea id="pollDescription" class="input-description" style="display: none;" placeholder="Description (optional, Markdown supported)"></textarea>
+                    <div id="pollDescriptionPreview" class="description-preview markdown" style="display: none;"></div>
                 </div>
             </section>
 
@@ -132,6 +135,13 @@ ob_start();
                         <span>Randomize option order for each voter</span>
                         <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
                     </label>
+                </div>
+
+                <div class="settings-group" style="margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary btn-small" id="editThankYouBtn">
+                        Customize Thank You Message
+                    </button>
+                    <span id="thankYouStatus" class="status-indicator" style="display: none; margin-left: 0.5rem; color: var(--color-success);">Custom message set</span>
                 </div>
             </section>
 

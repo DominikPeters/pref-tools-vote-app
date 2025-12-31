@@ -9,8 +9,15 @@
  * Click on a question to edit, click outside to collapse back to display.
  */
 
-import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath } from './app.js';
+import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath, escapeHtml } from './app.js';
 import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
+import { marked } from '/assets/lib/marked.esm.js';
+
+// Configure marked to match Parsedown behavior
+marked.setOptions({
+    breaks: true,  // Match Parsedown's setBreaksEnabled(true)
+    gfm: true,     // GitHub Flavored Markdown
+});
 
 // ==========================================================================
 // State Management
@@ -21,6 +28,7 @@ const defaultState = {
     description: '',
     votingMode: 'open',
     randomizeOptions: false,
+    thankYouMessage: '',
     questions: [],
     publicId: null,
     adminToken: null,
@@ -62,15 +70,50 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initElements() {
-    // Title and description
+    // Title
     document.getElementById('pollTitle').addEventListener('input', (e) => {
         state.title = e.target.value || 'Untitled Poll';
         markDirty();
     });
 
-    document.getElementById('pollDescription').addEventListener('input', (e) => {
+    // Poll description with markdown preview
+    const pollDescTextarea = document.getElementById('pollDescription');
+    const pollDescPreview = document.getElementById('pollDescriptionPreview');
+    const addPollDescBtn = document.getElementById('addPollDescriptionBtn');
+
+    pollDescTextarea.addEventListener('input', (e) => {
         state.description = e.target.value;
         markDirty();
+    });
+
+    pollDescTextarea.addEventListener('blur', () => {
+        if (state.description.trim()) {
+            // Show preview
+            pollDescPreview.innerHTML = marked.parse(state.description);
+            pollDescPreview.style.display = '';
+            pollDescTextarea.style.display = 'none';
+            addPollDescBtn.style.display = 'none';
+        } else {
+            // No description - show button
+            state.description = '';
+            pollDescPreview.style.display = 'none';
+            pollDescTextarea.style.display = 'none';
+            addPollDescBtn.style.display = '';
+        }
+    });
+
+    pollDescPreview.addEventListener('click', () => {
+        // Switch to edit mode
+        pollDescPreview.style.display = 'none';
+        pollDescTextarea.style.display = '';
+        pollDescTextarea.focus();
+    });
+
+    addPollDescBtn.addEventListener('click', () => {
+        // Switch to edit mode
+        addPollDescBtn.style.display = 'none';
+        pollDescTextarea.style.display = '';
+        pollDescTextarea.focus();
     });
 
     // Voting mode
@@ -121,6 +164,19 @@ function initElements() {
                 resetForm();
             }
         });
+    }
+
+    // Thank You message button
+    const thankYouBtn = document.getElementById('editThankYouBtn');
+    if (thankYouBtn) {
+        thankYouBtn.addEventListener('click', openThankYouModal);
+        updateThankYouStatus();
+    }
+
+    // Preview button
+    const previewBtn = document.getElementById('previewBtn');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', openPreview);
     }
 }
 
@@ -182,7 +238,26 @@ function setupClickHandling() {
 
 function render() {
     document.getElementById('pollTitle').value = state.title;
-    document.getElementById('pollDescription').value = state.description;
+
+    // Poll description preview setup
+    const pollDescTextarea = document.getElementById('pollDescription');
+    const pollDescPreview = document.getElementById('pollDescriptionPreview');
+    const addPollDescBtn = document.getElementById('addPollDescriptionBtn');
+
+    pollDescTextarea.value = state.description;
+
+    if (state.description.trim()) {
+        // Show preview
+        pollDescPreview.innerHTML = marked.parse(state.description);
+        pollDescPreview.style.display = '';
+        pollDescTextarea.style.display = 'none';
+        addPollDescBtn.style.display = 'none';
+    } else {
+        // Show add button
+        pollDescPreview.style.display = 'none';
+        pollDescTextarea.style.display = 'none';
+        addPollDescBtn.style.display = '';
+    }
 
     // Voting mode
     const votingModeInput = document.querySelector(`input[name="votingMode"][value="${state.votingMode}"]`);
@@ -236,7 +311,12 @@ function renderQuestions() {
             wrapper.innerHTML = dragHandle + renderQuestionEditor(question, index, questionNumber);
             setupEditorEvents(wrapper, question);
         } else {
-            wrapper.innerHTML = dragHandle + renderQuestion(question, {
+            // For display mode, render markdown description client-side
+            const displayQuestion = {
+                ...question,
+                description_html: question.description ? marked.parse(question.description) : null
+            };
+            wrapper.innerHTML = dragHandle + renderQuestion(displayQuestion, {
                 disabled: true,
                 showNumbers: question.type !== 'section_header',
                 questionNumber: questionNumber
@@ -950,6 +1030,7 @@ function loadFromServer(voteData, adminToken) {
 
     state.votingMode = voteData.voting_mode || 'open';
     state.randomizeOptions = voteData.randomize_options || false;
+    state.thankYouMessage = voteData.thank_you_message || '';
     state.modeLocked = !!voteData.mode_locked_at;
 
     state.questions = (voteData.questions || []).map(q => ({
@@ -980,6 +1061,7 @@ function resetForm() {
     state.description = defaultState.description;
     state.votingMode = defaultState.votingMode;
     state.randomizeOptions = defaultState.randomizeOptions;
+    state.thankYouMessage = defaultState.thankYouMessage;
     state.modeLocked = false;
     state.questions = [];
     state.publicId = null;
@@ -995,6 +1077,7 @@ function resetForm() {
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) saveBtn.textContent = 'Save Draft';
 
+    updateThankYouStatus();
     render();
 }
 
@@ -1120,6 +1203,7 @@ function prepareData() {
         description: state.description,
         voting_mode: state.votingMode,
         randomize_options: state.randomizeOptions,
+        thank_you_message: state.thankYouMessage || null,
         questions: state.questions.map((q, index) => ({
             id: q.id,
             type: q.type,
@@ -1180,6 +1264,150 @@ function resetTurnstile() {
         turnstile.reset(turnstileWidgetId);
         turnstileToken = null;
     }
+}
+
+// ==========================================================================
+// Preview
+// ==========================================================================
+
+/**
+ * Open poll preview in a new tab
+ */
+async function openPreview() {
+    // Validate basic requirements
+    if (!state.title.trim()) {
+        showToast('Please add a title before previewing', 'error');
+        return;
+    }
+
+    if (state.questions.length === 0) {
+        showToast('Please add at least one question before previewing', 'error');
+        return;
+    }
+
+    // Prepare data in the same format as prepareData()
+    const data = prepareData();
+
+    try {
+        // POST to /preview and open in new tab
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${basePath}/preview`;
+        form.target = '_blank';
+
+        // Add hidden input with JSON data
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'data';
+        input.value = JSON.stringify(data);
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    } catch (err) {
+        showToast('Failed to open preview', 'error');
+    }
+}
+
+// ==========================================================================
+// Thank You Modal
+// ==========================================================================
+
+function updateThankYouStatus() {
+    const status = document.getElementById('thankYouStatus');
+    if (status) {
+        status.style.display = state.thankYouMessage ? '' : 'none';
+    }
+}
+
+function openThankYouModal() {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-modal-overlay';
+
+    overlay.innerHTML = `
+        <div class="confirm-modal thank-you-modal" style="max-width: 600px;">
+            <div class="confirm-modal-header">
+                <h3>Customize Thank You Message</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p style="margin-bottom: 0.75rem; color: var(--color-text-muted); font-size: 0.875rem;">
+                    Shown to voters after they submit. Supports Markdown formatting.
+                </p>
+                <textarea id="thankYouInput" class="thank-you-textarea" rows="6" placeholder="Thank you for voting!&#10;&#10;Your response has been recorded.">${escapeHtml(state.thankYouMessage || '')}</textarea>
+                <div class="thank-you-preview-section" style="margin-top: 1rem;">
+                    <label style="font-size: 0.875rem; color: var(--color-text-muted); display: block; margin-bottom: 0.5rem;">Preview:</label>
+                    <div id="thankYouPreview" class="thank-you-preview markdown" style="padding: 1rem; background: var(--color-bg); border-radius: 0.5rem; min-height: 3rem;"></div>
+                </div>
+            </div>
+            <div class="confirm-modal-actions">
+                <button class="btn btn-secondary btn-cancel">Cancel</button>
+                <button class="btn btn-danger btn-clear" style="${state.thankYouMessage ? '' : 'display: none'}">Reset to Default</button>
+                <button class="btn btn-primary btn-save">Save</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const textarea = overlay.querySelector('#thankYouInput');
+    const preview = overlay.querySelector('#thankYouPreview');
+    const clearBtn = overlay.querySelector('.btn-clear');
+
+    // Update preview function
+    const updatePreview = () => {
+        const text = textarea.value.trim();
+        if (text) {
+            preview.innerHTML = marked.parse(text);
+        } else {
+            preview.innerHTML = '<p style="color: var(--color-text-muted); font-style: italic;">Default message: "Thank you! Your response has been recorded."</p>';
+        }
+    };
+
+    // Initial preview
+    updatePreview();
+
+    // Update preview on input
+    textarea.addEventListener('input', updatePreview);
+
+    const close = () => {
+        overlay.remove();
+    };
+
+    // Cancel
+    overlay.querySelector('.btn-cancel').addEventListener('click', close);
+
+    // Clear/Reset
+    clearBtn.addEventListener('click', () => {
+        textarea.value = '';
+        updatePreview();
+        clearBtn.style.display = 'none';
+    });
+
+    // Save
+    overlay.querySelector('.btn-save').addEventListener('click', () => {
+        state.thankYouMessage = textarea.value.trim();
+        markDirty();
+        updateThankYouStatus();
+        close();
+    });
+
+    // Click outside to close
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+
+    // Escape to close
+    const handleKeydown = (e) => {
+        if (e.key === 'Escape') {
+            document.removeEventListener('keydown', handleKeydown);
+            close();
+        }
+    };
+    document.addEventListener('keydown', handleKeydown);
+
+    // Focus textarea
+    textarea.focus();
 }
 
 // ==========================================================================

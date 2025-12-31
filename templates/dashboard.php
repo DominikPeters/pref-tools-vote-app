@@ -39,7 +39,7 @@ ob_start();
                         <div class="poll-item">
                             <div class="vote-info">
                                 <h3 class="poll-title"><?= e($poll->title) ?></h3>
-                                <div class="poll-meta">
+                                <div class="poll-meta-info">
                                     <span class="status status-<?= e($poll->status) ?>"><?= ucfirst(e($poll->status)) ?></span>
                                     <span class="response-count"><?= $poll->getResponseCount() ?> responses</span>
                                     <span class="created-date"><?= $poll->createdAt->format('M j, Y') ?></span>

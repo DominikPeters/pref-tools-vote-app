@@ -73,6 +73,11 @@ function initForm() {
     const form = document.getElementById('pollForm');
     if (!form) return;
 
+    // Don't allow submission in preview mode
+    if (window.IS_PREVIEW) {
+        return;
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -115,6 +120,7 @@ function initForm() {
             const container = document.querySelector('.poll-container');
             const canEdit = window.POLL_DATA?.allow_edit_own || window.POLL_DATA?.allow_edit_any;
             const canViewResults = window.POLL_DATA?.results_viewable;
+            const customMessage = window.POLL_DATA?.thank_you_message_html;
 
             let actionsHtml = '';
             if (canEdit) {
@@ -124,11 +130,21 @@ function initForm() {
                 actionsHtml += `<a href="${window.BASE_PATH}/${publicId}/results" class="btn btn-primary">View Results</a>`;
             }
 
+            // Use custom message if set, otherwise default message
+            let messageContent;
+            if (customMessage) {
+                messageContent = `<div class="thank-you-custom markdown">${customMessage}</div>`;
+            } else {
+                messageContent = `
+                    <h2>Thank you!</h2>
+                    <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
+                `;
+            }
+
             container.innerHTML = `
                 <div class="container">
                     <div class="card" style="text-align: center;">
-                        <h2>Thank you!</h2>
-                        <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
+                        ${messageContent}
                         ${actionsHtml ? `
                             <div class="thank-you-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                                 ${actionsHtml}

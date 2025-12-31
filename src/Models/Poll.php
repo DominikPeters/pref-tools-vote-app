@@ -34,6 +34,8 @@ class Poll
 
     public bool $notifyOnResponse = false;
 
+    public ?string $thankYouMessage = null;
+
     public ?\DateTime $createdAt = null;
     public ?\DateTime $updatedAt = null;
     public ?\DateTime $closedAt = null;
@@ -75,6 +77,8 @@ class Poll
         $poll->locale = $row['locale'];
 
         $poll->notifyOnResponse = (bool) ($row['notify_on_response'] ?? false);
+
+        $poll->thankYouMessage = $row['thank_you_message'] ?? null;
 
         $poll->createdAt = new \DateTime($row['created_at']);
         $poll->updatedAt = new \DateTime($row['updated_at']);
@@ -209,6 +213,7 @@ class Poll
                 : null,
             'locale' => $data['locale'] ?? 'en',
             'notify_on_response' => ($data['notify_on_response'] ?? false) ? 1 : 0,
+            'thank_you_message' => $data['thank_you_message'] ?? null,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -229,7 +234,7 @@ class Poll
             'user_id', 'title', 'description', 'status', 'visibility',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
             'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale',
-            'notify_on_response'
+            'notify_on_response', 'thank_you_message'
         ];
 
         foreach ($allowedFields as $field) {
@@ -454,6 +459,8 @@ class Poll
             'requires_password' => $this->accessMode === 'password',
             'requires_identity' => $this->requiresIdentity(),
             'locale' => $this->locale,
+            'thank_you_message' => $this->thankYouMessage,
+            'thank_you_message_html' => $this->thankYouMessage ? markdown($this->thankYouMessage) : null,
             'created_at' => $this->createdAt?->format('c'),
             'closed_at' => $this->closedAt?->format('c'),
             'response_count' => $this->getResponseCount(),
@@ -487,6 +494,7 @@ class Poll
             'mode_locked_at' => $this->modeLockedAt?->format('c'),
             'locale' => $this->locale,
             'notify_on_response' => $this->notifyOnResponse,
+            'thank_you_message' => $this->thankYouMessage,
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
             'closed_at' => $this->closedAt?->format('c'),
