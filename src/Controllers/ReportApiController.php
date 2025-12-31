@@ -85,6 +85,8 @@ class ReportApiController extends ApiController
         $typesByQuestion = [];
         // Get voting rules for each question type
         $votingRulesByQuestion = [];
+        // Get apportionment rules for each question type
+        $apportionmentRulesByQuestion = [];
         // Get social welfare functions for each question type
         $swfsByQuestion = [];
 
@@ -97,12 +99,17 @@ class ReportApiController extends ApiController
                 $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
             }
 
+            if ($question->type === 'single_choice') {
+                $apportionmentRulesByQuestion[$question->id] = \App\Services\ApportionmentRulesRegistry::getRulesAsOptions();
+            }
+
             $swfsByQuestion[$question->id] = \App\Services\SocialWelfareFunctionRegistry::getSWFsAsOptions($question->type);
         }
 
         return $this->success([
             'types_by_question' => $typesByQuestion,
             'voting_rules_by_question' => $votingRulesByQuestion,
+            'apportionment_rules_by_question' => $apportionmentRulesByQuestion,
             'social_welfare_functions_by_question' => $swfsByQuestion,
             'all_types' => ReportRegistry::all(),
         ]);

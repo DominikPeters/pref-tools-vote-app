@@ -558,6 +558,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-bg-card);
+    color: var(--color-text-muted);
     cursor: pointer;
     font-size: 0.875rem;
     transition: all var(--transition-speed) ease;
@@ -611,6 +612,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-bg-card);
+    color: var(--color-text-muted);
     cursor: pointer;
     font-size: 0.875rem;
     transition: all var(--transition-speed) ease;

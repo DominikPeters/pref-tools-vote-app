@@ -250,6 +250,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'apportionmentRules' && questionId && availableTypes?.apportionment_rules_by_question) {
+            options = availableTypes.apportionment_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
             options = availableTypes.social_welfare_functions_by_question[questionId] || [];
         }
@@ -273,6 +275,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'apportionmentRules' && questionId && availableTypes?.apportionment_rules_by_question) {
+            options = availableTypes.apportionment_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
             options = availableTypes.social_welfare_functions_by_question[questionId] || [];
         }

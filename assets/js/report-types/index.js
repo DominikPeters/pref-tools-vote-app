@@ -18,6 +18,8 @@ import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderMultiSWFComparison } from './multi-swf-comparison.js';
 import { renderABCWinner } from './abc-winner.js';
 import { renderABCMultiRuleComparison } from './abc-multi-rule-comparison.js';
+import { renderApportionmentWinner } from './apportionment-winner.js';
+import { renderApportionmentMultiRuleComparison } from './apportionment-multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
@@ -31,11 +33,13 @@ const renderers = {
     'rank_aggregation': renderRankAggregation,
     'abc_winner': renderABCWinner,
     'condorcet_winner': renderCondorcetWinner,
+    'apportionment_winner': renderApportionmentWinner,
     'yna_counts': renderYNACounts,
     'majority_judgment': renderMajorityJudgment,
     'multi_rule_comparison': renderMultiRuleComparison,
     'multi_swf_comparison': renderMultiSWFComparison,
     'abc_multi_rule_comparison': renderABCMultiRuleComparison,
+    'apportionment_multi_rule_comparison': renderApportionmentMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
     'text_block': renderTextBlock,
@@ -84,11 +88,13 @@ export function getReportTypeName(type) {
         'rank_aggregation': 'Rank Aggregation',
         'abc_winner': 'ABC Voting Rule Winner',
         'condorcet_winner': 'Condorcet Winner',
+        'apportionment_winner': 'Apportionment Rule Winner',
         'yna_counts': 'Yes/No/Abstain Tallies',
         'majority_judgment': 'Majority Judgment',
         'multi_rule_comparison': 'Multi-Rule Comparison',
         'multi_swf_comparison': 'Rank Aggregation Rule Comparison',
         'abc_multi_rule_comparison': 'ABC Multi-Rule Comparison',
+        'apportionment_multi_rule_comparison': 'Apportionment Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
         'raw_data_export': 'Export Raw Vote Data',
         'text_block': 'Text Block',
@@ -106,11 +112,13 @@ export function getReportTypeIcon(type) {
         'rank_aggregation': 'list-ol',
         'abc_winner': 'trophy',
         'condorcet_winner': 'crown',
+        'apportionment_winner': 'calculator',
         'yna_counts': 'check-circle',
         'majority_judgment': 'scale-balanced',
         'multi_rule_comparison': 'table',
         'multi_swf_comparison': 'columns',
         'abc_multi_rule_comparison': 'table',
+        'apportionment_multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',
         'text_block': 'file-lines',

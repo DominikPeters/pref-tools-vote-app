@@ -76,9 +76,11 @@ class ReportRegistry
         self::register('rank_aggregation', new Reports\RankAggregationReport());
         self::register('abc_winner', new Reports\ABCWinnerReport());
         self::register('condorcet_winner', new Reports\CondorcetWinnerReport());
+        self::register('apportionment_winner', new Reports\ApportionmentWinnerReport());
         self::register('multi_rule_comparison', new Reports\MultiRuleComparisonReport());
         self::register('multi_swf_comparison', new Reports\MultiSWFComparisonReport());
         self::register('abc_multi_rule_comparison', new Reports\ABCMultiRuleComparisonReport());
+        self::register('apportionment_multi_rule_comparison', new Reports\ApportionmentMultiRuleComparisonReport());
 
         // Grade-based reports
         self::register('majority_judgment', new Reports\MajorityJudgmentReport());

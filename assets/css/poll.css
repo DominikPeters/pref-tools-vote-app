@@ -10,6 +10,7 @@
 .poll-container {
     max-width: 800px;
     margin: 0 auto;
+    padding: var(--spacing-xl) 0;
 }
 
 .poll-header {

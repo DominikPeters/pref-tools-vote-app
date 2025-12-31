@@ -296,7 +296,7 @@
 /* Winner Card */
 .report-winner-card {
     text-align: center;
-    padding: 1.5rem;
+    padding: var(--spacing-sm);
 }
 
 .winner-label,
@@ -796,7 +796,7 @@ label.checkbox-item {
 .report-multi-rule {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.5rem;
 }
 
 .multi-rule-summary h4 {
@@ -1291,6 +1291,83 @@ label.checkbox-item {
     line-height: 1.5;
 }
 
+/* ==========================================================================
+   Apportionment Reports
+   ========================================================================== */
+
+.apportionment-winner .allocation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.allocation-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+.apportionment-winner .party-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.apportionment-winner .party-name {
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apportionment-winner .allocation-data {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.apportionment-winner .votes-count {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.apportionment-winner .seats-count {
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 1.125rem;
+    min-width: 4rem;
+    text-align: right;
+}
+
+.apportionment-comparison .apportionment-comparison-table {
+    font-size: 0.9375rem;
+}
+
+.apportionment-comparison .seats-cell {
+    font-weight: 600;
+}
+
+.apportionment-comparison .total-row th {
+    background: var(--color-bg-secondary);
+    font-weight: 700;
+    border-top: 2px solid var(--color-border);
+}
+
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
 /* Explanation styles */
 .explanation-container {
     /* text-align: left; */
@@ -1307,7 +1384,9 @@ label.checkbox-item {
     font-size: 0.9375rem;
 }
 
-.abcvoting-explanation h3 {
+.abcvoting-explanation h3,
+.apportionment-explanation h2,
+.apportionment-explanation h3 {
     font-size: 1.125rem;
     margin-bottom: 0.75rem;
     color: var(--color-text-strong);
@@ -1327,6 +1406,26 @@ label.checkbox-item {
 .abcvoting-explanation li {
     margin-bottom: 0.375rem;
     color: var(--color-text-muted);
+}
+
+/* Table in explanations */
+.explanation-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.explanation-content th,
+.explanation-content td {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.explanation-content th {
+    background: var(--color-bg-secondary);
+    font-weight: 600;
 }
 
 /* ==========================================================================
