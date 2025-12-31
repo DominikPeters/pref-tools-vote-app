@@ -79,6 +79,7 @@ CREATE TABLE options (
 
     label           VARCHAR(500) NOT NULL,
     description     TEXT NULL,
+    features        TEXT NULL,
 
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

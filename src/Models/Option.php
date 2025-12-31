@@ -12,6 +12,7 @@ class Option
 
     public string $label;
     public ?string $description = null;
+    public ?array $features = null;
 
     public ?\DateTime $createdAt = null;
 
@@ -26,6 +27,7 @@ class Option
         $option->sortOrder = (int) $row['sort_order'];
         $option->label = $row['label'];
         $option->description = $row['description'];
+        $option->features = isset($row['features']) ? json_decode($row['features'], true) : null;
         $option->createdAt = new \DateTime($row['created_at']);
         return $option;
     }
@@ -74,6 +76,7 @@ class Option
             'sort_order' => $data['sort_order'],
             'label' => $data['label'] ?? '',
             'description' => $data['description'] ?? null,
+            'features' => isset($data['features']) ? json_encode($data['features']) : null,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -98,6 +101,9 @@ class Option
         if (array_key_exists('description', $data)) {
             $updateData['description'] = $data['description'];
         }
+        if (array_key_exists('features', $data)) {
+            $updateData['features'] = $data['features'] !== null ? json_encode($data['features']) : null;
+        }
 
         if (!empty($updateData)) {
             $db->update('options', $updateData, 'id = :id', ['id' => $this->id]);
@@ -120,11 +126,17 @@ class Option
      */
     public function toArray(): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'sort_order' => $this->sortOrder,
             'label' => $this->label,
             'description' => $this->description,
         ];
+
+        if ($this->features !== null) {
+            $data['features'] = $this->features;
+        }
+
+        return $data;
     }
 }
