@@ -81,6 +81,7 @@ $router->post('/api/auth/verify-email', [AuthApiController::class, 'verifyEmail'
 $router->post('/api/auth/resend-verification', [AuthApiController::class, 'resendVerification']);
 $router->post('/api/auth/forgot-password', [AuthApiController::class, 'forgotPassword']);
 $router->post('/api/auth/reset-password', [AuthApiController::class, 'resetPassword']);
+$router->put('/api/auth/password', [AuthApiController::class, 'changePassword']);
 
 // Polls
 $router->post('/api/polls', [PollApiController::class, 'create']);

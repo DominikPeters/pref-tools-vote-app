@@ -645,6 +645,52 @@ class AuthApiController extends ApiController
     }
 
     /**
+     * PUT /api/auth/password - Change password (while logged in)
+     */
+    public function changePassword(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $data = $this->getBody();
+
+        $validation = $this->validate($data ?? [], [
+            'current_password' => 'required',
+            'new_password' => 'required|min:8',
+        ]);
+
+        if ($validation) {
+            return $validation;
+        }
+
+        $user = $this->user();
+
+        // Verify current password
+        if (!Auth::verifyPassword($data['current_password'], $user->passwordHash)) {
+            return $this->error('Current password is incorrect', 'INVALID_PASSWORD', 403);
+        }
+
+        // Check that new password is different
+        if (Auth::verifyPassword($data['new_password'], $user->passwordHash)) {
+            return $this->error('New password must be different from current password', 'SAME_PASSWORD', 400);
+        }
+
+        // Update password
+        $hashedPassword = Auth::hashPassword($data['new_password']);
+        $user->updatePassword($hashedPassword);
+
+        // Regenerate session to invalidate other sessions
+        // This keeps the current session valid but changes the session ID
+        session_regenerate_id(true);
+
+        LogService::getInstance()->log('user.password_changed', null, $user->id);
+
+        return $this->success(['message' => 'Password changed successfully']);
+    }
+
+    /**
      * Helper: Send verification email to user
      */
     private function sendVerificationEmail(User $user): void

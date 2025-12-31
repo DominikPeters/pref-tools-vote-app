@@ -416,4 +416,97 @@ class AuthApiTest extends TestCase
 
         $this->assertError($response, 'VALIDATION_ERROR');
     }
+
+    public function test_user_can_change_password(): void
+    {
+        $user = $this->createUser('changepass@example.com', 'oldpassword123');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'oldpassword123',
+            'new_password' => 'newpassword456',
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Verify can login with new password
+        Auth::reset();
+        $loginResponse = $this->callApi('POST', '/api/auth/login', [
+            'email' => 'changepass@example.com',
+            'password' => 'newpassword456',
+        ]);
+
+        $this->assertSuccess($loginResponse);
+    }
+
+    public function test_change_password_fails_with_wrong_current_password(): void
+    {
+        $user = $this->createUser('wrongcurrent@example.com', 'correctpassword');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'wrongpassword',
+            'new_password' => 'newpassword456',
+        ]);
+
+        $this->assertError($response, 'INVALID_PASSWORD');
+    }
+
+    public function test_change_password_requires_authentication(): void
+    {
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'anypassword',
+            'new_password' => 'newpassword456',
+        ]);
+
+        $this->assertError($response, 'AUTH_REQUIRED');
+    }
+
+    public function test_change_password_requires_min_length(): void
+    {
+        $user = $this->createUser('minlenchange@example.com', 'password123');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'password123',
+            'new_password' => 'short',
+        ]);
+
+        $this->assertError($response, 'VALIDATION_ERROR');
+    }
+
+    public function test_change_password_fails_if_same_as_current(): void
+    {
+        $user = $this->createUser('samepass@example.com', 'password123');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'password123',
+            'new_password' => 'password123',
+        ]);
+
+        $this->assertError($response, 'SAME_PASSWORD');
+    }
+
+    public function test_old_password_no_longer_works_after_change(): void
+    {
+        $user = $this->createUser('oldnowork@example.com', 'oldpassword123');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/auth/password', [
+            'current_password' => 'oldpassword123',
+            'new_password' => 'newpassword456',
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Verify old password no longer works
+        Auth::reset();
+        $loginResponse = $this->callApi('POST', '/api/auth/login', [
+            'email' => 'oldnowork@example.com',
+            'password' => 'oldpassword123',
+        ]);
+
+        $this->assertError($loginResponse, 'INVALID_CREDENTIALS');
+    }
 }

@@ -101,6 +101,7 @@ ob_start();
             <h2>Account</h2>
             <p>Logged in as: <strong><?= e($user->name) ?></strong> &lt;<?= e($user->email) ?>&gt;</p>
             <div class="account-actions">
+                <button type="button" class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
                 <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" style="display: inline;">
                     <button type="submit" class="btn btn-secondary">Log Out</button>
                 </form>
@@ -144,6 +145,39 @@ ob_start();
                 </div>
                 <div class="modal-body" id="deleteAccountBody">
                     <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div class="modal" id="changePasswordModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Change Password</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="current_password" required class="form-control" autocomplete="current-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="new_password" required class="form-control" minlength="8" autocomplete="new-password">
+                            <p class="help-text">Must be at least 8 characters</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" name="confirm_password" required class="form-control" minlength="8" autocomplete="new-password">
+                        </div>
+                        <div id="changePasswordError" class="error-message" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
+                    <button type="submit" form="changePasswordForm" class="btn btn-primary" id="changePasswordSubmit">Change Password</button>
                 </div>
             </div>
         </div>

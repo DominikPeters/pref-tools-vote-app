@@ -94,6 +94,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Change Password Modal
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+
+    if (changePasswordBtn && changePasswordModal && changePasswordForm) {
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordModal.classList.add('active');
+            changePasswordForm.reset();
+            document.getElementById('changePasswordError').style.display = 'none';
+        });
+
+        // Close modal handlers
+        changePasswordModal.querySelectorAll('.modal-close, .modal-close-btn, .modal-overlay').forEach(el => {
+            el.addEventListener('click', () => changePasswordModal.classList.remove('active'));
+        });
+
+        // Handle form submission
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('changePasswordError');
+            const submitBtn = document.getElementById('changePasswordSubmit');
+
+            // Client-side validation
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'New passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                errorDiv.textContent = 'New password must be at least 8 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                setButtonLoading(submitBtn);
+                errorDiv.style.display = 'none';
+
+                await api.put('/api/auth/password', {
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                });
+
+                clearButtonLoading(submitBtn);
+                changePasswordModal.classList.remove('active');
+                changePasswordForm.reset();
+                showToast('Password changed successfully!', 'success');
+            } catch (err) {
+                clearButtonLoading(submitBtn);
+                errorDiv.textContent = err.message || 'Failed to change password';
+                errorDiv.style.display = 'block';
+            }
+        });
+    }
+
     // Delete Account Modal
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const deleteAccountModal = document.getElementById('deleteAccountModal');

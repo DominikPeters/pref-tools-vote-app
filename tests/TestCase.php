@@ -179,6 +179,7 @@ abstract class TestCase extends BaseTestCase
         $router->post('/api/auth/resend-verification', [\App\Controllers\AuthApiController::class, 'resendVerification']);
         $router->post('/api/auth/forgot-password', [\App\Controllers\AuthApiController::class, 'forgotPassword']);
         $router->post('/api/auth/reset-password', [\App\Controllers\AuthApiController::class, 'resetPassword']);
+        $router->put('/api/auth/password', [\App\Controllers\AuthApiController::class, 'changePassword']);
 
         // Poll routes
         $router->post('/api/polls', [\App\Controllers\PollApiController::class, 'create']);
