@@ -107,7 +107,6 @@ img {
 
 .main-content {
     flex: 1;
-    padding: var(--spacing-xl) 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -248,7 +247,12 @@ img {
     gap: var(--spacing-sm);
     font-size: 0.875rem;
     color: var(--color-text-muted);
+    margin-top: var(--spacing-md);
     margin-bottom: var(--spacing-md);
+}
+
+.builder-container .breadcrumbs {
+    margin-top: 0;
 }
 
 .breadcrumbs a {
@@ -692,7 +696,8 @@ textarea {
    3D Screenshot Gallery
    -------------------------------------------------------------------------- */
 .screenshot-gallery {
-    padding: var(--spacing-2xl) 0;
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-2xl);
     overflow: hidden;
 }
 
@@ -1395,7 +1400,7 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
 }
 
 .verification-banner {
@@ -2367,9 +2372,21 @@ textarea {
    Privacy Policy Page
    -------------------------------------------------------------------------- */
 
+.policy-container {
+    margin: var(--spacing-xl) auto;
+}
+
 .policy-container h2, .policy-container h3 {
     margin-top: var(--spacing-sm);
     margin-bottom: var(--spacing-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Sysadmin Page
+   -------------------------------------------------------------------------- */
+
+.sysadmin-header {
+    margin-top: var(--spacing-lg);
 }
 
 /* --------------------------------------------------------------------------
@@ -2398,6 +2415,7 @@ textarea {
         flex-direction: column;
         gap: var(--spacing-md);
         text-align: center;
+        margin-top: var(--spacing-xl);
     }
 
     .votes-section .section-header {
