@@ -10,21 +10,28 @@ import { escapeHtml } from '../app.js';
  * Uses a gradient from green (best) to red (worst)
  */
 function getGradeColor(gradeIndex, totalGrades) {
-    if (gradeIndex < 0 || totalGrades <= 1) return '#999';
+    if (gradeIndex < 0 || totalGrades <= 1) return 'var(--color-text-dim)';
+
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const lightness = isDarkMode ? 65 : 45;
 
     // 0 = best (green), totalGrades-1 = worst (red)
     const hue = 120 - (gradeIndex / (totalGrades - 1)) * 120;
-    return `hsl(${hue}, 60%, 45%)`;
+    return `hsl(${hue}, 60%, ${lightness}%)`;
 }
 
 /**
  * Get a color for a star rating
  */
 function getStarColor(value, max) {
-    if (!value || max <= 1) return '#999';
+    if (!value || max <= 1) return 'var(--color-text-dim)';
+
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const lightness = isDarkMode ? 65 : 45;
+
     const ratio = value / max;
     const hue = ratio * 120; // 0 = red, 120 = green
-    return `hsl(${hue}, 60%, 45%)`;
+    return `hsl(${hue}, 60%, ${lightness}%)`;
 }
 
 export function renderResponseMatrix(container, data, config) {
@@ -80,12 +87,21 @@ const checkmarkSvg = `<svg class="cell-checkmark" viewBox="0 0 24 24" fill="none
  * Get background color for a rank (1 = darkest blue, higher = lighter)
  */
 function getRankColor(rank, maxRank) {
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     if (!rank || !maxRank || maxRank <= 1) {
-        return 'hsl(217, 70%, 85%)';
+        return isDarkMode ? 'hsl(217, 40%, 25%)' : 'hsl(217, 70%, 85%)';
     }
-    // Rank 1 = 50% lightness (darker), last rank = 90% lightness (lighter)
-    const lightness = 50 + ((rank - 1) / (maxRank - 1)) * 40;
-    return `hsl(217, 70%, ${lightness}%)`;
+
+    if (isDarkMode) {
+        // Dark mode: Rank 1 = 40% lightness (brighter), last rank = 15% lightness (darker)
+        const lightness = 40 - ((rank - 1) / (maxRank - 1)) * 25;
+        return `hsl(217, 40%, ${lightness}%)`;
+    } else {
+        // Light mode: Rank 1 = 50% lightness (darker), last rank = 90% lightness (lighter)
+        const lightness = 50 + ((rank - 1) / (maxRank - 1)) * 40;
+        return `hsl(217, 70%, ${lightness}%)`;
+    }
 }
 
 /**
@@ -96,6 +112,8 @@ function renderCell(cell, questionType, grades, totalOptions) {
         return `<td class="matrix-cell cell-empty"></td>`;
     }
 
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     switch (cell.type) {
         case 'check':
             return `<td class="matrix-cell ${cell.class}">
@@ -104,7 +122,12 @@ function renderCell(cell, questionType, grades, totalOptions) {
 
         case 'rank': {
             const bgColor = getRankColor(cell.value, totalOptions);
-            const textColor = cell.value <= Math.ceil(totalOptions / 2) ? '#fff' : '#1e40af';
+            let textColor;
+            if (isDarkMode) {
+                textColor = 'var(--color-text)';
+            } else {
+                textColor = cell.value <= Math.ceil(totalOptions / 2) ? '#fff' : '#1e40af';
+            }
             return `<td class="matrix-cell ${cell.class}" style="background-color: ${bgColor}; color: ${textColor};">${cell.display}</td>`;
         }
 

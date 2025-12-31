@@ -5,7 +5,7 @@
  */
 
 import { api, escapeHtml, showUndoToast } from './app.js';
-import { renderReport, getReportTypeName, getReportTypeIcon } from './report-types/index.js';
+import { renderReport, getReportTypeName } from './report-types/index.js';
 
 // SVG Icons (Feather Icons style)
 const icons = {
@@ -196,7 +196,6 @@ function renderReportCard(container, report, options) {
     card.dataset.reportId = report.id;
 
     const typeName = getReportTypeName(report.report_type);
-    const icon = getReportTypeIcon(report.report_type);
     const hasConfig = configurableTypes?.has(report.report_type);
 
     let headerHtml = '';
@@ -343,4 +342,4 @@ function initReportsSortable(container, publicId, adminToken) {
     });
 }
 
-export { renderReport, getReportTypeName, getReportTypeIcon };
+export { renderReport, getReportTypeName };

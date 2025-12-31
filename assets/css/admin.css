@@ -26,18 +26,24 @@
 }
 
 .voting-mode-badge.mode-open {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: var(--color-primary-muted);
+    color: var(--color-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+    .voting-mode-badge.mode-open {
+        color: var(--color-text);
+    }
 }
 
 .voting-mode-badge.mode-identified {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .voting-mode-badge.mode-secret_ballot {
-    background-color: #ede9fe;
-    color: #5b21b6;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
 }
 
 .voting-mode-description {
@@ -261,13 +267,13 @@
 
 .badge-available,
 .badge-pending {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .badge-used {
-    background-color: #e5e7eb;
-    color: #6b7280;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-muted);
 }
 
 /* Invitation Management */
@@ -288,6 +294,8 @@
     resize: vertical;
     min-height: 80px;
     font-family: inherit;
+    background-color: var(--color-bg-card);
+    color: var(--color-text);
 }
 
 .invitation-send button {
@@ -297,12 +305,12 @@
 /* Warning Banner */
 
 .warning-banner {
-    background-color: #fef3c7;
-    border: 1px solid #fbbf24;
+    background-color: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-text);
     border-radius: 0.375rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    color: #92400e;
+    color: var(--color-warning-text);
     font-size: 0.875rem;
 }
 

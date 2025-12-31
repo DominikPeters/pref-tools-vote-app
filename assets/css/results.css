@@ -52,7 +52,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-bottom: 0.25rem;
 }
 
@@ -86,8 +86,8 @@
 
 /* Report Cards */
 .report-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     margin-bottom: 1rem;
 }
@@ -107,8 +107,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
     border-radius: 8px 8px 0 0;
 }
 
@@ -137,7 +137,7 @@
 .report-name {
     flex-grow: 1;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
 }
 
 .report-actions {
@@ -184,8 +184,8 @@
 
 /* Report Drawer */
 .report-drawer {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     margin: 1rem 0;
     overflow: hidden;
@@ -196,8 +196,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border-bottom: 1px solid var(--color-border);
     font-weight: 600;
 }
 
@@ -206,11 +206,11 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .btn-close:hover {
-    color: #374151;
+    color: var(--color-text);
 }
 
 .drawer-content {
@@ -224,8 +224,8 @@
 }
 
 .report-type-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 1rem;
     text-align: left;
@@ -234,30 +234,30 @@
 }
 
 .report-type-card:hover {
-    border-color: #3b82f6;
+    border-color: var(--color-primary);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .report-type-card.disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: #f9fafb;
+    background: var(--color-bg);
 }
 
 .report-type-card.disabled:hover {
-    border-color: #e5e7eb;
+    border-color: var(--color-border);
     box-shadow: none;
 }
 
 .type-name {
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
     margin-bottom: 0.25rem;
 }
 
 .type-description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 /* Config Step */
@@ -274,15 +274,17 @@
     display: block;
     margin-bottom: 0.25rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text);
 }
 
 .config-form .form-control {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border);
     border-radius: 4px;
     font-size: 1rem;
+    background: var(--color-bg-card);
+    color: var(--color-text);
 }
 
 .form-actions {
@@ -300,23 +302,23 @@
 .winner-label,
 .tie-notice {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin: 0 0 0.5rem 0;
 }
 
 .tie-notice {
-    color: #d97706;
+    color: var(--color-warning);
 }
 
 .winner-name {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--color-text-strong);
     margin-bottom: 0.5rem;
 }
 
 .winner-stats {
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .winner-count {
@@ -327,7 +329,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #9ca3af;
+    color: var(--color-text-dim);
     margin: 0 0 0.5rem 0;
 }
 
@@ -348,7 +350,7 @@
     flex-shrink: 0;
     width: 2rem;
     font-weight: 600;
-    color: #9ca3af;
+    color: var(--color-text-dim);
     font-size: 0.875rem;
 }
 
@@ -356,7 +358,7 @@
     flex-shrink: 0;
     width: 120px;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -365,14 +367,14 @@
 .bar-container {
     flex-grow: 1;
     height: 24px;
-    background: #f3f4f6;
+    background: var(--color-bg-secondary);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .bar {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, var(--color-chart-bar-start), var(--color-chart-bar-end));
     border-radius: 4px;
     transition: width 0.3s ease;
     min-width: 4px;
@@ -383,7 +385,7 @@
     min-width: 80px;
     text-align: right;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 /* Pairwise Margins Graph */
@@ -397,31 +399,31 @@
 }
 
 .candidate-node {
-    fill: #fff;
-    stroke: #3b82f6;
+    fill: var(--color-bg-card);
+    stroke: var(--color-primary);
     stroke-width: 2;
 }
 
 .candidate-node.condorcet-winner {
-    fill: #fef3c7;
-    stroke: #d97706;
+    fill: var(--color-warning-bg);
+    stroke: var(--color-warning);
 }
 
 .candidate-label {
     font-size: 12px;
     font-weight: 600;
-    fill: #374151;
+    fill: var(--color-text);
 }
 
 .margin-label {
     font-size: 14px;
     font-weight: 600;
-    fill: #374151;
+    fill: var(--color-text);
 }
 
 .condorcet-notice {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
     padding: 0.5rem 1rem;
     border-radius: 4px;
     margin-bottom: 1rem;
@@ -437,7 +439,7 @@
 
 .results-summary .stat {
     font-size: 0.9rem;
-    color: #4b5563;
+    color: var(--color-text);
 }
 
 .results-summary .stat strong {
@@ -445,7 +447,7 @@
 }
 
 .results-summary .date-info {
-    color: #9ca3af;
+    color: var(--color-text-dim);
     font-size: 0.85rem;
 }
 
@@ -453,11 +455,11 @@
 .result-note,
 .report-note {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .no-data {
-    color: #9ca3af;
+    color: var(--color-text-dim);
     font-style: italic;
 }
 
@@ -467,14 +469,14 @@
 }
 
 .no-reports {
-    color: #9ca3af;
+    color: var(--color-text-dim);
     font-style: italic;
     padding: 1rem 0;
 }
 
 /* Admin Notice */
 .admin-notice {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     margin-top: 0.5rem;
 }
@@ -486,12 +488,12 @@
 
 /* Loading & Error States */
 .report-loading {
-    color: #6b7280;
+    color: var(--color-text-dim);
     font-style: italic;
 }
 
 .report-error {
-    color: #dc2626;
+    color: var(--color-danger);
 }
 
 /* Config Modal */
@@ -501,7 +503,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--color-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -509,7 +511,7 @@
 }
 
 .config-modal {
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
@@ -523,7 +525,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .config-modal .modal-header h3 {
@@ -538,7 +540,7 @@
 .config-modal .form-actions {
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--color-border);
 }
 
 /* Checkboxes list for multi-select config */
@@ -549,9 +551,9 @@
     max-height: 300px;
     overflow-y: auto;
     padding: 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
-    background: #fafafa;
+    background: var(--color-bg);
 }
 
 label.checkbox-item {
@@ -568,7 +570,7 @@ label.checkbox-item {
 }
 
 .checkbox-item:hover {
-    background: #f3f4f6;
+    background: var(--color-bg-secondary);
 }
 
 .checkbox-item input[type="checkbox"] {
@@ -581,7 +583,7 @@ label.checkbox-item {
 
 .checkbox-item .checkbox-label {
     font-size: 0.875rem;
-    color: #374151;
+    color: var(--color-text);
     font-weight: normal;
 }
 
@@ -590,17 +592,17 @@ label.checkbox-item {
    ========================================================================== */
 
 .condorcet-winner .winner-label i {
-    color: #d97706;
+    color: var(--color-warning);
     margin-right: 0.5rem;
 }
 
 .condorcet-no-winner {
-    background: #fef2f2;
+    background: var(--color-danger-bg);
     border-radius: 8px;
 }
 
 .condorcet-no-winner .no-winner-label {
-    color: #991b1b;
+    color: var(--color-danger-text);
     margin: 0 0 0.5rem 0;
     font-size: 0.875rem;
 }
@@ -610,13 +612,13 @@ label.checkbox-item {
 }
 
 .condorcet-no-winner .no-winner-explanation {
-    color: #b91c1c;
+    color: var(--color-danger-text);
     font-size: 0.875rem;
     margin: 0;
 }
 
 .winner-explanation {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     margin-top: 0.5rem;
 }
@@ -638,12 +640,12 @@ label.checkbox-item {
 .yna-table td {
     padding: 0.5rem 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .yna-table th {
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
     font-size: 0.875rem;
 }
 
@@ -652,9 +654,9 @@ label.checkbox-item {
     width: 100px;
 }
 
-.yes-header { color: #059669; }
-.no-header { color: #dc2626; }
-.abstain-header { color: #6b7280; }
+.yes-header { color: var(--color-success); }
+.no-header { color: var(--color-danger); }
+.abstain-header { color: var(--color-text-muted); }
 
 .yna-option {
     font-weight: 500;
@@ -678,9 +680,9 @@ label.checkbox-item {
     min-width: 2px;
 }
 
-.yes-bar { background: #10b981; }
-.no-bar { background: #ef4444; }
-.abstain-bar { background: #9ca3af; }
+.yes-bar { background: var(--color-success); }
+.no-bar { background: var(--color-danger); }
+.abstain-bar { background: var(--color-text-muted); }
 
 .yna-value {
     font-weight: 600;
@@ -689,9 +691,9 @@ label.checkbox-item {
     text-align: right;
 }
 
-.yna-yes .yna-value { color: #059669; }
-.yna-no .yna-value { color: #dc2626; }
-.yna-abstain .yna-value { color: #6b7280; }
+.yna-yes .yna-value { color: var(--color-success); }
+.yna-no .yna-value { color: var(--color-danger); }
+.yna-abstain .yna-value { color: var(--color-text-muted); }
 
 /* ==========================================================================
    Majority Judgment
@@ -721,7 +723,7 @@ label.checkbox-item {
     flex-shrink: 0;
     width: 120px;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -751,7 +753,7 @@ label.checkbox-item {
     top: -4px;
     bottom: -4px;
     width: 3px;
-    background: #1f2937;
+    background: var(--color-text-strong);
     border-radius: 2px;
     transform: translateX(-50%);
 }
@@ -760,7 +762,7 @@ label.checkbox-item {
     flex-shrink: 0;
     width: 80px;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     text-align: left;
 }
 
@@ -770,7 +772,7 @@ label.checkbox-item {
     gap: 1rem;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--color-border);
 }
 
 .mj-legend-item {
@@ -778,7 +780,7 @@ label.checkbox-item {
     align-items: center;
     gap: 0.375rem;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .mj-legend-color {
@@ -800,7 +802,7 @@ label.checkbox-item {
 .multi-rule-summary h4 {
     margin: 0 0 0.75rem 0;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-weight: 600;
 }
 
@@ -815,7 +817,7 @@ label.checkbox-item {
     flex-shrink: 0;
     width: 120px;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -830,7 +832,7 @@ label.checkbox-item {
 
 .summary-bar {
     height: 20px;
-    background: linear-gradient(90deg, #10b981, #34d399);
+    background: linear-gradient(90deg, var(--color-chart-success-start), var(--color-chart-success-end));
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -838,7 +840,7 @@ label.checkbox-item {
 .summary-count {
     flex-shrink: 0;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .multi-rule-table {
@@ -850,35 +852,35 @@ label.checkbox-item {
 .multi-rule-table td {
     padding: 0.625rem 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .multi-rule-table th {
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
     font-size: 0.875rem;
-    background: #f9fafb;
+    background: var(--color-bg-secondary);
 }
 
 .multi-rule-table .rule-name {
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text);
     font-size: 1rem;
     text-transform: none;
     letter-spacing: normal;
 }
 
 .multi-rule-table .rule-winners {
-    color: #1f2937;
+    color: var(--color-text);
 }
 
 .multi-rule-tie {
-    background: #fffbeb;
+    background: var(--color-warning-bg);
 }
 
 .tie-badge {
     font-size: 0.75rem;
-    color: #d97706;
+    color: var(--color-warning-text);
     font-style: italic;
 }
 
@@ -904,14 +906,14 @@ label.checkbox-item {
 .matrix-table th,
 .matrix-table td {
     padding: 0.375rem 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     text-align: center;
 }
 
 .matrix-table th {
-    background: #f9fafb;
+    background: var(--color-bg);
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
 }
 
 .matrix-voter-header {
@@ -929,7 +931,7 @@ label.checkbox-item {
     text-align: left;
     font-weight: 500;
     white-space: nowrap;
-    background: #fafafa;
+    background: var(--color-bg-secondary);
 }
 
 .matrix-cell {
@@ -939,13 +941,13 @@ label.checkbox-item {
 
 /* Cell type styles */
 .cell-empty {
-    background: #f9fafb;
-    color: #d1d5db;
+    background: var(--color-bg);
+    color: var(--color-text-dim);
 }
 
 .cell-yes {
-    background: #dcfce7;
-    color: #15803d;
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .cell-checkmark {
@@ -955,13 +957,13 @@ label.checkbox-item {
 }
 
 .cell-no {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
 }
 
 .cell-abstain {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
 }
 
 .cell-rank {
@@ -998,18 +1000,19 @@ label.checkbox-item {
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0.625rem;
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
+    background: var(--color-primary-muted);
+    color: var(--color-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+    .export-badge {
+        color: var(--color-text);
+    }
 }
 
 .export-stats {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .export-actions {
@@ -1031,7 +1034,7 @@ label.checkbox-item {
 }
 
 .export-preview {
-    background: #1f2937;
+    background: var(--color-text-strong); /* Keep it dark even in light mode for code */
     border-radius: 6px;
     overflow: hidden;
 }
@@ -1042,7 +1045,7 @@ label.checkbox-item {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     font-size: 0.75rem;
     line-height: 1.5;
-    color: #e5e7eb;
+    color: var(--color-text-dim);
     white-space: pre;
     overflow-x: auto;
     max-height: 300px;
@@ -1055,24 +1058,24 @@ label.checkbox-item {
 }
 
 .export-data::-webkit-scrollbar-track {
-    background: #374151;
+    background: var(--color-bg-tertiary);
     border-radius: 4px;
 }
 
 .export-data::-webkit-scrollbar-thumb {
-    background: #6b7280;
+    background: var(--color-text-dim);
     border-radius: 4px;
 }
 
 .export-data::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    background: var(--color-text-muted);
 }
 
 /* Success state for copy button */
 .export-actions .btn-success {
-    background: #059669;
-    border-color: #059669;
-    color: #fff;
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-bg-card);
 }
 
 /* Spinner animation for loading state */
@@ -1088,7 +1091,7 @@ label.checkbox-item {
 /* Text Block Report - Markdown Content */
 .report-text-block .markdown-content {
     line-height: 1.6;
-    color: #374151;
+    color: var(--color-text);
 }
 
 .report-text-block .markdown-content h1,
@@ -1098,7 +1101,7 @@ label.checkbox-item {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--color-text-strong);
 }
 
 .report-text-block .markdown-content h1 { font-size: 1.5rem; }
@@ -1120,14 +1123,14 @@ label.checkbox-item {
 }
 
 .report-text-block .markdown-content code {
-    background: #f3f4f6;
+    background: var(--color-bg-secondary);
     padding: 0.125rem 0.375rem;
     border-radius: 3px;
     font-size: 0.875em;
 }
 
 .report-text-block .markdown-content pre {
-    background: #f3f4f6;
+    background: var(--color-bg-secondary);
     padding: 0.75rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -1140,20 +1143,20 @@ label.checkbox-item {
 }
 
 .report-text-block .markdown-content blockquote {
-    border-left: 3px solid #d1d5db;
+    border-left: 3px solid var(--color-border);
     padding-left: 1rem;
     margin-left: 0;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-style: italic;
 }
 
 .report-text-block .markdown-content a {
-    color: #2563eb;
+    color: var(--color-primary);
     text-decoration: underline;
 }
 
 .report-text-block .markdown-content a:hover {
-    color: #1d4ed8;
+    color: var(--color-primary-dark);
 }
 
 /* ==========================================================================
@@ -1167,9 +1170,9 @@ label.checkbox-item {
     gap: 1rem;
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: #f8fafc;
+    background: var(--color-bg);
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
 }
 
 .visibility-control {
@@ -1181,16 +1184,17 @@ label.checkbox-item {
 .visibility-control label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #475569;
+    color: var(--color-text-muted);
     white-space: nowrap;
 }
 
 .visibility-control select {
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--color-border);
     border-radius: 4px;
-    background: #fff;
+    background: var(--color-bg-card);
+    color: var(--color-text);
     cursor: pointer;
 }
 
@@ -1224,7 +1228,7 @@ label.checkbox-item {
 .abc-winner .committee-size {
     font-size: 1rem;
     font-weight: 600;
-    color: #4b5563;
+    color: var(--color-text);
 }
 
 .committees-container {
@@ -1243,7 +1247,7 @@ label.checkbox-item {
 .committee-idx {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #9ca3af;
+    color: var(--color-text-dim);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
 }
@@ -1259,18 +1263,27 @@ label.checkbox-item {
 }
 
 .committee-members li {
-    background: #eff6ff;
-    color: #1e40af;
+    background: var(--color-primary-muted);
+    color: var(--color-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+    .committee-members li {
+        color: var(--color-text);
+    }
+}
+
+.abc-committee li {
     padding: 0.375rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.9375rem;
     font-weight: 500;
-    border: 1px solid #dbeafe;
+    border: 1px solid var(--color-border);
 }
 
 .abc-multi-rule .committee-size {
     font-weight: 600;
-    color: #4b5563;
+    color: var(--color-text);
     margin-bottom: 0;
 }
 
@@ -1288,22 +1301,22 @@ label.checkbox-item {
     text-align: left;
     margin-top: 1rem;
     padding: 1rem;
-    background: #f9fafb;
+    background: var(--color-bg);
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     font-size: 0.9375rem;
 }
 
 .abcvoting-explanation h3 {
     font-size: 1.125rem;
     margin-bottom: 0.75rem;
-    color: #1f2937;
+    color: var(--color-text-strong);
 }
 
 .abcvoting-explanation h4 {
     font-size: 1rem;
     margin: 1.25rem 0 0.5rem 0;
-    color: #374151;
+    color: var(--color-text);
 }
 
 .abcvoting-explanation ul {
@@ -1313,7 +1326,7 @@ label.checkbox-item {
 
 .abcvoting-explanation li {
     margin-bottom: 0.375rem;
-    color: #4b5563;
+    color: var(--color-text-muted);
 }
 
 /* ==========================================================================
@@ -1327,8 +1340,8 @@ label.checkbox-item {
 }
 
 .aggregated-ranking {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0.5rem;
 }
@@ -1337,7 +1350,7 @@ label.checkbox-item {
     margin: 1rem 0 0.5rem 0;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .ranking-tier {
@@ -1345,7 +1358,7 @@ label.checkbox-item {
     align-items: center;
     gap: 1rem;
     padding: 0.5rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--color-bg-secondary);
 }
 
 .ranking-tier:last-child {
@@ -1356,14 +1369,14 @@ label.checkbox-item {
     flex-shrink: 0;
     width: 2rem;
     height: 2rem;
-    background: #fff;
-    border: 1px solid #d1d5db;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: #374151;
+    color: var(--color-text);
     font-size: 0.875rem;
 }
 
@@ -1375,19 +1388,19 @@ label.checkbox-item {
 }
 
 .tier-option {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.9375rem;
-    color: #1f2937;
+    color: var(--color-text);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .tier-options.is-tied .tier-option {
-    background: #fefce8;
-    border-color: #fef08a;
-    color: #854d0e;
+    background: var(--color-warning-bg);
+    border-color: var(--color-warning-text);
+    color: var(--color-warning-text);
 }
 
 /* ==========================================================================
@@ -1402,8 +1415,8 @@ label.checkbox-item {
 
 .swf-comparison-item {
     padding: 1rem;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
 }
 
@@ -1411,7 +1424,7 @@ label.checkbox-item {
     margin: 0 0 0.75rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1431,15 +1444,15 @@ label.checkbox-item {
 
 .preview-rank {
     font-weight: 600;
-    color: #9ca3af;
+    color: var(--color-text-dim);
     min-width: 1.5rem;
 }
 
 .preview-options {
-    color: #1f2937;
+    color: var(--color-text);
 }
 
 .preview-options.is-tied {
-    color: #854d0e;
+    color: var(--color-warning-text);
     font-style: italic;
 }

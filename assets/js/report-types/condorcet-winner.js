@@ -5,6 +5,10 @@
 
 import { escapeHtml } from '../app.js';
 
+// SVG icons
+const winnerIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>';
+const noWinnerIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>';
+
 export function renderCondorcetWinner(container, data, config) {
     const { exists, winner, message, total_responses } = data;
 
@@ -12,7 +16,7 @@ export function renderCondorcetWinner(container, data, config) {
         const html = `
             <div class="report-winner-card condorcet-winner">
                 <p class="winner-label">
-                    <i class="fa-solid fa-crown"></i>
+                    ${winnerIcon}
                     Condorcet Winner
                 </p>
                 <div class="winner-name">${escapeHtml(winner.option)}</div>
@@ -24,7 +28,7 @@ export function renderCondorcetWinner(container, data, config) {
         const html = `
             <div class="report-winner-card condorcet-no-winner">
                 <p class="no-winner-label">
-                    <i class="fa-solid fa-circle-xmark"></i>
+                    ${noWinnerIcon}
                     No Condorcet Winner
                 </p>
                 <p class="no-winner-explanation">${escapeHtml(message || 'There is a cycle in pairwise preferences')}</p>

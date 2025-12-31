@@ -12,9 +12,12 @@ import { escapeHtml } from '../app.js';
 function getGradeColor(gradeIndex, totalGrades) {
     if (totalGrades <= 1) return 'hsl(120, 60%, 50%)';
 
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const lightness = isDarkMode ? 40 : 50; // Slightly darker segments in dark mode to avoid glare
+
     // 0 = best (green), totalGrades-1 = worst (red)
     const hue = 120 - (gradeIndex / (totalGrades - 1)) * 120;
-    return `hsl(${hue}, 60%, 50%)`;
+    return `hsl(${hue}, 60%, ${lightness}%)`;
 }
 
 export function renderMajorityJudgment(container, data, config) {

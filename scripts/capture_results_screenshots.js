@@ -1,5 +1,5 @@
 /**
- * Standalone script to capture high-quality screenshots of the results page.
+ * Standalone script to capture high-quality screenshots of the results page in light and dark mode.
  * 
  * Usage:
  * 1. Start the server: php -S localhost:8005
@@ -143,174 +143,165 @@ async function captureResultsScreenshots() {
   let browser;
   try {
     browser = await chromium.launch();
-    const context = await browser.newContext({
-      viewport: { width: 800, height: 1200 },
-      deviceScaleFactor: 2,
-    });
-    const page = await context.newPage();
-
-    console.log('📝 Creating poll...');
-    const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData });
-    if (!response.ok()) throw new Error(`Failed to create poll: ${response.status()}`);
-    const result = await response.json();
-    const publicId = result.poll.public_id;
-    const adminToken = result.poll.admin_token;
-    const questions = result.poll.questions;
-
-    console.log(`🗳️ Submitting 4 responses...`);
-    const responsesToSubmit = [
-      // Response 1
-      {
-        answers: {
-          [questions[0].id]: questions[0].options[0].id,
-          [questions[1].id]: [questions[1].options[0].id, questions[1].options[1].id],
-          [questions[2].id]: [questions[2].options[0].id, questions[2].options[1].id, questions[2].options[2].id, questions[2].options[3].id],
-          [questions[3].id]: [questions[3].options[0].id, questions[3].options[1].id, questions[3].options[2].id],
-          [questions[4].id]: { [questions[4].options[0].id]: 1, [questions[4].options[1].id]: 2, [questions[4].options[2].id]: 2 },
-          [questions[5].id]: { [questions[5].options[0].id]: 5, [questions[5].options[1].id]: 4, [questions[5].options[2].id]: 5 },
-          [questions[6].id]: { [questions[6].options[0].id]: 'excellent', [questions[6].options[1].id]: 'very good' },
-          [questions[7].id]: { [questions[7].options[0].id]: '++', [questions[7].options[1].id]: '+' },
-          [questions[8].id]: { [questions[8].options[0].id]: 'yes' },
-        }
-      },
-      // Response 2
-      {
-        answers: {
-          [questions[0].id]: questions[0].options[0].id,
-          [questions[1].id]: [questions[1].options[0].id, questions[1].options[2].id],
-          [questions[2].id]: [questions[2].options[1].id, questions[2].options[0].id, questions[2].options[3].id, questions[2].options[2].id],
-          [questions[3].id]: [questions[3].options[1].id, questions[3].options[2].id, questions[3].options[4].id],
-          [questions[4].id]: { [questions[4].options[1].id]: 1, [questions[4].options[0].id]: 1, [questions[4].options[2].id]: 2 },
-          [questions[5].id]: { [questions[5].options[0].id]: 4, [questions[5].options[1].id]: 5, [questions[5].options[2].id]: 4 },
-          [questions[6].id]: { [questions[6].options[0].id]: 'good', [questions[6].options[1].id]: 'excellent' },
-          [questions[7].id]: { [questions[7].options[0].id]: '+', [questions[7].options[1].id]: '0' },
-          [questions[8].id]: { [questions[8].options[0].id]: 'no' },
-        }
-      },
-      // Response 3
-      {
-        answers: {
-          [questions[0].id]: questions[0].options[2].id,
-          [questions[1].id]: [questions[1].options[1].id, questions[1].options[3].id],
-          [questions[2].id]: [questions[2].options[2].id, questions[2].options[0].id, questions[2].options[1].id, questions[2].options[3].id],
-          [questions[3].id]: [questions[3].options[2].id, questions[3].options[0].id, questions[3].options[5].id],
-          [questions[4].id]: { [questions[4].options[2].id]: 1, [questions[4].options[1].id]: 2, [questions[4].options[0].id]: 3 },
-          [questions[5].id]: { [questions[5].options[0].id]: 3, [questions[5].options[1].id]: 3, [questions[5].options[2].id]: 5 },
-          [questions[6].id]: { [questions[6].options[0].id]: 'very good', [questions[6].options[1].id]: 'good' },
-          [questions[7].id]: { [questions[7].options[0].id]: '0', [questions[7].options[1].id]: '-' },
-          [questions[8].id]: { [questions[8].options[0].id]: 'abstain' },
-        }
-      },
-      // Response 4
-      {
-        answers: {
-          [questions[0].id]: questions[0].options[1].id,
-          [questions[1].id]: [questions[1].options[0].id, questions[1].options[4].id],
-          [questions[2].id]: [questions[2].options[0].id, questions[2].options[3].id, questions[2].options[1].id, questions[2].options[2].id],
-          [questions[3].id]: [questions[3].options[4].id, questions[3].options[1].id, questions[3].options[3].id],
-          [questions[4].id]: { [questions[4].options[0].id]: 1, [questions[4].options[2].id]: 1, [questions[4].options[1].id]: 1 },
-          [questions[5].id]: { [questions[5].options[0].id]: 5, [questions[5].options[1].id]: 5, [questions[5].options[2].id]: 5 },
-          [questions[6].id]: { [questions[6].options[0].id]: 'excellent', [questions[6].options[1].id]: 'fair' },
-          [questions[7].id]: { [questions[7].options[0].id]: '++', [questions[7].options[1].id]: '−−' },
-          [questions[8].id]: { [questions[8].options[0].id]: 'yes' },
-        }
-      }
-    ];
-
-    for (const rData of responsesToSubmit) {
-      await page.request.post(`${BASE_URL}/api/polls/${publicId}/responses`, { data: rData });
-    }
-
-    console.log('📊 Adding reports...');
-    const reportsToAdd = [
-      { qIndex: 0, type: 'choice_counts' },
-      { qIndex: 1, type: 'choice_counts' },
-      { qIndex: 1, type: 'approval_winner' },
-      { qIndex: 2, type: 'borda_scores' },
-      { qIndex: 2, type: 'pairwise_margins' },
-      { qIndex: 2, type: 'voting_rule_winner', config: { rule: 'schulze' } },
-      { qIndex: 3, type: 'voting_rule_winner', config: { rule: 'irv' } },
-      { qIndex: 4, type: 'condorcet_winner' },
-      { qIndex: 5, type: 'majority_judgment' },
-      { qIndex: 6, type: 'majority_judgment' },
-      { qIndex: 7, type: 'majority_judgment' },
-      { qIndex: 8, type: 'yna_counts' }
-    ];
-
-    for (const r of reportsToAdd) {
-      console.log(`   - Adding ${r.type} to question ${r.qIndex}...`);
-      const rResp = await page.request.post(`${BASE_URL}/api/polls/${publicId}/admin/${adminToken}/reports`, {
-        data: {
-          question_id: questions[r.qIndex].id,
-          report_type: r.type,
-          config: r.config || null,
-          is_public: true
-        }
-      });
-      if (!rResp.ok()) {
-        const err = await rResp.text();
-        console.error(`      ❌ Failed to add report ${r.type}: ${err}`);
-      }
-    }
-
-    console.log('📸 Navigating to results page...');
-    await page.goto(`${BASE_URL}/${publicId}/results`, { waitUntil: 'networkidle' });
     
-    console.log('⏳ Waiting for reports to render...');
-    try {
-      await page.waitForSelector('.report-card', { timeout: 10000 });
-    } catch (e) {
-      const html = await page.content();
-      console.error('❌ Timeout waiting for .report-card. Current HTML:', html);
-      throw e;
-    }
-    
-    // Give charts and animations a moment to settle
-    console.log('⏳ Settling animations...');
-    await page.waitForTimeout(2000);
-
-    console.log('🧹 Cleaning up UI for results screenshot...');
-    await page.evaluate(() => {
-      // Hide infra
-      const toHide = ['header', 'footer', 'nav', '.breadcrumbs', '.results-footer'];
-      toHide.forEach(sel => {
-        const el = document.querySelector(sel);
-        if (el) el.style.display = 'none';
-      });
-
-      document.body.style.background = 'white'; // Use white background for the results
-      const mainContent = document.querySelector('.main-content');
-      if (mainContent) mainContent.style.background = 'transparent';
+    for (const theme of ['light', 'dark']) {
+      console.log(`🎨 Capturing results screenshots for ${theme} mode...`);
+      const suffix = theme === 'dark' ? '-dark' : '';
       
-      const container = document.querySelector('.results-container');
-      if (container) {
-        container.style.maxWidth = '100%';
-        container.style.margin = '0';
-        container.style.boxShadow = 'none';
-        container.style.border = 'none';
-        container.style.borderRadius = '0';
-        container.style.padding = '20px';
-        container.style.background = 'white';
+      const context = await browser.newContext({
+        viewport: { width: 800, height: 1200 },
+        deviceScaleFactor: 2,
+        colorScheme: theme
+      });
+      const page = await context.newPage();
+
+      console.log('📝 Creating poll...');
+      const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData });
+      if (!response.ok()) throw new Error(`Failed to create poll: ${response.status()}`);
+      const result = await response.json();
+      const publicId = result.poll.public_id;
+      const adminToken = result.poll.admin_token;
+      const questions = result.poll.questions;
+
+      console.log(`🗳️ Submitting 4 responses...`);
+      const responsesToSubmit = [
+        // Response 1
+        {
+          answers: {
+            [questions[0].id]: questions[0].options[0].id,
+            [questions[1].id]: [questions[1].options[0].id, questions[1].options[1].id],
+            [questions[2].id]: [questions[2].options[0].id, questions[2].options[1].id, questions[2].options[2].id, questions[2].options[3].id],
+            [questions[3].id]: [questions[3].options[0].id, questions[3].options[1].id, questions[3].options[2].id],
+            [questions[4].id]: { [questions[4].options[0].id]: 1, [questions[4].options[1].id]: 2, [questions[4].options[2].id]: 2 },
+            [questions[5].id]: { [questions[5].options[0].id]: 5, [questions[5].options[1].id]: 4, [questions[5].options[2].id]: 5 },
+            [questions[6].id]: { [questions[6].options[0].id]: 'excellent', [questions[6].options[1].id]: 'very good' },
+            [questions[7].id]: { [questions[7].options[0].id]: '++', [questions[7].options[1].id]: '+' },
+            [questions[8].id]: { [questions[8].options[0].id]: 'yes' },
+          }
+        },
+        // Response 2
+        {
+          answers: {
+            [questions[0].id]: questions[0].options[0].id,
+            [questions[1].id]: [questions[1].options[0].id, questions[1].options[2].id],
+            [questions[2].id]: [questions[2].options[1].id, questions[2].options[0].id, questions[2].options[3].id, questions[2].options[2].id],
+            [questions[3].id]: [questions[3].options[1].id, questions[3].options[2].id, questions[3].options[4].id],
+            [questions[4].id]: { [questions[4].options[1].id]: 1, [questions[4].options[0].id]: 1, [questions[4].options[2].id]: 2 },
+            [questions[5].id]: { [questions[5].options[0].id]: 4, [questions[5].options[1].id]: 5, [questions[5].options[2].id]: 4 },
+            [questions[6].id]: { [questions[6].options[0].id]: 'good', [questions[6].options[1].id]: 'excellent' },
+            [questions[7].id]: { [questions[7].options[0].id]: '+', [questions[7].options[1].id]: '0' },
+            [questions[8].id]: { [questions[8].options[0].id]: 'no' },
+          }
+        },
+        // Response 3
+        {
+          answers: {
+            [questions[0].id]: questions[0].options[2].id,
+            [questions[1].id]: [questions[1].options[1].id, questions[1].options[3].id],
+            [questions[2].id]: [questions[2].options[2].id, questions[2].options[0].id, questions[2].options[1].id, questions[2].options[3].id],
+            [questions[3].id]: [questions[3].options[2].id, questions[3].options[0].id, questions[3].options[5].id],
+            [questions[4].id]: { [questions[4].options[2].id]: 1, [questions[4].options[1].id]: 2, [questions[4].options[0].id]: 3 },
+            [questions[5].id]: { [questions[5].options[0].id]: 3, [questions[5].options[1].id]: 3, [questions[5].options[2].id]: 5 },
+            [questions[6].id]: { [questions[6].options[0].id]: 'very good', [questions[6].options[1].id]: 'good' },
+            [questions[7].id]: { [questions[7].options[0].id]: '0', [questions[7].options[1].id]: '-' },
+            [questions[8].id]: { [questions[8].options[0].id]: 'abstain' },
+          }
+        },
+        // Response 4
+        {
+          answers: {
+            [questions[0].id]: questions[0].options[1].id,
+            [questions[1].id]: [questions[1].options[0].id, questions[1].options[4].id],
+            [questions[2].id]: [questions[2].options[0].id, questions[2].options[3].id, questions[2].options[1].id, questions[2].options[2].id],
+            [questions[3].id]: [questions[3].options[4].id, questions[3].options[1].id, questions[3].options[3].id],
+            [questions[4].id]: { [questions[4].options[0].id]: 1, [questions[4].options[2].id]: 1, [questions[4].options[1].id]: 1 },
+            [questions[5].id]: { [questions[5].options[0].id]: 5, [questions[5].options[1].id]: 5, [questions[5].options[2].id]: 5 },
+            [questions[6].id]: { [questions[6].options[0].id]: 'excellent', [questions[6].options[1].id]: 'fair' },
+            [questions[7].id]: { [questions[7].options[0].id]: '++', [questions[7].options[1].id]: '−−' },
+            [questions[8].id]: { [questions[8].options[0].id]: 'yes' },
+          }
+        }
+      ];
+
+      for (const rData of responsesToSubmit) {
+        await page.request.post(`${BASE_URL}/api/polls/${publicId}/responses`, { data: rData });
       }
 
-      // Ensure all charts are fully visible
-      const charts = document.querySelectorAll('canvas');
-      charts.forEach(c => {
-        c.style.maxWidth = '100%';
-        // Disable responsiveness/animations if possible via style (though Chart.js might need more)
+      console.log('📊 Adding reports...');
+      const reportsToAdd = [
+        { qIndex: 0, type: 'choice_counts' },
+        { qIndex: 1, type: 'choice_counts' },
+        { qIndex: 1, type: 'approval_winner' },
+        { qIndex: 2, type: 'borda_scores' },
+        { qIndex: 2, type: 'pairwise_margins' },
+        { qIndex: 2, type: 'voting_rule_winner', config: { rule: 'schulze' } },
+        { qIndex: 3, type: 'voting_rule_winner', config: { rule: 'irv' } },
+        { qIndex: 4, type: 'condorcet_winner' },
+        { qIndex: 5, type: 'majority_judgment' },
+        { qIndex: 6, type: 'majority_judgment' },
+        { qIndex: 7, type: 'majority_judgment' },
+        { qIndex: 8, type: 'yna_counts' }
+      ];
+
+      for (const r of reportsToAdd) {
+        await page.request.post(`${BASE_URL}/api/polls/${publicId}/admin/${adminToken}/reports`, {
+          data: {
+            question_id: questions[r.qIndex].id,
+            report_type: r.type,
+            config: r.config || null,
+            is_public: true
+          }
+        });
+      }
+
+      console.log('📸 Navigating to results page...');
+      await page.goto(`${BASE_URL}/${publicId}/results`, { waitUntil: 'networkidle' });
+      await page.waitForSelector('.report-card');
+      
+      // Give charts and animations a moment to settle
+      await page.waitForTimeout(2000);
+
+      console.log('🧹 Cleaning up UI for results screenshot...');
+      await page.evaluate(() => {
+        // Hide infra
+        const toHide = ['header', 'footer', 'nav', '.breadcrumbs', '.results-footer'];
+        toHide.forEach(sel => {
+          const el = document.querySelector(sel);
+          if (el) el.style.display = 'none';
+        });
+
+        document.body.style.background = 'transparent';
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) mainContent.style.background = 'transparent';
+        
+        const container = document.querySelector('.results-container');
+        if (container) {
+          container.style.maxWidth = '100%';
+          container.style.margin = '0';
+          container.style.boxShadow = 'none';
+          container.style.border = 'none';
+          container.style.borderRadius = '0';
+          container.style.padding = '20px';
+          container.style.background = 'var(--color-bg)';
+        }
+
+        // Ensure all charts are fully visible
+        const charts = document.querySelectorAll('canvas');
+        charts.forEach(c => c.style.maxWidth = '100%');
       });
-    });
 
-    const resultsContainer = page.locator('.results-container');
-    console.log('📸 Capturing screenshot...');
-    await resultsContainer.screenshot({
-      path: path.join(SCREENSHOT_DIR, 'full_results_container.png'),
-      omitBackground: false, // Don't omit for results, we want the white background
-      animations: 'disabled'
-    });
-    console.log('   - Saved full_results_container.png');
+      const resultsContainer = page.locator('.results-container');
+      await resultsContainer.screenshot({
+        path: path.join(SCREENSHOT_DIR, `full_results_container${suffix}.png`),
+        omitBackground: true,
+        animations: 'disabled'
+      });
+      console.log(`   - Saved full_results_container${suffix}.png`);
 
-    console.log('\n✨ Done! Results screenshot is in the "screenshots" folder.');
+      await context.close();
+    }
+
+    console.log('\n✨ Done! Results screenshots are in the "screenshots" folder.');
 
   } catch (error) {
     console.error('❌ Error:', error.message);

@@ -343,6 +343,33 @@ document.addEventListener('keydown', function(e) {
         navigateLightbox(1);
     }
 });
+
+// Dark mode image switching
+function updateImagesForTheme() {
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const screenshots = document.querySelectorAll('img[src*="/screenshots/"]');
+    
+    screenshots.forEach(img => {
+        let src = img.src;
+        // Skip images already in the correct state
+        if (isDarkMode && src.includes('-dark.png')) return;
+        if (!isDarkMode && !src.includes('-dark.png')) return;
+        
+        if (isDarkMode) {
+            img.src = src.replace('.png', '-dark.png');
+        } else {
+            img.src = src.replace('-dark.png', '.png');
+        }
+    });
+}
+
+// Initial check
+updateImagesForTheme();
+
+// Watch for system theme changes
+if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateImagesForTheme);
+}
 </script>
 
 <?php

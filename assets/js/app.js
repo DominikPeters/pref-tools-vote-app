@@ -98,21 +98,25 @@ export function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = message;
+    
+    const bgColor = type === 'error' ? 'var(--color-danger)' : type === 'success' ? 'var(--color-success)' : 'var(--color-primary)';
+    
     toast.style.cssText = `
         position: fixed;
         bottom: 20px;
         right: 20px;
         padding: 12px 24px;
-        background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#22c55e' : '#2563eb'};
+        background: ${bgColor};
         color: white;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-lg);
         z-index: 9999;
         animation: slideIn 0.3s ease;
     `;
     // Style any links in the toast
     toast.querySelectorAll('a').forEach(a => {
-        a.style.color = 'white';
+        a.style.color = 'inherit';
+        a.style.fontWeight = '600';
         a.style.textDecoration = 'underline';
     });
 
@@ -139,10 +143,10 @@ export function showUndoToast(message, onUndo, duration = 5000) {
         bottom: 20px;
         right: 20px;
         padding: 12px 16px;
-        background: #1e293b;
-        color: white;
+        background: var(--color-bg-tooltip);
+        color: var(--color-text-tooltip);
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-lg);
         z-index: 9999;
         animation: slideIn 0.3s ease;
         display: flex;
@@ -158,8 +162,8 @@ export function showUndoToast(message, onUndo, duration = 5000) {
     undoBtn.textContent = 'Undo';
     undoBtn.style.cssText = `
         background: transparent;
-        border: 1px solid rgba(255,255,255,0.3);
-        color: white;
+        border: 1px solid var(--color-border-muted);
+        color: inherit;
         padding: 4px 12px;
         border-radius: 4px;
         cursor: pointer;
@@ -167,7 +171,7 @@ export function showUndoToast(message, onUndo, duration = 5000) {
         font-weight: 500;
     `;
     undoBtn.addEventListener('mouseenter', () => {
-        undoBtn.style.background = 'rgba(255,255,255,0.1)';
+        undoBtn.style.background = 'rgba(128,128,128,0.1)';
     });
     undoBtn.addEventListener('mouseleave', () => {
         undoBtn.style.background = 'transparent';

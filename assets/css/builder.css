@@ -69,27 +69,30 @@
     border-bottom: 2px solid transparent;
     padding: var(--spacing-sm) 0;
     width: 100%;
-    background: transparent;
+    background: transparent !important;
+    color: var(--color-text);
 }
 
 .input-title:focus {
     outline: none;
     border-bottom-color: var(--color-primary);
+    box-shadow: none;
 }
 
 .input-description {
-    border: none;
+    border: none !important;
     resize: none;
     width: 100%;
     min-height: 60px;
     padding: var(--spacing-sm) 0;
-    background: transparent;
+    background: transparent !important;
     font-size: 1rem;
     color: var(--color-text-muted);
 }
 
 .input-description:focus {
     outline: none;
+    box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -181,6 +184,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     position: relative;
+    margin-bottom: var(--spacing-lg);
 }
 
 /* Accent bar at top (like MS Forms) */
@@ -246,12 +250,14 @@
     border: none;
     border-bottom: 2px solid var(--color-border);
     padding: var(--spacing-sm) 0;
-    background: transparent;
+    background: transparent !important;
+    color: var(--color-text);
 }
 
 .question-title-input:focus {
     outline: none;
     border-bottom-color: var(--color-primary);
+    box-shadow: none;
 }
 
 .question-type-select {
@@ -400,6 +406,8 @@
     padding: var(--spacing-md) var(--spacing-lg);
     border-top: 1px solid var(--color-border);
     background: var(--color-bg);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
 }
 
 .editor-footer > .required-toggle {
@@ -410,7 +418,7 @@
    Add Question Button
    -------------------------------------------------------------------------- */
 .add-question-wrapper {
-    margin: var(--spacing-lg) 0;
+    margin-bottom: var(--spacing-lg);
 }
 
 /* When questions list is empty, reduce top margin to avoid awkward gap */
@@ -601,7 +609,7 @@
    Voting Mode Selector
    -------------------------------------------------------------------------- */
 .voting-mode-panel {
-    margin-top: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
 }
 
 .voting-mode-panel h2 {
@@ -632,7 +640,7 @@
 
 .mode-card {
     border: 2px solid var(--color-border);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-md);
     padding: var(--spacing-lg);
     transition: border-color 0.15s, background-color 0.15s;
     height: 100%;
@@ -679,12 +687,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    background-color: #fef3c7;
-    border: 1px solid #fbbf24;
-    border-radius: var(--border-radius);
+    background-color: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-text);
+    border-radius: var(--radius-md);
     padding: var(--spacing-md);
     margin-top: var(--spacing-lg);
-    color: #92400e;
+    color: var(--color-warning-text);
     font-size: 0.875rem;
 }
 
