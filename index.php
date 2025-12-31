@@ -72,6 +72,7 @@ $router->get('/:publicId/results', [PageController::class, 'results']);
 $router->get('/:publicId/admin/:adminToken', [PageController::class, 'admin']);
 $router->get('/:publicId/admin/:adminToken/edit', [PageController::class, 'builder']);
 $router->get('/:publicId/admin/:adminToken/results', [PageController::class, 'resultsAdmin']);
+$router->get('/:publicId/admin/:adminToken/responses', [PageController::class, 'responsesAdmin']);
 
 // ============================================
 // API Routes (JSON)

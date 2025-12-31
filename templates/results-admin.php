@@ -21,6 +21,7 @@ ob_start();
                 </div>
                 <div class="results-header-actions">
                     <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>" class="btn btn-secondary">Back to Admin</a>
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>/responses" class="btn btn-secondary">Browse Responses</a>
                     <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary" target="_blank">View Public Results</a>
                 </div>
             </div>
