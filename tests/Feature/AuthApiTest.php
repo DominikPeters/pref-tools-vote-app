@@ -509,4 +509,69 @@ class AuthApiTest extends TestCase
 
         $this->assertError($loginResponse, 'INVALID_CREDENTIALS');
     }
+
+    // =========================================================================
+    // Change Name Tests
+    // =========================================================================
+
+    public function test_user_can_change_name(): void
+    {
+        $user = $this->createUser('changename@example.com', 'password123', 'Old Name');
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/user/name', [
+            'name' => 'New Name',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('New Name', $response['user']['name']);
+
+        // Verify in database
+        $updatedUser = User::find($user->id);
+        $this->assertEquals('New Name', $updatedUser->name);
+    }
+
+    public function test_change_name_requires_authentication(): void
+    {
+        $response = $this->callApi('PUT', '/api/user/name', [
+            'name' => 'New Name',
+        ]);
+
+        $this->assertError($response, 'AUTH_REQUIRED');
+    }
+
+    public function test_change_name_requires_name_field(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/user/name', []);
+
+        $this->assertError($response, 'VALIDATION_ERROR');
+    }
+
+    public function test_change_name_rejects_empty_name(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/user/name', [
+            'name' => '   ',
+        ]);
+
+        $this->assertError($response, 'EMPTY_NAME');
+    }
+
+    public function test_change_name_trims_whitespace(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $response = $this->callApi('PUT', '/api/user/name', [
+            'name' => '  Trimmed Name  ',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals('Trimmed Name', $response['user']['name']);
+    }
 }

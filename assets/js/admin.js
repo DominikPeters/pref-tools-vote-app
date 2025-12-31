@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize settings
     initSettings(publicId, adminToken);
 
+    // Response notification setting
+    initNotificationSetting(publicId, adminToken);
+
     // Action buttons
     const publishBtn = document.getElementById('publishPoll');
     if (publishBtn) {
@@ -747,6 +750,28 @@ function initSettings(publicId, adminToken) {
             showToast(err.message, 'error');
         } finally {
             clearButtonLoading(saveBtn);
+        }
+    });
+}
+
+// ==========================================================================
+// Notification Setting
+// ==========================================================================
+
+function initNotificationSetting(publicId, adminToken) {
+    const checkbox = document.getElementById('notifyOnResponse');
+    if (!checkbox) return;
+
+    checkbox.addEventListener('change', async () => {
+        try {
+            await api.put(`/api/polls/${publicId}/admin/${adminToken}`, {
+                notify_on_response: checkbox.checked,
+            });
+            showToast(checkbox.checked ? 'Email notifications enabled' : 'Email notifications disabled', 'success');
+        } catch (err) {
+            // Revert checkbox on error
+            checkbox.checked = !checkbox.checked;
+            showToast(err.message, 'error');
         }
     });
 }

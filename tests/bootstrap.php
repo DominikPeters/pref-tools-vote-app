@@ -118,3 +118,23 @@ function asset(string $path): string
     $version = file_exists($fullPath) ? filemtime($fullPath) : time();
     return $base . '/assets/' . ltrim($path, '/') . '?v=' . $version;
 }
+
+/**
+ * Render markdown to HTML safely
+ */
+function markdown(?string $text): string
+{
+    if ($text === null || $text === '') {
+        return '';
+    }
+
+    static $parsedown = null;
+    if ($parsedown === null) {
+        require_once BASE_PATH . '/lib/Parsedown/Parsedown.php';
+        $parsedown = new \Parsedown();
+        $parsedown->setSafeMode(true);
+        $parsedown->setBreaksEnabled(true);
+    }
+
+    return $parsedown->text($text);
+}

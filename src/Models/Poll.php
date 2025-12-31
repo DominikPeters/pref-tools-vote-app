@@ -32,6 +32,8 @@ class Poll
 
     public string $locale = 'en';
 
+    public bool $notifyOnResponse = false;
+
     public ?\DateTime $createdAt = null;
     public ?\DateTime $updatedAt = null;
     public ?\DateTime $closedAt = null;
@@ -71,6 +73,8 @@ class Poll
             : null;
 
         $poll->locale = $row['locale'];
+
+        $poll->notifyOnResponse = (bool) ($row['notify_on_response'] ?? false);
 
         $poll->createdAt = new \DateTime($row['created_at']);
         $poll->updatedAt = new \DateTime($row['updated_at']);
@@ -204,6 +208,7 @@ class Poll
                 ? json_encode($data['access_methods'])
                 : null,
             'locale' => $data['locale'] ?? 'en',
+            'notify_on_response' => ($data['notify_on_response'] ?? false) ? 1 : 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -223,14 +228,15 @@ class Poll
         $allowedFields = [
             'user_id', 'title', 'description', 'status', 'visibility',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
-            'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale'
+            'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale',
+            'notify_on_response'
         ];
 
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
                 $value = $data[$field];
                 // Convert booleans to integers
-                if (in_array($field, ['collect_name', 'allow_edit_own', 'allow_edit_any', 'randomize_options'])) {
+                if (in_array($field, ['collect_name', 'allow_edit_own', 'allow_edit_any', 'randomize_options', 'notify_on_response'])) {
                     $value = $value ? 1 : 0;
                 }
                 // JSON encode arrays
@@ -480,6 +486,7 @@ class Poll
             'mode_locked' => $this->isModeLocked(),
             'mode_locked_at' => $this->modeLockedAt?->format('c'),
             'locale' => $this->locale,
+            'notify_on_response' => $this->notifyOnResponse,
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
             'closed_at' => $this->closedAt?->format('c'),

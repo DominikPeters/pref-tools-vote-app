@@ -62,6 +62,44 @@
     line-height: 1.5;
 }
 
+/* Markdown styling for question descriptions */
+.question-description.markdown p {
+    margin: 0 0 0.75em 0;
+}
+
+.question-description.markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.question-description.markdown a {
+    color: var(--color-primary);
+}
+
+.question-description.markdown ul,
+.question-description.markdown ol {
+    margin: 0 0 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.question-description.markdown code {
+    background: var(--color-bg-secondary);
+    padding: 0.1em 0.3em;
+    border-radius: var(--radius-sm);
+    font-size: 0.9em;
+}
+
+.section-header-description.markdown p {
+    margin: 0 0 0.75em 0;
+}
+
+.section-header-description.markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.section-header-description.markdown a {
+    color: var(--color-primary);
+}
+
 .question-display .question-input {
     margin-top: var(--spacing-md);
 }

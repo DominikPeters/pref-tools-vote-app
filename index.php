@@ -148,6 +148,7 @@ $router->get('/api/user/data', [AuthApiController::class, 'userData']);
 $router->get('/api/user/export', [AuthApiController::class, 'exportData']);
 $router->get('/api/user/deletion-preview', [AuthApiController::class, 'deletionPreview']);
 $router->delete('/api/user', [AuthApiController::class, 'deleteAccount']);
+$router->put('/api/user/name', [AuthApiController::class, 'changeName']);
 
 // Sysadmin API
 $router->get('/api/sysadmin/stats', [SysadminApiController::class, 'stats']);

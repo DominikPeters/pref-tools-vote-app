@@ -177,6 +177,36 @@ class PollApiTest extends TestCase
         $this->assertTrue($response['poll']['randomize_options']);
     }
 
+    public function test_notify_on_response_setting(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        // Create poll without notifications
+        $response = $this->callApi('POST', '/api/polls', [
+            'title' => 'Notification Test Poll',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertFalse($response['poll']['notify_on_response']);
+
+        // Enable notifications
+        $updateResponse = $this->callApi('PUT', "/api/polls/{$response['poll']['public_id']}/admin/{$response['poll']['admin_token']}", [
+            'notify_on_response' => true,
+        ]);
+
+        $this->assertSuccess($updateResponse);
+        $this->assertTrue($updateResponse['poll']['notify_on_response']);
+
+        // Disable notifications
+        $updateResponse2 = $this->callApi('PUT', "/api/polls/{$response['poll']['public_id']}/admin/{$response['poll']['admin_token']}", [
+            'notify_on_response' => false,
+        ]);
+
+        $this->assertSuccess($updateResponse2);
+        $this->assertFalse($updateResponse2['poll']['notify_on_response']);
+    }
+
     public function test_response_count_is_included(): void
     {
         $poll = $this->createPoll(['status' => 'open']);

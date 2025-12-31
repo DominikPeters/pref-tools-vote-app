@@ -155,6 +155,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Change Name Modal
+    const changeNameBtn = document.getElementById('changeNameBtn');
+    const changeNameModal = document.getElementById('changeNameModal');
+    const changeNameForm = document.getElementById('changeNameForm');
+
+    if (changeNameBtn && changeNameModal && changeNameForm) {
+        changeNameBtn.addEventListener('click', () => {
+            changeNameModal.classList.add('active');
+            document.getElementById('changeNameError').style.display = 'none';
+        });
+
+        // Close modal handlers
+        changeNameModal.querySelectorAll('.modal-close, .modal-close-btn, .modal-overlay').forEach(el => {
+            el.addEventListener('click', () => changeNameModal.classList.remove('active'));
+        });
+
+        // Handle form submission
+        changeNameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newName = document.getElementById('newName').value.trim();
+            const errorDiv = document.getElementById('changeNameError');
+            const submitBtn = document.getElementById('changeNameSubmit');
+
+            // Client-side validation
+            if (!newName) {
+                errorDiv.textContent = 'Please enter a name';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                setButtonLoading(submitBtn);
+                errorDiv.style.display = 'none';
+
+                await api.put('/api/user/name', {
+                    name: newName,
+                });
+
+                clearButtonLoading(submitBtn);
+                changeNameModal.classList.remove('active');
+                showToast('Name changed successfully!', 'success');
+                // Reload to update the displayed name
+                location.reload();
+            } catch (err) {
+                clearButtonLoading(submitBtn);
+                errorDiv.textContent = err.message || 'Failed to change name';
+                errorDiv.style.display = 'block';
+            }
+        });
+    }
+
     // Delete Account Modal
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const deleteAccountModal = document.getElementById('deleteAccountModal');

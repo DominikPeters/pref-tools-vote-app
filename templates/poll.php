@@ -18,8 +18,8 @@ ob_start();
         <header class="poll-header">
             <h1><?= e($poll->title) ?></h1>
             <?php if ($poll->description): ?>
-                <div class="poll-description">
-                    <?= nl2br(e($poll->description)) ?>
+                <div class="poll-description markdown">
+                    <?= markdown($poll->description) ?>
                 </div>
             <?php endif; ?>
             <?php if ($poll->status === 'draft'): ?>

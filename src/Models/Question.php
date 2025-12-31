@@ -326,6 +326,7 @@ class Question
             'type' => $this->type,
             'text' => $this->text,
             'description' => $this->description,
+            'description_html' => $this->description ? markdown($this->description) : null,
             'required' => $this->required,
             'settings' => $this->settings,
             'options' => array_map(fn($o) => $o->toArray(), $this->options),

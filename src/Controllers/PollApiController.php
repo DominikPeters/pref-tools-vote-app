@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Option;
 use App\Models\Response;
 use App\Models\Report;
+use App\Models\User;
 use App\Models\AccessToken;
 use App\Models\EmailInvitation;
 use App\Models\SiteSetting;
@@ -519,6 +520,9 @@ class PollApiController extends ApiController
 
             // Invalidate report caches
             Report::invalidateCacheForPoll($poll->id);
+
+            // Send email notification to poll owner if enabled
+            $this->sendResponseNotification($poll, $response);
 
             $response->loadAnswers();
 
@@ -1116,5 +1120,68 @@ class PollApiController extends ApiController
         }
 
         return $merged;
+    }
+
+    /**
+     * Send email notification to poll owner when a response is submitted
+     */
+    private function sendResponseNotification(Poll $poll, Response $response): void
+    {
+        // Check if notifications are enabled
+        if (!$poll->notifyOnResponse) {
+            return;
+        }
+
+        // Check if poll has an owner
+        if (!$poll->userId) {
+            return;
+        }
+
+        // Get the poll owner
+        $owner = User::find($poll->userId);
+        if (!$owner || !$owner->emailVerifiedAt) {
+            return;
+        }
+
+        // Check if mail is configured
+        $mailService = new MailService();
+        if (!$mailService->isConfigured()) {
+            return;
+        }
+
+        // Get response count for the "Response #X" display
+        $responseNumber = $poll->getResponseCount();
+
+        // Build the view URL with the response ID parameter
+        $viewUrl = url($poll->publicId . '/admin/' . $poll->adminToken . '/responses?r=' . $response->id);
+
+        // Get voter name if collected
+        $voterName = $response->voterName;
+
+        // Format the submission time
+        $submittedAt = $response->createdAt->format('M j, Y \a\t g:i A');
+
+        // Render email template
+        ob_start();
+        include __DIR__ . '/../../templates/emails/response-notification.php';
+        $emailBody = ob_get_clean();
+
+        // Build subject line
+        $subject = 'New response to "' . $poll->title . '"';
+        if ($voterName) {
+            $subject .= ' from ' . $voterName;
+        }
+
+        try {
+            $mailService->send(
+                $owner->email,
+                $subject,
+                $emailBody,
+                true
+            );
+        } catch (\Exception $e) {
+            // Log error but don't fail the response submission
+            error_log('Failed to send response notification: ' . $e->getMessage());
+        }
     }
 }

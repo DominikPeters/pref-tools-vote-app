@@ -230,6 +230,15 @@ $votingModeDescriptions = [
                 <div id="responsesList" class="responses-list">
                     <p class="loading">Loading responses...</p>
                 </div>
+
+                <?php if ($user && $poll->userId === $user->id && $user->emailVerifiedAt !== null): ?>
+                <div class="responses-notification-setting" id="notificationSetting">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notifyOnResponse" <?= $poll->notifyOnResponse ? 'checked' : '' ?>>
+                        <span>Email me when someone submits a response</span>
+                    </label>
+                </div>
+                <?php endif; ?>
             </section>
 
             <!-- Privacy & Display Settings -->

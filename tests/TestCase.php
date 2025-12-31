@@ -234,6 +234,7 @@ abstract class TestCase extends BaseTestCase
         $router->get('/api/user/export', [\App\Controllers\AuthApiController::class, 'exportData']);
         $router->get('/api/user/deletion-preview', [\App\Controllers\AuthApiController::class, 'deletionPreview']);
         $router->delete('/api/user', [\App\Controllers\AuthApiController::class, 'deleteAccount']);
+        $router->put('/api/user/name', [\App\Controllers\AuthApiController::class, 'changeName']);
 
         // Unsubscribe routes
         $router->post('/api/unsubscribe', [\App\Controllers\UnsubscribeController::class, 'handleApi']);

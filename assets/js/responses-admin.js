@@ -115,9 +115,21 @@ async function loadResponses() {
         // Populate voter dropdown if names are collected
         populateVoterDropdown();
 
-        // Show first response
+        // Check for ?r=responseId query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedResponseId = urlParams.get('r');
+        let initialIndex = 0;
+
+        if (requestedResponseId) {
+            const foundIndex = responses.findIndex(r => r.id === parseInt(requestedResponseId));
+            if (foundIndex >= 0) {
+                initialIndex = foundIndex;
+            }
+        }
+
+        // Show the response (first or requested)
         container.classList.remove('loading');
-        navigateTo(0);
+        navigateTo(initialIndex);
 
     } catch (err) {
         container.classList.remove('loading');
@@ -155,11 +167,23 @@ function navigateTo(index) {
     currentIndex = index;
     const response = responses[currentIndex];
 
+    // Update URL with response ID for bookmarking/sharing
+    updateUrlWithResponseId(response.id);
+
     // Update navigation controls
     updateNavigationState();
 
     // Render the response
     renderResponse(response);
+}
+
+/**
+ * Update the URL query parameter to reflect the current response
+ */
+function updateUrlWithResponseId(responseId) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('r', responseId);
+    window.history.replaceState({}, '', url.toString());
 }
 
 /**

@@ -100,6 +100,7 @@ ob_start();
             <h2>Account</h2>
             <p>Logged in as: <strong><?= e($user->name) ?></strong> &lt;<?= e($user->email) ?>&gt;</p>
             <div class="account-actions">
+                <button type="button" class="btn btn-secondary" id="changeNameBtn">Change Name</button>
                 <button type="button" class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
                 <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" style="display: inline;">
                     <button type="submit" class="btn btn-secondary">Log Out</button>
@@ -177,6 +178,30 @@ ob_start();
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
                     <button type="submit" form="changePasswordForm" class="btn btn-primary" id="changePasswordSubmit">Change Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Name Modal -->
+        <div class="modal" id="changeNameModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Change Name</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="changeNameForm">
+                        <div class="form-group">
+                            <label for="newName">New Name</label>
+                            <input type="text" id="newName" name="name" required class="form-control" value="<?= e($user->name) ?>" autocomplete="name">
+                        </div>
+                        <div id="changeNameError" class="error-message" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
+                    <button type="submit" form="changeNameForm" class="btn btn-primary" id="changeNameSubmit">Change Name</button>
                 </div>
             </div>
         </div>

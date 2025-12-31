@@ -230,6 +230,20 @@ class User
     }
 
     /**
+     * Update user name
+     */
+    public function updateName(string $name): void
+    {
+        $db = Database::getInstance();
+        $db->update('users', [
+            'name' => $name,
+            'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ], 'id = :id', ['id' => $this->id]);
+        $this->name = $name;
+        $this->updatedAt = new \DateTime();
+    }
+
+    /**
      * Find user by verification token (checks expiry)
      */
     public static function findByVerificationToken(string $token): ?self

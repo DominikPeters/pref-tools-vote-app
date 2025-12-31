@@ -31,10 +31,11 @@ export function renderQuestion(question, options = {}) {
     // Section headers have different rendering
     if (question.type === 'section_header') {
         const headerText = question.text || 'Section';
+        const descriptionHtml = renderDescription(question);
         return `
             <div class="section-header" data-question-id="${question.id || question._id}" data-type="${question.type}">
                 <div class="section-header-text">${escapeHtml(headerText)}</div>
-                ${question.description ? `<div class="section-header-description">${escapeHtml(question.description)}</div>` : ''}
+                ${descriptionHtml ? `<div class="section-header-description${question.description_html ? ' markdown' : ''}">${descriptionHtml}</div>` : ''}
             </div>
         `;
     }
@@ -42,18 +43,34 @@ export function renderQuestion(question, options = {}) {
     const numberPrefix = showNumbers ? `${questionNumber}. ` : '';
     const questionText = question.text || 'Untitled Question';
     const requiredMarker = question.required ? '<span class="required-marker">*</span>' : '';
+    const descriptionHtml = renderDescription(question);
 
     return `
         <div class="question-display" data-question-id="${question.id || question._id}" data-type="${question.type}">
             <div class="question-text">
                 ${numberPrefix}${escapeHtml(questionText)} ${requiredMarker}
             </div>
-            ${question.description ? `<div class="question-description">${escapeHtml(question.description)}</div>` : ''}
+            ${descriptionHtml ? `<div class="question-description${question.description_html ? ' markdown' : ''}">${descriptionHtml}</div>` : ''}
             <div class="question-input">
                 ${renderQuestionInput(question, disabled)}
             </div>
         </div>
     `;
+}
+
+/**
+ * Render question description, using pre-rendered HTML if available
+ */
+function renderDescription(question) {
+    if (!question.description) {
+        return '';
+    }
+    // Use pre-rendered markdown HTML from server if available
+    if (question.description_html) {
+        return question.description_html;
+    }
+    // Fallback to escaped text (for builder where we don't have pre-rendered HTML)
+    return escapeHtml(question.description);
 }
 
 /**

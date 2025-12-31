@@ -691,6 +691,45 @@ class AuthApiController extends ApiController
     }
 
     /**
+     * PUT /api/user/name - Change user name
+     */
+    public function changeName(array $params): array
+    {
+        $authError = $this->requireAuth();
+        if ($authError) {
+            return $authError;
+        }
+
+        $data = $this->getBody();
+
+        $validation = $this->validate($data ?? [], [
+            'name' => 'required|max:255',
+        ]);
+
+        if ($validation) {
+            return $validation;
+        }
+
+        $user = $this->user();
+        $newName = trim($data['name']);
+
+        // Check that name is not empty after trimming
+        if (empty($newName)) {
+            return $this->error('Name cannot be empty', 'EMPTY_NAME', 400);
+        }
+
+        // Update name
+        $user->updateName($newName);
+
+        LogService::getInstance()->log('user.name_changed', null, $user->id);
+
+        return $this->success([
+            'message' => 'Name changed successfully',
+            'user' => $user->toArray(),
+        ]);
+    }
+
+    /**
      * Helper: Send verification email to user
      */
     private function sendVerificationEmail(User $user): void
