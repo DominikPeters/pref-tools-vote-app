@@ -60,6 +60,11 @@ $router->get('/sysadmin/config', [SysadminController::class, 'config']);
 $router->get('/unsubscribe', [UnsubscribeController::class, 'showPage']);
 $router->post('/unsubscribe/one-click', [UnsubscribeController::class, 'handleOneClick']);
 
+// Demo poll routes (must come before dynamic :publicId routes)
+$router->get('/demo', [PageController::class, 'demo']);
+$router->post('/demo', [PageController::class, 'demo']);
+$router->get('/demo/results', [PageController::class, 'demoResults']);
+
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
 $router->post('/:publicId', [PageController::class, 'poll']);

@@ -286,9 +286,12 @@ class SysadminApiTest extends TestCase
     {
         $admin = $this->createSysadmin('admin@test.com');
 
-        // Perform an action that logs
-        $user = $this->createUser('testuser@test.com');
-        $user->updateRole(User::ROLE_SYSADMIN);
+        // Register a user via API - this creates a log entry with user_id
+        $this->callApi('POST', '/api/auth/register', [
+            'email' => 'testuser@test.com',
+            'password' => 'password123',
+            'name' => 'Test User',
+        ]);
 
         $this->actingAs($admin);
 

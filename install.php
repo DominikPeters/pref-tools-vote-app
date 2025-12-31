@@ -243,10 +243,182 @@ function handleAdminSetup() {
             'role' => 'sysadmin',
         ]);
 
+        // Create demo poll owned by sysadmin
+        createDemoPoll($user->id);
+
         return true;
     } catch (Exception $e) {
         return 'Failed to create sysadmin account: ' . $e->getMessage();
     }
+}
+
+function createDemoPoll(int $userId): void
+{
+    $poll = \App\Models\Poll::create([
+        'title' => 'Plan Our Team Retreat',
+        'description' => 'Help us plan the perfect team retreat! This demo poll showcases different question types available in Pref.Tools Vote.',
+        'status' => 'open',
+        'visibility' => 'anonymous',
+        'collect_name' => false,
+        'allow_edit_own' => true,
+        'randomize_options' => false,
+        'access_mode' => 'link',
+    ], $userId);
+
+    // Section: Destination & Timing
+    \App\Models\Question::create($poll->id, [
+        'type' => 'section_header',
+        'text' => 'Destination & Timing',
+        'description' => "Let's figure out when and where",
+    ]);
+
+    // Q1: Single choice - Season
+    \App\Models\Question::create($poll->id, [
+        'type' => 'single_choice',
+        'text' => 'What\'s the ideal season for our retreat?',
+        'required' => false,
+        'options' => [
+            ['label' => 'Spring'],
+            ['label' => 'Summer'],
+            ['label' => 'Fall'],
+            ['label' => 'Winter'],
+        ],
+    ]);
+
+    // Q2: Ranking - Destination types
+    \App\Models\Question::create($poll->id, [
+        'type' => 'ranking',
+        'text' => 'Rank these destination types from most to least appealing',
+        'required' => true,
+        'options' => [
+            ['label' => 'Mountain cabin'],
+            ['label' => 'Lakeside resort'],
+            ['label' => 'Countryside B&B'],
+            ['label' => 'Coastal town'],
+            ['label' => 'City hotel'],
+        ],
+    ]);
+
+    // Q3: Approval - Activities
+    \App\Models\Question::create($poll->id, [
+        'type' => 'approval',
+        'text' => 'Which activities would you enjoy?',
+        'description' => 'Select all that apply',
+        'required' => false,
+        'options' => [
+            ['label' => 'Hiking'],
+            ['label' => 'Board games'],
+            ['label' => 'Cooking class'],
+            ['label' => 'Yoga session'],
+            ['label' => 'Creative workshop'],
+            ['label' => 'Stargazing'],
+            ['label' => 'Swimming'],
+            ['label' => 'Local sightseeing'],
+        ],
+    ]);
+
+    // Section: Logistics & Preferences
+    \App\Models\Question::create($poll->id, [
+        'type' => 'section_header',
+        'text' => 'Logistics & Preferences',
+        'description' => 'The practical stuff',
+    ]);
+
+    // Q4: Truncated ranking - Venue priorities
+    \App\Models\Question::create($poll->id, [
+        'type' => 'ranking_truncated',
+        'text' => 'Pick your top priorities for the venue',
+        'required' => false,
+        'settings' => ['max' => 3],
+        'options' => [
+            ['label' => 'Good vegetarian food'],
+            ['label' => 'Nature views'],
+            ['label' => 'Private rooms'],
+            ['label' => 'Accessibility'],
+            ['label' => 'Sustainability'],
+            ['label' => 'Nearby attractions'],
+            ['label' => 'Reliable WiFi'],
+        ],
+    ]);
+
+    // Q5: Ranking with ties - Trip priorities
+    \App\Models\Question::create($poll->id, [
+        'type' => 'ranking_with_ties',
+        'text' => 'Rank what matters most for the trip',
+        'description' => 'Ties are allowed',
+        'required' => true,
+        'options' => [
+            ['label' => 'Relaxation'],
+            ['label' => 'Team bonding'],
+            ['label' => 'Learning something new'],
+            ['label' => 'Adventure'],
+            ['label' => 'Comfort'],
+        ],
+    ]);
+
+    // Q6: Grade - Policy ideas
+    \App\Models\Question::create($poll->id, [
+        'type' => 'grade',
+        'text' => 'How do you feel about these ideas?',
+        'required' => false,
+        'settings' => [
+            'preset' => 'plus-minus',
+            'grades' => ['++', '+', '0', '−', '−−'],
+        ],
+        'options' => [
+            ['label' => 'Icebreaker games on arrival'],
+            ['label' => 'Early starts (first activity at 8am)'],
+            ['label' => 'Cooking together instead of catering'],
+            ['label' => 'Everyone leads one short activity'],
+            ['label' => 'No work talk allowed'],
+        ],
+    ]);
+
+    // Section: Activities & Extras
+    \App\Models\Question::create($poll->id, [
+        'type' => 'section_header',
+        'text' => 'Activities & Extras',
+        'description' => 'The fun stuff',
+    ]);
+
+    // Q7: Star rating - Workshop topics
+    \App\Models\Question::create($poll->id, [
+        'type' => 'star',
+        'text' => 'Rate your interest in these workshop topics',
+        'required' => false,
+        'settings' => ['starCount' => 5],
+        'options' => [
+            ['label' => 'Creative brainstorming'],
+            ['label' => 'Team retrospective'],
+            ['label' => 'Skill sharing'],
+            ['label' => 'Goal setting for next year'],
+        ],
+    ]);
+
+    // Q8: Yes/No/Abstain - Participation
+    \App\Models\Question::create($poll->id, [
+        'type' => 'yes_no_abstain',
+        'text' => 'Would you participate in these?',
+        'required' => false,
+        'settings' => ['allowAbstain' => true],
+        'options' => [
+            ['label' => 'Talent show'],
+            ['label' => 'Group cooking night'],
+            ['label' => 'Sunrise walk'],
+            ['label' => 'Campfire storytelling'],
+            ['label' => 'Photo scavenger hunt'],
+        ],
+    ]);
+
+    // Q9: Text - Additional considerations
+    \App\Models\Question::create($poll->id, [
+        'type' => 'text_single',
+        'text' => 'Any accessibility needs, dietary requirements, or other considerations?',
+        'required' => false,
+    ]);
+
+    // Store demo poll ID in site settings
+    \App\Models\SiteSetting::set('demo.poll_id', $poll->publicId);
 }
 
 ?>

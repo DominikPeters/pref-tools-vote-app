@@ -60,6 +60,18 @@ ob_start();
                 </div>
             </section>
 
+            <!-- Demo Poll -->
+            <section class="card config-section">
+                <h2>Demo Poll</h2>
+                <p class="section-description">Configure the demo poll shown on the home page.</p>
+
+                <div class="form-group">
+                    <label for="demo_poll_id">Demo Poll ID</label>
+                    <input type="text" id="demo_poll_id" name="demo.poll_id" class="form-control" placeholder="e.g., ABC123xy">
+                    <span class="form-hint">The public ID of the poll to use as the demo. Leave empty to disable the demo.</span>
+                </div>
+            </section>
+
             <!-- Session Settings -->
             <section class="card config-section">
                 <h2>Session Settings</h2>

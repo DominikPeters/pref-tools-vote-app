@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Models\Poll;
+use App\Models\SiteSetting;
 
 class PageController
 {
@@ -15,6 +16,66 @@ class PageController
         view('home', [
             'user' => Auth::getInstance()->user(),
         ]);
+    }
+
+    /**
+     * GET /demo - Demo poll voting page
+     */
+    public function demo(array $params): void
+    {
+        $demoPollId = SiteSetting::get('demo.poll_id');
+
+        if (empty($demoPollId)) {
+            view('error', [
+                'title' => 'Demo Not Configured',
+                'message' => 'No demo poll has been configured. Please check back later or contact the site administrator.',
+            ]);
+            return;
+        }
+
+        $poll = Poll::findByPublicId($demoPollId);
+
+        if (!$poll) {
+            view('error', [
+                'title' => 'Demo Not Available',
+                'message' => 'The demo poll could not be found. It may have been removed.',
+            ]);
+            return;
+        }
+
+        // Reuse the poll method logic with the demo poll
+        $params['publicId'] = $demoPollId;
+        $this->poll($params);
+    }
+
+    /**
+     * GET /demo/results - Demo poll results page
+     */
+    public function demoResults(array $params): void
+    {
+        $demoPollId = SiteSetting::get('demo.poll_id');
+
+        if (empty($demoPollId)) {
+            view('error', [
+                'title' => 'Demo Not Configured',
+                'message' => 'No demo poll has been configured. Please check back later or contact the site administrator.',
+            ]);
+            return;
+        }
+
+        $poll = Poll::findByPublicId($demoPollId);
+
+        if (!$poll) {
+            view('error', [
+                'title' => 'Demo Not Available',
+                'message' => 'The demo poll could not be found. It may have been removed.',
+            ]);
+            return;
+        }
+
+        // Reuse the results method logic with the demo poll
+        $params['publicId'] = $demoPollId;
+        $this->results($params);
     }
 
     /**

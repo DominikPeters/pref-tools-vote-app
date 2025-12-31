@@ -74,6 +74,9 @@ class SiteSetting
         // Privacy/GDPR
         'privacy.retention_days' => '90',
         'privacy.last_cleanup' => '',
+
+        // Demo poll
+        'demo.poll_id' => '',
     ];
 
     /**

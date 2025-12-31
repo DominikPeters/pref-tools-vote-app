@@ -78,3 +78,43 @@ function basePath(): string
     $parsed = parse_url($url);
     return rtrim($parsed['path'] ?? '', '/');
 }
+
+/**
+ * Render a template to a string
+ */
+function render(string $template, array $data = []): string
+{
+    extract($data);
+    ob_start();
+    require TEMPLATES_PATH . '/' . $template . '.php';
+    return ob_get_clean();
+}
+
+/**
+ * Helper function to render a template and echo it
+ */
+function view(string $template, array $data = []): void
+{
+    echo render($template, $data);
+}
+
+/**
+ * Get the current URL path
+ */
+function currentPath(): string
+{
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    $path = parse_url($uri, PHP_URL_PATH);
+    return $path ?: '/';
+}
+
+/**
+ * Helper function to get asset URL with cache busting
+ */
+function asset(string $path): string
+{
+    $base = basePath();
+    $fullPath = BASE_PATH . '/assets/' . ltrim($path, '/');
+    $version = file_exists($fullPath) ? filemtime($fullPath) : time();
+    return $base . '/assets/' . ltrim($path, '/') . '?v=' . $version;
+}

@@ -241,7 +241,7 @@ ob_start();
                 <h3>Try the Demo</h3>
                 <p>Vote in a sample poll with multiple question types, then explore the results page to see different analysis methods in action.</p>
                 <div class="demo-buttons">
-                    <a href="<?= basePath() ?>/demo/vote" class="btn btn-primary btn-large">Take a Demo Poll</a>
+                    <a href="<?= basePath() ?>/demo" class="btn btn-primary btn-large">Take the Demo Poll</a>
                     <a href="<?= basePath() ?>/demo/results" class="btn btn-secondary btn-large">View Demo Results</a>
                 </div>
             </div>

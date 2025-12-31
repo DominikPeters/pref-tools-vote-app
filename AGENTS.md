@@ -37,6 +37,8 @@ Tests are in `tests/` with Feature tests (API integration) and Unit tests.
 
 Do NOT run `vendor/bin/phpunit`. It does not exist.
 
+If there are failures, it makes sense to run `phpunit | grep -A 7 "✘"` to see details of failed tests (or use phpunit command line options).
+
 **E2E Tests (Playwright):**
 ```bash
 npm run test:e2e        # Run all E2E tests headlessly
@@ -149,9 +151,27 @@ await expect(page.locator('h1')).toContainText('Dashboard');
 - `/vote/` - Landing page
 - `/vote/create` - Form builder
 - `/vote/{publicId}` - Voter form
+- `/vote/{publicId}/results` - Public results page
 - `/vote/{publicId}/admin/{adminToken}` - Poll admin panel (for poll creator)
+- `/vote/{publicId}/admin/{adminToken}/results` - Admin results & analysis page
 - `/vote/sysadmin` - Sysadmin dashboard (requires sysadmin role)
 - `/api/*` - API endpoints
+
+**Results & Reports System:**
+Poll admins can add configurable report types per question. Reports are cached and invalidated when votes change.
+
+Key components:
+- `src/Models/Report.php` - Report model with caching
+- `src/Services/ReportRegistry.php` - Maps report types to handlers
+- `src/Services/Reports/*.php` - Individual report handlers (BaseReport, ChoiceCountsReport, BordaScoresReport, etc.)
+- `src/Services/ProfileBuilder.php` - Converts responses to pref_voting library profiles
+- `src/Controllers/ReportApiController.php` - CRUD API for reports
+- `assets/js/results-core.js` - Shared frontend rendering
+- `assets/js/report-types/*.js` - Frontend renderers for each report type
+
+Available report types: `choice_counts`, `approval_winner`, `borda_scores`, `pairwise_margins`, `voting_rule_winner`
+
+The `pref_voting` library (symlinked at `/pref_voting`) provides voting rule implementations (Schulze, Ranked Pairs, IRV, Borda, Copeland, etc.)
 
 **Sysadmin Dashboard:**
 The sysadmin dashboard (`/sysadmin`) provides system-wide administration:
