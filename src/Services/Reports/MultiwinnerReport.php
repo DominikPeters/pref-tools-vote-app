@@ -4,28 +4,29 @@ namespace App\Services\Reports;
 
 use App\Models\Question;
 use App\Services\ABCProfileBuilder;
-use App\Services\ABCRulesRegistry;
+use App\Services\ProfileBuilder;
+use App\Services\MultiwinnerRulesRegistry;
 
-class ABCWinnerReport extends BaseReport
+class MultiwinnerReport extends BaseReport
 {
     public function getType(): string
     {
-        return 'abc_winner';
+        return 'multiwinner';
     }
 
     public function getName(): string
     {
-        return 'ABC Voting Rule Winner';
+        return 'Multi-Winner Voting Rule Winner';
     }
 
     public function getDescription(): string
     {
-        return 'Shows the winning committee under a selected multi-winner voting rule';
+        return 'Shows the winning committee under a selected multi-winner voting rule (ABC for approval, STV for rankings)';
     }
 
     public function getSupportedQuestionTypes(): array
     {
-        return ['approval'];
+        return ['approval', 'ranking', 'ranking_truncated', 'ranking_with_ties'];
     }
 
     public function getIcon(): string
@@ -43,7 +44,7 @@ class ABCWinnerReport extends BaseReport
                     'label' => 'Voting Rule',
                     'required' => true,
                     'options' => [],
-                    'dynamicOptions' => 'votingRules',
+                    'dynamicOptions' => 'multiwinnerRules',
                     'default' => 'equal-shares',
                 ],
                 [
@@ -51,7 +52,7 @@ class ABCWinnerReport extends BaseReport
                     'type' => 'number',
                     'label' => 'Committee Size',
                     'required' => true,
-                    'default' => 1,
+                    'default' => 2,
                     'min' => 1,
                     'dynamicMax' => 'numOptions',
                 ],
@@ -71,26 +72,35 @@ class ABCWinnerReport extends BaseReport
             ];
         }
 
-        $rule = $config['rule'] ?? 'equal-shares';
+        $rule = $config['rule'] ?? ($question->type === 'approval' ? 'equal-shares' : 'stv_meek');
 
-        $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses);
-        if ($profile->count() === 0) {
+        // Build appropriate profile
+        if ($question->type === 'approval') {
+            $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses);
+            $optionLabels = ABCProfileBuilder::getOptionLabels($question);
+        } else {
+            $profile = ProfileBuilder::fromRankingResponses($question, $responses);
+            $optionLabels = ProfileBuilder::getOptionLabels($question);
+        }
+
+        $numVoters = ($profile instanceof \AbcVoting\Profile) ? $profile->count() : $profile->numVoters;
+        if ($numVoters === 0) {
             return ['error' => 'No valid responses for this question.'];
         }
 
         // Compute committees
         try {
-            $hasExplanation = ABCRulesRegistry::hasExplanation($rule);
+            $hasExplanation = MultiwinnerRulesRegistry::hasExplanation($rule);
             
             if ($hasExplanation) {
                 // To get both ties AND an explanation, we need two calls because the library
                 // only provides detailed_info for resolute (single-path) executions.
                 
                 // 1. Get all winners (irresolute)
-                $committees = ABCRulesRegistry::compute($rule, $profile, $committeeSize, false);
+                $committees = MultiwinnerRulesRegistry::compute($rule, $profile, $committeeSize, false);
                 
                 // 2. Get a detailed path for the explanation (resolute)
-                $detailedResults = ABCRulesRegistry::compute($rule, $profile, $committeeSize, true, true);
+                $detailedResults = MultiwinnerRulesRegistry::compute($rule, $profile, $committeeSize, true, true);
                 
                 $explanationHtml = '';
                 if (!empty($detailedResults)) {
@@ -98,7 +108,7 @@ class ABCWinnerReport extends BaseReport
                     $explanationHtml = \AbcVoting\Explainer::explain($profile, $detailedResults[0]);
                 }
             } else {
-                $committees = ABCRulesRegistry::compute($rule, $profile, $committeeSize, false);
+                $committees = MultiwinnerRulesRegistry::compute($rule, $profile, $committeeSize, false);
                 $explanationHtml = null;
             }
         } catch (\Exception $e) {
@@ -110,7 +120,6 @@ class ABCWinnerReport extends BaseReport
         }
 
         // Map indices back to option labels
-        $optionLabels = ABCProfileBuilder::getOptionLabels($question);
         $question->loadOptions();
         $indexToOptionId = [];
         foreach ($question->options as $index => $option) {
@@ -130,14 +139,18 @@ class ABCWinnerReport extends BaseReport
             $formattedCommittees[] = $members;
         }
 
+        $ruleName = MultiwinnerRulesRegistry::ABC_RULES[$rule]['name'] 
+            ?? MultiwinnerRulesRegistry::PREF_MULTIWINNER_RULES[$rule]['name'] 
+            ?? $rule;
+
         return [
             'rule' => $rule,
-            'rule_name' => ABCRulesRegistry::RULES[$rule]['name'] ?? $rule,
+            'rule_name' => $ruleName,
             'committee_size' => $committeeSize,
             'committees' => $formattedCommittees,
             'explanation' => $explanationHtml,
             'is_tie' => count($formattedCommittees) > 1,
-            'total_responses' => $profile->count(),
+            'total_responses' => $numVoters,
         ];
     }
 }

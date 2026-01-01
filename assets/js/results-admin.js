@@ -252,6 +252,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'multiwinnerRules' && questionId && availableTypes?.multiwinner_rules_by_question) {
+            options = availableTypes.multiwinner_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'apportionmentRules' && questionId && availableTypes?.apportionment_rules_by_question) {
             options = availableTypes.apportionment_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
@@ -277,6 +279,8 @@ function renderConfigField(field, currentValue, questionId) {
         let options = field.options || [];
         if (field.dynamicOptions === 'votingRules' && questionId && availableTypes?.voting_rules_by_question) {
             options = availableTypes.voting_rules_by_question[questionId] || [];
+        } else if (field.dynamicOptions === 'multiwinnerRules' && questionId && availableTypes?.multiwinner_rules_by_question) {
+            options = availableTypes.multiwinner_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'apportionmentRules' && questionId && availableTypes?.apportionment_rules_by_question) {
             options = availableTypes.apportionment_rules_by_question[questionId] || [];
         } else if (field.dynamicOptions === 'socialWelfareFunctions' && questionId && availableTypes?.social_welfare_functions_by_question) {
@@ -314,8 +318,13 @@ function renderConfigField(field, currentValue, questionId) {
             }
         }
 
+        let value = currentValue || '';
+        if (max !== undefined && value !== '' && value > max) {
+            value = max;
+        }
+
         html += `<input type="number" id="config-${field.name}" name="${field.name}"
-                        value="${currentValue || ''}" class="form-control"
+                        value="${value}" class="form-control"
                         ${field.min !== undefined ? `min="${field.min}"` : ''}
                         ${max !== undefined ? `max="${max}"` : ''}>`;
     } else {

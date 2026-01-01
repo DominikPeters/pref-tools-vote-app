@@ -1,11 +1,11 @@
 /**
- * ABC Voting Rule Winner Report Renderer
+ * Multi-Winner Voting Rule Winner Report Renderer
  * Card showing the winning committee(s) under a selected multi-winner rule
  */
 
 import { escapeHtml } from '../app.js';
 
-export function renderABCWinner(container, data, config) {
+export function renderMultiwinner(container, data, config) {
     const { rule, rule_name, committee_size, committees, explanation, is_tie, total_responses, error } = data;
 
     if (error) {

@@ -16,8 +16,8 @@ import { renderYNACounts } from './yna-counts.js';
 import { renderMajorityJudgment } from './majority-judgment.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderMultiSWFComparison } from './multi-swf-comparison.js';
-import { renderABCWinner } from './abc-winner.js';
-import { renderABCMultiRuleComparison } from './abc-multi-rule-comparison.js';
+import { renderMultiwinner } from './multiwinner.js';
+import { renderMultiwinnerMultiRuleComparison } from './multiwinner-multi-rule-comparison.js';
 import { renderPBWinner } from './pb-winner.js';
 import { renderApportionmentWinner } from './apportionment-winner.js';
 import { renderApportionmentMultiRuleComparison } from './apportionment-multi-rule-comparison.js';
@@ -32,7 +32,7 @@ const renderers = {
     'pairwise_margins': renderPairwiseMargins,
     'voting_rule_winner': renderVotingRuleWinner,
     'rank_aggregation': renderRankAggregation,
-    'abc_winner': renderABCWinner,
+    'multiwinner': renderMultiwinner,
     'pb_winner': renderPBWinner,
     'condorcet_winner': renderCondorcetWinner,
     'apportionment_winner': renderApportionmentWinner,
@@ -40,7 +40,7 @@ const renderers = {
     'majority_judgment': renderMajorityJudgment,
     'multi_rule_comparison': renderMultiRuleComparison,
     'multi_swf_comparison': renderMultiSWFComparison,
-    'abc_multi_rule_comparison': renderABCMultiRuleComparison,
+    'multiwinner_multi_rule_comparison': renderMultiwinnerMultiRuleComparison,
     'apportionment_multi_rule_comparison': renderApportionmentMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
@@ -88,7 +88,7 @@ export function getReportTypeName(type) {
         'pairwise_margins': 'Pairwise Margins',
         'voting_rule_winner': 'Voting Rule Winner',
         'rank_aggregation': 'Rank Aggregation',
-        'abc_winner': 'ABC Voting Rule Winner',
+        'multiwinner': 'Multi-Winner Voting Rule Winner',
         'pb_winner': 'PB Voting Rule Winner',
         'condorcet_winner': 'Condorcet Winner',
         'apportionment_winner': 'Apportionment Rule Winner',
@@ -96,7 +96,7 @@ export function getReportTypeName(type) {
         'majority_judgment': 'Majority Judgment',
         'multi_rule_comparison': 'Multi-Rule Comparison',
         'multi_swf_comparison': 'Rank Aggregation Rule Comparison',
-        'abc_multi_rule_comparison': 'ABC Multi-Rule Comparison',
+        'multiwinner_multi_rule_comparison': 'Multi-Winner Multi-Rule Comparison',
         'apportionment_multi_rule_comparison': 'Apportionment Multi-Rule Comparison',
         'response_matrix': 'Response Matrix',
         'raw_data_export': 'Export Raw Vote Data',
@@ -113,7 +113,7 @@ export function getReportTypeIcon(type) {
         'pairwise_margins': 'diagram-project',
         'voting_rule_winner': 'trophy',
         'rank_aggregation': 'list-ol',
-        'abc_winner': 'trophy',
+        'multiwinner': 'trophy',
         'pb_winner': 'calculator',
         'condorcet_winner': 'crown',
         'apportionment_winner': 'calculator',
@@ -121,7 +121,7 @@ export function getReportTypeIcon(type) {
         'majority_judgment': 'scale-balanced',
         'multi_rule_comparison': 'table',
         'multi_swf_comparison': 'columns',
-        'abc_multi_rule_comparison': 'table',
+        'multiwinner_multi_rule_comparison': 'table',
         'apportionment_multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',

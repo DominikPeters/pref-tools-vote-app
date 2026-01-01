@@ -678,7 +678,7 @@ Key components:
 
 Current report types: `choice_counts`, `approval_winner`, `borda_scores`, `pairwise_margins`, `voting_rule_winner`
 
-Future report types: `response_matrix`, `ranking_list`, `condorcet_winner`, `multi_rule_comparison`, `voting_rule_explanation`, `abc_winners`, `average_scores`, `score_distribution`, `majority_judgment`, `yna_counts`
+Future report types: `response_matrix`, `ranking_list`, `condorcet_winner`, `multi_rule_comparison`, `voting_rule_explanation`, `multiwinner`, `multiwinner_multi_rule_comparison`, `average_scores`, `score_distribution`, `majority_judgment`, `yna_counts`
 
 ### Phase 5: Polish & Compliance
 - [ ] User dashboard

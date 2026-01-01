@@ -83,8 +83,10 @@ class ReportApiController extends ApiController
 
         // Get available types for each question
         $typesByQuestion = [];
-        // Get voting rules for each question type
+        // Get single-winner voting rules for each question type
         $votingRulesByQuestion = [];
+        // Get multi-winner voting rules for each question type
+        $multiwinnerRulesByQuestion = [];
         // Get apportionment rules for each question type
         $apportionmentRulesByQuestion = [];
         // Get social welfare functions for each question type
@@ -93,11 +95,8 @@ class ReportApiController extends ApiController
         foreach ($poll->questions as $question) {
             $typesByQuestion[$question->id] = ReportRegistry::getTypesForQuestionType($question->type);
             
-            if ($question->type === 'approval') {
-                $votingRulesByQuestion[$question->id] = \App\Services\ABCRulesRegistry::getRulesAsOptions();
-            } else {
-                $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
-            }
+            $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
+            $multiwinnerRulesByQuestion[$question->id] = \App\Services\MultiwinnerRulesRegistry::getRulesAsOptions($question->type);
 
             if ($question->type === 'single_choice') {
                 $apportionmentRulesByQuestion[$question->id] = \App\Services\ApportionmentRulesRegistry::getRulesAsOptions();
@@ -109,6 +108,7 @@ class ReportApiController extends ApiController
         return $this->success([
             'types_by_question' => $typesByQuestion,
             'voting_rules_by_question' => $votingRulesByQuestion,
+            'multiwinner_rules_by_question' => $multiwinnerRulesByQuestion,
             'apportionment_rules_by_question' => $apportionmentRulesByQuestion,
             'social_welfare_functions_by_question' => $swfsByQuestion,
             'all_types' => ReportRegistry::all(),

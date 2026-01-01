@@ -4,18 +4,19 @@ namespace App\Services\Reports;
 
 use App\Models\Question;
 use App\Services\ABCProfileBuilder;
-use App\Services\ABCRulesRegistry;
+use App\Services\ProfileBuilder;
+use App\Services\MultiwinnerRulesRegistry;
 
-class ABCMultiRuleComparisonReport extends BaseReport
+class MultiwinnerMultiRuleComparisonReport extends BaseReport
 {
     public function getType(): string
     {
-        return 'abc_multi_rule_comparison';
+        return 'multiwinner_multi_rule_comparison';
     }
 
     public function getName(): string
     {
-        return 'ABC Multi-Rule Comparison';
+        return 'Multi-Winner Multi-Rule Comparison';
     }
 
     public function getDescription(): string
@@ -25,7 +26,7 @@ class ABCMultiRuleComparisonReport extends BaseReport
 
     public function getSupportedQuestionTypes(): array
     {
-        return ['approval'];
+        return ['approval', 'ranking', 'ranking_truncated', 'ranking_with_ties'];
     }
 
     public function getIcon(): string
@@ -43,14 +44,14 @@ class ABCMultiRuleComparisonReport extends BaseReport
                     'label' => 'Voting Rules to Compare',
                     'required' => true,
                     'options' => [],
-                    'dynamicOptions' => 'votingRules',
+                    'dynamicOptions' => 'multiwinnerRules',
                 ],
                 [
                     'name' => 'committee_size',
                     'type' => 'number',
                     'label' => 'Committee Size',
                     'required' => true,
-                    'default' => 1,
+                    'default' => 2,
                     'min' => 1,
                     'dynamicMax' => 'numOptions',
                 ],
@@ -78,21 +79,31 @@ class ABCMultiRuleComparisonReport extends BaseReport
         }
 
         $selectedRules = $config['rules'] ?? [];
+        $allRulesMetadata = MultiwinnerRulesRegistry::getRules($question->type === 'approval' ? 'approval' : 'ranking');
+
         if (empty($selectedRules)) {
             // Default rules if none selected
-            foreach (ABCRulesRegistry::RULES as $key => $rule) {
+            foreach ($allRulesMetadata as $key => $rule) {
                 if ($rule['default'] ?? false) {
                     $selectedRules[] = $key;
                 }
             }
         }
 
-        $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses);
-        if ($profile->count() === 0) {
+        // Build appropriate profile
+        if ($question->type === 'approval') {
+            $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses);
+            $optionLabels = ABCProfileBuilder::getOptionLabels($question);
+        } else {
+            $profile = ProfileBuilder::fromRankingResponses($question, $responses);
+            $optionLabels = ProfileBuilder::getOptionLabels($question);
+        }
+
+        $numVoters = ($profile instanceof \AbcVoting\Profile) ? $profile->count() : $profile->numVoters;
+        if ($numVoters === 0) {
             return ['error' => 'No valid responses for this question.'];
         }
 
-        $optionLabels = ABCProfileBuilder::getOptionLabels($question);
         $indexToOptionId = [];
         foreach ($question->options as $index => $option) {
             $indexToOptionId[$index] = $option->id;
@@ -104,7 +115,7 @@ class ABCMultiRuleComparisonReport extends BaseReport
         foreach ($selectedRules as $ruleKey) {
             try {
                 // Use resolute=false to detect ties, but take the first for the comparison table
-                $committees = ABCRulesRegistry::compute($ruleKey, $profile, $committeeSize, false);
+                $committees = MultiwinnerRulesRegistry::compute($ruleKey, $profile, $committeeSize, false);
                 if (empty($committees)) continue;
 
                 $isTie = count($committees) > 1;
@@ -126,12 +137,13 @@ class ABCMultiRuleComparisonReport extends BaseReport
                         ];
                     }
                     $optionWinCounts[$optionId]['count']++;
-                    $optionWinCounts[$optionId]['rules'][] = ABCRulesRegistry::RULES[$ruleKey]['name'] ?? $ruleKey;
+                    $ruleName = $allRulesMetadata[$ruleKey]['name'] ?? $ruleKey;
+                    $optionWinCounts[$optionId]['rules'][] = $ruleName;
                 }
 
                 $results[] = [
                     'rule' => $ruleKey,
-                    'rule_name' => ABCRulesRegistry::RULES[$ruleKey]['name'] ?? $ruleKey,
+                    'rule_name' => $allRulesMetadata[$ruleKey]['name'] ?? $ruleKey,
                     'committee' => $members,
                     'is_tie' => $isTie,
                 ];
@@ -149,7 +161,7 @@ class ABCMultiRuleComparisonReport extends BaseReport
             'summary' => array_values($optionWinCounts),
             'committee_size' => $committeeSize,
             'total_rules' => count($results),
-            'total_responses' => $profile->count(),
+            'total_responses' => $numVoters,
         ];
     }
 }
