@@ -96,12 +96,13 @@ ob_start();
                         <path d="M3 3v18h18"/>
                         <path d="M18 17V9"/>
                         <path d="M13 17V5"/>
-                        <path d="M8 17v-3"/>
+                        <path d="M8 17v-7"/>
                     </svg>
                 </div>
-                <h3>Ranking Methods</h3>
+                <h3>Single-Winner Elections</h3>
                 <p>Find winners that best reflect the group's preferences, even when there's no majority.</p>
                 <div class="analysis-methods" id="ranking-methods">
+                    <span class="analysis-method-tag">Approval Voting</span>
                     <span class="analysis-method-tag">Schulze</span>
                     <span class="analysis-method-tag">Ranked Pairs</span>
                     <span class="analysis-method-tag">IRV</span>
@@ -123,28 +124,6 @@ ob_start();
             <div class="analysis-category">
                 <div class="analysis-category-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                </div>
-                <h3>Rating Methods</h3>
-                <p>Analyze star ratings and grades with methods designed for evaluative judgments.</p>
-                <div class="analysis-methods" id="rating-methods">
-                    <span class="analysis-method-tag">Majority Judgment</span>
-                    <span class="analysis-method-tag">Score Voting</span>
-                    <span class="analysis-method-tag">STAR Voting</span>
-                    <span class="analysis-method-tag hidden-method">Mean Score</span>
-                    <span class="analysis-method-tag hidden-method">Sum Score</span>
-                    <button class="analysis-method-more" onclick="toggleMethods('rating-methods')">
-                        +2 more
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="analysis-category">
-                <div class="analysis-category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <circle cx="12" cy="12" r="6"/>
                         <circle cx="12" cy="12" r="2"/>
@@ -154,11 +133,13 @@ ob_start();
                 <p>Select committees or multiple winners with proportional representation rules.</p>
                 <div class="analysis-methods" id="multiwinner-methods">
                     <span class="analysis-method-tag">PAV</span>
-                    <span class="analysis-method-tag">Equal Shares</span>
+                    <span class="analysis-method-tag">Method of Equal Shares</span>
+                    <span class="analysis-method-tag">STV</span>
                     <span class="analysis-method-tag">Seq. Phragm&eacute;n</span>
+                    <span class="analysis-method-tag">Apportionment</span>
                     <span class="analysis-method-tag hidden-method">Sequential PAV</span>
                     <span class="analysis-method-tag hidden-method">Chamberlin-Courant</span>
-                    <span class="analysis-method-tag hidden-method">SAV</span>
+                    <span class="analysis-method-tag hidden-method">Meek-STV</span>
                     <span class="analysis-method-tag hidden-method">Sainte-Lagu&euml; AV</span>
                     <button class="analysis-method-more" onclick="toggleMethods('multiwinner-methods')">
                         +4 more
@@ -166,6 +147,36 @@ ob_start();
                             <polyline points="6 9 12 15 18 9"/>
                         </svg>
                     </button>
+                </div>
+            </div>
+            <div class="analysis-category">
+                <div class="analysis-category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </div>
+                <h3>Rating Methods</h3>
+                <p>Analyze star ratings and grades with methods designed for evaluative judgments.</p>
+                <div class="analysis-methods" id="rating-methods">
+                    <span class="analysis-method-tag">Score Voting</span>
+                    <span class="analysis-method-tag">STAR Voting</span>
+                    <span class="analysis-method-tag">Majority Judgment</span>
+                </div>
+            </div>
+            <div class="analysis-category">
+                <div class="analysis-category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v12"/>
+                        <path d="M15 9.5c0-1.5-1.5-2.5-3-2.5s-3 1-3 2.5 1.5 2 3 2.5 3 1 3 2.5-1.5 2.5-3 2.5-3-1-3-2.5"/>
+                    </svg>
+                </div>
+                <h3>Participatory Budgeting</h3>
+                <p>Allocate budgets across projects fairly using proportional methods.</p>
+                <div class="analysis-methods">
+                    <span class="analysis-method-tag">Method of Equal Shares</span>
+                    <span class="analysis-method-tag">Utilitarian Greedy</span>
+                    <span class="analysis-method-tag">Pabulib Export</span>
                 </div>
             </div>
             <div class="analysis-category">
@@ -181,9 +192,9 @@ ob_start();
                 <div class="analysis-methods" id="viz-methods">
                     <span class="analysis-method-tag">Pairwise Margins</span>
                     <span class="analysis-method-tag">Response Matrix</span>
-                    <span class="analysis-method-tag">Multi-Rule Comparison</span>
+                    <span class="analysis-method-tag">Raw Data Export</span>
                     <span class="analysis-method-tag hidden-method">Condorcet Winner</span>
-                    <span class="analysis-method-tag hidden-method">Raw Data Export</span>
+                    <span class="analysis-method-tag hidden-method">Multi-Rule Comparison</span>
                     <span class="analysis-method-tag hidden-method">Preflib Format</span>
                     <button class="analysis-method-more" onclick="toggleMethods('viz-methods')">
                         +3 more

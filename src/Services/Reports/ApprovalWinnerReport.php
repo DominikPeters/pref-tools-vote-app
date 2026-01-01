@@ -32,10 +32,27 @@ class ApprovalWinnerReport extends BaseReport
         return 'trophy';
     }
 
+    public function getConfigSchema(): ?array
+    {
+        return [
+            'fields' => [
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
+            ],
+        ];
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
-        $data = ProfileBuilder::getApprovalCounts($question, $responses);
-        $labels = ProfileBuilder::getOptionLabels($question);
+        $excludeUserAdded = !($config['include_user_options'] ?? true);
+        $data = ProfileBuilder::getApprovalCountsFiltered($question, $responses, $excludeUserAdded);
+        $labels = ProfileBuilder::getOptionLabels($question, $excludeUserAdded);
 
         // Find the maximum count
         $maxCount = 0;

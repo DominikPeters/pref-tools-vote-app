@@ -42,6 +42,22 @@ class RawDataExportReport extends BaseReport
         return 'file-export';
     }
 
+    public function getConfigSchema(): ?array
+    {
+        return [
+            'fields' => [
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
+            ],
+        ];
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         // Check if the question type is supported

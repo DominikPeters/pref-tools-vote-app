@@ -427,6 +427,107 @@ class PrefLibExporterTest extends TestCase
         $this->assertStringContainsString('5: 1, 2', $output);
     }
 
+    // ========== User-Added Options Filtering Tests ==========
+
+    public function test_export_excludes_user_added_options_for_single_choice(): void
+    {
+        $question = $this->createQuestion($this->poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Pick one',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Red'], ['label' => 'Blue']]
+        ]);
+
+        // Add a user-added option (simulating "Other: Green")
+        $userAddedOption = \App\Models\Option::create($question->id, [
+            'label' => 'Other: Green',
+            'features' => ['isUserAdded' => true],
+        ]);
+
+        $o1 = $question->options[0]->id;
+        $o2 = $question->options[1]->id;
+
+        Response::create($this->poll->id, ['answers' => [$question->id => $o1]]);
+        Response::create($this->poll->id, ['answers' => [$question->id => $o2]]);
+        Response::create($this->poll->id, ['answers' => [$question->id => $userAddedOption->id]]);
+
+        $responses = $this->loadResponses();
+
+        // Without filtering - should include 3 alternatives
+        $outputWithUserAdded = PrefLibExporter::export($question, $responses, [
+            'exclude_user_added' => false,
+        ]);
+        $this->assertStringContainsString('# NUMBER ALTERNATIVES: 3', $outputWithUserAdded);
+        $this->assertStringContainsString('Other: Green', $outputWithUserAdded);
+
+        // With filtering - should exclude user-added option
+        $outputWithoutUserAdded = PrefLibExporter::export($question, $responses, [
+            'exclude_user_added' => true,
+        ]);
+        $this->assertStringContainsString('# NUMBER ALTERNATIVES: 2', $outputWithoutUserAdded);
+        $this->assertStringNotContainsString('Other: Green', $outputWithoutUserAdded);
+    }
+
+    public function test_export_excludes_user_added_options_for_approval(): void
+    {
+        $question = $this->createQuestion($this->poll->id, [
+            'type' => 'approval',
+            'text' => 'Approve candidates',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'A'], ['label' => 'B']]
+        ]);
+
+        // Add a user-added option
+        $userAddedOption = \App\Models\Option::create($question->id, [
+            'label' => 'Other: Custom',
+            'features' => ['isUserAdded' => true],
+        ]);
+
+        $o1 = $question->options[0]->id;
+        $o2 = $question->options[1]->id;
+
+        // Vote includes user-added option
+        Response::create($this->poll->id, ['answers' => [$question->id => [$o1, $userAddedOption->id]]]);
+        Response::create($this->poll->id, ['answers' => [$question->id => [$o2]]]);
+
+        $responses = $this->loadResponses();
+
+        // Without filtering - should include 3 alternatives
+        $outputWithUserAdded = PrefLibExporter::export($question, $responses, [
+            'exclude_user_added' => false,
+        ]);
+        $this->assertStringContainsString('# NUMBER ALTERNATIVES: 3', $outputWithUserAdded);
+
+        // With filtering - should exclude user-added option
+        $outputWithoutUserAdded = PrefLibExporter::export($question, $responses, [
+            'exclude_user_added' => true,
+        ]);
+        $this->assertStringContainsString('# NUMBER ALTERNATIVES: 2', $outputWithoutUserAdded);
+        $this->assertStringNotContainsString('Other: Custom', $outputWithoutUserAdded);
+    }
+
+    public function test_export_user_added_filtering_default_includes(): void
+    {
+        // By default, user-added options should be included
+        $question = $this->createQuestion($this->poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Pick one',
+            'options' => [['label' => 'A']]
+        ]);
+
+        // Add a user-added option
+        \App\Models\Option::create($question->id, [
+            'label' => 'Other: B',
+            'features' => ['isUserAdded' => true],
+        ]);
+
+        $output = PrefLibExporter::export($question, []);
+
+        // Default behavior includes user-added options
+        $this->assertStringContainsString('# NUMBER ALTERNATIVES: 2', $output);
+        $this->assertStringContainsString('Other: B', $output);
+    }
+
     // ========== Helper Methods ==========
 
     private function loadResponses(): array

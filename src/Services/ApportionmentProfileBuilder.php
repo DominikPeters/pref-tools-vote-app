@@ -33,20 +33,28 @@ class ApportionmentProfileBuilder
      * @param Question $question The single_choice question
      * @param Response[] $responses Array of Response objects with loaded answers
      * @param int $seats Number of seats to allocate
+     * @param bool $excludeUserAdded Whether to exclude user-added options
      * @return Instance
      */
-    public static function fromSingleChoiceResponses(Question $question, array $responses, int $seats): Instance
+    public static function fromSingleChoiceResponses(Question $question, array $responses, int $seats, bool $excludeUserAdded = false): Instance
     {
-        // echo "DEBUG: processing " . count($responses) . " responses\n";
         $question->loadOptions();
-        $options = $question->options;
+
+        // Filter options if needed
+        $options = [];
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $options[] = $option;
+        }
 
         // Count votes for each option
         $voteCounts = [];
         $candidateNames = [];
         $candidateColors = [];
         $optionIdToIndex = [];
-        
+
         foreach ($options as $index => $option) {
             $voteCounts[$index] = 0;
             $candidateNames[$index] = $option->label;

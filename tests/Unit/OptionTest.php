@@ -305,4 +305,68 @@ class OptionTest extends TestCase
 
         $this->assertNull($option->features);
     }
+
+    // =========================================================================
+    // User-Added Option Tests (for "Other" feature)
+    // =========================================================================
+
+    public function test_find_or_create_user_added_creates_new_option(): void
+    {
+        $poll = $this->createPoll();
+        $question = $this->createQuestion($poll->id, ['options' => []]);
+
+        $option = Option::findOrCreateUserAdded($question->id, 'Other: Pizza');
+
+        $this->assertNotNull($option->id);
+        $this->assertEquals('Other: Pizza', $option->label);
+        $this->assertTrue($option->features['isUserAdded'] ?? false);
+    }
+
+    public function test_find_or_create_user_added_returns_existing_option(): void
+    {
+        $poll = $this->createPoll();
+        $question = $this->createQuestion($poll->id, ['options' => []]);
+
+        // Create first
+        $option1 = Option::findOrCreateUserAdded($question->id, 'Other: Pizza');
+
+        // Find existing
+        $option2 = Option::findOrCreateUserAdded($question->id, 'Other: Pizza');
+
+        $this->assertEquals($option1->id, $option2->id);
+        $this->assertEquals('Other: Pizza', $option2->label);
+    }
+
+    public function test_find_or_create_user_added_does_not_match_non_user_added(): void
+    {
+        $poll = $this->createPoll();
+        $question = $this->createQuestion($poll->id, ['options' => []]);
+
+        // Create a regular option with the same label
+        $regularOption = Option::create($question->id, ['label' => 'Other: Pizza']);
+        $this->assertNull($regularOption->features);
+
+        // Find or create user-added should create a NEW option
+        $userAddedOption = Option::findOrCreateUserAdded($question->id, 'Other: Pizza');
+
+        $this->assertNotEquals($regularOption->id, $userAddedOption->id);
+        $this->assertTrue($userAddedOption->features['isUserAdded'] ?? false);
+    }
+
+    public function test_find_or_create_user_added_groups_identical_text(): void
+    {
+        $poll = $this->createPoll();
+        $question = $this->createQuestion($poll->id, ['options' => []]);
+
+        // Simulate two voters typing the same "other" value
+        $voter1Option = Option::findOrCreateUserAdded($question->id, 'Other: Sushi');
+        $voter2Option = Option::findOrCreateUserAdded($question->id, 'Other: Sushi');
+        $voter3Option = Option::findOrCreateUserAdded($question->id, 'Other: Tacos'); // Different
+
+        // Same text should return same option
+        $this->assertEquals($voter1Option->id, $voter2Option->id);
+        // Different text should create new option
+        $this->assertNotEquals($voter1Option->id, $voter3Option->id);
+        $this->assertEquals('Other: Tacos', $voter3Option->label);
+    }
 }

@@ -56,6 +56,14 @@ class MultiwinnerReport extends BaseReport
                     'min' => 1,
                     'dynamicMax' => 'numOptions',
                 ],
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
             ],
         ];
     }
@@ -63,8 +71,17 @@ class MultiwinnerReport extends BaseReport
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $question->loadOptions();
-        $numOptions = count($question->options);
-        
+        $excludeUserAdded = !($config['include_user_options'] ?? true);
+
+        // Count options (excluding user-added if needed)
+        $numOptions = 0;
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $numOptions++;
+        }
+
         $committeeSize = (int) ($config['committee_size'] ?? 1);
         if ($committeeSize < 1 || $committeeSize > $numOptions) {
             return [
@@ -76,8 +93,8 @@ class MultiwinnerReport extends BaseReport
 
         // Build appropriate profile
         if ($question->type === 'approval') {
-            $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses);
-            $optionLabels = ABCProfileBuilder::getOptionLabels($question);
+            $profile = ABCProfileBuilder::fromApprovalResponses($question, $responses, $excludeUserAdded);
+            $optionLabels = ABCProfileBuilder::getOptionLabels($question, $excludeUserAdded);
         } else {
             $profile = ProfileBuilder::fromRankingResponses($question, $responses);
             $optionLabels = ProfileBuilder::getOptionLabels($question);

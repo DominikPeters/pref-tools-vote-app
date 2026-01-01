@@ -37,7 +37,7 @@ class PrefLibExporter
      *
      * @param Question $question The question to export
      * @param Response[] $responses Array of Response objects with loaded answers
-     * @param array $metadata Optional metadata overrides (title, description, etc.)
+     * @param array $metadata Optional metadata overrides (title, description, exclude_user_added, etc.)
      * @return string|null PrefLib formatted string, or null if question type not supported
      */
     public static function export(Question $question, array $responses, array $metadata = []): ?string
@@ -47,10 +47,12 @@ class PrefLibExporter
             return null;
         }
 
+        $excludeUserAdded = $metadata['exclude_user_added'] ?? false;
+
         if (in_array($dataType, ['soc', 'soi', 'toi'])) {
-            return self::exportOrdinal($question, $responses, $dataType, $metadata);
+            return self::exportOrdinal($question, $responses, $dataType, $metadata, $excludeUserAdded);
         } else {
-            return self::exportCategorical($question, $responses, $metadata);
+            return self::exportCategorical($question, $responses, $metadata, $excludeUserAdded);
         }
     }
 
@@ -77,10 +79,19 @@ class PrefLibExporter
         Question $question,
         array $responses,
         string $dataType,
-        array $metadata
+        array $metadata,
+        bool $excludeUserAdded = false
     ): string {
         $question->loadOptions();
-        $options = $question->options;
+
+        // Filter options if needed
+        $options = [];
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $options[] = $option;
+        }
 
         // Build alternative map: option ID -> 1-indexed number
         $altMap = [];
@@ -262,10 +273,19 @@ class PrefLibExporter
     private static function exportCategorical(
         Question $question,
         array $responses,
-        array $metadata
+        array $metadata,
+        bool $excludeUserAdded = false
     ): string {
         $question->loadOptions();
-        $options = $question->options;
+
+        // Filter options if needed
+        $options = [];
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $options[] = $option;
+        }
 
         // Build alternative map: option ID -> 1-indexed number
         $altMap = [];

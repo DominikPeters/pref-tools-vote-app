@@ -33,6 +33,22 @@ class ResponseMatrixReport extends BaseReport
         return 'table-cells';
     }
 
+    public function getConfigSchema(): ?array
+    {
+        return [
+            'fields' => [
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Compute needs poll context for privacy settings
      * This method receives additional context via the $config parameter
@@ -40,16 +56,20 @@ class ResponseMatrixReport extends BaseReport
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $question->loadOptions();
-        $labels = ProfileBuilder::getOptionLabels($question);
+        $excludeUserAdded = !($config['include_user_options'] ?? true);
+        $labels = ProfileBuilder::getOptionLabels($question, $excludeUserAdded);
 
         // Get privacy context from config (injected by controller)
         $isAdmin = $config['is_admin'] ?? false;
         $pollVisibility = $config['poll_visibility'] ?? 'private';
         $showNames = $this->shouldShowNames($isAdmin, $pollVisibility);
 
-        // Build option list (columns)
+        // Build option list (columns), optionally excluding user-added options
         $options = [];
         foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
             $options[] = [
                 'id' => $option->id,
                 'label' => $option->label,

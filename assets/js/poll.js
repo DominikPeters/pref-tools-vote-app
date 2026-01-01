@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initForm();
     initSingleChoice();
     initApproval();
+    initOtherOptions();
     initRankings();
     initTruncatedRankings();
     initRankingWithTies();
@@ -190,10 +191,34 @@ function collectFormData() {
 
             case 'single_choice':
                 const selected = block.querySelector('input[type="radio"]:checked');
-                answer = selected ? parseInt(selected.value) : null;
+                if (selected) {
+                    if (selected.value === '__other__') {
+                        // Get the text value for "Other" option
+                        const otherText = block.querySelector('.other-text-input')?.value?.trim();
+                        answer = otherText ? { other: otherText } : null;
+                    } else {
+                        answer = parseInt(selected.value);
+                    }
+                }
                 break;
 
             case 'approval':
+                const apChecked = block.querySelectorAll('input[type="checkbox"]:checked');
+                const apAnswers = [];
+                apChecked.forEach(c => {
+                    if (c.value === '__other__') {
+                        // Get the text value for "Other" option
+                        const otherText = block.querySelector('.other-text-input')?.value?.trim();
+                        if (otherText) {
+                            apAnswers.push({ other: otherText });
+                        }
+                    } else {
+                        apAnswers.push(parseInt(c.value));
+                    }
+                });
+                answer = apAnswers;
+                break;
+
             case 'participatory_budgeting':
                 const checked = block.querySelectorAll('input[type="checkbox"]:checked');
                 answer = Array.from(checked).map(c => parseInt(c.value));
@@ -382,6 +407,40 @@ function initApproval() {
             // Initial state
             updateDisabledState();
         }
+    });
+}
+
+/**
+ * Handle "Other" option text inputs for single-choice and approval questions
+ * - Auto-select the radio/checkbox when typing in the text input
+ * - Enable text input only when the radio/checkbox is selected
+ */
+function initOtherOptions() {
+    document.querySelectorAll('.radio-option-other, .checkbox-option-other').forEach(label => {
+        const input = label.querySelector('input[type="radio"], input[type="checkbox"]');
+        const textInput = label.querySelector('.other-text-input');
+
+        if (!input || !textInput) return;
+
+        // Auto-select when typing in text input
+        textInput.addEventListener('focus', () => {
+            input.checked = true;
+            // Trigger change event for approval max constraint updates
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        // Update text input state based on radio/checkbox
+        const updateTextInputState = () => {
+            textInput.disabled = !input.checked;
+            if (input.checked) {
+                textInput.focus();
+            }
+        };
+
+        input.addEventListener('change', updateTextInputState);
+
+        // Initial state
+        textInput.disabled = !input.checked;
     });
 }
 

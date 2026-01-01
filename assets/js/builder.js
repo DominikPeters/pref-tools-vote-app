@@ -361,12 +361,24 @@ function renderTypeSettings(question) {
     const settings = question.settings || {};
 
     switch (question.type) {
+        case 'single_choice':
+            const scAllowOther = settings.allowOther ?? false;
+            return `
+                <div class="type-settings single-choice-settings">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="setting-allow-other" ${scAllowOther ? 'checked' : ''}>
+                        <span>Allow "Other" option</span>
+                    </label>
+                </div>
+            `;
+
         case 'approval':
             const min = settings.min ?? 0;
             const optionCount = question.options?.length || 0;
             // Show empty (placeholder "All") if max is null or equals option count
             const max = settings.max;
             const maxDisplay = (max === null || max === undefined || max >= optionCount) ? '' : max;
+            const apAllowOther = settings.allowOther ?? false;
             return `
                 <div class="type-settings approval-settings" data-option-count="${optionCount}">
                     <label>
@@ -376,6 +388,10 @@ function renderTypeSettings(question) {
                     <label>
                         <span>Max:</span>
                         <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="All">
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="setting-allow-other" ${apAllowOther ? 'checked' : ''}>
+                        <span>Allow "Other"</span>
                     </label>
                 </div>
             `;
@@ -897,6 +913,15 @@ function setupTypeSettingsEvents(wrapper, question) {
             markDirty();
         });
     }
+
+    // Allow "Other" option setting (single_choice, approval)
+    const allowOtherInput = wrapper.querySelector('.setting-allow-other');
+    if (allowOtherInput) {
+        allowOtherInput.addEventListener('change', (e) => {
+            question.settings.allowOther = e.target.checked;
+            markDirty();
+        });
+    }
 }
 
 /**
@@ -1130,13 +1155,16 @@ function loadFromServer(voteData, adminToken) {
         description: q.description || '',
         required: q.required !== false,
         settings: q.settings || {},
-        options: (q.options || []).map(o => ({
-            _id: generateTempId(),
-            id: o.id,
-            label: o.label || '',
-            description: o.description || '',
-            features: o.features || null,
-        })),
+        // Filter out user-added options (created by voters via "Other")
+        options: (q.options || [])
+            .filter(o => !o.features?.isUserAdded)
+            .map(o => ({
+                _id: generateTempId(),
+                id: o.id,
+                label: o.label || '',
+                description: o.description || '',
+                features: o.features || null,
+            })),
     }));
 
     localStorage.removeItem('poll_draft');

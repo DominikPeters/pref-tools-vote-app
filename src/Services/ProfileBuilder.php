@@ -197,14 +197,74 @@ class ProfileBuilder
     /**
      * Build option ID to label map
      */
-    public static function getOptionLabels(Question $question): array
+    public static function getOptionLabels(Question $question, bool $excludeUserAdded = false): array
     {
         $question->loadOptions();
         $labels = [];
         foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
             $labels[$option->id] = $option->label;
         }
         return $labels;
+    }
+
+    /**
+     * Get approval counts from responses, optionally excluding user-added options
+     *
+     * @param Question $question The approval/single_choice question
+     * @param Response[] $responses Array of Response objects with loaded answers
+     * @param bool $excludeUserAdded Whether to exclude user-added options from results
+     * @return array ['counts' => [optionId => count], 'total' => totalResponses]
+     */
+    public static function getApprovalCountsFiltered(Question $question, array $responses, bool $excludeUserAdded = false): array
+    {
+        $question->loadOptions();
+        $counts = [];
+        $includedOptionIds = [];
+
+        // Initialize counts for options (optionally excluding user-added)
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $counts[$option->id] = 0;
+            $includedOptionIds[] = $option->id;
+        }
+
+        $totalResponses = 0;
+
+        foreach ($responses as $response) {
+            $answer = self::getAnswerForQuestion($response, $question->id);
+            if ($answer === null) {
+                continue;
+            }
+
+            $value = $answer->getValue();
+            $totalResponses++;
+
+            if ($question->type === 'single_choice') {
+                // Single choice: value is a single option ID
+                if (is_int($value) && isset($counts[$value])) {
+                    $counts[$value]++;
+                }
+            } else {
+                // Approval: value is an array of option IDs
+                if (is_array($value)) {
+                    foreach ($value as $optionId) {
+                        if (isset($counts[$optionId])) {
+                            $counts[$optionId]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            'counts' => $counts,
+            'total' => $totalResponses,
+        ];
     }
 
     /**

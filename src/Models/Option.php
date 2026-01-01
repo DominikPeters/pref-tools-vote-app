@@ -56,6 +56,34 @@ class Option
     }
 
     /**
+     * Find or create a user-added option by label
+     * Used for "Other" option responses - groups identical text values
+     */
+    public static function findOrCreateUserAdded(int $questionId, string $label): self
+    {
+        $db = Database::getInstance();
+
+        // Look for existing user-added option with this exact label
+        $rows = $db->fetchAll(
+            "SELECT * FROM options WHERE question_id = :question_id AND label = :label",
+            ['question_id' => $questionId, 'label' => $label]
+        );
+
+        foreach ($rows as $row) {
+            $option = self::fromRow($row);
+            if ($option->features['isUserAdded'] ?? false) {
+                return $option;
+            }
+        }
+
+        // Create new user-added option
+        return self::create($questionId, [
+            'label' => $label,
+            'features' => ['isUserAdded' => true],
+        ]);
+    }
+
+    /**
      * Create a new option
      */
     public static function create(int $questionId, array $data): self

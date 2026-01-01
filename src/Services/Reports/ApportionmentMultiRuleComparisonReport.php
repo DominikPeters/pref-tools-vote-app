@@ -53,6 +53,14 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
                     'default' => 10,
                     'min' => 1,
                 ],
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
             ],
         ];
     }
@@ -61,6 +69,8 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
     {
         $seats = (int) ($config['seats'] ?? 10);
         $selectedRules = $config['rules'] ?? [];
+        $excludeUserAdded = !($config['include_user_options'] ?? true);
+
         if (empty($selectedRules)) {
             foreach (ApportionmentRulesRegistry::RULES as $key => $rule) {
                 if ($rule['default'] ?? false) {
@@ -69,7 +79,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
             }
         }
 
-        $instance = ApportionmentProfileBuilder::fromSingleChoiceResponses($question, $responses, $seats);
+        $instance = ApportionmentProfileBuilder::fromSingleChoiceResponses($question, $responses, $seats, $excludeUserAdded);
         if (array_sum($instance->votes) === 0) {
             return ['error' => 'No valid responses for this question.'];
         }

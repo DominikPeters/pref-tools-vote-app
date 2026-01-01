@@ -308,4 +308,62 @@ class QuestionTest extends TestCase
         $this->assertEquals('Q1', $questions[0]->text);
         $this->assertEquals('Q2', $questions[1]->text);
     }
+
+    public function test_validate_single_choice_allow_other(): void
+    {
+        $poll = $this->createPoll();
+
+        // Valid: allowOther as true
+        $q = Question::create($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite food',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger']]
+        ]);
+        $this->assertTrue($q->settings['allowOther']);
+
+        // Valid: allowOther as false
+        $q2 = Question::create($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite drink',
+            'settings' => ['allowOther' => false],
+            'options' => [['label' => 'Coffee'], ['label' => 'Tea']]
+        ]);
+        $this->assertFalse($q2->settings['allowOther']);
+
+        // Invalid: allowOther not boolean
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('allowOther must be a boolean');
+        Question::create($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite color',
+            'settings' => ['allowOther' => 'yes'],
+            'options' => [['label' => 'Red'], ['label' => 'Blue']]
+        ]);
+    }
+
+    public function test_validate_approval_allow_other(): void
+    {
+        $poll = $this->createPoll();
+
+        // Valid: allowOther with other settings
+        $q = Question::create($poll->id, [
+            'type' => 'approval',
+            'text' => 'Select foods you like',
+            'settings' => ['min' => 1, 'max' => 3, 'allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger'], ['label' => 'Salad']]
+        ]);
+        $this->assertTrue($q->settings['allowOther']);
+        $this->assertEquals(1, $q->settings['min']);
+
+        // Invalid: allowOther not boolean
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('allowOther must be a boolean');
+        Question::create($poll->id, [
+            'type' => 'approval',
+            'text' => 'Select drinks',
+            'settings' => ['allowOther' => 1],
+            'options' => [['label' => 'Coffee'], ['label' => 'Tea']]
+        ]);
+    }
 }

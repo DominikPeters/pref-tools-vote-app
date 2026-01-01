@@ -32,12 +32,21 @@ class ABCProfileBuilder
      *
      * @param Question $question The approval question
      * @param Response[] $responses Array of Response objects with loaded answers
+     * @param bool $excludeUserAdded Whether to exclude user-added options
      * @return Profile
      */
-    public static function fromApprovalResponses(Question $question, array $responses): Profile
+    public static function fromApprovalResponses(Question $question, array $responses, bool $excludeUserAdded = false): Profile
     {
         $question->loadOptions();
-        $options = $question->options;
+
+        // Filter options if needed
+        $options = [];
+        foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
+            $options[] = $option;
+        }
 
         // Build candidate map: option ID -> index
         $candidateMap = [];
@@ -79,11 +88,14 @@ class ABCProfileBuilder
     /**
      * Build option ID to label map
      */
-    public static function getOptionLabels(Question $question): array
+    public static function getOptionLabels(Question $question, bool $excludeUserAdded = false): array
     {
         $question->loadOptions();
         $labels = [];
         foreach ($question->options as $option) {
+            if ($excludeUserAdded && ($option->features['isUserAdded'] ?? false)) {
+                continue;
+            }
             $labels[$option->id] = $option->label;
         }
         return $labels;

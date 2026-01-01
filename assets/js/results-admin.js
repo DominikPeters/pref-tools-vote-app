@@ -239,8 +239,15 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
  * Render a single config field
  */
 function renderConfigField(field, currentValue, questionId) {
-    const dependsOn = field.dependsOn ? `data-depends-on-field="${field.dependsOn.field}" data-depends-on-value="${field.dependsOn.value}"` : '';
-    let html = `<div class="form-group" ${dependsOn}>`;
+    let dependsOnAttrs = '';
+    if (field.dependsOn) {
+        dependsOnAttrs = `data-depends-on-field="${field.dependsOn.field}" data-depends-on-value="${field.dependsOn.value}"`;
+        // If depends on question settings, add question ID for lookup
+        if (field.dependsOn.field.startsWith('question.') && questionId) {
+            dependsOnAttrs += ` data-depends-on-question-id="${questionId}"`;
+        }
+    }
+    let html = `<div class="form-group" ${dependsOnAttrs}>`;
     
     // For single checkboxes, we don't want the double label
     if (field.type !== 'checkbox') {
@@ -540,6 +547,10 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
 
 /**
  * Handle conditional field visibility based on data-depends-on attributes
+ *
+ * Supports two types of dependencies:
+ * 1. Form field: dependsOn.field = "fieldName" - checks another form field's value
+ * 2. Question setting: dependsOn.field = "question.settings.allowOther" - checks question's settings
  */
 function bindConfigDependencies(container) {
     const dependentGroups = container.querySelectorAll('.form-group[data-depends-on-field]');
@@ -549,13 +560,28 @@ function bindConfigDependencies(container) {
         dependentGroups.forEach(group => {
             const fieldName = group.getAttribute('data-depends-on-field');
             const requiredValue = group.getAttribute('data-depends-on-value');
-            
-            const field = container.querySelector(`[name="${fieldName}"]`);
-            if (!field) return;
 
-            const currentValue = field.type === 'checkbox' ? field.checked : field.value;
+            let currentValue;
+
+            // Check if this is a question setting dependency
+            if (fieldName.startsWith('question.')) {
+                const questionId = group.getAttribute('data-depends-on-question-id');
+                if (questionId && currentPollData?.questions) {
+                    const question = currentPollData.questions.find(q => q.id == questionId);
+                    if (question) {
+                        // Parse path like "question.settings.allowOther"
+                        const path = fieldName.split('.').slice(1); // Remove "question." prefix
+                        currentValue = path.reduce((obj, key) => obj?.[key], question);
+                    }
+                }
+            } else {
+                // Regular form field dependency
+                const field = container.querySelector(`[name="${fieldName}"]`);
+                if (!field) return;
+                currentValue = field.type === 'checkbox' ? field.checked : field.value;
+            }
+
             const isVisible = String(currentValue) === String(requiredValue);
-            
             group.style.display = isVisible ? '' : 'none';
         });
     };
@@ -563,10 +589,14 @@ function bindConfigDependencies(container) {
     // Initial check
     updateVisibility();
 
-    // Bind change events to all potential source fields
+    // Bind change events to all potential source fields (only for form field dependencies)
     const sourceFields = new Set();
     dependentGroups.forEach(group => {
-        sourceFields.add(group.getAttribute('data-depends-on-field'));
+        const fieldName = group.getAttribute('data-depends-on-field');
+        // Only bind events for form fields, not question settings (those are static)
+        if (!fieldName.startsWith('question.')) {
+            sourceFields.add(fieldName);
+        }
     });
 
     sourceFields.forEach(fieldName => {

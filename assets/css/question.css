@@ -154,6 +154,50 @@
     background: var(--color-bg);
 }
 
+/* "Other" option with text input */
+.radio-option-other,
+.checkbox-option-other {
+    flex-wrap: wrap;
+}
+
+.radio-option-other span,
+.checkbox-option-other span {
+    flex: 0;
+}
+
+.radio-option-other .other-text-input,
+.checkbox-option-other .other-text-input {
+    flex: 1;
+    min-width: 150px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px dotted var(--color-text-muted);
+    background: transparent;
+    font-size: inherit;
+    color: var(--color-text);
+    outline: none;
+    transition: border-color var(--transition-speed) ease;
+}
+
+.radio-option-other .other-text-input:focus,
+.checkbox-option-other .other-text-input:focus {
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-primary);
+}
+
+.radio-option-other .other-text-input:disabled,
+.checkbox-option-other .other-text-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.radio-option-other .other-text-input::placeholder,
+.checkbox-option-other .other-text-input::placeholder {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
 /* Approval constraints */
 .approval-hint {
     font-size: 0.875rem;

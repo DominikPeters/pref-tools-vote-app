@@ -946,6 +946,7 @@ textarea {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
+    row-gap: var(--spacing-sm);
 }
 
 .analysis-method-tag {

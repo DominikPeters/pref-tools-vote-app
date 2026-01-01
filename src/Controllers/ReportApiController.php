@@ -394,8 +394,12 @@ class ReportApiController extends ApiController
         $dataType = PrefLibExporter::getDataType($question);
         $fileName = 'export.' . $dataType;
 
+        // Check if user-added options should be excluded based on report config
+        $excludeUserAdded = !($report->config['include_user_options'] ?? true);
+
         $exportData = PrefLibExporter::export($question, $responses, [
             'file_name' => $fileName,
+            'exclude_user_added' => $excludeUserAdded,
         ]);
 
         if ($exportData === null) {

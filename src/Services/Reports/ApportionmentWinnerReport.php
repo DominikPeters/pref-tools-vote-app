@@ -55,6 +55,14 @@ class ApportionmentWinnerReport extends BaseReport
                     'default' => 10,
                     'min' => 1,
                 ],
+                [
+                    'name' => 'include_user_options',
+                    'type' => 'checkbox',
+                    'label' => 'Include user-added "Other" options',
+                    'required' => false,
+                    'default' => true,
+                    'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
+                ],
             ],
         ];
     }
@@ -63,8 +71,9 @@ class ApportionmentWinnerReport extends BaseReport
     {
         $seats = (int) ($config['seats'] ?? 10);
         $rule = $config['rule'] ?? 'hamilton';
+        $excludeUserAdded = !($config['include_user_options'] ?? true);
 
-        $instance = ApportionmentProfileBuilder::fromSingleChoiceResponses($question, $responses, $seats);
+        $instance = ApportionmentProfileBuilder::fromSingleChoiceResponses($question, $responses, $seats, $excludeUserAdded);
         if (array_sum($instance->votes) === 0) {
             return ['error' => 'No valid responses for this question.'];
         }

@@ -92,26 +92,46 @@ export function renderQuestionInput(question, disabled = false) {
             return `<textarea class="form-control" rows="3" ${disabledAttr} placeholder="Long answer"></textarea>`;
 
         case 'single_choice':
+            // Filter out user-added options (they're created by voters, not shown as predefined)
+            const scOptions = options.filter(o => !o.features?.isUserAdded);
+            const scAllowOther = question.settings?.allowOther ?? false;
             return `
                 <div class="radio-options">
-                    ${options.map(o => `
+                    ${scOptions.map(o => `
                         <label class="radio-option">
                             <input type="radio" name="q_${question.id || question._id}" value="${o.id || o._id}" ${disabledAttr}>
                             <span>${escapeHtml(o.label)}</span>
                         </label>
                     `).join('')}
+                    ${scAllowOther ? `
+                        <label class="radio-option radio-option-other">
+                            <input type="radio" name="q_${question.id || question._id}" value="__other__" ${disabledAttr} data-is-other="true">
+                            <span>Other:</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="Please specify...">
+                        </label>
+                    ` : ''}
                 </div>
             `;
 
         case 'approval':
+            // Filter out user-added options (they're created by voters, not shown as predefined)
+            const apOptions = options.filter(o => !o.features?.isUserAdded);
+            const apAllowOther = question.settings?.allowOther ?? false;
             return `
                 <div class="checkbox-options">
-                    ${options.map(o => `
+                    ${apOptions.map(o => `
                         <label class="checkbox-option">
                             <input type="checkbox" name="q_${question.id || question._id}[]" value="${o.id || o._id}" ${disabledAttr}>
                             <span>${escapeHtml(o.label)}</span>
                         </label>
                     `).join('')}
+                    ${apAllowOther ? `
+                        <label class="checkbox-option checkbox-option-other">
+                            <input type="checkbox" name="q_${question.id || question._id}[]" value="__other__" ${disabledAttr} data-is-other="true">
+                            <span>Other:</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="Please specify...">
+                        </label>
+                    ` : ''}
                 </div>
             `;
 

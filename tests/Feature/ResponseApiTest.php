@@ -278,4 +278,147 @@ class ResponseApiTest extends TestCase
         $this->assertSuccess($apiResponse);
         $this->assertNull(Response::find($response->id));
     }
+
+    // =========================================================================
+    // "Other" Option Tests
+    // =========================================================================
+
+    public function test_can_submit_single_choice_other_answer(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite food',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger']],
+        ]);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => ['other' => 'Sushi'],
+            ],
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Verify a user-added option was created
+        $answeredOptionId = $response['response']['answers'][$question->id];
+        $this->assertIsInt($answeredOptionId);
+
+        $option = \App\Models\Option::find($answeredOptionId);
+        $this->assertEquals('Other: Sushi', $option->label);
+        $this->assertTrue($option->features['isUserAdded'] ?? false);
+    }
+
+    public function test_can_submit_approval_other_answer(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'approval',
+            'text' => 'Select foods you like',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger']],
+        ]);
+
+        $pizzaId = $question->options[0]->id;
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => [$pizzaId, ['other' => 'Tacos']],
+            ],
+        ]);
+
+        $this->assertSuccess($response);
+
+        $answers = $response['response']['answers'][$question->id];
+        $this->assertCount(2, $answers);
+        $this->assertContains($pizzaId, $answers);
+
+        // Find the "Other" option ID
+        $otherOptionId = array_values(array_diff($answers, [$pizzaId]))[0];
+        $option = \App\Models\Option::find($otherOptionId);
+        $this->assertEquals('Other: Tacos', $option->label);
+        $this->assertTrue($option->features['isUserAdded'] ?? false);
+    }
+
+    public function test_other_answers_are_grouped_by_text(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite food',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger']],
+        ]);
+
+        // First voter submits "Sushi"
+        $response1 = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => ['other' => 'Sushi'],
+            ],
+        ]);
+
+        // Second voter also submits "Sushi"
+        $response2 = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => ['other' => 'Sushi'],
+            ],
+        ]);
+
+        $this->assertSuccess($response1);
+        $this->assertSuccess($response2);
+
+        // Both should have voted for the same option
+        $optionId1 = $response1['response']['answers'][$question->id];
+        $optionId2 = $response2['response']['answers'][$question->id];
+        $this->assertEquals($optionId1, $optionId2);
+    }
+
+    public function test_other_answer_ignored_if_allow_other_disabled(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite color',
+            'settings' => ['allowOther' => false],  // Disabled
+            'options' => [['label' => 'Red'], ['label' => 'Blue']],
+        ]);
+
+        // Try to submit an "other" answer
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => ['other' => 'Green'],
+            ],
+        ]);
+
+        $this->assertSuccess($response);
+
+        // The answer should be stored as the raw object (not converted)
+        // since allowOther is disabled, processOtherAnswers won't convert it
+        $answer = $response['response']['answers'][$question->id];
+        $this->assertIsArray($answer);
+        $this->assertEquals('Green', $answer['other']);
+    }
+
+    public function test_empty_other_text_treated_as_no_answer(): void
+    {
+        $poll = $this->createPoll(['status' => 'open']);
+        $question = $this->createQuestion($poll->id, [
+            'type' => 'single_choice',
+            'text' => 'Favorite food',
+            'settings' => ['allowOther' => true],
+            'options' => [['label' => 'Pizza'], ['label' => 'Burger']],
+        ]);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => ['other' => '   '],  // Whitespace only
+            ],
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Should be treated as no answer
+        $this->assertNull($response['response']['answers'][$question->id] ?? null);
+    }
 }

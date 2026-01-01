@@ -244,6 +244,13 @@ class Question
         }
 
         switch ($type) {
+            case 'single_choice':
+                // allowOther is optional boolean
+                if (isset($settings['allowOther']) && !is_bool($settings['allowOther'])) {
+                    $errors[] = "allowOther must be a boolean";
+                }
+                break;
+
             case 'approval':
                 $min = $settings['min'] ?? 0;
                 $max = $settings['max'] ?? null;
@@ -275,6 +282,11 @@ class Question
                             $errors[] = "Approval max ({$max}) cannot be less than min ({$min})";
                         }
                     }
+                }
+
+                // allowOther is optional boolean
+                if (isset($settings['allowOther']) && !is_bool($settings['allowOther'])) {
+                    $errors[] = "allowOther must be a boolean";
                 }
                 break;
 

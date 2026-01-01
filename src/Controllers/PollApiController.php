@@ -410,6 +410,13 @@ class PollApiController extends ApiController
         }
 
         $data = $this->getBody() ?? [];
+
+        // Process "Other" answers - convert { other: "text" } to real option IDs
+        $poll->loadQuestions();
+        if (!empty($data['answers'])) {
+            $data['answers'] = $this->processOtherAnswers($poll, $data['answers']);
+        }
+
         $identity = null;
 
         // For identified/secret ballot modes, validate access
@@ -626,6 +633,12 @@ class PollApiController extends ApiController
         }
 
         $data = $this->getBody() ?? [];
+
+        // Process "Other" answers - convert { other: "text" } to real option IDs
+        $poll->loadQuestions();
+        if (!empty($data['answers'])) {
+            $data['answers'] = $this->processOtherAnswers($poll, $data['answers']);
+        }
 
         try {
             $response = $response->update([
@@ -908,11 +921,11 @@ class PollApiController extends ApiController
             }
         }
 
-        // Delete removed options
+        // Delete removed options (but preserve user-added options from "Other" responses)
         $toDelete = array_diff($existingIds, $newIds);
         foreach ($toDelete as $id) {
             $option = Option::find($id);
-            if ($option) {
+            if ($option && !($option->features['isUserAdded'] ?? false)) {
                 $option->delete();
             }
         }
@@ -1183,5 +1196,73 @@ class PollApiController extends ApiController
             // Log error but don't fail the response submission
             error_log('Failed to send response notification: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Process "Other" answers - convert { other: "text" } to real option IDs
+     *
+     * For questions with allowOther enabled:
+     * - Single choice: { other: "Pizza" } → option ID (creates "Other: Pizza" option)
+     * - Approval: [1, 2, { other: "Pizza" }] → [1, 2, optionId]
+     *
+     * @param Poll $poll Poll with questions loaded
+     * @param array $answers Answers keyed by question ID
+     * @return array Processed answers with "other" converted to option IDs
+     */
+    private function processOtherAnswers(Poll $poll, array $answers): array
+    {
+        $questionMap = [];
+        foreach ($poll->questions as $question) {
+            $questionMap[$question->id] = $question;
+        }
+
+        foreach ($answers as $questionId => $answer) {
+            $question = $questionMap[(int) $questionId] ?? null;
+            if (!$question) {
+                continue;
+            }
+
+            // Only process for question types that support "Other"
+            if (!in_array($question->type, ['single_choice', 'approval'])) {
+                continue;
+            }
+
+            // Check if allowOther is enabled
+            if (!($question->settings['allowOther'] ?? false)) {
+                continue;
+            }
+
+            // Handle single choice: { other: "text" }
+            if ($question->type === 'single_choice' && is_array($answer) && isset($answer['other'])) {
+                $otherText = trim($answer['other']);
+                if ($otherText !== '') {
+                    $option = Option::findOrCreateUserAdded($question->id, 'Other: ' . $otherText);
+                    $answers[$questionId] = $option->id;
+                } else {
+                    // Empty "other" text - treat as no answer
+                    $answers[$questionId] = null;
+                }
+            }
+
+            // Handle approval: [1, 2, { other: "text" }]
+            if ($question->type === 'approval' && is_array($answer)) {
+                $processedAnswer = [];
+                foreach ($answer as $item) {
+                    if (is_array($item) && isset($item['other'])) {
+                        $otherText = trim($item['other']);
+                        if ($otherText !== '') {
+                            $option = Option::findOrCreateUserAdded($question->id, 'Other: ' . $otherText);
+                            $processedAnswer[] = $option->id;
+                        }
+                        // Skip empty "other" text
+                    } else {
+                        $processedAnswer[] = $item;
+                    }
+                }
+                $answers[$questionId] = $processedAnswer;
+            }
+        }
+
+        return $answers;
     }
 }
