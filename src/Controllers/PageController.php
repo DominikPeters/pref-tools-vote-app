@@ -313,13 +313,15 @@ class PageController
             }
         }
 
-        // Enforce token-based access if required by access mode
-        if ($poll->accessMode === 'token') {
+        // Enforce token-based access if required by voting mode or access mode
+        $requiresToken = $poll->requiresIdentity() || $poll->accessMode === 'token';
+        
+        if ($requiresToken) {
             if (empty($_SESSION['poll_token_' . $poll->publicId])) {
                 http_response_code(403);
                 view('error', [
-                    'title' => 'Access Token Required',
-                    'message' => 'This poll requires an access token. Please use the link provided by the poll creator.',
+                    'title' => 'Access Required',
+                    'message' => 'This poll requires an access link. Please use the unique link provided to you.',
                 ]);
                 return;
             }

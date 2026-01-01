@@ -23,6 +23,7 @@ function getFormatDescription(dataType) {
         'SOI': 'Strict Orders - Incomplete (partial rankings, no ties)',
         'TOI': 'Tie Orders - Incomplete (partial rankings with ties)',
         'CAT': 'Categorical Preferences (approval/ratings)',
+        'PB': 'Pabulib Format (Participatory Budgeting)',
     };
     return descriptions[dataType] || dataType;
 }

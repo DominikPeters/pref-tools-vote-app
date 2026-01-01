@@ -344,10 +344,10 @@ class ReportApiController extends ApiController
 
     /**
      * GET /api/polls/:publicId/reports/:reportId/export
-     * Generate PrefLib export on-demand (not cached)
+     * Generate Raw Data export on-demand (not cached)
      * Accessible if report is public OR valid admin token provided
      */
-    public function exportPrefLib(array $params): array
+    public function exportRawData(array $params): array
     {
         $poll = Poll::findByPublicId($params['publicId']);
 
@@ -380,27 +380,35 @@ class ReportApiController extends ApiController
             return $this->error('Export not available for this report type', 'INVALID_REPORT_TYPE', 400);
         }
 
-        if (!PrefLibExporter::isSupported($question)) {
-            return $this->error('Question type not supported for export', 'UNSUPPORTED_TYPE', 400);
-        }
-
         // Load responses
         $responses = Response::findByPollId($poll->id);
         foreach ($responses as $response) {
             $response->loadAnswers();
         }
 
-        // Generate export
-        $dataType = PrefLibExporter::getDataType($question);
-        $fileName = 'export.' . $dataType;
+        $exportData = null;
+        $fileName = 'export.txt';
+        $dataType = 'TXT';
 
-        // Check if user-added options should be excluded based on report config
-        $excludeUserAdded = !($report->config['include_user_options'] ?? true);
+        if ($question->type === 'participatory_budgeting') {
+            $dataType = 'PB';
+            $fileName = 'export.pb';
+            $exportData = \App\Services\PabulibExporter::export($question, $responses, $poll);
+        } elseif (PrefLibExporter::isSupported($question)) {
+            // Generate PrefLib export
+            $dataType = strtoupper(PrefLibExporter::getDataType($question));
+            $fileName = 'export.' . strtolower($dataType);
 
-        $exportData = PrefLibExporter::export($question, $responses, [
-            'file_name' => $fileName,
-            'exclude_user_added' => $excludeUserAdded,
-        ]);
+            // Check if user-added options should be excluded based on report config
+            $excludeUserAdded = !($report->config['include_user_options'] ?? true);
+
+            $exportData = PrefLibExporter::export($question, $responses, [
+                'file_name' => $fileName,
+                'exclude_user_added' => $excludeUserAdded,
+            ]);
+        } else {
+            return $this->error('Question type not supported for export', 'UNSUPPORTED_TYPE', 400);
+        }
 
         if ($exportData === null) {
             return $this->error('Failed to generate export', 'EXPORT_FAILED', 500);
@@ -409,7 +417,7 @@ class ReportApiController extends ApiController
         return $this->success([
             'data' => $exportData,
             'file_name' => $fileName,
-            'data_type' => strtoupper($dataType),
+            'data_type' => $dataType,
         ]);
     }
 

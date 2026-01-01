@@ -224,7 +224,7 @@ abstract class TestCase extends BaseTestCase
         $router->delete('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [\App\Controllers\ReportApiController::class, 'delete']);
         $router->post('/api/polls/:publicId/admin/:adminToken/reports/reorder', [\App\Controllers\ReportApiController::class, 'reorder']);
         $router->post('/api/polls/:publicId/admin/:adminToken/reports/:reportId/compute', [\App\Controllers\ReportApiController::class, 'recompute']);
-        $router->get('/api/polls/:publicId/reports/:reportId/export', [\App\Controllers\ReportApiController::class, 'exportPrefLib']);
+        $router->get('/api/polls/:publicId/reports/:reportId/export', [\App\Controllers\ReportApiController::class, 'exportRawData']);
 
         // User dashboard
         $router->get('/api/user/polls', [\App\Controllers\AuthApiController::class, 'userPolls']);

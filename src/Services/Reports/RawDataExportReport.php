@@ -24,7 +24,7 @@ class RawDataExportReport extends BaseReport
 
     public function getSupportedQuestionTypes(): array
     {
-        // All question types supported by PrefLibExporter
+        // All question types supported by PrefLibExporter or PabulibExporter
         return [
             'single_choice',
             'ranking',
@@ -34,6 +34,7 @@ class RawDataExportReport extends BaseReport
             'yes_no_abstain',
             'grade',
             'star',
+            'participatory_budgeting',
         ];
     }
 
@@ -61,15 +62,17 @@ class RawDataExportReport extends BaseReport
     public function compute(Question $question, array $responses, ?array $config): array
     {
         // Check if the question type is supported
-        if (!PrefLibExporter::isSupported($question)) {
+        if ($question->type === 'participatory_budgeting') {
+            $dataType = 'pb';
+        } elseif (PrefLibExporter::isSupported($question)) {
+            $dataType = PrefLibExporter::getDataType($question);
+        } else {
             return [
                 'supported' => false,
-                'error' => 'This question type is not supported for PrefLib export.',
+                'error' => 'This question type is not supported for raw data export.',
             ];
         }
 
-        // Get the data type for the filename
-        $dataType = PrefLibExporter::getDataType($question);
         $fileName = 'export.' . $dataType;
 
         // Return only metadata - actual data is fetched on-demand via separate API

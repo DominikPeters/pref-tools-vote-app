@@ -126,7 +126,7 @@ $router->put('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [Report
 $router->delete('/api/polls/:publicId/admin/:adminToken/reports/:reportId', [ReportApiController::class, 'delete']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reports/reorder', [ReportApiController::class, 'reorder']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reports/:reportId/compute', [ReportApiController::class, 'recompute']);
-$router->get('/api/polls/:publicId/reports/:reportId/export', [ReportApiController::class, 'exportPrefLib']);
+$router->get('/api/polls/:publicId/reports/:reportId/export', [ReportApiController::class, 'exportRawData']);
 
 // Access Tokens
 $router->get('/api/polls/:publicId/admin/:adminToken/tokens', [TokenApiController::class, 'list']);

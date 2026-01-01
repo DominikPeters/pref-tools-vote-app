@@ -313,6 +313,47 @@ class ReportApiTest extends TestCase
         $this->assertStringContainsString('# ALTERNATIVE NAME 1: Alice', $response['data']);
     }
 
+    public function test_admin_can_export_raw_data_pb(): void
+    {
+        $pbQuestion = $this->createQuestion($this->poll->id, [
+            'type' => 'participatory_budgeting',
+            'settings' => ['totalBudget' => 1000],
+            'options' => [
+                ['label' => 'Project 1', 'features' => ['cost' => 400]],
+                ['label' => 'Project 2', 'features' => ['cost' => 600]]
+            ]
+        ]);
+
+        $report = Report::create([
+            'question_id' => $pbQuestion->id,
+            'report_type' => 'raw_data_export',
+            'is_public' => false
+        ]);
+
+        // Submit a PB response
+        Response::create($this->poll->id, [
+            'answers' => [$pbQuestion->id => [
+                $pbQuestion->options[0]->id,
+                $pbQuestion->options[1]->id
+            ]]
+        ]);
+
+        $response = $this->callApi(
+            'GET',
+            "/api/polls/{$this->poll->publicId}/reports/{$report->id}/export",
+            [],
+            ['admin_token' => $this->poll->adminToken]
+        );
+
+        $this->assertSuccess($response);
+        $this->assertEquals('PB', $response['data_type']);
+        $this->assertEquals('export.pb', $response['file_name']);
+        $this->assertStringContainsString('META', $response['data']);
+        $this->assertStringContainsString('PROJECTS', $response['data']);
+        $this->assertStringContainsString('VOTES', $response['data']);
+        $this->assertStringContainsString('1; 1,2', $response['data']);
+    }
+
     public function test_public_can_export_when_report_is_public(): void
     {
         $this->poll->update(['visibility' => 'full']);
