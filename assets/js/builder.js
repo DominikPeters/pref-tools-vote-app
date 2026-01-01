@@ -311,10 +311,14 @@ function renderQuestions() {
             wrapper.innerHTML = dragHandle + renderQuestionEditor(question, index, questionNumber);
             setupEditorEvents(wrapper, question);
         } else {
-            // For display mode, render markdown description client-side
+            // For display mode, render markdown descriptions client-side
             const displayQuestion = {
                 ...question,
-                description_html: question.description ? marked.parse(question.description) : null
+                description_html: question.description ? marked.parse(question.description) : null,
+                options: question.options.map(o => ({
+                    ...o,
+                    description_html: o.description ? marked.parse(o.description) : null
+                }))
             };
             wrapper.innerHTML = dragHandle + renderQuestion(displayQuestion, {
                 disabled: true,
@@ -372,6 +376,29 @@ function renderTypeSettings(question) {
                     <label>
                         <span>Max:</span>
                         <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="All">
+                    </label>
+                </div>
+            `;
+
+        case 'participatory_budgeting':
+            const pbMin = settings.min ?? 0;
+            const pbOptionCount = question.options?.length || 0;
+            const pbMax = settings.max;
+            const pbMaxDisplay = (pbMax === null || pbMax === undefined || pbMax >= pbOptionCount) ? '' : pbMax;
+            const currency = settings.currency ?? '';
+            return `
+                <div class="type-settings pb-settings" data-option-count="${pbOptionCount}">
+                    <label>
+                        <span>Min:</span>
+                        <input type="number" class="setting-min" value="${pbMin}" min="0" max="${pbOptionCount}">
+                    </label>
+                    <label>
+                        <span>Max:</span>
+                        <input type="number" class="setting-max" value="${pbMaxDisplay}" min="1" max="${pbOptionCount}" placeholder="All">
+                    </label>
+                    <label>
+                        <span>Currency:</span>
+                        <input type="text" class="setting-currency" value="${escapeAttr(currency)}" placeholder="$, €, zł...">
                     </label>
                 </div>
             `;
@@ -528,6 +555,35 @@ function renderQuestionEditor(question, index, questionNumber) {
  * Render a single option in edit mode
  */
 function renderOptionEditor(option, index, question) {
+    // Participatory budgeting uses a subcard layout with description and cost
+    if (question.type === 'participatory_budgeting') {
+        const cost = option.features?.cost ?? '';
+        return `
+            <div class="option-editor option-editor-card" data-option-id="${option._id}">
+                <div class="option-card-header">
+                    <span class="option-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">&#9776;</span>
+                    <span class="option-type-indicator">${getOptionIndicator(question.type)}</span>
+                    <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="Project name">
+                    <button type="button" class="btn-icon delete-option" data-tooltip="Delete option" data-tooltip-pos="left">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="option-card-body">
+                    <textarea class="option-description-input" placeholder="Description (supports Markdown)" rows="2">${escapeAttr(option.description || '')}</textarea>
+                    <div class="option-cost-row">
+                        <label>
+                            <span>Cost:</span>
+                            <input type="number" class="option-cost-input" value="${cost}" placeholder="0" min="0">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     return `
         <div class="option-editor" data-option-id="${option._id}">
             <span class="option-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">&#9776;</span>
@@ -550,6 +606,7 @@ function getOptionIndicator(type) {
     switch (type) {
         case 'single_choice': return '<span class="indicator-radio"></span>';
         case 'approval': return '<span class="indicator-checkbox"></span>';
+        case 'participatory_budgeting': return '<span class="indicator-checkbox"></span>';
         default: return '';
     }
 }
@@ -716,10 +773,10 @@ function setupTypeSettingsEvents(wrapper, question) {
         question.settings = {};
     }
 
-    // Min/max settings (approval and ranking_truncated share this pattern)
+    // Min/max settings (approval, participatory_budgeting, and ranking_truncated share this pattern)
     const minInput = wrapper.querySelector('.setting-min');
     const maxInput = wrapper.querySelector('.setting-max');
-    const minMaxSettings = wrapper.querySelector('.approval-settings, .ranking-truncated-settings');
+    const minMaxSettings = wrapper.querySelector('.approval-settings, .pb-settings, .ranking-truncated-settings');
     const optionCount = minMaxSettings ? parseInt(minMaxSettings.dataset.optionCount) || 0 : 0;
 
     if (minInput && maxInput) {
@@ -769,6 +826,15 @@ function setupTypeSettingsEvents(wrapper, question) {
                 maxInput.value = '';
             }
 
+            markDirty();
+        });
+    }
+
+    // Currency setting (participatory_budgeting)
+    const currencyInput = wrapper.querySelector('.setting-currency');
+    if (currencyInput) {
+        currencyInput.addEventListener('input', (e) => {
+            question.settings.currency = e.target.value;
             markDirty();
         });
     }
@@ -848,6 +914,26 @@ function setupOptionEvents(optionsList, question) {
             option.label = e.target.value;
             markDirty();
         });
+
+        // Description input (participatory_budgeting)
+        const descInput = optEl.querySelector('.option-description-input');
+        if (descInput) {
+            descInput.addEventListener('input', (e) => {
+                option.description = e.target.value;
+                markDirty();
+            });
+        }
+
+        // Cost input (participatory_budgeting)
+        const costInput = optEl.querySelector('.option-cost-input');
+        if (costInput) {
+            costInput.addEventListener('input', (e) => {
+                if (!option.features) option.features = {};
+                const value = e.target.value;
+                option.features.cost = value === '' ? null : parseFloat(value) || 0;
+                markDirty();
+            });
+        }
 
         const deleteBtn = optEl.querySelector('.delete-option');
         deleteBtn.addEventListener('click', (e) => {
@@ -931,9 +1017,12 @@ function duplicateQuestion(question) {
         text: question.text + ' (copy)',
         description: question.description,
         required: question.required,
+        settings: question.settings ? { ...question.settings } : {},
         options: question.options.map(o => ({
             _id: generateTempId(),
             label: o.label,
+            description: o.description || '',
+            features: o.features ? { ...o.features } : null,
         })),
     };
 
@@ -1046,6 +1135,7 @@ function loadFromServer(voteData, adminToken) {
             id: o.id,
             label: o.label || '',
             description: o.description || '',
+            features: o.features || null,
         })),
     }));
 
@@ -1215,6 +1305,8 @@ function prepareData() {
             options: q.options.map((o, oIndex) => ({
                 id: o.id,
                 label: o.label,
+                description: o.description || null,
+                features: o.features || null,
                 sort_order: oIndex,
             })),
         })),

@@ -29,6 +29,7 @@ class Question
         'text_multi',
         'single_choice',
         'approval',
+        'participatory_budgeting',
         'ranking',
         'ranking_truncated',
         'ranking_with_ties',
@@ -133,6 +134,7 @@ class Question
                 Option::create($question->id, [
                     'label' => $optionData['label'] ?? '',
                     'description' => $optionData['description'] ?? null,
+                    'features' => $optionData['features'] ?? null,
                     'sort_order' => $optionData['sort_order'] ?? $index,
                 ]);
             }
@@ -214,7 +216,7 @@ class Question
     public function requiresOptions(): bool
     {
         return in_array($this->type, [
-            'single_choice', 'approval', 'ranking', 'ranking_truncated',
+            'single_choice', 'approval', 'participatory_budgeting', 'ranking', 'ranking_truncated',
             'ranking_with_ties', 'utility', 'star', 'grade', 'yes_no_abstain'
         ]);
     }
@@ -274,6 +276,41 @@ class Question
                         }
                     }
                 }
+                break;
+
+            case 'participatory_budgeting':
+                $min = $settings['min'] ?? 0;
+                $max = $settings['max'] ?? null;
+
+                if (!is_int($min) && !is_numeric($min)) {
+                    $errors[] = "Participatory budgeting min must be a number";
+                } else {
+                    $min = (int) $min;
+                    if ($min < 0) {
+                        $errors[] = "Participatory budgeting min cannot be negative";
+                    }
+                    if ($optionCount > 0 && $min > $optionCount) {
+                        $errors[] = "Participatory budgeting min ({$min}) cannot exceed number of options ({$optionCount})";
+                    }
+                }
+
+                if ($max !== null) {
+                    if (!is_int($max) && !is_numeric($max)) {
+                        $errors[] = "Participatory budgeting max must be a number";
+                    } else {
+                        $max = (int) $max;
+                        if ($max < 1) {
+                            $errors[] = "Participatory budgeting max must be at least 1";
+                        }
+                        if ($optionCount > 0 && $max > $optionCount) {
+                            // This is okay - we treat it as "all"
+                        }
+                        if (is_numeric($settings['min'] ?? 0) && $max < (int)($settings['min'] ?? 0)) {
+                            $errors[] = "Participatory budgeting max ({$max}) cannot be less than min ({$min})";
+                        }
+                    }
+                }
+                // Currency is optional string, no validation needed
                 break;
 
             case 'star':

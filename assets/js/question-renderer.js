@@ -115,6 +115,33 @@ export function renderQuestionInput(question, disabled = false) {
                 </div>
             `;
 
+        case 'participatory_budgeting':
+            const currency = question.settings?.currency || '';
+            return `
+                <div class="pb-options">
+                    ${options.map(o => {
+                        const cost = o.features?.cost;
+                        const costDisplay = cost != null ? `${escapeHtml(currency)}${cost}` : '';
+                        // Use pre-rendered HTML if available, otherwise escape
+                        const descHtml = o.description_html || (o.description ? escapeHtml(o.description) : '');
+                        return `
+                            <label class="pb-option-card">
+                                <div class="pb-option-checkbox">
+                                    <input type="checkbox" name="q_${question.id || question._id}[]" value="${o.id || o._id}" ${disabledAttr}>
+                                </div>
+                                <div class="pb-option-content">
+                                    <div class="pb-option-header">
+                                        <span class="pb-option-label">${escapeHtml(o.label)}</span>
+                                        ${costDisplay ? `<span class="pb-option-cost">${costDisplay}</span>` : ''}
+                                    </div>
+                                    ${descHtml ? `<div class="pb-option-description markdown">${descHtml}</div>` : ''}
+                                </div>
+                            </label>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
         case 'ranking':
             return `
                 <div class="ranking-options">
@@ -273,6 +300,7 @@ export function getQuestionTypeLabel(type) {
     const labels = {
         'single_choice': 'Single Choice',
         'approval': 'Approval (Multiple Choice)',
+        'participatory_budgeting': 'Participatory Budgeting',
         'ranking': 'Ranking',
         'ranking_truncated': 'Ranking (Partial)',
         'ranking_with_ties': 'Ranking (With Ties)',
@@ -289,7 +317,7 @@ export function getQuestionTypeLabel(type) {
  * Question types that require options
  */
 export const OPTION_TYPES = [
-    'single_choice', 'approval', 'ranking', 'ranking_truncated', 'ranking_with_ties', 'star', 'grade', 'yes_no_abstain'
+    'single_choice', 'approval', 'participatory_budgeting', 'ranking', 'ranking_truncated', 'ranking_with_ties', 'star', 'grade', 'yes_no_abstain'
 ];
 
 /**
@@ -298,6 +326,7 @@ export const OPTION_TYPES = [
 export const QUESTION_TYPES = [
     { value: 'single_choice', label: 'Single Choice' },
     { value: 'approval', label: 'Approval (Multiple Choice)' },
+    { value: 'participatory_budgeting', label: 'Participatory Budgeting' },
     { value: 'ranking', label: 'Ranking' },
     { value: 'ranking_truncated', label: 'Ranking (Partial)' },
     { value: 'ranking_with_ties', label: 'Ranking (With Ties)' },

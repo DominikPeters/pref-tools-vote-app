@@ -696,6 +696,107 @@
 }
 
 /* --------------------------------------------------------------------------
+   Participatory Budgeting
+   -------------------------------------------------------------------------- */
+.pb-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.pb-option-card {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.pb-option-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.pb-option-card:has(input:checked) {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 5%, var(--color-bg));
+}
+
+.pb-option-checkbox {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.pb-option-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.pb-option-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.pb-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xs);
+}
+
+.pb-option-label {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.pb-option-cost {
+    font-weight: 600;
+    color: var(--color-primary);
+    white-space: nowrap;
+}
+
+.pb-option-description {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+.pb-option-description.markdown p {
+    margin: 0 0 0.5em 0;
+}
+
+.pb-option-description.markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.pb-option-description.markdown a {
+    color: var(--color-primary);
+}
+
+/* Disabled state for builder preview */
+.pb-option-card:has(input:disabled) {
+    cursor: default;
+}
+
+.pb-option-card:has(input:disabled):hover {
+    border-color: var(--color-border);
+    box-shadow: none;
+}
+
+/* Approval hint also applies to PB */
+.pb-options + .approval-hint,
+.pb-options ~ .approval-hint {
+    margin-top: var(--spacing-sm);
+}
+
+/* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {

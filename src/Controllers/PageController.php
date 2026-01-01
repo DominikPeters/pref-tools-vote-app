@@ -181,6 +181,7 @@ class PageController
                 $option->sortOrder = $oData['sort_order'] ?? $oIndex;
                 $option->label = $oData['label'] ?? '';
                 $option->description = $oData['description'] ?? null;
+                $option->features = $oData['features'] ?? null;
                 $question->options[] = $option;
             }
 

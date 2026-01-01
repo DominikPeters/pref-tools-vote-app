@@ -131,6 +131,7 @@ class Option
             'sort_order' => $this->sortOrder,
             'label' => $this->label,
             'description' => $this->description,
+            'description_html' => $this->description ? markdown($this->description) : null,
         ];
 
         if ($this->features !== null) {

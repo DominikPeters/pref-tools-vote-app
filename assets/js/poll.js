@@ -194,6 +194,7 @@ function collectFormData() {
                 break;
 
             case 'approval':
+            case 'participatory_budgeting':
                 const checked = block.querySelectorAll('input[type="checkbox"]:checked');
                 answer = Array.from(checked).map(c => parseInt(c.value));
                 break;
@@ -267,8 +268,8 @@ function validateForm(data) {
         }
     }
 
-    // Validate approval min constraints
-    const approvalQuestions = document.querySelectorAll('.question-display[data-type="approval"]');
+    // Validate approval and participatory_budgeting min constraints
+    const approvalQuestions = document.querySelectorAll('.question-display[data-type="approval"], .question-display[data-type="participatory_budgeting"]');
     for (const block of approvalQuestions) {
         const questionId = block.dataset.questionId;
         const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
@@ -332,12 +333,12 @@ function initSingleChoice() {
 }
 
 /**
- * Handle approval (checkbox) min/max constraints
+ * Handle approval and participatory_budgeting (checkbox) min/max constraints
  */
 function initApproval() {
-    document.querySelectorAll('.checkbox-options').forEach(container => {
+    document.querySelectorAll('.checkbox-options, .pb-options').forEach(container => {
         const block = container.closest('.question-display');
-        if (!block || block.dataset.type !== 'approval') return;
+        if (!block || (block.dataset.type !== 'approval' && block.dataset.type !== 'participatory_budgeting')) return;
 
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
         const questionId = block.dataset.questionId;
@@ -892,6 +893,7 @@ function prefillForm(response) {
                 break;
 
             case 'approval':
+            case 'participatory_budgeting':
                 if (Array.isArray(answer)) {
                     answer.forEach(id => {
                         const checkbox = block.querySelector(`input[type="checkbox"][value="${id}"]`);

@@ -208,14 +208,6 @@ img {
     gap: var(--spacing-md);
 }
 
-.main-nav a {
-    color: var(--color-text);
-}
-
-.main-nav a.btn-primary {
-    color: var(--color-bg-card);
-}
-
 .user-name {
     color: var(--color-text-muted);
     font-size: 0.875rem;
