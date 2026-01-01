@@ -28,8 +28,8 @@ test.describe('Poll Creation and Voting', () => {
 
     // Should redirect to admin panel
     await expect(freshPage).toHaveURL(/\/admin\//);
-    await expect(freshPage.locator('h1')).toContainText('Admin');
-    await expect(freshPage.locator('text=Test Poll')).toBeVisible();
+    await expect(freshPage.locator('.admin-label')).toContainText('Poll Admin');
+    await expect(freshPage.locator('h1')).toContainText('Test Poll');
   });
 
   test('can access poll by public link', async ({ freshPage, request }) => {
@@ -159,8 +159,8 @@ test.describe('Poll Creation and Voting', () => {
     await freshPage.goto(`/${pollData.poll.public_id}/admin/${pollData.poll.admin_token}`);
 
     // Should see admin panel
-    await expect(freshPage.locator('h1')).toContainText('Admin');
-    await expect(freshPage.locator('text=Admin Test Poll')).toBeVisible();
+    await expect(freshPage.locator('.admin-label')).toContainText('Poll Admin');
+    await expect(freshPage.locator('h1')).toContainText('Admin Test Poll');
   });
 
   test('poll shows on authenticated user dashboard', async ({ page, request }) => {

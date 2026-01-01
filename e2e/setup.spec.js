@@ -45,10 +45,11 @@ setup('install app and create admin session', async ({ page }) => {
 
   // Step 3: Database setup (use SQLite defaults)
   await expect(page.locator('h1')).toContainText('Database Setup');
+  await page.fill('input[name="app_url"]', 'http://localhost:18080');
   await page.click('button:has-text("Continue")');
 
   // Step 4: Create sysadmin account
-  await expect(page.locator('h1')).toContainText('Sysadmin Account');
+  await expect(page.locator('h1')).toContainText('Create Sysadmin Account');
   await page.fill('input[name="name"]', SYSADMIN.name);
   await page.fill('input[name="email"]', SYSADMIN.email);
   await page.fill('input[name="password"]', SYSADMIN.password);

@@ -26,7 +26,7 @@ module.exports = defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   // Reporter to use
-  reporter: 'html',
+  reporter: 'line',
 
   // Shared settings for all projects
   use: {
@@ -42,17 +42,24 @@ module.exports = defineConfig({
 
   // Configure projects
   projects: [
+    // Teardown project: cleans up test files
+    {
+      name: 'teardown',
+      testMatch: /cleanup\.spec\.js/,
+    },
+
     // Setup project: installs app and creates admin session
     {
       name: 'setup',
       testMatch: /setup\.spec\.js/,
       dependencies: ['install'],
+      teardown: 'teardown',
     },
 
     // Main tests: run with admin storage state pre-loaded
     {
       name: 'main',
-      testMatch: /(auth|poll|sysadmin|extended_poll|advanced_sysadmin|specialized_inputs|voter_experience|builder_advanced|poll_thank_you)\.spec\.js$/,
+      testMatch: /(auth|poll|sysadmin|extended_poll|advanced_sysadmin|specialized_inputs|voter_experience|builder_advanced|poll_thank_you|results_reports|privacy_visibility|access_modes|participatory_budgeting)\.spec\.js$/,
       dependencies: ['setup'],
       use: {
         // Pre-authenticate as admin - tests can override if needed

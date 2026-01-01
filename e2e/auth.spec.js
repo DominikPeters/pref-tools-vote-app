@@ -68,6 +68,7 @@ test.describe('Authentication', () => {
     await expect(freshPage).toHaveURL('/dashboard');
 
     // Log out
+    await freshPage.click('.user-menu-trigger');
     await freshPage.click('button:has-text("Log Out")');
     await freshPage.waitForURL(url => url.pathname === '/' || url.pathname === '/login');
 
@@ -173,6 +174,7 @@ test.describe('Authentication', () => {
 
     // Should show success message (or at least not fail with validation error)
     // Note: Mail may not be configured, but we should see either success or mail error
-    await expect(freshPage.locator('#forgotSuccess, #forgotError')).toBeVisible();
+    const message = freshPage.locator('#forgotSuccess, #forgotError').filter({ hasText: /./ });
+    await expect(message).toBeVisible();
   });
 });

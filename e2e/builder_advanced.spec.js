@@ -55,8 +55,9 @@ test.describe('Advanced Builder Features', () => {
 
     // Clear draft
     await page.click('#clearBtn');
-    // Confirm dialog
-    // wait, clearBtn doesn't have a confirm in JS, it just resets state.
+    // Confirm modal
+    await page.click('.confirm-modal .btn-confirm');
+    
     await expect(page.locator('#pollTitle')).toHaveValue('Untitled Poll');
     await expect(page.locator('.question-wrapper')).toHaveCount(0);
   });
@@ -69,6 +70,7 @@ test.describe('Advanced Builder Features', () => {
     await q1.locator('.question-type-select').selectOption('section_header');
 
     await q1.locator('.question-title-input').fill('New Section');
+    await q1.locator('.btn-add-description').click();
     await q1.locator('.question-description-input').fill('Section Description');
 
     // Click outside to collapse
@@ -78,5 +80,59 @@ test.describe('Advanced Builder Features', () => {
     await expect(page.locator('.section-header-description')).toContainText('Section Description');
     // Verify no number
     await expect(page.locator('.section-header')).not.toContainText('1.');
+  });
+
+  test('can undo question deletion', async ({ page }) => {
+    await page.goto('/create');
+
+    // Add a question
+    await page.click('#addQuestionBtn');
+    await page.locator('.question-title-input').fill('Delete Me');
+    
+    // Collapse it
+    await page.click('h1');
+    
+    const q1 = page.locator('.question-wrapper').first();
+    await expect(q1).toBeVisible();
+
+    // Click on it to edit and show delete button
+    await q1.click();
+    await q1.locator('.delete-question').click();
+
+    // Verify hidden
+    await expect(q1).not.toBeVisible();
+
+    // Click Undo in toast
+    await page.click('.toast-undo button');
+
+    // Verify restored
+    await expect(q1).toBeVisible();
+    await expect(q1.locator('.question-title-input')).toHaveValue('Delete Me');
+  });
+
+  test('can undo option deletion', async ({ page }) => {
+    await page.goto('/create');
+
+    // Add a question
+    await page.click('#addQuestionBtn');
+    const q1 = page.locator('.question-wrapper').first();
+    
+    // Add 3rd option (min 2 required)
+    await q1.locator('.btn-add-option').click();
+    const option3 = q1.locator('.option-editor').nth(2);
+    await option3.locator('.option-label-input').fill('Undo Option');
+
+    // Delete 3rd option
+    await option3.locator('.delete-option').click();
+
+    // Verify only 2 options left
+    await expect(q1.locator('.option-editor')).toHaveCount(2);
+
+    // Click Undo in toast
+    await page.click('.toast-undo button');
+
+    // Verify restored
+    await expect(q1.locator('.option-editor')).toHaveCount(3);
+    await expect(q1.locator('.option-editor').nth(2).locator('.option-label-input')).toHaveValue('Undo Option');
   });
 });

@@ -60,7 +60,7 @@ test.describe('Voter Experience', () => {
     // 3. Update answer
     await freshPage.fill('input[type="text"]', 'Updated Answer');
     await freshPage.click('button:has-text("Update Response")');
-    await expect(freshPage.locator('text=Response updated')).toBeVisible();
+    await expect(freshPage.locator('text=Your response has been updated')).toBeVisible();
 
     // 4. Verify update persisted
     await freshPage.reload();

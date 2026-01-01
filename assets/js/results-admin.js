@@ -462,6 +462,7 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
     const card = document.createElement('div');
     card.className = 'report-card';
     card.dataset.reportId = report.id;
+    card.dataset.type = report.report_type;
 
     const typeData = availableTypes?.all_types?.find(t => t.type === report.report_type);
     const typeName = typeData?.name || report.report_type;

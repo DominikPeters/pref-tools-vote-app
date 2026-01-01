@@ -194,6 +194,7 @@ function renderReportCard(container, report, options) {
     const card = document.createElement('div');
     card.className = isPublicTextBlock ? 'report-card report-card-plain' : 'report-card';
     card.dataset.reportId = report.id;
+    card.dataset.type = report.report_type;
 
     const typeName = getReportTypeName(report.report_type);
     const hasConfig = configurableTypes?.has(report.report_type);

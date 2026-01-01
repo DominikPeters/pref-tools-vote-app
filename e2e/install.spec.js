@@ -35,9 +35,10 @@ test.describe('Installation Flow', () => {
     await page.click('button:has-text("Continue")');
 
     // Sysadmin step
-    await expect(page.locator('h1')).toContainText('Sysadmin Account');
+    await expect(page.locator('h1')).toContainText('Create Sysadmin Account');
 
     // Fill in sysadmin credentials
+    await page.fill('input[name="name"]', 'Test Admin');
     await page.fill('input[name="email"]', 'admin@example.com');
     await page.fill('input[name="password"]', 'securepassword123');
     await page.click('button:has-text("Complete Installation")');
@@ -50,7 +51,7 @@ test.describe('Installation Flow', () => {
 
     // Should be on homepage now
     await expect(page).toHaveURL('/');
-    await expect(page.locator('h1')).toContainText('Create and Share Polls');
+    await expect(page.locator('h1')).toContainText('Smarter Polls');
 
     // Check dashboard - should NOT show verification banner
     await page.goto('/dashboard');
@@ -63,6 +64,7 @@ test.describe('Installation Flow', () => {
     await page.click('button:has-text("Continue")');
 
     // Try to submit without email
+    await page.fill('input[name="name"]', 'Test Admin');
     await page.fill('input[name="password"]', 'testpassword123');
     await page.click('button:has-text("Complete Installation")');
 
@@ -77,6 +79,7 @@ test.describe('Installation Flow', () => {
     await page.click('button:has-text("Continue")');
 
     // Fill with short password
+    await page.fill('input[name="name"]', 'Test Admin');
     await page.fill('input[name="email"]', 'admin@example.com');
     await page.fill('input[name="password"]', 'short');
     await page.click('button:has-text("Complete Installation")');
@@ -90,6 +93,7 @@ test.describe('Installation Flow', () => {
     await page.goto('/');
     await page.click('text=Start Installation');
     await page.click('button:has-text("Continue")');
+    await page.fill('input[name="name"]', 'Test Admin');
     await page.fill('input[name="email"]', 'admin@example.com');
     await page.fill('input[name="password"]', 'testpassword123');
     await page.click('button:has-text("Complete Installation")');

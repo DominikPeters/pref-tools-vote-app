@@ -139,11 +139,11 @@ test.describe('Sysadmin Dashboard', () => {
     const pollRow = page.locator('#pollsTable tbody tr', { hasText: 'Poll To Delete' });
     await expect(pollRow).toBeVisible();
 
-    // Set up dialog handler for confirmation
-    page.on('dialog', dialog => dialog.accept());
-
     // Click delete
     await pollRow.locator('button:has-text("Delete")').click();
+
+    // Confirm in the custom modal
+    await page.click('.confirm-modal .btn-confirm');
 
     // Wait for deletion
     await page.waitForResponse(response =>

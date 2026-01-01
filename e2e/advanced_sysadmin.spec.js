@@ -13,11 +13,11 @@ test.describe('Advanced Sysadmin Features', () => {
     const userRow = page.locator('#usersTable tbody tr', { hasText: userEmail });
     await expect(userRow).toBeVisible();
 
-    // Set up dialog handler for confirmation
-    page.on('dialog', dialog => dialog.accept());
-
     // Click delete button in that row
     await userRow.locator('.delete-user-btn').click();
+
+    // Confirm in the custom modal
+    await page.click('.confirm-modal .btn-confirm');
 
     // User should be gone from the list
     await expect(page.locator('#usersTable')).not.toContainText(userEmail);

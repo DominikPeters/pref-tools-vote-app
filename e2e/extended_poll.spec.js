@@ -32,11 +32,11 @@ test.describe('Extended Poll Features', () => {
 
     // Back to admin panel, check title
     await expect(page).toHaveURL(adminUrl);
-    await expect(page.locator('.poll-title')).toContainText('Updated Poll Title');
+    await expect(page.locator('h1')).toContainText('Updated Poll Title');
 
     // 3. Close the poll
     await page.click('#closePoll');
-    await expect(page.locator('.poll-status')).toContainText('Closed');
+    await expect(page.locator('.status-badge')).toContainText('Closed');
 
     // Check public page - should say closed
     await page.goto(publicUrl);
@@ -45,7 +45,7 @@ test.describe('Extended Poll Features', () => {
     // 4. Reopen the poll
     await page.goto(adminUrl);
     await page.click('#reopenPoll');
-    await expect(page.locator('.poll-status')).toContainText('Open');
+    await expect(page.locator('.status-badge')).toContainText('Open');
 
     // Check public page - should be open again
     await page.goto(publicUrl);
@@ -53,8 +53,8 @@ test.describe('Extended Poll Features', () => {
 
     // 5. Delete the poll
     await page.goto(adminUrl);
-    page.on('dialog', dialog => dialog.accept());
     await page.click('#deletePoll');
+    await page.click('.confirm-modal .btn-confirm');
 
     // Should redirect to dashboard or home
     await page.waitForURL(url => url.pathname === '/' || url.pathname === '/dashboard');
@@ -105,6 +105,7 @@ test.describe('Extended Poll Features', () => {
 
     // Set results visibility to public
     await page.selectOption('#settingVisibility', 'full');
+    // Wait for save button to appear and click it
     await page.click('#saveSettings');
     await expect(page.locator('text=Settings saved')).toBeVisible();
 
@@ -139,7 +140,6 @@ test.describe('Extended Poll Features', () => {
   test('collects voter name when enabled', async ({ page, freshPage }) => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Name Collection Poll');
-    await page.check('#collectName');
 
     await page.click('#addQuestionBtn');
     const nq1 = page.locator('.question-wrapper').last();
@@ -149,6 +149,11 @@ test.describe('Extended Poll Features', () => {
     await expect(page).toHaveURL(/\/admin\//);
     const adminUrl = page.url();
     const publicUrl = await page.locator('#publicLink').inputValue();
+
+    // Enable name collection in settings
+    await page.check('#settingCollectName');
+    await page.click('#saveSettings');
+    await expect(page.locator('text=Settings saved')).toBeVisible();
 
     // Vote with name
     await freshPage.goto(publicUrl);
