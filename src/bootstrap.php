@@ -43,6 +43,21 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
+// Autoloader for PB library
+spl_autoload_register(function (string $class): void {
+    if (!str_starts_with($class, 'PB\\')) {
+        return;
+    }
+
+    $relativePath = str_replace('PB\\', '', $class);
+    $relativePath = str_replace('\\', '/', $relativePath);
+    $file = BASE_PATH . '/lib/pb/' . $relativePath . '.php';
+
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
+
 // Check if config exists (use test config in test environment)
 $configFile = IS_TEST_ENV
     ? CONFIG_PATH . '/config.test.php'

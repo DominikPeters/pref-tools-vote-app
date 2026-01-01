@@ -18,6 +18,7 @@ import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderMultiSWFComparison } from './multi-swf-comparison.js';
 import { renderABCWinner } from './abc-winner.js';
 import { renderABCMultiRuleComparison } from './abc-multi-rule-comparison.js';
+import { renderPBWinner } from './pb-winner.js';
 import { renderApportionmentWinner } from './apportionment-winner.js';
 import { renderApportionmentMultiRuleComparison } from './apportionment-multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
@@ -32,6 +33,7 @@ const renderers = {
     'voting_rule_winner': renderVotingRuleWinner,
     'rank_aggregation': renderRankAggregation,
     'abc_winner': renderABCWinner,
+    'pb_winner': renderPBWinner,
     'condorcet_winner': renderCondorcetWinner,
     'apportionment_winner': renderApportionmentWinner,
     'yna_counts': renderYNACounts,
@@ -87,6 +89,7 @@ export function getReportTypeName(type) {
         'voting_rule_winner': 'Voting Rule Winner',
         'rank_aggregation': 'Rank Aggregation',
         'abc_winner': 'ABC Voting Rule Winner',
+        'pb_winner': 'PB Voting Rule Winner',
         'condorcet_winner': 'Condorcet Winner',
         'apportionment_winner': 'Apportionment Rule Winner',
         'yna_counts': 'Yes/No/Abstain Tallies',
@@ -111,6 +114,7 @@ export function getReportTypeIcon(type) {
         'voting_rule_winner': 'trophy',
         'rank_aggregation': 'list-ol',
         'abc_winner': 'trophy',
+        'pb_winner': 'calculator',
         'condorcet_winner': 'crown',
         'apportionment_winner': 'calculator',
         'yna_counts': 'check-circle',

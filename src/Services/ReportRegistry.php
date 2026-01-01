@@ -75,6 +75,7 @@ class ReportRegistry
         self::register('voting_rule_winner', new Reports\VotingRuleWinnerReport());
         self::register('rank_aggregation', new Reports\RankAggregationReport());
         self::register('abc_winner', new Reports\ABCWinnerReport());
+        self::register('pb_winner', new Reports\PBWinnerReport());
         self::register('condorcet_winner', new Reports\CondorcetWinnerReport());
         self::register('apportionment_winner', new Reports\ApportionmentWinnerReport());
         self::register('multi_rule_comparison', new Reports\MultiRuleComparisonReport());

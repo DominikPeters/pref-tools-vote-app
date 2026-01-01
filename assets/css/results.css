@@ -1292,6 +1292,93 @@ label.checkbox-item {
 }
 
 /* ==========================================================================
+   Participatory Budgeting (PB) Reports
+   ========================================================================== */
+
+.pb-budget-summary {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+
+.budget-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.budget-stat .stat-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.budget-stat .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-strong);
+}
+
+.budget-stat .stat-value.over-budget {
+    color: var(--color-danger);
+}
+
+.pb-winners-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 500px;
+    margin: 1rem auto;
+}
+
+.pb-winner-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--color-primary-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+    .pb-winner-item {
+        color: var(--color-text);
+    }
+}
+
+.pb-winner-name {
+    font-weight: 600;
+    text-align: left;
+}
+
+.pb-winner-cost {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 700;
+}
+
+.pb-outcome-stats {
+    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+}
+
+.comparison-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--color-bg-secondary);
+    border-radius: 6px;
+    font-style: italic;
+}
+
+/* ==========================================================================
    Apportionment Reports
    ========================================================================== */
 

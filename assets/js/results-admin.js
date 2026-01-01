@@ -218,6 +218,7 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
     formHtml += '</form>';
 
     configStep.innerHTML = formHtml;
+    bindConfigDependencies(configStep);
 
     // Bind back button
     configStep.querySelector('.btn-back').addEventListener('click', () => {
@@ -238,7 +239,8 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
  * Render a single config field
  */
 function renderConfigField(field, currentValue, questionId) {
-    let html = `<div class="form-group">`;
+    const dependsOn = field.dependsOn ? `data-depends-on-field="${field.dependsOn.field}" data-depends-on-value="${field.dependsOn.value}"` : '';
+    let html = `<div class="form-group" ${dependsOn}>`;
     
     // For single checkboxes, we don't want the double label
     if (field.type !== 'checkbox') {
@@ -366,6 +368,7 @@ function showEditConfigModal(report, publicId, adminToken) {
     `;
 
     document.body.appendChild(overlay);
+    bindConfigDependencies(overlay);
 
     // Bind close/cancel
     const closeModal = () => overlay.remove();
@@ -524,4 +527,44 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
     });
 
     container.appendChild(card);
+}
+
+/**
+ * Handle conditional field visibility based on data-depends-on attributes
+ */
+function bindConfigDependencies(container) {
+    const dependentGroups = container.querySelectorAll('.form-group[data-depends-on-field]');
+    if (dependentGroups.length === 0) return;
+
+    const updateVisibility = () => {
+        dependentGroups.forEach(group => {
+            const fieldName = group.getAttribute('data-depends-on-field');
+            const requiredValue = group.getAttribute('data-depends-on-value');
+            
+            const field = container.querySelector(`[name="${fieldName}"]`);
+            if (!field) return;
+
+            const currentValue = field.type === 'checkbox' ? field.checked : field.value;
+            const isVisible = String(currentValue) === String(requiredValue);
+            
+            group.style.display = isVisible ? '' : 'none';
+        });
+    };
+
+    // Initial check
+    updateVisibility();
+
+    // Bind change events to all potential source fields
+    const sourceFields = new Set();
+    dependentGroups.forEach(group => {
+        sourceFields.add(group.getAttribute('data-depends-on-field'));
+    });
+
+    sourceFields.forEach(fieldName => {
+        const field = container.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.addEventListener('change', updateVisibility);
+            field.addEventListener('input', updateVisibility);
+        }
+    });
 }
