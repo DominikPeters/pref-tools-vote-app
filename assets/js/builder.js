@@ -11,7 +11,7 @@
 
 import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath, escapeHtml } from './app.js';
 import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
-import { marked } from '/assets/lib/marked.esm.js';
+import { marked } from './marked.esm.js';
 
 // Configure marked to match Parsedown behavior
 marked.setOptions({

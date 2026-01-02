@@ -273,7 +273,7 @@ function createDemoPoll(int $userId): void
     ]);
 
     // Q1: Single choice - Season
-    \App\Models\Question::create($poll->id, [
+    $q1 = \App\Models\Question::create($poll->id, [
         'type' => 'single_choice',
         'text' => 'What\'s the ideal season for our retreat?',
         'required' => false,
@@ -284,9 +284,14 @@ function createDemoPoll(int $userId): void
             ['label' => 'Winter'],
         ],
     ]);
+    \App\Models\Report::create([
+        'question_id' => $q1->id,
+        'report_type' => 'choice_counts',
+        'is_public' => true,
+    ]);
 
     // Q2: Ranking - Destination types
-    \App\Models\Question::create($poll->id, [
+    $q2 = \App\Models\Question::create($poll->id, [
         'type' => 'ranking',
         'text' => 'Rank these destination types from most to least appealing',
         'required' => true,
@@ -298,9 +303,31 @@ function createDemoPoll(int $userId): void
             ['label' => 'City hotel'],
         ],
     ]);
+    \App\Models\Report::create([
+        'question_id' => $q2->id,
+        'report_type' => 'borda_scores',
+        'is_public' => true,
+    ]);
+    \App\Models\Report::create([
+        'question_id' => $q2->id,
+        'report_type' => 'voting_rule_winner',
+        'config' => ['rule' => 'schulze'],
+        'is_public' => true,
+    ]);
+    \App\Models\Report::create([
+        'question_id' => $q2->id,
+        'report_type' => 'multi_rule_comparison',
+        'config' => ['rules' => ['schulze', 'borda', 'plurality', 'irv', 'copeland']],
+        'is_public' => true,
+    ]);
+    \App\Models\Report::create([
+        'question_id' => $q2->id,
+        'report_type' => 'pairwise_margins',
+        'is_public' => true,
+    ]);
 
     // Q3: Approval - Activities
-    \App\Models\Question::create($poll->id, [
+    $q3 = \App\Models\Question::create($poll->id, [
         'type' => 'approval',
         'text' => 'Which activities would you enjoy?',
         'description' => 'Select all that apply',
@@ -316,6 +343,20 @@ function createDemoPoll(int $userId): void
             ['label' => 'Local sightseeing'],
         ],
     ]);
+    \App\Models\Report::create([
+        'question_id' => $q3->id,
+        'report_type' => 'choice_counts',
+        'is_public' => true,
+    ]);
+    \App\Models\Report::create([
+        'question_id' => $q3->id,
+        'report_type' => 'multiwinner',
+        'config' => [
+            'rule' => 'pav',
+            'committee_size' => 3
+        ],
+        'is_public' => true,
+    ]);
 
     // Section: Logistics & Preferences
     \App\Models\Question::create($poll->id, [
@@ -325,7 +366,7 @@ function createDemoPoll(int $userId): void
     ]);
 
     // Q4: Truncated ranking - Venue priorities
-    \App\Models\Question::create($poll->id, [
+    $q4 = \App\Models\Question::create($poll->id, [
         'type' => 'ranking_truncated',
         'text' => 'Pick your top priorities for the venue',
         'required' => false,
@@ -340,9 +381,20 @@ function createDemoPoll(int $userId): void
             ['label' => 'Reliable WiFi'],
         ],
     ]);
+    // \App\Models\Report::create([
+    //     'question_id' => $q4->id,
+    //     'report_type' => 'borda_scores',
+    //     'is_public' => true,
+    // ]);
+    \App\Models\Report::create([
+        'question_id' => $q4->id,
+        'report_type' => 'voting_rule_winner',
+        'config' => ['rule' => 'schulze'],
+        'is_public' => true,
+    ]);
 
     // Q5: Ranking with ties - Trip priorities
-    \App\Models\Question::create($poll->id, [
+    $q5 = \App\Models\Question::create($poll->id, [
         'type' => 'ranking_with_ties',
         'text' => 'Rank what matters most for the trip',
         'description' => 'Ties are allowed',
@@ -355,9 +407,20 @@ function createDemoPoll(int $userId): void
             ['label' => 'Comfort'],
         ],
     ]);
+    // \App\Models\Report::create([
+    //     'question_id' => $q5->id,
+    //     'report_type' => 'borda_scores',
+    //     'is_public' => true,
+    // ]);
+    \App\Models\Report::create([
+        'question_id' => $q5->id,
+        'report_type' => 'voting_rule_winner',
+        'config' => ['rule' => 'schulze'],
+        'is_public' => true,
+    ]);
 
     // Q6: Grade - Policy ideas
-    \App\Models\Question::create($poll->id, [
+    $q6 = \App\Models\Question::create($poll->id, [
         'type' => 'grade',
         'text' => 'How do you feel about these ideas?',
         'required' => false,
@@ -373,6 +436,11 @@ function createDemoPoll(int $userId): void
             ['label' => 'No work talk allowed'],
         ],
     ]);
+    \App\Models\Report::create([
+        'question_id' => $q6->id,
+        'report_type' => 'majority_judgment',
+        'is_public' => true,
+    ]);
 
     // Section: Activities & Extras
     \App\Models\Question::create($poll->id, [
@@ -382,7 +450,7 @@ function createDemoPoll(int $userId): void
     ]);
 
     // Q7: Star rating - Workshop topics
-    \App\Models\Question::create($poll->id, [
+    $q7 = \App\Models\Question::create($poll->id, [
         'type' => 'star',
         'text' => 'Rate your interest in these workshop topics',
         'required' => false,
@@ -394,9 +462,14 @@ function createDemoPoll(int $userId): void
             ['label' => 'Goal setting for next year'],
         ],
     ]);
+    \App\Models\Report::create([
+        'question_id' => $q7->id,
+        'report_type' => 'majority_judgment',
+        'is_public' => true,
+    ]);
 
     // Q8: Yes/No/Abstain - Participation
-    \App\Models\Question::create($poll->id, [
+    $q8 = \App\Models\Question::create($poll->id, [
         'type' => 'yes_no_abstain',
         'text' => 'Would you participate in these?',
         'required' => false,
@@ -408,6 +481,11 @@ function createDemoPoll(int $userId): void
             ['label' => 'Campfire storytelling'],
             ['label' => 'Photo scavenger hunt'],
         ],
+    ]);
+    \App\Models\Report::create([
+        'question_id' => $q8->id,
+        'report_type' => 'yna_counts',
+        'is_public' => true,
     ]);
 
     // Q9: Text - Additional considerations

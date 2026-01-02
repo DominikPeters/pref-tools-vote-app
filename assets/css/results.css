@@ -28,6 +28,10 @@
     }
 }
 
+.results-container {
+    margin-bottom: var(--spacing-xl);
+}
+
 /* Results Header - matches admin-header-top pattern */
 .results-header {
     margin-bottom: 1.5rem;
@@ -356,7 +360,7 @@
 
 .bar-label {
     flex-shrink: 0;
-    width: 120px;
+    width: 180px;
     font-weight: 500;
     color: var(--color-text);
     overflow: hidden;
@@ -671,7 +675,6 @@ label.checkbox-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    justify-content: center;
 }
 
 .yna-bar {
@@ -721,7 +724,7 @@ label.checkbox-item {
 
 .mj-option-label {
     flex-shrink: 0;
-    width: 120px;
+    width: 180px;
     font-weight: 500;
     color: var(--color-text);
     overflow: hidden;
@@ -796,7 +799,7 @@ label.checkbox-item {
 .report-multi-rule {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--spacing-lg);
 }
 
 .multi-rule-summary h4 {
@@ -811,6 +814,7 @@ label.checkbox-item {
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
+    padding: 0 var(--spacing-sm);
 }
 
 .multi-rule-summary-row .summary-option {
