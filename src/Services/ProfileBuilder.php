@@ -105,7 +105,7 @@ class ProfileBuilder
             foreach ($finalRankings as $ranking) {
                 if (is_array($ranking) && !empty($ranking)) {
                     // Check if it's already a rank map or a linear array
-                    if (array_keys($ranking) !== range(0, count($ranking) - 1)) {
+                    if ($question->type === 'ranking_with_ties') {
                         // It's a rank map {candidate => rank}
                         $rankingObjects[] = new Ranking($ranking);
                     } else {
@@ -118,7 +118,9 @@ class ProfileBuilder
                     }
                 }
             }
-            return new ProfileWithTies($rankingObjects, $finalCounts, array_keys($candidateNames), $candidateNames);
+            $profile = new ProfileWithTies($rankingObjects, $finalCounts, array_keys($candidateNames), $candidateNames);
+            $profile->useExtendedStrictPreference();
+            return $profile;
         } else {
             // Standard linear rankings
             return new Profile($finalRankings, $finalCounts, $candidateNames);

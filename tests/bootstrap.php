@@ -8,6 +8,7 @@
 
 // Define paths
 define('BASE_PATH', dirname(__DIR__));
+define('PHPUNIT_RUNNING', true);
 define('SRC_PATH', BASE_PATH . '/src');
 define('CONFIG_PATH', BASE_PATH . '/config');
 define('TEMPLATES_PATH', BASE_PATH . '/templates');

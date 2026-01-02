@@ -202,10 +202,28 @@ class PageController
      */
     public function login(array $params): void
     {
+        // Handle email verification token in PHP to avoid "flash" of login page
+        $verifyToken = $_GET['verify_token'] ?? null;
+        if ($verifyToken) {
+            $user = \App\Models\User::findByVerificationToken($verifyToken);
+            if ($user) {
+                $user->markEmailVerified();
+                \App\Services\LogService::getInstance()->log('user.email_verified', null, $user->id);
+
+                $auth = Auth::getInstance();
+                if (!$auth->check()) {
+                    $auth->login($user);
+                }
+
+                \App\Router::redirect(url('dashboard?verified=1'));
+                return;
+            }
+        }
+
         // Redirect if already logged in
         if (Auth::getInstance()->check()) {
-            header('Location: ' . url('dashboard'));
-            exit;
+            \App\Router::redirect(url('dashboard'));
+            return;
         }
 
         view('login', []);
@@ -219,8 +237,8 @@ class PageController
         $user = Auth::getInstance()->user();
 
         if (!$user) {
-            header('Location: ' . url('login'));
-            exit;
+            \App\Router::redirect(url('login'));
+            return;
         }
 
         $polls = Poll::findByUserId($user->id);

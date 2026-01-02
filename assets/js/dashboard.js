@@ -5,6 +5,15 @@
 import { api, showToast, setButtonLoading, clearButtonLoading, basePath } from './app.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if just verified
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === '1') {
+        showToast('Email verified successfully!', 'success');
+        // Clean up URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+
     // Handle duplicate poll buttons
     document.querySelectorAll('.duplicate-poll-btn').forEach(btn => {
         btn.addEventListener('click', async () => {

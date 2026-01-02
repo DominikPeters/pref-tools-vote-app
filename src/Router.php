@@ -225,4 +225,15 @@ class Router
     {
         self::json(['error' => $message, 'code' => $code], $status);
     }
+
+    /**
+     * Redirect to a URL
+     */
+    public static function redirect(string $url): void
+    {
+        header('Location: ' . $url);
+        if (!defined('PHPUNIT_RUNNING')) {
+            exit;
+        }
+    }
 }

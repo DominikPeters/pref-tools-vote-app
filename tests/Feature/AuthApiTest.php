@@ -241,6 +241,21 @@ class AuthApiTest extends TestCase
         $this->assertEquals($user->id, $updatedPoll->userId);
     }
 
+    public function test_registration_sets_verification_token(): void
+    {
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Token User',
+            'email' => 'token@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertSuccess($response);
+        
+        $user = User::findByEmail('token@example.com');
+        $this->assertNotNull($user->emailVerificationToken);
+        $this->assertNotNull($user->emailVerificationExpires);
+    }
+
     public function test_new_user_is_not_email_verified(): void
     {
         $response = $this->callApi('POST', '/api/auth/register', [

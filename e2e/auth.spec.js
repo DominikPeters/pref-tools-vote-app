@@ -1,5 +1,7 @@
 // @ts-check
 const { test, expect } = require('./fixtures');
+const { execSync } = require('child_process');
+const path = require('path');
 
 test.describe('Authentication', () => {
   test('sysadmin can log in and access dashboard', async ({ freshPage, adminCredentials }) => {
@@ -176,5 +178,40 @@ test.describe('Authentication', () => {
     // Note: Mail may not be configured, but we should see either success or mail error
     const message = freshPage.locator('#forgotSuccess, #forgotError').filter({ hasText: /./ });
     await expect(message).toBeVisible();
+  });
+
+  test('user can verify email via link', async ({ freshPage, uniqueEmail }) => {
+    // 1. Register a new user
+    await freshPage.goto('/login');
+    await freshPage.click('button.auth-tab:has-text("Register")');
+    await freshPage.fill('#registerForm input[name="name"]', 'Verification Test User');
+    await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
+    await freshPage.fill('#registerForm input[name="password"]', 'password123');
+    await freshPage.fill('#registerForm input[name="password_confirm"]', 'password123');
+    await freshPage.click('#registerForm button[type="submit"]');
+
+    // Should be on dashboard and see verification banner
+    await expect(freshPage).toHaveURL('/dashboard');
+    await expect(freshPage.locator('.verification-banner')).toBeVisible();
+
+    // 2. Get the verification token from the database
+    const dbPath = path.join(__dirname, '..', 'data', 'poll.test.db');
+    const query = `SELECT email_verification_token FROM users WHERE email = '${uniqueEmail.toLowerCase()}'`;
+    const token = execSync(`sqlite3 ${dbPath} "${query}"`).toString().trim();
+
+    expect(token).toBeTruthy();
+
+    // 3. Navigate to verification URL
+    await freshPage.goto(`/login?verify_token=${token}`);
+
+    // 4. Should redirect to dashboard
+    await expect(freshPage).toHaveURL(/\/dashboard/);
+    
+    // 5. Verification banner should be GONE
+    await expect(freshPage.locator('.verification-banner')).not.toBeVisible();
+    
+    // 6. Should show success toast
+    await expect(freshPage.locator('.toast-success')).toBeVisible();
+    await expect(freshPage.locator('.toast-success')).toContainText('Email verified successfully');
   });
 });

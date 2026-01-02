@@ -734,14 +734,14 @@ class AuthApiController extends ApiController
      */
     private function sendVerificationEmail(User $user): void
     {
+        // Always generate verification token so it exists in DB
+        $token = TokenService::generate(64);
+        $user->setVerificationToken($token);
+
         $mailService = new MailService();
         if (!$mailService->isConfigured()) {
             return;
         }
-
-        // Generate verification token
-        $token = TokenService::generate(64);
-        $user->setVerificationToken($token);
 
         // Build verification URL
         $verifyUrl = url('login?verify_token=' . $token);
