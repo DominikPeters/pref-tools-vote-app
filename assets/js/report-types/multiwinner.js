@@ -38,7 +38,7 @@ export function renderMultiwinner(container, data, config) {
         <div class="report-winner-card abc-winner">
             <p class="rule-name">${escapeHtml(rule_name)}</p>
             <p class="committee-size">Committee Size: ${escapeHtml(committee_size)}</p>
-            ${is_tie ? '<p class="tie-notice">Tied winning committees:</p>' : '<p class="winner-label">Winning Committee</p>'}
+            ${is_tie ? '<p class="tie-notice">Tied winning committees:</p>' : '<p class="winner-label">Winning Committee:</p>'}
             <div class="committees-container">
                 ${committeesHtml}
             </div>

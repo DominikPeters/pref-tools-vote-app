@@ -23,7 +23,7 @@ export function renderVotingRuleWinner(container, data, config) {
     const html = `
         <div class="report-winner-card voting-rule-winner">
             <p class="rule-name">${escapeHtml(rule_name)}</p>
-            ${is_tie ? '<p class="tie-notice">Tie between:</p>' : '<p class="winner-label">Winner</p>'}
+            ${is_tie ? '<p class="tie-notice">Tie between:</p>' : '<p class="winner-label">Winner:</p>'}
             <div class="winner-name">${winnerNames}</div>
         </div>
     `;

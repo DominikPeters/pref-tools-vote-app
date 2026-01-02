@@ -296,6 +296,16 @@ ob_start();
 .response-form-readonly .star.active {
     color: var(--color-warning) !important;
 }
+
+@media (max-width: 600px) {
+    .response-display {
+        padding: var(--spacing-md);
+    }
+
+    .response-form-readonly .question-display {
+        padding: var(--spacing-md);
+    }
+}
 </style>
 
 <?php

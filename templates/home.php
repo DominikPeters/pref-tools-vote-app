@@ -3,7 +3,7 @@ $title = 'Pref.Tools Vote - Polls with Advanced Voting Methods';
 ob_start();
 ?>
 
-<div class="container">
+<div class="container hero-container">
     <section class="hero-enhanced">
         <span class="hero-tagline">Social Choice Theory Made Accessible</span>
         <h1>Smarter Polls.<br>Better Decisions.</h1>

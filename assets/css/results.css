@@ -62,7 +62,7 @@
 
 .results-header h1 {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     line-height: 1.2;
     word-break: break-word;
 }
@@ -86,6 +86,30 @@
     .results-header-actions .btn {
         flex: 1;
     }
+}
+
+.results-header .poll-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-text-strong);
+    margin-top: var(--spacing-xs);
+}
+
+.results-header .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: var(--spacing-sm);
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 /* Report Cards */
@@ -305,9 +329,9 @@
 
 .winner-label,
 .tie-notice {
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--color-text-muted);
-    margin: 0 0 0.5rem 0;
+    margin: var(--spacing-sm) 0;
 }
 
 .tie-notice {
@@ -330,11 +354,11 @@
 }
 
 .rule-name {
-    font-size: 0.75rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--color-text-dim);
-    margin: 0 0 0.5rem 0;
+    /* color: var(--color-text-dim); */
+    margin-bottom: var(--spacing-sm);
 }
 
 /* Bar Charts */
@@ -346,8 +370,10 @@
 
 .bar-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--spacing-sm);
+    row-gap: var(--spacing-xs);
 }
 
 .bar-rank {
@@ -370,6 +396,7 @@
 
 .bar-container {
     flex-grow: 1;
+    min-width: 200px;
     height: 24px;
     background: var(--color-bg-secondary);
     border-radius: 4px;
@@ -386,7 +413,7 @@
 
 .bar-value {
     flex-shrink: 0;
-    min-width: 80px;
+    min-width: 70px;
     text-align: right;
     font-size: 0.875rem;
     color: var(--color-text-muted);
@@ -811,8 +838,10 @@ label.checkbox-item {
 
 .multi-rule-summary-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
+    row-gap: var(--spacing-xs);
     margin-bottom: 0.5rem;
     padding: 0 var(--spacing-sm);
 }
@@ -836,6 +865,7 @@ label.checkbox-item {
 
 .summary-bar {
     height: 20px;
+    min-width: 200px;
     background: linear-gradient(90deg, var(--color-chart-success-start), var(--color-chart-success-end));
     border-radius: 4px;
     transition: width 0.3s ease;
@@ -1215,6 +1245,10 @@ label.checkbox-item {
 }
 
 @media (max-width: 640px) {
+    .results-admin-content .card {
+        padding: var(--spacing-md);
+    }
+
     .results-visibility-bar {
         flex-direction: column;
         align-items: flex-start;
@@ -1233,6 +1267,7 @@ label.checkbox-item {
     font-size: 1rem;
     font-weight: 600;
     color: var(--color-text);
+    margin-bottom: var(--spacing-sm);
 }
 
 .committees-container {
@@ -1240,7 +1275,7 @@ label.checkbox-item {
     flex-direction: column;
     gap: 1.5rem;
     align-items: center;
-    margin-top: 1rem;
+    margin-top: var(--spacing-sm);
 }
 
 .abc-committee {

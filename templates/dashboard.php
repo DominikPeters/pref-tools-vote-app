@@ -29,7 +29,7 @@ ob_start();
         <section class="card votes-section">
             <div class="section-header">
                 <h2>Your Polls</h2>
-                <a href="<?= basePath() ?>/create" class="btn btn-primary">Create New Poll</a>
+                <a href="<?= basePath() ?>/create" class="btn btn-primary btn-create-poll">Create New Poll</a>
             </div>
             <?php if (empty($polls)): ?>
                 <p class="empty-message">You haven't created any polls yet.</p>
@@ -73,7 +73,7 @@ ob_start();
                         <div class="poll-item">
                             <div class="vote-info">
                                 <h3 class="poll-title"><?= e($poll->title) ?></h3>
-                                <div class="poll-meta">
+                                <div class="poll-meta-info">
                                     <span class="status status-<?= e($poll->status) ?>"><?= ucfirst(e($poll->status)) ?></span>
                                     <span class="created-date"><?= $poll->createdAt->format('M j, Y') ?></span>
                                 </div>

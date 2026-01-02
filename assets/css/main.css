@@ -176,6 +176,10 @@ img {
     flex: 1;
 }
 
+.main-content .container {
+    overflow-x: hidden;
+}
+
 /* --------------------------------------------------------------------------
    Header
    -------------------------------------------------------------------------- */
@@ -707,6 +711,7 @@ textarea {
 @media (max-width: 768px) {
     .how-it-works {
         border-radius: 0;
+        margin-top: 0;
         margin-left: calc(-1 * var(--spacing-lg));
         margin-right: calc(-1 * var(--spacing-lg));
     }
@@ -873,6 +878,8 @@ textarea {
     .gallery-item:nth-child(3n+2),
     .gallery-item:nth-child(3n) {
         transform: rotateY(0deg) rotateX(5deg);
+        max-width: 370px;
+        margin: 0 auto;
     }
 
     .gallery-item:hover {
@@ -1131,6 +1138,7 @@ textarea {
 
     .demo-section {
         margin-top: 0;
+        padding-bottom: var(--spacing-xl);
     }
 
     .demo-content {
@@ -1145,21 +1153,22 @@ textarea {
 
     .demo-card {
         width: 220px;
-        height: 300px;
+        height: 330px;
     }
 
     .demo-card-poll {
-        left: 40%;
+        left: 35%;
     }
 
     .demo-card-results {
-        left: 0%;
+        left: -10%;
     }
 
     .demo-actions {
         align-items: center;
         text-align: center;
         margin-top: 300px;
+        gap: var(--spacing-sm);
     }
 
     .demo-actions p {
@@ -1168,6 +1177,17 @@ textarea {
 
     .cta {
         margin-top: 1rem;
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .demo-buttons {
+        gap: var(--spacing-sm);
+    }
+
+    .demo-buttons .btn {
+        min-width: 140px;
+        font-size: 0.9rem;
+        padding: var(--spacing-sm) var(--spacing-md);
     }
 }
 
@@ -1298,7 +1318,7 @@ textarea {
    -------------------------------------------------------------------------- */
 .hero-enhanced {
     text-align: center;
-    padding: var(--spacing-2xl) 0 var(--spacing-xl);
+    padding: var(--spacing-xl) 0;
     background: linear-gradient(180deg, var(--color-bg-card) 0%, var(--color-bg) 100%);
 }
 
@@ -1560,6 +1580,7 @@ textarea {
     margin: 0;
     font-size: 1rem;
     font-weight: 500;
+    margin-bottom: var(--spacing-sm);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1631,6 +1652,27 @@ textarea {
     color: var(--color-text-muted);
     text-align: center;
     padding: var(--spacing-xl);
+}
+
+.account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    row-gap: var(--spacing-sm);
+}
+
+@media (max-width: 600px) {
+    .dashboard-container .card {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+
+    .dashboard-container .btn-create-poll {
+        display: none;
+    }
+
+    .votes-section .section-header {
+        display: block;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -1869,7 +1911,11 @@ textarea {
     flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 600px) {
+    .admin-container .card {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+
     .claim-cta-content {
         flex-direction: column;
         text-align: center;
@@ -2495,6 +2541,14 @@ textarea {
         gap: var(--spacing-md);
         text-align: center;
         margin-top: var(--spacing-xl);
+    }
+
+    .hero-container {
+        padding: 0;
+    }
+
+    .hero-enhanced {
+        padding: var(--spacing-lg) var(--spacing-lg);
     }
 
     .votes-section .section-header {
