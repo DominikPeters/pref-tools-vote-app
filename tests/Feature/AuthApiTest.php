@@ -251,6 +251,9 @@ class AuthApiTest extends TestCase
 
         $this->assertSuccess($response);
         $this->assertFalse($response['user']['email_verified']);
+        
+        // Verify email was sent
+        $this->assertEmailSentTo('unverified@example.com', 'Verify your email address');
     }
 
     public function test_verify_email_with_valid_token(): void
@@ -307,11 +310,13 @@ class AuthApiTest extends TestCase
         $user = $this->createUser('resend@example.com', 'password123');
         $this->actingAs($user);
 
-        // Note: This will fail if mail is not configured, but we test the flow
+        // Clear welcome email from registration (wait, createUser might not send it if MailService wasn't configured when it ran, but in TestCase::setUp we configured it)
+        $this->clearEmails();
+
         $response = $this->callApi('POST', '/api/auth/resend-verification');
 
-        // Either success (mail configured) or error (mail not configured)
-        $this->assertTrue($response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED');
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('resend@example.com', 'Verify your email address');
     }
 
     public function test_resend_verification_when_already_verified(): void
@@ -328,13 +333,72 @@ class AuthApiTest extends TestCase
     public function test_forgot_password_sends_email(): void
     {
         $user = $this->createUser('forgot@example.com', 'password123');
+        $this->clearEmails();
 
         $response = $this->callApi('POST', '/api/auth/forgot-password', [
             'email' => 'forgot@example.com',
         ]);
 
-        // Should return success (or mail not configured error)
-        $this->assertTrue($response['ok'] || $response['code'] === 'MAIL_NOT_CONFIGURED');
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('forgot@example.com', 'Reset your password');
+    }
+
+    public function test_full_registration_and_verification_flow(): void
+    {
+        $this->clearEmails();
+
+        // 1. Register
+        $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Flow User',
+            'email' => 'flow@example.com',
+            'password' => 'password123',
+        ]);
+
+        // 2. Get verification link from email
+        $email = $this->getLastEmailTo('flow@example.com');
+        $token = $this->extractLinkFromEmail($email, '/verify_token=([a-zA-Z0-9]+)/');
+        $this->assertNotNull($token, 'Verification token not found in email');
+
+        // 3. Verify email
+        $response = $this->callApi('POST', '/api/auth/verify-email', [
+            'token' => $token,
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertTrue($response['user']['email_verified']);
+    }
+
+    public function test_full_password_reset_flow(): void
+    {
+        $user = $this->createUser('reset-flow@example.com', 'old-password');
+        $this->clearEmails();
+
+        // 1. Request reset
+        $this->callApi('POST', '/api/auth/forgot-password', [
+            'email' => 'reset-flow@example.com',
+        ]);
+
+        // 2. Get reset link from email
+        $email = $this->getLastEmailTo('reset-flow@example.com');
+        $token = $this->extractLinkFromEmail($email, '/reset_token=([a-zA-Z0-9]+)/');
+        $this->assertNotNull($token, 'Reset token not found in email');
+
+        // 3. Reset password
+        $response = $this->callApi('POST', '/api/auth/reset-password', [
+            'token' => $token,
+            'password' => 'new-password-123',
+        ]);
+
+        $this->assertSuccess($response);
+
+        // 4. Verify login with new password
+        Auth::reset();
+        $loginResponse = $this->callApi('POST', '/api/auth/login', [
+            'email' => 'reset-flow@example.com',
+            'password' => 'new-password-123',
+        ]);
+
+        $this->assertSuccess($loginResponse);
     }
 
     public function test_forgot_password_does_not_reveal_nonexistent_email(): void

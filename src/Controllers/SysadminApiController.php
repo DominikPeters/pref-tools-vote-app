@@ -158,7 +158,7 @@ class SysadminApiController
 
         $user->delete();
 
-        return ['success' => true];
+        return ['ok' => true, 'success' => true];
     }
 
     /**
@@ -208,7 +208,7 @@ class SysadminApiController
 
         $poll->delete();
 
-        return ['success' => true];
+        return ['ok' => true, 'success' => true];
     }
 
     /**
@@ -350,7 +350,7 @@ class SysadminApiController
                 LogService::getInstance()->log('sysadmin.email.test_sent', null, $currentUser->id, null, [
                     'to' => $toEmail,
                 ]);
-                return ['success' => true, 'message' => "Test email sent to {$toEmail}"];
+                return ['ok' => true, 'success' => true, 'message' => "Test email sent to {$toEmail}"];
             } else {
                 return ['error' => 'Failed to send test email. Check your SMTP settings.', 'status' => 500];
             }

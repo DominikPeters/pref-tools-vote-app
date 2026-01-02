@@ -8,6 +8,8 @@ use App\Auth;
 
 abstract class TestCase extends BaseTestCase
 {
+    use MailAssertions;
+
     protected static bool $schemaLoaded = false;
 
     protected function setUp(): void
@@ -21,6 +23,10 @@ abstract class TestCase extends BaseTestCase
 
         // Initialize fresh database for each test
         $this->initializeDatabase();
+
+        // Configure MailHog for tests
+        $this->setUpMailHog();
+        $this->clearEmails();
 
         // Clear session
         $_SESSION = [];
@@ -53,6 +59,21 @@ abstract class TestCase extends BaseTestCase
         // Load and run migrations
         $sql = file_get_contents(MIGRATIONS_PATH . '/001_initial_schema.sql');
         $db->runMigration($sql);
+    }
+
+    /**
+     * Configure MailHog for testing
+     */
+    protected function setUpMailHog(): void
+    {
+        \App\Models\SiteSetting::setMany([
+            'mail.enabled' => '1',
+            'mail.smtp_host' => '127.0.0.1',
+            'mail.smtp_port' => '1025',
+            'mail.from_address' => 'test@pref.tools',
+            'mail.from_name' => 'Test Pref.Tools',
+            'mail.smtp_encryption' => 'none',
+        ]);
     }
 
     /**
@@ -241,6 +262,9 @@ abstract class TestCase extends BaseTestCase
 
         // Page routes (for preview)
         $router->post('/preview', [\App\Controllers\PageController::class, 'preview']);
+
+        // Poll reports (user reports of inappropriate content)
+        $router->post('/api/polls/:publicId/report', [\App\Controllers\PollApiController::class, 'report']);
 
         // Sysadmin routes
         $router->get('/api/sysadmin/stats', [\App\Controllers\SysadminApiController::class, 'stats']);

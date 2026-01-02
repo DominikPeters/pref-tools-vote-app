@@ -505,4 +505,23 @@ class SysadminApiTest extends TestCase
         $this->assertError($response);
         $this->assertEquals('Sysadmin notification email is not configured', $response['error']);
     }
+
+    public function test_test_email_sends_successfully(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        SiteSetting::set('mail.enabled', '1');
+        SiteSetting::set('notifications.sysadmin_email', 'sysadmin@example.com');
+
+        $this->clearEmails();
+
+        $response = $this->callApi('POST', '/api/sysadmin/settings/test-email');
+
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('sysadmin@example.com', '[Pref.Tools Vote] Test Email');
+        
+        $email = $this->getLastEmailTo('sysadmin@example.com');
+        $this->assertStringContainsString('This is a test email', $email['Content']['Body']);
+    }
 }

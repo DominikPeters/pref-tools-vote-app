@@ -82,4 +82,34 @@ class InvitationApiTest extends TestCase
 
         $this->assertError($response, 'EMAIL_NOT_VERIFIED');
     }
+
+    public function test_invitation_email_includes_inviter_name(): void
+    {
+        // Create a verified user
+        $user = $this->createUser('alice@example.com', 'password123', 'Alice Inviter');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+
+        // Create a poll owned by Alice
+        $poll = $this->createPoll(['title' => 'Important Vote'], $user->id);
+
+        $this->clearEmails();
+
+        // Send invitation
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
+            'emails' => 'bob@example.com',
+        ]);
+
+        $this->assertSuccess($response);
+
+        // Verify email in MailHog
+        $this->assertEmailSentTo('bob@example.com');
+        $email = $this->getLastEmailTo('bob@example.com');
+
+        $this->assertStringContainsString('Alice Inviter invited you to vote', $email['Content']['Headers']['Subject'][0]);
+        $this->assertStringContainsString('Alice Inviter Invited You to Vote', $email['Content']['Body']);
+        
+        // Verify Reply-To
+        $this->assertStringContainsString('alice@example.com', $email['Content']['Headers']['Reply-To'][0]);
+    }
 }
