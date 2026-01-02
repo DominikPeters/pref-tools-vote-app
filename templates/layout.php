@@ -18,6 +18,7 @@
             <a href="<?= basePath() ?>/" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
                 <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>>Create Poll</a>
+                <a href="<?= basePath() ?>/about">About</a>
                 <?php if (!empty($user)): ?>
                     <a href="<?= basePath() ?>/dashboard">Dashboard</a>
                     <?php if ($user->isSysadmin()): ?>

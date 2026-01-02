@@ -1,0 +1,126 @@
+/* About Page Styles */
+
+.about-container {
+    padding: var(--spacing-xl) 0;
+    min-height: calc(100vh - 200px);
+}
+
+.about-card {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-card h1 {
+    margin-bottom: var(--spacing-xl);
+    font-size: 2rem;
+    text-align: center;
+}
+
+.about-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.about-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.about-section h2 {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.5rem;
+    color: var(--color-text);
+}
+
+.about-section h3 {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.1rem;
+    color: var(--color-text);
+}
+
+.about-section p {
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.about-section a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.about-section a:hover {
+    text-decoration: underline;
+}
+
+.about-section ul {
+    margin: var(--spacing-sm) 0;
+    padding-left: var(--spacing-lg);
+    color: var(--color-text-muted);
+}
+
+.about-section li {
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.5;
+}
+
+/* Author Section */
+.about-author .author-content {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: flex-start;
+}
+
+.author-photo {
+    width: 150px;
+    height: auto;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.author-text {
+    flex: 1;
+}
+
+.author-text p {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Feature List */
+.feature-list {
+    column-count: 1;
+}
+
+.feature-list li {
+    break-inside: avoid;
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-list strong {
+    color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .about-author .author-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .author-photo {
+        width: 120px;
+    }
+
+    .about-card h1 {
+        font-size: 1.5rem;
+    }
+
+    .about-section h2 {
+        font-size: 1.25rem;
+    }
+}

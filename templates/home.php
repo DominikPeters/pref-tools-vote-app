@@ -166,6 +166,25 @@ ob_start();
             <div class="analysis-category">
                 <div class="analysis-category-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <text x="4" y="8" font-size="6" fill="currentColor" stroke="none" font-weight="bold">1</text>
+                        <line x1="10" y1="6" x2="20" y2="6"/>
+                        <text x="4" y="14" font-size="6" fill="currentColor" stroke="none" font-weight="bold">2</text>
+                        <line x1="10" y1="12" x2="20" y2="12"/>
+                        <text x="4" y="20" font-size="6" fill="currentColor" stroke="none" font-weight="bold">3</text>
+                        <line x1="10" y1="18" x2="20" y2="18"/>
+                    </svg>
+                </div>
+                <h3>Rank Aggregation</h3>
+                <p>Aggregate individual rankings into a consensus group ranking using social choice algorithms.</p>
+                <div class="analysis-methods">
+                    <span class="analysis-method-tag">Kemeny</span>
+                    <span class="analysis-method-tag">Squared Kemeny</span>
+                    <span class="analysis-method-tag">Borda Ranking</span>
+                </div>
+            </div>
+            <div class="analysis-category">
+                <div class="analysis-category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v12"/>
                         <path d="M15 9.5c0-1.5-1.5-2.5-3-2.5s-3 1-3 2.5 1.5 2 3 2.5 3 1 3 2.5-1.5 2.5-3 2.5-3-1-3-2.5"/>

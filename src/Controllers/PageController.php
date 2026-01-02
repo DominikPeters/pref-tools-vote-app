@@ -509,6 +509,16 @@ class PageController
     }
 
     /**
+     * GET /about - About page
+     */
+    public function about(array $params): void
+    {
+        view('about', [
+            'user' => Auth::getInstance()->user(),
+        ]);
+    }
+
+    /**
      * GET /privacy - Privacy policy page
      */
     public function privacy(array $params): void
