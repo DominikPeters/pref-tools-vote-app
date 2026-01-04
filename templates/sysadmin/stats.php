@@ -1,6 +1,10 @@
 <?php
 $title = 'Statistics - Pref.Tools Vote';
 $extraCss = ['/assets/css/sysadmin.css'];
+$extraJs = [
+    'https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js',
+    '/assets/js/stats-charts.js',
+];
 ob_start();
 ?>
 
@@ -85,6 +89,33 @@ ob_start();
                 </dl>
             </section>
         </div>
+
+        <section class="card stats-charts-section">
+            <div class="stats-charts-header">
+                <h2>Activity Over Time</h2>
+                <div class="date-range-selector">
+                    <button type="button" class="btn btn-sm" data-days="7">7 days</button>
+                    <button type="button" class="btn btn-sm active" data-days="30">30 days</button>
+                    <button type="button" class="btn btn-sm" data-days="90">90 days</button>
+                    <button type="button" class="btn btn-sm" data-days="all">All time</button>
+                </div>
+            </div>
+
+            <div class="stats-charts-grid">
+                <div class="chart-container">
+                    <h3>Polls Created</h3>
+                    <div id="pollsChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>Responses Submitted</h3>
+                    <div id="responsesChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>Emails Sent</h3>
+                    <div id="emailsChart" class="chart"></div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 

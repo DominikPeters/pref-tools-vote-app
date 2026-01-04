@@ -314,6 +314,119 @@ class SysadminApiController
     }
 
     /**
+     * GET /api/sysadmin/stats/history - Get time-series statistics
+     */
+    public function statsHistory(array $params): array
+    {
+        if ($error = $this->requireSysadmin()) {
+            return $error;
+        }
+
+        $days = $_GET['days'] ?? '30';
+        $db = Database::getInstance();
+
+        // Determine date range
+        if ($days === 'all') {
+            // Find the earliest date across all relevant tables
+            $earliestPoll = $db->fetchColumn("SELECT MIN(DATE(created_at)) FROM polls");
+            $earliestResponse = $db->fetchColumn("SELECT MIN(DATE(created_at)) FROM responses");
+            $earliestLog = $db->fetchColumn("SELECT MIN(DATE(created_at)) FROM action_log");
+
+            $dates = array_filter([$earliestPoll, $earliestResponse, $earliestLog]);
+            $startDate = $dates ? min($dates) : date('Y-m-d');
+        } else {
+            $daysInt = max(1, min(365, (int) $days));
+            $startDate = date('Y-m-d', strtotime("-{$daysInt} days"));
+        }
+        $endDate = date('Y-m-d');
+
+        // Generate all dates in range (to include zeros)
+        $allDates = [];
+        $current = new \DateTime($startDate);
+        $end = new \DateTime($endDate);
+        while ($current <= $end) {
+            $allDates[$current->format('Y-m-d')] = [
+                'date' => $current->format('Y-m-d'),
+                'polls' => 0,
+                'responses' => 0,
+                'emails' => [
+                    'verification' => 0,
+                    'password_reset' => 0,
+                    'invitation' => 0,
+                    'response_notification' => 0,
+                    'other' => 0,
+                ],
+            ];
+            $current->modify('+1 day');
+        }
+
+        // Query polls created per day
+        $pollCounts = $db->fetchAll(
+            "SELECT DATE(created_at) as date, COUNT(*) as count
+             FROM polls
+             WHERE DATE(created_at) >= :start AND DATE(created_at) <= :end
+             GROUP BY DATE(created_at)",
+            ['start' => $startDate, 'end' => $endDate]
+        );
+        foreach ($pollCounts as $row) {
+            if (isset($allDates[$row['date']])) {
+                $allDates[$row['date']]['polls'] = (int) $row['count'];
+            }
+        }
+
+        // Query responses created per day
+        $responseCounts = $db->fetchAll(
+            "SELECT DATE(created_at) as date, COUNT(*) as count
+             FROM responses
+             WHERE DATE(created_at) >= :start AND DATE(created_at) <= :end
+             GROUP BY DATE(created_at)",
+            ['start' => $startDate, 'end' => $endDate]
+        );
+        foreach ($responseCounts as $row) {
+            if (isset($allDates[$row['date']])) {
+                $allDates[$row['date']]['responses'] = (int) $row['count'];
+            }
+        }
+
+        // Query emails sent per day by type (from action_log)
+        // Map action names to email types
+        $actionToType = [
+            'email.verification_sent' => 'verification',
+            'user.verification_resent' => 'verification',
+            'user.password_reset_requested' => 'password_reset',
+            'email.invitation_sent' => 'invitation',
+            'email.response_notification_sent' => 'response_notification',
+            'poll.reported' => 'other',
+            'sysadmin.email.test_sent' => 'other',
+        ];
+
+        $emailActions = array_keys($actionToType);
+        $placeholders = implode(',', array_fill(0, count($emailActions), '?'));
+        $emailParams = array_merge($emailActions, [$startDate, $endDate]);
+
+        $emailCounts = $db->fetchAll(
+            "SELECT DATE(created_at) as date, action, COUNT(*) as count
+             FROM action_log
+             WHERE action IN ({$placeholders})
+               AND DATE(created_at) >= ? AND DATE(created_at) <= ?
+             GROUP BY DATE(created_at), action",
+            $emailParams
+        );
+        foreach ($emailCounts as $row) {
+            if (isset($allDates[$row['date']])) {
+                $type = $actionToType[$row['action']] ?? 'other';
+                $allDates[$row['date']]['emails'][$type] += (int) $row['count'];
+            }
+        }
+
+        return [
+            'history' => array_values($allDates),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ];
+    }
+
+    /**
      * POST /api/sysadmin/settings/test-email - Send a test email
      */
     public function testEmail(array $params): array

@@ -759,6 +759,8 @@ class AuthApiController extends ApiController
                 $emailBody,
                 true
             );
+
+            LogService::getInstance()->log('email.verification_sent', null, $user->id);
         } catch (\Exception $e) {
             // Log error but don't fail registration
             error_log('Failed to send verification email: ' . $e->getMessage());

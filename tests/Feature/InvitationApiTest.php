@@ -108,8 +108,41 @@ class InvitationApiTest extends TestCase
 
         $this->assertStringContainsString('Alice Inviter invited you to vote', $email['Content']['Headers']['Subject'][0]);
         $this->assertStringContainsString('Alice Inviter Invited You to Vote', $email['Content']['Body']);
-        
+
         // Verify Reply-To
         $this->assertStringContainsString('alice@example.com', $email['Content']['Headers']['Reply-To'][0]);
+    }
+
+    public function test_invitation_email_is_logged(): void
+    {
+        // Create a verified user
+        $user = $this->createUser('logger@example.com', 'password123', 'Logger User');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+
+        // Create a poll owned by this user
+        $poll = $this->createPoll(['title' => 'Logged Poll'], $user->id);
+
+        $this->clearEmails();
+
+        // Send invitation
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
+            'emails' => 'invited@example.com',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('invited@example.com');
+
+        // Verify email send was logged
+        $db = \App\Database::getInstance();
+        $log = $db->fetch(
+            "SELECT * FROM action_log WHERE action = 'email.invitation_sent' AND poll_id = :poll_id",
+            ['poll_id' => $poll->id]
+        );
+
+        $this->assertNotNull($log, 'Invitation email send should be logged');
+        $this->assertEquals('email.invitation_sent', $log['action']);
+        $this->assertEquals($poll->id, $log['poll_id']);
+        $this->assertEquals($user->id, $log['user_id']);
     }
 }

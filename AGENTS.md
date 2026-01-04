@@ -31,6 +31,7 @@ tests/            # PHPUnit tests
 **PHP Unit Tests:**
 ```bash
 phpunit
+XDEBUG_MODE=coverage phpunit --coverage-text    # Run with code coverage
 ```
 
 Tests are in `tests/` with Feature tests (API integration) and Unit tests.

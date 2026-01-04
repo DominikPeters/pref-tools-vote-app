@@ -383,6 +383,30 @@ class AuthApiTest extends TestCase
         $this->assertTrue($response['user']['email_verified']);
     }
 
+    public function test_verification_email_is_logged(): void
+    {
+        $this->clearEmails();
+
+        $response = $this->callApi('POST', '/api/auth/register', [
+            'name' => 'Log Test User',
+            'email' => 'logtest@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('logtest@example.com');
+
+        // Verify email send was logged
+        $db = \App\Database::getInstance();
+        $log = $db->fetch(
+            "SELECT * FROM action_log WHERE action = 'email.verification_sent' AND user_id = :user_id",
+            ['user_id' => $response['user']['id']]
+        );
+
+        $this->assertNotNull($log, 'Verification email send should be logged');
+        $this->assertEquals('email.verification_sent', $log['action']);
+    }
+
     public function test_full_password_reset_flow(): void
     {
         $user = $this->createUser('reset-flow@example.com', 'old-password');

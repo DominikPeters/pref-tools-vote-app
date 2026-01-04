@@ -55,7 +55,11 @@
     <script src="<?= asset('assets/js/app.js') ?>" type="module"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ($extraJs as $js): ?>
-            <script src="<?= asset(ltrim($js, '/')) ?>" type="module"></script>
+            <?php if (str_starts_with($js, 'http://') || str_starts_with($js, 'https://')): ?>
+                <script src="<?= $js ?>"></script>
+            <?php else: ?>
+                <script src="<?= asset(ltrim($js, '/')) ?>" type="module"></script>
+            <?php endif; ?>
         <?php endforeach; ?>
     <?php endif; ?>
 </body>

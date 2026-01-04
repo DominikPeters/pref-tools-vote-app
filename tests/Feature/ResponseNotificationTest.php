@@ -103,4 +103,44 @@ class ResponseNotificationTest extends TestCase
 
         $this->assertNoEmailsSent();
     }
+
+    public function test_response_notification_email_is_logged(): void
+    {
+        // 1. Setup owner
+        $owner = $this->createUser('logowner@example.com', 'password123', 'Log Owner');
+        $owner->markEmailVerified();
+
+        // 2. Setup poll with notifications enabled
+        $poll = $this->createPoll([
+            'title' => 'Log Test Poll',
+            'status' => 'open',
+            'notify_on_response' => true,
+        ], $owner->id);
+        $question = $this->createQuestion($poll->id);
+
+        $this->clearEmails();
+
+        // 3. Submit a response
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'answers' => [
+                $question->id => $question->options[0]->id
+            ]
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('logowner@example.com');
+
+        // 4. Verify email send was logged
+        $db = \App\Database::getInstance();
+        $log = $db->fetch(
+            "SELECT * FROM action_log WHERE action = 'email.response_notification_sent' AND poll_id = :poll_id",
+            ['poll_id' => $poll->id]
+        );
+
+        $this->assertNotNull($log, 'Response notification email send should be logged');
+        $this->assertEquals('email.response_notification_sent', $log['action']);
+        $this->assertEquals($poll->id, $log['poll_id']);
+        $this->assertEquals($owner->id, $log['user_id']);
+        $this->assertEquals($response['response']['id'], $log['response_id']);
+    }
 }

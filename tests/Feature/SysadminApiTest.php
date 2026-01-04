@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Poll;
+use App\Models\Response;
 use App\Models\SiteSetting;
 
 class SysadminApiTest extends TestCase
@@ -66,6 +67,131 @@ class SysadminApiTest extends TestCase
         $this->assertEquals(2, $response['polls']['total']);
         $this->assertEquals(1, $response['polls']['open']);
         $this->assertEquals(1, $response['polls']['draft']);
+    }
+
+    // ==========================================
+    // Stats History Endpoint
+    // ==========================================
+
+    public function test_stats_history_requires_authentication(): void
+    {
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history');
+
+        $this->assertError($response);
+        $this->assertEquals('Authentication required', $response['error']);
+    }
+
+    public function test_stats_history_requires_sysadmin(): void
+    {
+        $user = $this->createUser();
+        $this->actingAs($user);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history');
+
+        $this->assertError($response);
+        $this->assertEquals('Sysadmin access required', $response['error']);
+    }
+
+    public function test_stats_history_returns_expected_structure(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history');
+
+        $this->assertArrayHasKey('history', $response);
+        $this->assertArrayHasKey('start_date', $response);
+        $this->assertArrayHasKey('end_date', $response);
+        $this->assertIsArray($response['history']);
+
+        // Default is 30 days, so should have 31 entries (including today)
+        $this->assertGreaterThanOrEqual(30, count($response['history']));
+
+        // Each entry should have the expected fields
+        $entry = $response['history'][0];
+        $this->assertArrayHasKey('date', $entry);
+        $this->assertArrayHasKey('polls', $entry);
+        $this->assertArrayHasKey('responses', $entry);
+        $this->assertArrayHasKey('emails', $entry);
+
+        // Emails should be broken down by type
+        $this->assertIsArray($entry['emails']);
+        $this->assertArrayHasKey('verification', $entry['emails']);
+        $this->assertArrayHasKey('password_reset', $entry['emails']);
+        $this->assertArrayHasKey('invitation', $entry['emails']);
+        $this->assertArrayHasKey('response_notification', $entry['emails']);
+        $this->assertArrayHasKey('other', $entry['emails']);
+    }
+
+    public function test_stats_history_respects_days_parameter(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history', [], ['days' => '7']);
+
+        $this->assertArrayHasKey('history', $response);
+        // 7 days + today = 8 entries
+        $this->assertCount(8, $response['history']);
+    }
+
+    public function test_stats_history_counts_polls_correctly(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        // Create 3 polls today
+        $this->createPoll(['title' => 'Poll 1']);
+        $this->createPoll(['title' => 'Poll 2']);
+        $this->createPoll(['title' => 'Poll 3']);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history', [], ['days' => '1']);
+
+        // Find today's entry
+        $today = date('Y-m-d');
+        $todayEntry = array_filter($response['history'], fn($e) => $e['date'] === $today);
+        $todayEntry = array_values($todayEntry)[0] ?? null;
+
+        $this->assertNotNull($todayEntry);
+        $this->assertEquals(3, $todayEntry['polls']);
+    }
+
+    public function test_stats_history_counts_responses_correctly(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        // Create a poll with responses
+        $poll = $this->createPoll(['status' => 'open']);
+        Response::create($poll->id, ['voter_name' => 'Voter 1']);
+        Response::create($poll->id, ['voter_name' => 'Voter 2']);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history', [], ['days' => '1']);
+
+        $today = date('Y-m-d');
+        $todayEntry = array_filter($response['history'], fn($e) => $e['date'] === $today);
+        $todayEntry = array_values($todayEntry)[0] ?? null;
+
+        $this->assertNotNull($todayEntry);
+        $this->assertEquals(2, $todayEntry['responses']);
+    }
+
+    public function test_stats_history_includes_zero_days(): void
+    {
+        $admin = $this->createSysadmin();
+        $this->actingAs($admin);
+
+        $response = $this->callApi('GET', '/api/sysadmin/stats/history', [], ['days' => '7']);
+
+        // All entries should have integer values (including zeros)
+        foreach ($response['history'] as $entry) {
+            $this->assertIsInt($entry['polls']);
+            $this->assertIsInt($entry['responses']);
+            $this->assertIsArray($entry['emails']);
+            foreach ($entry['emails'] as $type => $count) {
+                $this->assertIsInt($count);
+            }
+        }
     }
 
     // ==========================================

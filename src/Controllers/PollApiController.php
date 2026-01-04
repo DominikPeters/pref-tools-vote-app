@@ -1192,6 +1192,8 @@ class PollApiController extends ApiController
                 $emailBody,
                 true
             );
+
+            LogService::getInstance()->log('email.response_notification_sent', $poll->id, $owner->id, $response->id);
         } catch (\Exception $e) {
             // Log error but don't fail the response submission
             error_log('Failed to send response notification: ' . $e->getMessage());

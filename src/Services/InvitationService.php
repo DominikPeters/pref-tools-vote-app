@@ -134,6 +134,8 @@ class InvitationService
         }
 
         $this->mailer->send($invitation->email, $subject, $body, true, $mailOptions);
+
+        LogService::getInstance()->log('email.invitation_sent', $poll->id, $poll->userId);
     }
 
     /**

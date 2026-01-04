@@ -268,6 +268,7 @@ abstract class TestCase extends BaseTestCase
 
         // Sysadmin routes
         $router->get('/api/sysadmin/stats', [\App\Controllers\SysadminApiController::class, 'stats']);
+        $router->get('/api/sysadmin/stats/history', [\App\Controllers\SysadminApiController::class, 'statsHistory']);
         $router->get('/api/sysadmin/users', [\App\Controllers\SysadminApiController::class, 'listUsers']);
         $router->put('/api/sysadmin/users/:userId', [\App\Controllers\SysadminApiController::class, 'updateUser']);
         $router->delete('/api/sysadmin/users/:userId', [\App\Controllers\SysadminApiController::class, 'deleteUser']);

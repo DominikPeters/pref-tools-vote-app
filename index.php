@@ -156,6 +156,7 @@ $router->put('/api/user/name', [AuthApiController::class, 'changeName']);
 
 // Sysadmin API
 $router->get('/api/sysadmin/stats', [SysadminApiController::class, 'stats']);
+$router->get('/api/sysadmin/stats/history', [SysadminApiController::class, 'statsHistory']);
 $router->get('/api/sysadmin/users', [SysadminApiController::class, 'listUsers']);
 $router->put('/api/sysadmin/users/:userId', [SysadminApiController::class, 'updateUser']);
 $router->delete('/api/sysadmin/users/:userId', [SysadminApiController::class, 'deleteUser']);
