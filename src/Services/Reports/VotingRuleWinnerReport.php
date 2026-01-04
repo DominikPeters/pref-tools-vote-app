@@ -33,6 +33,11 @@ class VotingRuleWinnerReport extends BaseReport
         return 'trophy';
     }
 
+    public function getCategory(): string
+    {
+        return 'single_winner';
+    }
+
     public function getConfigSchema(): ?array
     {
         // Options populated dynamically based on question type in frontend

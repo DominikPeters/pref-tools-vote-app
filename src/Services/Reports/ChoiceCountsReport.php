@@ -32,6 +32,11 @@ class ChoiceCountsReport extends BaseReport
         return 'chart-bar';
     }
 
+    public function getCategory(): string
+    {
+        return 'vote_tallies';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

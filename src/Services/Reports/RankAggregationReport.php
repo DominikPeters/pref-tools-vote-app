@@ -33,6 +33,11 @@ class RankAggregationReport extends BaseReport
         return 'list-ol';
     }
 
+    public function getCategory(): string
+    {
+        return 'rank_aggregation';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

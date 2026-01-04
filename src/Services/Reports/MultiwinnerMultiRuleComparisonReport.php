@@ -34,6 +34,11 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
         return 'table';
     }
 
+    public function getCategory(): string
+    {
+        return 'multi_winner';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

@@ -32,6 +32,11 @@ class ApprovalWinnerReport extends BaseReport
         return 'trophy';
     }
 
+    public function getCategory(): string
+    {
+        return 'vote_tallies';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

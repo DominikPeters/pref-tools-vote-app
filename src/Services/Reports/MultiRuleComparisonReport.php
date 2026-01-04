@@ -33,6 +33,11 @@ class MultiRuleComparisonReport extends BaseReport
         return 'table';
     }
 
+    public function getCategory(): string
+    {
+        return 'single_winner';
+    }
+
     public function getConfigSchema(): ?array
     {
         // Rules are rendered as a list of checkboxes, populated dynamically based on question type

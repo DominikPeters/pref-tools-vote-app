@@ -33,6 +33,11 @@ class MultiSWFComparisonReport extends BaseReport
         return 'columns';
     }
 
+    public function getCategory(): string
+    {
+        return 'rank_aggregation';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

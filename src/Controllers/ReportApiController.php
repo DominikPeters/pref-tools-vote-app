@@ -112,6 +112,7 @@ class ReportApiController extends ApiController
             'apportionment_rules_by_question' => $apportionmentRulesByQuestion,
             'social_welfare_functions_by_question' => $swfsByQuestion,
             'all_types' => ReportRegistry::all(),
+            'categories' => \App\Services\Reports\BaseReport::getCategories(),
         ]);
     }
 

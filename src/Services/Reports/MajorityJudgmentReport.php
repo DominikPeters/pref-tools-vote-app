@@ -33,6 +33,11 @@ class MajorityJudgmentReport extends BaseReport
         return 'scale-balanced';
     }
 
+    public function getCategory(): string
+    {
+        return 'single_winner';
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $profile = ProfileBuilder::fromGradeResponses($question, $responses);

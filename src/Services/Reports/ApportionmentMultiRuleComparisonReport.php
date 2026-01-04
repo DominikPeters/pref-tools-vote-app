@@ -33,6 +33,11 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
         return 'table';
     }
 
+    public function getCategory(): string
+    {
+        return 'apportionment';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

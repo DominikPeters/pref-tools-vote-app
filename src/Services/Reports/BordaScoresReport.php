@@ -32,6 +32,11 @@ class BordaScoresReport extends BaseReport
         return 'chart-bar';
     }
 
+    public function getCategory(): string
+    {
+        return 'vote_tallies';
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $profile = ProfileBuilder::fromRankingResponses($question, $responses);

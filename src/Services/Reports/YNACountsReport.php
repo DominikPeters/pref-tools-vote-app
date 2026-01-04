@@ -32,6 +32,11 @@ class YNACountsReport extends BaseReport
         return 'check-circle';
     }
 
+    public function getCategory(): string
+    {
+        return 'vote_tallies';
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $ynaCounts = ProfileBuilder::getYNACounts($question, $responses);

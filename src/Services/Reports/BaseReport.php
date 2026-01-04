@@ -46,6 +46,31 @@ abstract class BaseReport
     }
 
     /**
+     * Get the category identifier for grouping in the UI
+     */
+    public function getCategory(): string
+    {
+        return 'data_export'; // Default category
+    }
+
+    /**
+     * Get all available categories with their display labels and order
+     */
+    public static function getCategories(): array
+    {
+        return [
+            'vote_tallies' => 'Vote Tallies',
+            'single_winner' => 'Single-Winner',
+            'multi_winner' => 'Multi-Winner',
+            'ranking_analysis' => 'Ranking Analysis',
+            'rank_aggregation' => 'Rank Aggregation',
+            'apportionment' => 'Apportionment',
+            'participatory_budgeting' => 'Participatory Budgeting',
+            'data_export' => 'Data & Export',
+        ];
+    }
+
+    /**
      * Get the configuration schema for the UI
      * Returns null if no configuration is needed
      *
@@ -95,6 +120,7 @@ abstract class BaseReport
             'name' => $this->getName(),
             'description' => $this->getDescription(),
             'icon' => $this->getIcon(),
+            'category' => $this->getCategory(),
             'supported_question_types' => $this->getSupportedQuestionTypes(),
             'has_config' => $this->hasConfig(),
             'requires_config' => $this->requiresConfig(),

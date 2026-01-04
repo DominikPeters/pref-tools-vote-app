@@ -32,6 +32,11 @@ class CondorcetWinnerReport extends BaseReport
         return 'crown';
     }
 
+    public function getCategory(): string
+    {
+        return 'ranking_analysis';
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $profile = ProfileBuilder::fromRankingResponses($question, $responses);

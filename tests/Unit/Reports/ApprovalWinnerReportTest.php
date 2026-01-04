@@ -111,9 +111,15 @@ class ApprovalWinnerReportTest extends TestCase
         $this->assertEquals('Approval Winner', $this->report->getName());
         $this->assertNotEmpty($this->report->getDescription());
         $this->assertEquals('trophy', $this->report->getIcon());
+        $this->assertEquals('vote_tallies', $this->report->getCategory());
         $this->assertContains('approval', $this->report->getSupportedQuestionTypes());
         $this->assertContains('single_choice', $this->report->getSupportedQuestionTypes());
         $this->assertIsArray($this->report->getConfigSchema());
+
+        // Check metadata includes category
+        $metadata = $this->report->getMetadata();
+        $this->assertArrayHasKey('category', $metadata);
+        $this->assertEquals('vote_tallies', $metadata['category']);
     }
 
     public function test_compute_single_choice(): void

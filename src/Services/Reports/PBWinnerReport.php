@@ -33,6 +33,11 @@ class PBWinnerReport extends BaseReport
         return 'calculator';
     }
 
+    public function getCategory(): string
+    {
+        return 'participatory_budgeting';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

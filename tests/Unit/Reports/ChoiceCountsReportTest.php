@@ -76,4 +76,17 @@ class ChoiceCountsReportTest extends TestCase
         $this->assertEquals(2, $result['scores'][0]['count']); // A has 2 votes
         $this->assertEquals(1, $result['scores'][1]['count']); // B has 1 vote
     }
+
+    public function test_get_metadata(): void
+    {
+        $this->assertEquals('choice_counts', $this->report->getType());
+        $this->assertEquals('Vote Counts', $this->report->getName());
+        $this->assertNotEmpty($this->report->getDescription());
+        $this->assertEquals('chart-bar', $this->report->getIcon());
+        $this->assertEquals('vote_tallies', $this->report->getCategory());
+
+        $metadata = $this->report->getMetadata();
+        $this->assertArrayHasKey('category', $metadata);
+        $this->assertEquals('vote_tallies', $metadata['category']);
+    }
 }

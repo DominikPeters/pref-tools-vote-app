@@ -34,6 +34,11 @@ class MultiwinnerReport extends BaseReport
         return 'trophy';
     }
 
+    public function getCategory(): string
+    {
+        return 'multi_winner';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

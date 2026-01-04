@@ -81,6 +81,7 @@ async function initResultsAdmin(publicId, adminToken, container) {
 function showReportDrawer(questionId, publicId, adminToken) {
     // Get available types for this question
     const types = availableTypes?.types_by_question?.[questionId] || [];
+    const categories = availableTypes?.categories || {};
 
     if (types.length === 0) {
         showToast('No report types available for this question type', 'error');
@@ -107,33 +108,63 @@ function showReportDrawer(questionId, publicId, adminToken) {
         .filter(r => r.question_id == questionId)
         .map(r => r.report_type);
 
+    // Group types by category
+    const typesByCategory = {};
+    for (const type of types) {
+        const cat = type.category || 'data_export';
+        if (!typesByCategory[cat]) {
+            typesByCategory[cat] = [];
+        }
+        typesByCategory[cat].push(type);
+    }
+
+    // Render categories in order (only those that have types)
+    const categoryOrder = Object.keys(categories);
+    let categoriesHtml = '';
+
+    for (const catKey of categoryOrder) {
+        const catTypes = typesByCategory[catKey];
+        if (!catTypes || catTypes.length === 0) continue;
+
+        const catLabel = categories[catKey] || catKey;
+
+        categoriesHtml += `
+            <div class="report-category">
+                <div class="report-category-header">${escapeHtml(catLabel)}</div>
+                <div class="report-type-grid">
+                    ${catTypes.map(type => {
+                        const isAlreadySelected = activeReportTypes.includes(type.type);
+                        const isDisabled = !type.has_config && isAlreadySelected;
+                        const disabledAttr = isDisabled ? 'disabled' : '';
+                        const disabledClass = isDisabled ? 'disabled' : '';
+                        const tooltip = isDisabled ? 'This analysis is already added' : '';
+
+                        return `
+                            <button class="report-type-card ${disabledClass}"
+                                    data-type="${type.type}"
+                                    data-requires-config="${type.requires_config}"
+                                    ${disabledAttr}
+                                    ${tooltip ? `title="${escapeHtml(tooltip)}"` : ''}>
+                                <span class="type-icon">${getReportIcon(type.icon)}</span>
+                                <div class="type-info">
+                                    <div class="type-name">${escapeHtml(type.name)}</div>
+                                    <div class="type-description">${escapeHtml(type.description)}</div>
+                                </div>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     drawer.innerHTML = `
         <div class="drawer-header">
             <span>Add Analysis</span>
             <button class="btn-close" title="Close">&times;</button>
         </div>
         <div class="drawer-content">
-            <div class="report-type-grid">
-                ${types.map(type => {
-                    const isAlreadySelected = activeReportTypes.includes(type.type);
-                    const isDisabled = !type.has_config && isAlreadySelected;
-                    const disabledAttr = isDisabled ? 'disabled' : '';
-                    const disabledClass = isDisabled ? 'disabled' : '';
-                    const tooltip = isDisabled ? 'This analysis is already added' : '';
-
-                    return `
-                        <button class="report-type-card ${disabledClass}" 
-                                data-type="${type.type}" 
-                                data-requires-config="${type.requires_config}"
-                                ${disabledAttr}
-                                ${tooltip ? `title="${escapeHtml(tooltip)}"` : ''}>
-                            <div class="type-name">${escapeHtml(type.name)}</div>
-                            <div class="type-description">${escapeHtml(type.description)}</div>
-                        </button>
-                    `;
-                }).join('')}
-            </div>
-            <div class="config-step" style="display: none;"></div>
+            ${categoriesHtml}
         </div>
     `;
 
@@ -158,6 +189,28 @@ function showReportDrawer(questionId, publicId, adminToken) {
             }
         });
     });
+}
+
+/**
+ * Get SVG icon for a report type
+ */
+function getReportIcon(iconName) {
+    const icons = {
+        'chart-bar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="6" width="4" height="15"/><rect x="17" y="3" width="4" height="18"/></svg>',
+        'trophy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+        'table': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></svg>',
+        'diagram-project': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v4"/><path d="M8 14l4-2 4 2"/></svg>',
+        'crown': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l4 12h12l4-12-5 4-5-6-5 6-5-4z"/><path d="M4 20h16"/></svg>',
+        'list-ol': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11"/><path d="M10 12h11"/><path d="M10 18h11"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/></svg>',
+        'columns': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>',
+        'calculator': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>',
+        'scale-balanced': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 6l3 9h6l3-9"/><path d="M15 6l3 9h-6"/><circle cx="12" cy="3" r="1"/></svg>',
+        'check-circle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
+        'table-cells': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
+        'file-export': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>',
+        'file-lines': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>',
+    };
+    return icons[iconName] || icons['chart-bar'];
 }
 
 /**
@@ -192,17 +245,20 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
     const typeData = availableTypes?.all_types?.find(t => t.type === reportType);
     if (!typeData?.config_schema) return;
 
-    const configStep = drawer.querySelector('.config-step');
-    const typeGrid = drawer.querySelector('.report-type-grid');
+    const drawerContent = drawer.querySelector('.drawer-content');
+    const drawerHeaderText = drawer.querySelector('.drawer-header > span');
+
+    // Store original content so we can restore on Back
+    const originalContent = drawerContent.innerHTML;
+
+    // Update header to show report type name
+    drawerHeaderText.textContent = `${typeData.name} Configuration`;
 
     // Filter to only required fields for creation
     const requiredFields = typeData.config_schema.fields.filter(f => f.required);
 
-    typeGrid.style.display = 'none';
-    configStep.style.display = 'block';
-
     // Build config form
-    let formHtml = `<h4>${escapeHtml(typeData.name)} Configuration</h4>`;
+    let formHtml = `<div class="config-step">`;
     formHtml += '<form class="config-form">';
 
     requiredFields.forEach(field => {
@@ -216,22 +272,45 @@ function showConfigStep(drawer, questionId, reportType, publicId, adminToken) {
         </div>
     `;
     formHtml += '</form>';
+    formHtml += '</div>';
 
-    configStep.innerHTML = formHtml;
-    bindConfigDependencies(configStep);
+    // Replace drawer content with config form
+    drawerContent.innerHTML = formHtml;
+    bindConfigDependencies(drawerContent);
 
-    // Bind back button
-    configStep.querySelector('.btn-back').addEventListener('click', () => {
-        configStep.style.display = 'none';
-        typeGrid.style.display = '';
+    // Bind back button to restore original content
+    drawerContent.querySelector('.btn-back').addEventListener('click', () => {
+        drawerHeaderText.textContent = 'Add Analysis';
+        drawerContent.innerHTML = originalContent;
+        // Re-bind type card click handlers
+        rebindTypeCards(drawer, questionId, publicId, adminToken);
     });
 
     // Bind form submit
-    configStep.querySelector('.config-form').addEventListener('submit', async (e) => {
+    drawerContent.querySelector('.config-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const config = collectFormConfig(e.target, typeData.config_schema.fields);
         await addReport(questionId, reportType, config, publicId, adminToken);
         drawer.remove();
+    });
+}
+
+/**
+ * Re-bind click handlers to type cards after restoring drawer content
+ */
+function rebindTypeCards(drawer, questionId, publicId, adminToken) {
+    drawer.querySelectorAll('.report-type-card').forEach(card => {
+        card.addEventListener('click', async () => {
+            const reportType = card.dataset.type;
+            const requiresConfig = card.dataset.requiresConfig === 'true';
+
+            if (requiresConfig) {
+                showConfigStep(drawer, questionId, reportType, publicId, adminToken);
+            } else {
+                await addReport(questionId, reportType, null, publicId, adminToken);
+                drawer.remove();
+            }
+        });
     });
 }
 

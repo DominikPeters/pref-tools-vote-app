@@ -34,6 +34,11 @@ class ApportionmentWinnerReport extends BaseReport
         return 'calculator';
     }
 
+    public function getCategory(): string
+    {
+        return 'apportionment';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [
