@@ -130,10 +130,34 @@ function initElements() {
         markDirty();
     });
 
-    // Add question button - also initializes Turnstile for anonymous users
-    document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    // Add question button - toggles the type selector tray
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const questionTypeTray = document.getElementById('questionTypeTray');
+
+    addQuestionBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         initTurnstile();
-        addQuestion();
+        const isOpen = questionTypeTray.classList.toggle('open');
+        addQuestionBtn.classList.toggle('tray-open', isOpen);
+    });
+
+    // Type buttons in the tray - add question of selected type
+    questionTypeTray.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const type = btn.dataset.type;
+            addQuestion(type);
+            questionTypeTray.classList.remove('open');
+            addQuestionBtn.classList.remove('tray-open');
+        });
+    });
+
+    // Close tray when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.add-question-wrapper')) {
+            questionTypeTray.classList.remove('open');
+            addQuestionBtn.classList.remove('tray-open');
+        }
     });
 
     // Action buttons
@@ -1016,18 +1040,34 @@ function setActiveQuestion(questionId) {
     renderQuestions();
 }
 
-function addQuestion() {
+function addQuestion(type = 'single_choice') {
     const question = {
         _id: generateTempId(),
-        type: 'single_choice',
+        type: type,
         text: '',
         description: '',
-        required: true,
-        options: [
+        required: type === 'ranking' ? true : true, // ranking is always required
+        options: [],
+        settings: {},
+    };
+
+    // Add default options for types that need them
+    if (OPTION_TYPES.includes(type)) {
+        question.options = [
             { _id: generateTempId(), label: 'Option 1' },
             { _id: generateTempId(), label: 'Option 2' },
-        ],
-    };
+        ];
+    }
+
+    // Set type-specific default settings
+    if (type === 'star') {
+        question.settings.starCount = 5;
+    } else if (type === 'grade') {
+        question.settings.preset = 'default';
+        question.settings.grades = GRADE_PRESETS['default'].grades;
+    } else if (type === 'yes_no_abstain') {
+        question.settings.allowAbstain = true;
+    }
 
     state.questions.push(question);
     activeQuestionId = question._id;  // Open for editing immediately

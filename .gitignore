@@ -47,3 +47,4 @@ GEMINI.md
 secrets.txt
 scripts/moderation_calibration_results.json
 /.gemini-clipboard
+/coverage-report

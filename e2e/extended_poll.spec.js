@@ -8,6 +8,7 @@ test.describe('Extended Poll Features', () => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Management Test Poll');
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const mq1 = page.locator('.question-wrapper').last();
     await mq1.locator('.question-title-input').fill('Initial Question');
     await page.click('#publishBtn');
@@ -25,6 +26,7 @@ test.describe('Extended Poll Features', () => {
 
     // Add another question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const mq2 = page.locator('.question-wrapper').last();
     await mq2.locator('.question-title-input').fill('Second Question');
 
@@ -66,8 +68,9 @@ test.describe('Extended Poll Features', () => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Multi-type Poll');
 
-    // Question 1: Single Choice (default)
+    // Question 1: Single Choice
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const q1 = page.locator('.question-wrapper').last();
     await q1.locator('.question-title-input').fill('Single Choice Question');
     await q1.locator('.option-label-input').nth(0).fill('Choice A');
@@ -75,8 +78,8 @@ test.describe('Extended Poll Features', () => {
 
     // Question 2: Approval
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="approval"]');
     const q2 = page.locator('.question-wrapper').last();
-    await q2.locator('.question-type-select').selectOption('approval');
     await q2.locator('.question-title-input').fill('Approval Question');
     await q2.locator('.btn-add-option').click();
     await q2.locator('.btn-add-option').click();
@@ -85,8 +88,8 @@ test.describe('Extended Poll Features', () => {
 
     // Question 3: Ranking
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="ranking"]');
     const q3 = page.locator('.question-wrapper').last();
-    await q3.locator('.question-type-select').selectOption('ranking');
     await q3.locator('.question-title-input').fill('Ranking Question');
     await q3.locator('.btn-add-option').click();
     await q3.locator('.btn-add-option').click();
@@ -95,8 +98,8 @@ test.describe('Extended Poll Features', () => {
 
     // Question 4: Text
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="text_single"]');
     const q4 = page.locator('.question-wrapper').last();
-    await q4.locator('.question-type-select').selectOption('text_single');
     await q4.locator('.question-title-input').fill('Text Question');
 
     await page.click('#publishBtn');
@@ -142,6 +145,7 @@ test.describe('Extended Poll Features', () => {
     await page.fill('#pollTitle', 'Name Collection Poll');
 
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const nq1 = page.locator('.question-wrapper').last();
     await nq1.locator('.question-title-input').fill('Some Question');
 

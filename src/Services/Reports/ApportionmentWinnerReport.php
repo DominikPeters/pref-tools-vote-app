@@ -91,7 +91,6 @@ class ApportionmentWinnerReport extends BaseReport
                 'option' => $instance->partyNames[$i],
                 'votes' => $votes,
                 'seats' => $result['representatives'][$i],
-                'color' => $instance->partyColors[$i],
             ];
         }
 

@@ -14,6 +14,7 @@ test.describe('Poll Creation and Voting', () => {
 
     // Add a question
     await freshPage.click('#addQuestionBtn');
+    await freshPage.click('.type-btn[data-type="single_choice"]');
 
     // Fill in question text
     await freshPage.fill('.question-title-input', 'What is your favorite color?');

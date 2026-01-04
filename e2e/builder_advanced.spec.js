@@ -8,6 +8,7 @@ test.describe('Advanced Builder Features', () => {
 
     // Add first question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const q1 = page.locator('.question-wrapper').first();
     await q1.locator('.question-title-input').fill('Original Question');
 
@@ -24,9 +25,11 @@ test.describe('Advanced Builder Features', () => {
 
     // Add two questions
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     await page.locator('.question-title-input').fill('First');
     // Collapse it by clicking outside or adding another
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     await page.locator('.question-wrapper').last().locator('.question-title-input').fill('Second');
 
     // Second question is active. Move it up.
@@ -43,6 +46,7 @@ test.describe('Advanced Builder Features', () => {
     await page.goto('/create');
     await page.fill('#pollTitle', 'Draft Poll');
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     await page.locator('.question-title-input').fill('Draft Question');
 
     // Wait for auto-save (every 5 seconds)
@@ -66,8 +70,8 @@ test.describe('Advanced Builder Features', () => {
     await page.goto('/create');
 
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="section_header"]');
     const q1 = page.locator('.question-wrapper').first();
-    await q1.locator('.question-type-select').selectOption('section_header');
 
     await q1.locator('.question-title-input').fill('New Section');
     await q1.locator('.btn-add-description').click();
@@ -87,6 +91,7 @@ test.describe('Advanced Builder Features', () => {
 
     // Add a question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     await page.locator('.question-title-input').fill('Delete Me');
     
     // Collapse it
@@ -110,11 +115,43 @@ test.describe('Advanced Builder Features', () => {
     await expect(q1.locator('.question-title-input')).toHaveValue('Delete Me');
   });
 
+  test('can change question type via dropdown after creation', async ({ page }) => {
+    await page.goto('/create');
+
+    // Add a single choice question
+    await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
+    const q1 = page.locator('.question-wrapper').first();
+    await q1.locator('.question-title-input').fill('Type Change Test');
+
+    // Verify it starts as single_choice (radio indicators)
+    await expect(q1.locator('.indicator-radio')).toHaveCount(2);
+
+    // Change to approval via dropdown
+    await q1.locator('.question-type-select').selectOption('approval');
+
+    // Verify it changed to approval (checkbox indicators)
+    await expect(q1.locator('.indicator-checkbox')).toHaveCount(2);
+
+    // Change to star rating
+    await q1.locator('.question-type-select').selectOption('star');
+
+    // Verify star settings appear
+    await expect(q1.locator('.setting-star-count')).toBeVisible();
+
+    // Change to text (no options)
+    await q1.locator('.question-type-select').selectOption('text_single');
+
+    // Verify options editor is gone
+    await expect(q1.locator('.editor-options')).not.toBeVisible();
+  });
+
   test('can undo option deletion', async ({ page }) => {
     await page.goto('/create');
 
     // Add a question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
     const q1 = page.locator('.question-wrapper').first();
     
     // Add 3rd option (min 2 required)

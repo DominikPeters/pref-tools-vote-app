@@ -283,6 +283,22 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Assert that a redirect header was set
+     */
+    protected function assertRedirect(string $url): void
+    {
+        $headers = xdebug_get_headers();
+        $found = false;
+        foreach ($headers as $header) {
+            if (stripos($header, 'Location: ' . $url) !== false) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, "Redirect to {$url} not found in headers: " . json_encode($headers));
+    }
+
+    /**
      * Assert that a response is successful
      */
     protected function assertSuccess(array $response): void

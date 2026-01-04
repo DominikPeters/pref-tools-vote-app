@@ -80,6 +80,23 @@ if (!$needsInstall) {
     $sessionName = \App\Config::get('session.name', 'poll_session');
     $sessionLifetime = \App\Config::get('session.lifetime', 7200);
 
+    // Try to get session lifetime from database if possible (overrides config file)
+    try {
+        $db = \App\Database::getInstance();
+        if ($db->tableExists('site_settings')) {
+            // SiteSetting stores lifetime in minutes, session_set_cookie_params expects seconds
+            $sessionLifetimeMinutes = \App\Models\SiteSetting::getInt('session.lifetime', 0);
+            if ($sessionLifetimeMinutes > 0) {
+                $sessionLifetime = $sessionLifetimeMinutes * 60;
+            }
+        }
+    } catch (\Throwable $e) {
+        // Fallback to config file value if database is not ready
+    }
+
+    // Set server-side session lifetime
+    ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
+
     session_name($sessionName);
     session_set_cookie_params([
         'lifetime' => $sessionLifetime,

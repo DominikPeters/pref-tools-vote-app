@@ -104,7 +104,6 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
             $options[] = [
                 'name' => $instance->partyNames[$i],
                 'votes' => $votes,
-                'color' => $instance->partyColors[$i],
             ];
         }
 

@@ -270,7 +270,10 @@ class PageController
         // If vote is closed and results are public, redirect to results
         if ($poll->status === 'closed' && $poll->visibility !== 'private') {
             header('Location: ' . url("{$poll->publicId}/results"));
-            exit;
+            if (!defined('PHPUNIT_RUNNING')) {
+                exit;
+            }
+            return;
         }
 
         // Check password protection
@@ -282,7 +285,10 @@ class PageController
                 if ($poll->verifyAccessPassword($_POST['access_password'])) {
                     $_SESSION[$sessionKey] = true;
                     header('Location: ' . url($poll->publicId));
-                    exit;
+                    if (!defined('PHPUNIT_RUNNING')) {
+                        exit;
+                    }
+                    return;
                 } else {
                     view('password', [
                         'poll' => $poll,

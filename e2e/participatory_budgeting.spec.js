@@ -9,8 +9,8 @@ test.describe('Participatory Budgeting', () => {
 
     // Add PB question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="participatory_budgeting"]');
     const q1 = page.locator('.question-wrapper').last();
-    await q1.locator('.question-type-select').selectOption('participatory_budgeting');
     await q1.locator('.question-title-input').fill('Project Funding');
 
     // Add 3 projects with costs

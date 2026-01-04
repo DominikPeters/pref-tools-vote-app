@@ -52,13 +52,11 @@ class ApportionmentProfileBuilder
         // Count votes for each option
         $voteCounts = [];
         $candidateNames = [];
-        $candidateColors = [];
         $optionIdToIndex = [];
 
         foreach ($options as $index => $option) {
             $voteCounts[$index] = 0;
             $candidateNames[$index] = $option->label;
-            $candidateColors[$index] = $option->color ?? 'var(--color-text-dim)';
             $optionIdToIndex[$option->id] = $index;
         }
 
@@ -78,7 +76,7 @@ class ApportionmentProfileBuilder
             }
         }
 
-        return new Instance($seats, $voteCounts, $candidateNames, $candidateColors);
+        return new Instance($seats, $voteCounts, $candidateNames);
     }
 
     /**

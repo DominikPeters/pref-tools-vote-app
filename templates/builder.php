@@ -84,11 +84,119 @@ ob_start();
                 <!-- Questions will be rendered here dynamically -->
             </section>
 
-            <!-- Add Question Button -->
+            <!-- Add Question Button & Type Selector Tray -->
             <div class="add-question-wrapper">
                 <button type="button" class="btn btn-add" id="addQuestionBtn">
                     + Add Question
                 </button>
+                <div class="question-type-tray" id="questionTypeTray">
+                    <!-- Choice -->
+                    <div class="type-category">
+                        <div class="type-category-label">Choice</div>
+                        <button type="button" class="type-btn" data-type="single_choice">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="9"/>
+                                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                            </svg>
+                            <span>Single Choice</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="approval">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                <polyline points="7 12 10 15 17 8"/>
+                            </svg>
+                            <span>Approval</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="participatory_budgeting">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <path d="M8 15V9M12 15v-3M16 15v-5"/>
+                            </svg>
+                            <span>Participatory Budgeting</span>
+                        </button>
+                    </div>
+                    <!-- Ranking -->
+                    <div class="type-category">
+                        <div class="type-category-label">Ranking</div>
+                        <button type="button" class="type-btn" data-type="ranking">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="4" y="3" width="16" height="5" rx="1"/>
+                                <rect x="4" y="10" width="16" height="5" rx="1"/>
+                                <rect x="4" y="17" width="16" height="5" rx="1"/>
+                            </svg>
+                            <span>Full Ranking</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="ranking_truncated">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="4" y="3" width="16" height="5" rx="1"/>
+                                <rect x="4" y="10" width="16" height="5" rx="1"/>
+                                <rect x="4" y="17" width="16" height="5" rx="1" stroke-dasharray="1 1" opacity="0.4"/>
+                            </svg>
+                            <span>Partial Ranking</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="ranking_with_ties">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="7" y="2" width="10" height="4" rx="1"/>
+                                <rect x="4" y="8" width="7" height="4" rx="1"/>
+                                <rect x="13" y="8" width="7" height="4" rx="1"/>
+                                <rect x="7" y="14" width="10" height="4" rx="1"/>
+                            </svg>
+                            <span>Ranking with Ties</span>
+                        </button>
+                    </div>
+                    <!-- Rating -->
+                    <div class="type-category">
+                        <div class="type-category-label">Rating</div>
+                        <button type="button" class="type-btn" data-type="star">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span>Star Rating</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="grade">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                <text x="8" y="16" font-size="12" font-weight="bold" fill="currentColor" stroke="none">A</text>
+                            </svg>
+                            <span>Grades</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="yes_no_abstain">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <circle cx="6.5" cy="12" r="5"/>
+                                <polyline points="4.5 12 6 13.5 8.5 10" stroke-width="1.5"/>
+                                <circle cx="17.5" cy="12" r="5"/>
+                                <path d="M15.5 10l4 4M19.5 10l-4 4" stroke-width="1.5"/>
+                            </svg>
+                            <span>Yes / No</span>
+                        </button>
+                    </div>
+                    <!-- Other -->
+                    <div class="type-category">
+                        <div class="type-category-label">Other</div>
+                        <button type="button" class="type-btn" data-type="text_single">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="8" width="20" height="8" rx="2"/>
+                                <path d="M5 12h10"/>
+                            </svg>
+                            <span>Short Text</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="text_multi">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="18" rx="2"/>
+                                <path d="M5 7h14M5 11h12M5 15h8"/>
+                            </svg>
+                            <span>Long Text</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="section_header">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <text x="2" y="11" font-size="10" font-weight="bold" fill="currentColor" stroke="none">Ab</text>
+                                <path d="M2 15h20" stroke-width="1.5"/>
+                                <path d="M2 19h14" stroke-width="1" opacity="0.5"/>
+                            </svg>
+                            <span>Section Header</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Voting Mode -->

@@ -9,8 +9,8 @@ test.describe('Specialized Input Types', () => {
 
     // Add Star Rating question
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="star"]');
     const q1 = page.locator('.question-wrapper').last();
-    await q1.locator('.question-type-select').selectOption('star');
     await q1.locator('.question-title-input').fill('Rate these fruits');
 
     // Configure 3 options
@@ -62,8 +62,8 @@ test.describe('Specialized Input Types', () => {
     await page.fill('#pollTitle', 'Grades Test');
 
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="grade"]');
     const q1 = page.locator('.question-wrapper').last();
-    await q1.locator('.question-type-select').selectOption('grade');
     await q1.locator('.question-title-input').fill('Evaluate candidates');
 
     // Use a small preset for button mode (Pass/Fail)
@@ -87,8 +87,8 @@ test.describe('Specialized Input Types', () => {
     await page.fill('#pollTitle', 'YNA Test');
 
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="yes_no_abstain"]');
     const q1 = page.locator('.question-wrapper').last();
-    await q1.locator('.question-type-select').selectOption('yes_no_abstain');
     await q1.locator('.question-title-input').fill('Proposals');
 
     await page.click('#publishBtn');
@@ -113,8 +113,8 @@ test.describe('Specialized Input Types', () => {
     await page.fill('#pollTitle', 'Approval Constraint Test');
 
     await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="approval"]');
     const q1 = page.locator('.question-wrapper').last();
-    await q1.locator('.question-type-select').selectOption('approval');
     await q1.locator('.question-title-input').fill('Select 2 to 3');
 
     // Add 4 options

@@ -38,7 +38,7 @@ class MailService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->smtpHost) && !empty($this->fromAddress);
+        return SiteSetting::getBool('mail.enabled', true) && !empty($this->smtpHost) && !empty($this->fromAddress);
     }
 
     /**

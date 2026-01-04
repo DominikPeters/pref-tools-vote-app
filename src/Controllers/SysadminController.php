@@ -18,7 +18,10 @@ class SysadminController
 
         if (!$user) {
             header('Location: ' . url('login'));
-            exit;
+            if (!defined('PHPUNIT_RUNNING')) {
+                exit;
+            }
+            return null;
         }
 
         if (!$user->isSysadmin()) {
@@ -27,7 +30,10 @@ class SysadminController
                 'title' => 'Access Denied',
                 'message' => 'You do not have permission to access the sysadmin area.',
             ]);
-            exit;
+            if (!defined('PHPUNIT_RUNNING')) {
+                exit;
+            }
+            return null;
         }
 
         return $user;

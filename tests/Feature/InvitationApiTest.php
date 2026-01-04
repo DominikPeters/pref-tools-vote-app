@@ -145,4 +145,225 @@ class InvitationApiTest extends TestCase
         $this->assertEquals($poll->id, $log['poll_id']);
         $this->assertEquals($user->id, $log['user_id']);
     }
+
+    public function test_list_unauthorized(): void
+    {
+        $poll = $this->createPoll();
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/wrong/invitations");
+        $this->assertError($response, 'UNAUTHORIZED');
+    }
+
+    public function test_send_unauthorized(): void
+    {
+        $poll = $this->createPoll();
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/wrong/invitations", ['emails' => 'test@example.com']);
+        $this->assertError($response, 'UNAUTHORIZED');
+    }
+
+    public function test_send_no_emails(): void
+    {
+        $user = $this->createUser('send_no@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
+            'emails' => '',
+        ]);
+
+        $this->assertError($response, 'NO_EMAILS');
+    }
+
+    public function test_send_with_various_separators(): void
+    {
+        $user = $this->createUser('send_sep@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
+            'emails' => "one@example.com, two@example.com; three@example.com\nfour@example.com",
+        ]);
+
+        $this->assertSuccess($response);
+        $this->assertEquals(4, $response['sent_count']);
+    }
+
+    public function test_resend_success(): void
+    {
+        $user = $this->createUser('resend_ok@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'voter@example.com');
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}/resend");
+
+        $this->assertSuccess($response);
+        $this->assertEmailSentTo('voter@example.com');
+    }
+
+    public function test_resend_not_found(): void
+    {
+        $user = $this->createUser('resend_nf@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/999/resend");
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
+
+    public function test_resend_already_used(): void
+    {
+        $user = $this->createUser('resend_used@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'voter@example.com');
+        $res = \App\Models\Response::create($poll->id, []);
+        $invite->markUsed($res->id);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}/resend");
+
+        $this->assertError($response, 'ALREADY_USED');
+    }
+
+    public function test_delete_invitation_success(): void
+    {
+        $user = $this->createUser('del_inv@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'voter@example.com');
+
+        $response = $this->callApi('DELETE', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}");
+
+        $this->assertSuccess($response);
+        $this->assertNull(\App\Models\EmailInvitation::find($invite->id));
+    }
+
+    public function test_delete_invitation_already_used(): void
+    {
+        $user = $this->createUser('del_used@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'voter@example.com');
+        $res = \App\Models\Response::create($poll->id, []);
+        $invite->markUsed($res->id);
+
+        $response = $this->callApi('DELETE', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}");
+
+        $this->assertError($response, 'ALREADY_USED');
+    }
+
+    public function test_delete_invitation_not_found(): void
+    {
+        $user = $this->createUser('del_nf@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+
+        $response = $this->callApi('DELETE', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/999");
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
+
+    public function test_delete_invitation_wrong_poll(): void
+    {
+        $user = $this->createUser('del_wrong@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll1 = $this->createPoll([], $user->id);
+        $poll2 = $this->createPoll([], $user->id);
+        $invite = \App\Models\EmailInvitation::create($poll2->id, 'test@example.com');
+
+        $response = $this->callApi('DELETE', "/api/polls/{$poll1->publicId}/admin/{$poll1->adminToken}/invitations/{$invite->id}");
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
+
+    public function test_resend_invitation_wrong_poll(): void
+    {
+        $user = $this->createUser('resend_wrong@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll1 = $this->createPoll([], $user->id);
+        $poll2 = $this->createPoll([], $user->id);
+        $invite = \App\Models\EmailInvitation::create($poll2->id, 'test@example.com');
+
+        $response = $this->callApi('POST', "/api/polls/{$poll1->publicId}/admin/{$poll1->adminToken}/invitations/{$invite->id}/resend");
+
+        $this->assertError($response, 'NOT_FOUND');
+    }
+
+    public function test_send_mail_not_configured(): void
+    {
+        $user = $this->createUser('mail_nc@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+
+        // Disable mail
+        \App\Models\SiteSetting::set('mail.enabled', '0');
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations", [
+            'emails' => 'test@example.com',
+        ]);
+
+        $this->assertError($response, 'MAIL_NOT_CONFIGURED');
+
+        // Restore mail
+        \App\Models\SiteSetting::set('mail.enabled', '1');
+    }
+
+    public function test_resend_mail_not_configured(): void
+    {
+        $user = $this->createUser('mail_nc_resend@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'test@example.com');
+
+        // Disable mail
+        \App\Models\SiteSetting::set('mail.enabled', '0');
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}/resend");
+
+        $this->assertError($response, 'MAIL_NOT_CONFIGURED');
+
+        // Restore mail
+        \App\Models\SiteSetting::set('mail.enabled', '1');
+    }
+
+    public function test_resend_blocked_email(): void
+    {
+        $user = $this->createUser('resend_blocked@example.com');
+        $user->markEmailVerified();
+        $this->actingAs($user);
+        $poll = $this->createPoll([], $user->id);
+        
+        $email = 'blocked@example.com';
+        $invite = \App\Models\EmailInvitation::create($poll->id, $email);
+        
+        // Block email
+        \App\Services\UnsubscribeService::unsubscribe($email);
+
+        $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/admin/{$poll->adminToken}/invitations/{$invite->id}/resend");
+
+        $this->assertError($response, 'EMAIL_BLOCKED');
+    }
+
+    public function test_list_wrong_admin_token(): void
+    {
+        $poll = $this->createPoll();
+        $response = $this->callApi('GET', "/api/polls/{$poll->publicId}/admin/wrong-token/invitations");
+        $this->assertError($response, 'UNAUTHORIZED');
+    }
 }
