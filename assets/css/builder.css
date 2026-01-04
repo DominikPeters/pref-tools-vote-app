@@ -839,8 +839,27 @@
     pointer-events: none;
 }
 
+.mode-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.mode-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    transition: color 0.15s;
+}
+
+.mode-option input[type="radio"]:checked + .mode-card .mode-icon {
+    color: var(--color-primary);
+}
+
 .mode-card h3 {
-    margin: 0 0 var(--spacing-sm) 0;
+    margin: 0;
     font-size: 1rem;
     color: var(--color-text);
 }
