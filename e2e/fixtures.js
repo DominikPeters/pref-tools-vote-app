@@ -91,6 +91,56 @@ const test = base.test.extend({
   }, { scope: 'test' }],
 
   /**
+   * Provides an authenticated API request context that handles CSRF automatically.
+   */
+  api: [async ({ request, page }, use) => {
+    // Helper to get token from page
+    const getStoredToken = async () => {
+      return await page.evaluate(() => {
+        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      });
+    };
+
+    // 1. Get CSRF token from the current page, or visit home if none exists
+    let csrfToken = await getStoredToken();
+    
+    if (!csrfToken) {
+      await page.goto('/');
+      csrfToken = await getStoredToken();
+    }
+
+    // 2. Create a proxy for the request object that adds the token
+    const apiProxy = {
+      async post(url, options = {}) {
+        const token = csrfToken || await getStoredToken();
+        return request.post(url, {
+          ...options,
+          headers: { ...options.headers, 'X-CSRF-TOKEN': token }
+        });
+      },
+      async put(url, options = {}) {
+        const token = csrfToken || await getStoredToken();
+        return request.put(url, {
+          ...options,
+          headers: { ...options.headers, 'X-CSRF-TOKEN': token }
+        });
+      },
+      async delete(url, options = {}) {
+        const token = csrfToken || await getStoredToken();
+        return request.delete(url, {
+          ...options,
+          headers: { ...options.headers, 'X-CSRF-TOKEN': token }
+        });
+      },
+      async get(url, options = {}) {
+        return request.get(url, options);
+      }
+    };
+
+    await use(apiProxy);
+  }, { scope: 'test' }],
+
+  /**
    * Resets the app to a fresh state (deletes config and database).
    * WARNING: Only use in the install project - this breaks other tests!
    */

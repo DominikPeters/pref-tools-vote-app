@@ -43,24 +43,22 @@ ob_start();
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
     const basePath = window.BASE_PATH || '';
-    const email = <?= json_encode($email) ?>;
-    const signature = <?= json_encode($signature) ?>;
-    const action = <?= json_encode($action) ?>;
-
+            const email = <?= json_encode($email, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+            const signature = <?= json_encode($signature, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+            const action = <?= json_encode($action, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
     const loadingState = document.getElementById('loadingState');
     const successState = document.getElementById('successState');
     const errorState = document.getElementById('errorState');
 
     try {
-        const response = await fetch(basePath + '/api/unsubscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: email,
-                sig: signature,
-                action: action
-            })
-        });
+            const response = await fetch(basePath + '/api/unsubscribe', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                },
+                body: JSON.stringify({ email, signature, action })
+            });
 
         const data = await response.json();
 

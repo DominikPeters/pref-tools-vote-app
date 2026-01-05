@@ -35,9 +35,9 @@ test.describe('Sysadmin Dashboard', () => {
     await expect(page.locator('#usersTable')).toContainText('admin@example.com');
   });
 
-  test('can navigate to polls page', async ({ page, request }) => {
+  test('can navigate to polls page', async ({ page, api }) => {
     // Create a poll first
-    await request.post('/api/polls', {
+    await api.post('/api/polls', {
       data: {
         title: 'Sysadmin Test Poll',
         status: 'open',
@@ -112,9 +112,9 @@ test.describe('Sysadmin Dashboard', () => {
     await expect(updatedRow.locator('select.role-select')).toHaveValue('sysadmin');
   });
 
-  test('can delete a poll', async ({ page, request }) => {
+  test('can delete a poll', async ({ page, api }) => {
     // Create a poll to delete
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Poll To Delete',
         status: 'draft',

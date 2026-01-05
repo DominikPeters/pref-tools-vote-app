@@ -37,13 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
 async function apiRequest(endpoint, options = {}) {
     const url = `${BASE_PATH}/api/sysadmin${endpoint}`;
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
     try {
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        if (csrfToken) {
+            headers['X-CSRF-TOKEN'] = csrfToken;
+        }
+
         const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
+            ...options,
+            headers: headers
         });
 
         const data = await response.json();

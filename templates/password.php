@@ -15,6 +15,7 @@ ob_start();
             <?php endif; ?>
 
             <form method="post" action="<?= basePath() ?>/<?= e($poll->publicId) ?>">
+                <?= csrf_field() ?>
                 <div class="form-group">
                     <label for="access_password">Password</label>
                     <input type="password" id="access_password" name="access_password" required autofocus>

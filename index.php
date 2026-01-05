@@ -38,6 +38,40 @@ $router = new Router();
 // Set base path for subfolder deployment
 $router->setBasePath(basePath());
 
+// CSRF Middleware
+$router->middleware(function($params) {
+    $path = $_SERVER['REQUEST_URI'] ?? '/';
+    $base = basePath();
+    if ($base && strpos($path, $base) === 0) {
+        $path = substr($path, strlen($base));
+    }
+
+    // Exemptions
+    $exemptions = [
+        '/unsubscribe/one-click',
+        '/api/unsubscribe', // Legacy or external hooks
+    ];
+
+    foreach ($exemptions as $exemption) {
+        if (strpos($path, $exemption) === 0) {
+            return null;
+        }
+    }
+
+    if (!\App\Services\CsrfService::getInstance()->verifyRequest()) {
+        http_response_code(403);
+        $isApi = strpos($path, '/api/') === 0;
+        if ($isApi) {
+            return ['error' => 'Security token expired. Please refresh the page.', 'code' => 'CSRF_ERROR'];
+        } else {
+            // For HTML requests, show an error page or redirect
+            \App\Router::error('Security token expired. Please refresh the page.', 'CSRF_ERROR', 403);
+            exit;
+        }
+    }
+    return null;
+});
+
 // ============================================
 // Page Routes (HTML)
 // ============================================

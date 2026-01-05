@@ -19,6 +19,8 @@ abstract class TestCase extends BaseTestCase
         // Reset singletons for test isolation
         Database::reset();
         Auth::reset();
+        \App\Router::reset();
+        \App\Services\CsrfService::reset();
         \App\Services\LogService::reset();
 
         // Initialize fresh database for each test
@@ -147,6 +149,14 @@ abstract class TestCase extends BaseTestCase
         $_SERVER['REQUEST_URI'] = $uri;
         $_GET = $params;
 
+        // Ensure CSRF token exists in session
+        $csrfToken = \App\Services\CsrfService::getInstance()->getToken();
+
+        // For state-changing methods, include CSRF token in header unless skipped
+        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE']) && empty($_SERVER['SKIP_TEST_CSRF'])) {
+            $_SERVER['HTTP_X_CSRF_TOKEN'] = $csrfToken;
+        }
+
         // For POST/PUT/DELETE, set up the input stream
         if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE']) && !empty($data)) {
             $this->setJsonInput($data);
@@ -155,6 +165,7 @@ abstract class TestCase extends BaseTestCase
         // Create router and dispatch
         $router = $this->createRouter();
 
+        \App\Router::reset();
         ob_start();
         $result = $router->dispatch();
         ob_end_clean();
@@ -190,6 +201,34 @@ abstract class TestCase extends BaseTestCase
     protected function createRouter(): \App\Router
     {
         $router = new \App\Router();
+
+        // CSRF Middleware (same as in index.php)
+        $router->middleware(function($params) {
+            $path = $_SERVER['REQUEST_URI'] ?? '/';
+            
+            // Exemptions
+            $exemptions = [
+                '/unsubscribe/one-click',
+                '/api/unsubscribe',
+            ];
+
+            foreach ($exemptions as $exemption) {
+                if (strpos($path, $exemption) === 0) {
+                    return null;
+                }
+            }
+
+            if (!\App\Services\CsrfService::getInstance()->verifyRequest()) {
+                http_response_code(403);
+                $isApi = strpos($path, '/api/') === 0;
+                if ($isApi) {
+                    return ['error' => 'Security token expired. Please refresh the page.', 'code' => 'CSRF_ERROR'];
+                } else {
+                    return ['error' => 'Security token expired. Please refresh the page.', 'code' => 'CSRF_ERROR', 'status' => 403];
+                }
+            }
+            return null;
+        });
 
         // Auth routes
         $router->post('/api/auth/register', [\App\Controllers\AuthApiController::class, 'register']);

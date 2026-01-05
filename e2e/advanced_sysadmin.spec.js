@@ -23,9 +23,9 @@ test.describe('Advanced Sysadmin Features', () => {
     await expect(page.locator('#usersTable')).not.toContainText(userEmail);
   });
 
-  test('shows system statistics', async ({ page, request }) => {
+  test('shows system statistics', async ({ page, api }) => {
     // Ensure there is at least one poll to count
-    await request.post('/api/polls', {
+    await api.post('/api/polls', {
       data: {
         title: 'Stats Test Poll',
         status: 'open',
@@ -51,10 +51,10 @@ test.describe('Advanced Sysadmin Features', () => {
     expect(parseInt(userCountText || '0')).toBeGreaterThan(0);
   });
 
-  test('can view action logs with data modal', async ({ page, request }) => {
+  test('can view action logs with data modal', async ({ page, api }) => {
     const uniqueTitle = `Log Test Poll ${Date.now()}`;
     // Trigger an action that logs data (e.g., creating a poll)
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: { title: uniqueTitle }
     });
     const { poll } = await response.json();

@@ -3,9 +3,9 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Voter Experience', () => {
 
-  test('saves progress to localStorage', async ({ freshPage, request }) => {
+  test('saves progress to localStorage', async ({ freshPage, api }) => {
     // Create a poll via API
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Progress Test Poll',
         status: 'open',
@@ -30,9 +30,9 @@ test.describe('Voter Experience', () => {
     await expect(freshPage.locator('input[type="text"]').nth(1)).toHaveValue('');
   });
 
-  test('can edit own response (cookie-based)', async ({ freshPage, request }) => {
+  test('can edit own response (cookie-based)', async ({ freshPage, api }) => {
     // Create poll with allow_edit_own = true
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Edit Own Test',
         status: 'open',
@@ -67,9 +67,9 @@ test.describe('Voter Experience', () => {
     await expect(freshPage.locator('input[type="text"]')).toHaveValue('Updated Answer');
   });
 
-  test('accesses password protected poll', async ({ freshPage, request }) => {
+  test('accesses password protected poll', async ({ freshPage, api }) => {
     // Create poll with password via API
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Secret Poll',
         status: 'open',

@@ -174,6 +174,14 @@ Available report types: `choice_counts`, `approval_winner`, `borda_scores`, `pai
 
 The `pref_voting` library (symlinked at `/pref_voting`) provides voting rule implementations (Schulze, Ranked Pairs, IRV, Borda, Copeland, etc.)
 
+## Security
+
+The application includes built-in security features:
+- **CSRF Protection:** Managed by `src/Services/CsrfService.php`. A global middleware in `index.php` verifies tokens for all state-changing requests (POST, PUT, DELETE).
+- **API Security:** The frontend API client in `assets/js/app.js` automatically includes the `X-CSRF-TOKEN` header.
+- **IDOR Prevention:** Strict authorization checks in controllers (e.g., `PollApiController::getResponse`).
+- **XSS Mitigation:** Templates use secure `json_encode` flags and HTML escaping.
+
 **Sysadmin Dashboard:**
 The sysadmin dashboard (`/sysadmin`) provides system-wide administration:
 - **Users**: View, change roles, delete user accounts

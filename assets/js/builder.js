@@ -1462,6 +1462,16 @@ async function openPreview() {
         input.value = JSON.stringify(data);
         form.appendChild(input);
 
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);

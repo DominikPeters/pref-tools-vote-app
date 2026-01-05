@@ -3,9 +3,9 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Results and Reports System', () => {
 
-  test('can manage reports on the results page', async ({ page, request }) => {
+  test('can manage reports on the results page', async ({ page, api }) => {
     // 1. Create a poll with responses via API
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Report Test Poll',
         status: 'open',
@@ -28,10 +28,10 @@ test.describe('Results and Reports System', () => {
     const publicId = poll.public_id;
 
     // Add some responses via API
-    await request.post(`/api/polls/${publicId}/responses`, {
+    await api.post(`/api/polls/${publicId}/responses`, {
       data: { answers: { [poll.questions[0].id]: poll.questions[0].options[0].id } }
     });
-    await request.post(`/api/polls/${publicId}/responses`, {
+    await api.post(`/api/polls/${publicId}/responses`, {
       data: { answers: { [poll.questions[1].id]: [poll.questions[1].options[0].id, poll.questions[1].options[1].id, poll.questions[1].options[2].id] } }
     });
 
@@ -79,9 +79,9 @@ test.describe('Results and Reports System', () => {
     await expect(q1Section.locator('.report-card[data-type="choice_counts"]')).not.toBeVisible();
   });
 
-  test('can add and view pairwise margins report', async ({ page, request }) => {
+  test('can add and view pairwise margins report', async ({ page, api }) => {
     // Create ranking poll
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Pairwise Test',
         status: 'open',
@@ -97,7 +97,7 @@ test.describe('Results and Reports System', () => {
     const { poll } = await pollResponse.json();
     
     // Add a vote: Alice > Bob
-    await request.post(`/api/polls/${poll.public_id}/responses`, {
+    await api.post(`/api/polls/${poll.public_id}/responses`, {
       data: { answers: { [poll.questions[0].id]: [poll.questions[0].options[0].id, poll.questions[0].options[1].id] } }
     });
 

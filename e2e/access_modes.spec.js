@@ -3,9 +3,9 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Access Modes', () => {
 
-  test('can generate and use one-time tokens', async ({ page, freshPage, request }) => {
+  test('can generate and use one-time tokens', async ({ page, freshPage, api }) => {
     // 1. Create identified poll
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Token Access Poll',
         status: 'open',
@@ -49,12 +49,12 @@ test.describe('Access Modes', () => {
     await expect(freshPage.locator('text=already been used')).toBeVisible();
   });
 
-  test('can send and use email invitations', async ({ page, freshPage, request }) => {
+  test('can send and use email invitations', async ({ page, freshPage, api }) => {
     // Only works if mail is "configured" in the test env
     // We can simulate this by setting mail.enabled = true in config
     // For now, let's just check the UI flow in the admin panel
     
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Email Invitation Poll',
         status: 'open',

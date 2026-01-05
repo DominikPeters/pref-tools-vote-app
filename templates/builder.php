@@ -15,15 +15,15 @@ ob_start();
 
 <?php if ($isEditing): ?>
 <script>
-    window.POLL_DATA = <?= json_encode($poll->toAdminArray()) ?>;
-    window.ADMIN_TOKEN = <?= json_encode($adminToken) ?>;
+    window.POLL_DATA = <?= json_encode($poll->toAdminArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.ADMIN_TOKEN = <?= json_encode($adminToken, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
 </script>
 <?php endif; ?>
 
 <?php if ($needsTurnstile): ?>
 <script>
     window.TURNSTILE_ENABLED = true;
-    window.TURNSTILE_SITE_KEY = <?= json_encode($turnstileSiteKey) ?>;
+    window.TURNSTILE_SITE_KEY = <?= json_encode($turnstileSiteKey, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
 </script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 <?php else: ?>

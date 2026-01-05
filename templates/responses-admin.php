@@ -6,9 +6,8 @@ ob_start();
 ?>
 
 <script>
-    window.POLL_DATA = <?= json_encode($poll->toPublicArray()) ?>;
-    window.ADMIN_TOKEN = <?= json_encode($adminToken) ?>;
-</script>
+    window.POLL_DATA = <?= json_encode($poll->toPublicArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.ADMIN_TOKEN = <?= json_encode($adminToken, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;</script>
 
 <div class="responses-admin-container">
     <div class="container">

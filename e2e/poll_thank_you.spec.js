@@ -2,8 +2,8 @@
 const { test, expect } = require('./fixtures');
 
 test.describe('Thank You Message Buttons', () => {
-  test('shows Edit button when editing is enabled', async ({ freshPage, request }) => {
-    const response = await request.post('/api/polls', {
+  test('shows Edit button when editing is enabled', async ({ freshPage, api }) => {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Editable Poll',
         status: 'open',
@@ -26,8 +26,8 @@ test.describe('Thank You Message Buttons', () => {
     await expect(freshPage.locator('a:has-text("View Results")')).not.toBeVisible();
   });
 
-  test('hides Edit button when editing is disabled (secret ballot)', async ({ freshPage, request }) => {
-    const response = await request.post('/api/polls', {
+  test('hides Edit button when editing is disabled (secret ballot)', async ({ freshPage, api }) => {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Secret Ballot',
         status: 'open',
@@ -38,7 +38,7 @@ test.describe('Thank You Message Buttons', () => {
     const pollData = await response.json();
 
     // Create an access token since secret ballot requires it
-    const tokenResponse = await request.post(`/api/polls/${pollData.poll.public_id}/admin/${pollData.poll.admin_token}/tokens`, {
+    const tokenResponse = await api.post(`/api/polls/${pollData.poll.public_id}/admin/${pollData.poll.admin_token}/tokens`, {
       data: { count: 1 }
     });
     const tokenData = await tokenResponse.json();
@@ -60,8 +60,8 @@ test.describe('Thank You Message Buttons', () => {
     await expect(freshPage.locator('a:has-text("View Results")')).not.toBeVisible();
   });
 
-  test('shows editing banner and update button when already voted and can edit', async ({ freshPage, request }) => {
-    const response = await request.post('/api/polls', {
+  test('shows editing banner and update button when already voted and can edit', async ({ freshPage, api }) => {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Editable Voted Poll',
         status: 'open',
@@ -86,8 +86,8 @@ test.describe('Thank You Message Buttons', () => {
     await expect(freshPage.locator('text=Thank you')).not.toBeVisible();
   });
 
-  test('shows View Results button when results are public', async ({ freshPage, request }) => {
-    const response = await request.post('/api/polls', {
+  test('shows View Results button when results are public', async ({ freshPage, api }) => {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Public Results Poll',
         status: 'open',
@@ -110,8 +110,8 @@ test.describe('Thank You Message Buttons', () => {
     await expect(freshPage.locator('button:has-text("Edit Your Response")')).toBeVisible();
   });
 
-  test('shows thank you message on page reload if already voted and cannot edit', async ({ freshPage, request }) => {
-    const response = await request.post('/api/polls', {
+  test('shows thank you message on page reload if already voted and cannot edit', async ({ freshPage, api }) => {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Non-editable Voted Poll',
         status: 'open',

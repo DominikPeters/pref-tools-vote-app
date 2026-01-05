@@ -139,3 +139,27 @@ function markdown(?string $text): string
 
     return $parsedown->text($text);
 }
+
+/**
+ * Get CSRF token
+ */
+function csrf_token(): string
+{
+    return \App\Services\CsrfService::getInstance()->getToken();
+}
+
+/**
+ * Get CSRF meta tag
+ */
+function csrf_meta(): string
+{
+    return \App\Services\CsrfService::getInstance()->getMetaTag();
+}
+
+/**
+ * Get CSRF hidden input
+ */
+function csrf_field(): string
+{
+    return \App\Services\CsrfService::getInstance()->getHiddenInput();
+}

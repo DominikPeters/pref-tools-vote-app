@@ -138,6 +138,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const basePath = window.BASE_PATH || '';
     const authMessage = document.getElementById('authMessage');
 
+    // CSRF helper
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]')?.content;
+    }
+
     // Turnstile integration
     const turnstileEnabled = <?= $turnstileEnabled ? 'true' : 'false' ?>;
     const turnstileSiteKey = '<?= e($turnstileSiteKey) ?>';
@@ -231,7 +236,10 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await fetch(basePath + '/api/auth/verify-email', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
                     body: JSON.stringify({ token: verifyToken })
                 });
 
@@ -271,7 +279,10 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 await fetch(basePath + '/api/user/claim-poll', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
                     body: JSON.stringify({
                         public_id: adminInfo.publicId,
                         admin_token: adminInfo.adminToken
@@ -317,7 +328,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(basePath + '/api/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
                 body: JSON.stringify({
                     email: document.getElementById('loginEmail').value,
                     password: document.getElementById('loginPassword').value
@@ -371,7 +385,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const response = await fetch(basePath + '/api/auth/register', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
                 body: JSON.stringify(requestBody)
             });
 
@@ -413,7 +430,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const response = await fetch(basePath + '/api/auth/forgot-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
                 body: JSON.stringify(requestBody)
             });
 
@@ -451,7 +471,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(basePath + '/api/auth/reset-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
                 body: JSON.stringify({
                     token: resetToken,
                     password: password

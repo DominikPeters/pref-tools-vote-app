@@ -190,11 +190,22 @@ class Router
         return $handler($params);
     }
 
+    private static ?array $jsonBody = null;
+
+    public static function reset(): void
+    {
+        self::$jsonBody = null;
+    }
+
     /**
      * Get JSON body from request
      */
     public static function getJsonBody(): ?array
     {
+        if (self::$jsonBody !== null) {
+            return self::$jsonBody;
+        }
+
         $body = file_get_contents('php://input');
         if (empty($body)) {
             return null;
@@ -205,6 +216,7 @@ class Router
             return null;
         }
 
+        self::$jsonBody = $data;
         return $data;
     }
 

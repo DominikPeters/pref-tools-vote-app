@@ -8,9 +8,9 @@ ob_start();
 ?>
 
 <script>
-    window.POLL_DATA = <?= json_encode($poll->toPublicArray()) ?>;
+    window.POLL_DATA = <?= json_encode($poll->toPublicArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
     <?php if ($isEditing): ?>
-    window.EXISTING_RESPONSE = <?= json_encode($existingResponse->toArray()) ?>;
+    window.EXISTING_RESPONSE = <?= json_encode($existingResponse->toArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
     <?php endif; ?>
     <?php if ($isPreview): ?>
     window.IS_PREVIEW = true;

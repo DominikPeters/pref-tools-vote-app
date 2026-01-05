@@ -12,6 +12,9 @@ export const api = {
         if (url.startsWith('/')) {
             url = basePath + url;
         }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
         const options = {
             method,
             headers: {
@@ -19,6 +22,10 @@ export const api = {
             },
             credentials: 'same-origin',
         };
+
+        if (csrfToken) {
+            options.headers['X-CSRF-TOKEN'] = csrfToken;
+        }
 
         if (data) {
             options.body = JSON.stringify(data);

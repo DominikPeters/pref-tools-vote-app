@@ -589,9 +589,25 @@ class PollApiController extends ApiController
             return $this->error('Response not found', 'NOT_FOUND', 404);
         }
 
+        // Check authorization
+        $voterToken = $_COOKIE['voter_token_' . $poll->publicId] ?? null;
+        $adminToken = $_GET['admin_token'] ?? null;
+
+        $isAdmin = $adminToken && $poll->verifyAdminToken($adminToken);
+        $isOwner = $this->user() && $response->userId === $this->user()->id;
+        $isVoter = $voterToken && $response->verifyVoterToken($voterToken);
+        $isPublic = $poll->visibility !== 'private';
+
+        if (!$isAdmin && !$isOwner && !$isVoter && !$isPublic) {
+            return $this->error('You are not authorized to view this response', 'UNAUTHORIZED', 403);
+        }
+
         $response->loadAnswers();
 
-        return $this->success(['response' => $response->toArray()]);
+        // Check if voter names should be included
+        $includeNames = $isAdmin || $isOwner || $isVoter || in_array($poll->visibility, ['full', 'names_only']);
+
+        return $this->success(['response' => $response->toArray($includeNames)]);
     }
 
     /**

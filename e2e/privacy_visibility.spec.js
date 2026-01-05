@@ -3,9 +3,9 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Privacy and Visibility Settings', () => {
 
-  test('hides voter names in results when visibility is anonymous', async ({ page, freshPage, request }) => {
+  test('hides voter names in results when visibility is anonymous', async ({ page, freshPage, api }) => {
     // 1. Create poll that collects names but has anonymous results
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Anonymous Results Poll',
         status: 'open',
@@ -42,9 +42,9 @@ test.describe('Privacy and Visibility Settings', () => {
     }).toPass();
   });
 
-  test('shows voter names in results when visibility is full', async ({ page, freshPage, request }) => {
+  test('shows voter names in results when visibility is full', async ({ page, freshPage, api }) => {
     // 1. Create poll with full visibility
-    const pollResponse = await request.post('/api/polls', {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Full Visibility Poll',
         status: 'open',
@@ -74,8 +74,8 @@ test.describe('Privacy and Visibility Settings', () => {
     // await expect(freshPage.locator('body')).toContainText('Public Voter');
   });
 
-  test('hides results page entirely when visibility is private', async ({ freshPage, request }) => {
-    const pollResponse = await request.post('/api/polls', {
+  test('hides results page entirely when visibility is private', async ({ freshPage, api }) => {
+    const pollResponse = await api.post('/api/polls', {
       data: {
         title: 'Private Poll',
         status: 'open',

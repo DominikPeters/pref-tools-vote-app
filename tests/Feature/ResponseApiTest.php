@@ -218,10 +218,49 @@ class ResponseApiTest extends TestCase
             'answers' => [$this->question->id => $this->question->options[0]->id],
         ]);
 
+        // Authorization: owner (via cookie)
+        $_COOKIE['voter_token_' . $this->poll->publicId] = $response->voterToken;
+
         $apiResponse = $this->callApi('GET', "/api/polls/{$this->poll->publicId}/responses/{$response->id}");
 
         $this->assertSuccess($apiResponse);
         $this->assertEquals($response->id, $apiResponse['response']['id']);
+    }
+
+    public function test_get_single_response_requires_authorization(): void
+    {
+        // Private poll
+        $poll = $this->createPoll(['visibility' => 'private', 'status' => 'open']);
+        $question = $this->createQuestion($poll->id);
+        
+        $response = Response::create($poll->id, [
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        // 1. Logged out user without voter token
+        $apiResponse = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses/{$response->id}");
+        $this->assertError($apiResponse, 'UNAUTHORIZED');
+
+        // 2. Logged in user who is not the owner
+        $user = $this->createUser('other@example.com');
+        $this->actingAs($user);
+        $apiResponse = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses/{$response->id}");
+        $this->assertError($apiResponse, 'UNAUTHORIZED');
+
+        // 3. Logged in user who IS the owner
+        $owner = $this->createUser('owner@example.com');
+        $response->update(['user_id' => $owner->id]);
+        $this->actingAs($owner);
+        $apiResponse = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses/{$response->id}");
+        $this->assertSuccess($apiResponse);
+
+        // 4. Admin (via token) can access
+        \App\Auth::reset();
+        $_SESSION = [];
+        $apiResponse = $this->callApi('GET', "/api/polls/{$poll->publicId}/responses/{$response->id}", [], [
+            'admin_token' => $poll->adminToken
+        ]);
+        $this->assertSuccess($apiResponse);
     }
 
     public function test_can_update_own_response(): void

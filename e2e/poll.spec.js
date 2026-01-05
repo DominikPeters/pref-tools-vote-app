@@ -33,9 +33,9 @@ test.describe('Poll Creation and Voting', () => {
     await expect(freshPage.locator('h1')).toContainText('Test Poll');
   });
 
-  test('can access poll by public link', async ({ freshPage, request }) => {
+  test('can access poll by public link', async ({ freshPage, api }) => {
     // Create a poll via API
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'E2E Test Poll',
         description: 'A poll created for E2E testing',
@@ -73,9 +73,9 @@ test.describe('Poll Creation and Voting', () => {
     await expect(freshPage.locator('text=Green')).toBeVisible();
   });
 
-  test('can submit a vote', async ({ freshPage, request }) => {
+  test('can submit a vote', async ({ freshPage, api }) => {
     // Create a poll via API
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Voting Test Poll',
         status: 'open',
@@ -108,9 +108,9 @@ test.describe('Poll Creation and Voting', () => {
     await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });
   });
 
-  test('cannot vote on closed poll', async ({ freshPage, request }) => {
+  test('cannot vote on closed poll', async ({ freshPage, api }) => {
     // Create a closed poll via API
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Closed Poll',
         status: 'closed',
@@ -137,9 +137,9 @@ test.describe('Poll Creation and Voting', () => {
     await expect(freshPage.locator('h2:has-text("Closed")')).toBeVisible();
   });
 
-  test('poll admin can access admin panel', async ({ freshPage, request }) => {
+  test('poll admin can access admin panel', async ({ freshPage, api }) => {
     // Create a poll via API
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Admin Test Poll',
         status: 'draft',
@@ -164,9 +164,9 @@ test.describe('Poll Creation and Voting', () => {
     await expect(freshPage.locator('h1')).toContainText('Admin Test Poll');
   });
 
-  test('poll shows on authenticated user dashboard', async ({ page, request }) => {
+  test('poll shows on authenticated user dashboard', async ({ page, api }) => {
     // Create a poll via API (authenticated as admin via storage state)
-    const response = await request.post('/api/polls', {
+    const response = await api.post('/api/polls', {
       data: {
         title: 'Dashboard Visible Poll',
         status: 'open',
