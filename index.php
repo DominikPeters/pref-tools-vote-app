@@ -29,6 +29,12 @@ if (needsInstall()) {
 // Check maintenance mode
 checkMaintenanceMode();
 
+// Set security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 // Maybe run data cleanup (10% probability, then 24h check)
 \App\Services\CleanupService::maybeRun();
 
