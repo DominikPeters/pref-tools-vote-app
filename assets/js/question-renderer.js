@@ -305,6 +305,47 @@ export function renderQuestionInput(question, disabled = false) {
                 </div>
             `;
 
+        case 'distribution':
+            const budget = question.settings?.budget ?? 100;
+            const maxPerOption = question.settings?.maxPerOption ?? budget;
+            const effectiveMax = Math.min(maxPerOption, budget);
+            // Determine stepper increments based on budget
+            let bigStep = 1;
+            if (budget >= 50) {
+                bigStep = 10;
+            } else if (budget >= 25) {
+                bigStep = 5;
+            }
+            const showBigSteps = bigStep > 1;
+
+            return `
+                <div class="distribution-options" data-budget="${budget}" data-max-per-option="${effectiveMax}">
+                    <div class="distribution-budget-display">
+                        <span class="budget-label">Remaining:</span>
+                        <span class="budget-remaining">${budget}</span>
+                        <span class="budget-separator">/</span>
+                        <span class="budget-total">${budget}</span>
+                        <span class="budget-unit">points</span>
+                    </div>
+                    ${options.map(o => `
+                        <div class="distribution-row" data-option-id="${o.id || o._id}">
+                            <span class="option-label">${escapeHtml(o.label)}</span>
+                            <div class="distribution-controls">
+                                ${showBigSteps ? `<button type="button" class="dist-btn dist-minus-big" data-step="-${bigStep}" ${disabledAttr}>-${bigStep}</button>` : ''}
+                                <button type="button" class="dist-btn dist-minus" data-step="-1" ${disabledAttr}>-1</button>
+                                <input type="number" class="dist-input" value="0" min="0" max="${effectiveMax}" ${disabledAttr}>
+                                <button type="button" class="dist-btn dist-plus" data-step="1" ${disabledAttr}>+1</button>
+                                ${showBigSteps ? `<button type="button" class="dist-btn dist-plus-big" data-step="${bigStep}" ${disabledAttr}>+${bigStep}</button>` : ''}
+                            </div>
+                            <div class="distribution-bar-container">
+                                <div class="distribution-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <input type="hidden" class="distribution-value" name="q_${question.id || question._id}">
+                </div>
+            `;
+
         case 'section_header':
             return ''; // No input for section headers
 
@@ -321,6 +362,7 @@ export function getQuestionTypeLabel(type) {
         'single_choice': 'Single Choice',
         'approval': 'Approval (Multiple Choice)',
         'participatory_budgeting': 'Participatory Budgeting',
+        'distribution': 'Distribution (Point Voting)',
         'ranking': 'Ranking',
         'ranking_truncated': 'Ranking (Partial)',
         'ranking_with_ties': 'Ranking (With Ties)',
@@ -337,7 +379,7 @@ export function getQuestionTypeLabel(type) {
  * Question types that require options
  */
 export const OPTION_TYPES = [
-    'single_choice', 'approval', 'participatory_budgeting', 'ranking', 'ranking_truncated', 'ranking_with_ties', 'star', 'grade', 'yes_no_abstain'
+    'single_choice', 'approval', 'participatory_budgeting', 'distribution', 'ranking', 'ranking_truncated', 'ranking_with_ties', 'star', 'grade', 'yes_no_abstain'
 ];
 
 /**
@@ -347,6 +389,7 @@ export const QUESTION_TYPES = [
     { value: 'single_choice', label: 'Single Choice' },
     { value: 'approval', label: 'Approval (Multiple Choice)' },
     { value: 'participatory_budgeting', label: 'Participatory Budgeting' },
+    { value: 'distribution', label: 'Distribution (Point Voting)' },
     { value: 'ranking', label: 'Ranking' },
     { value: 'ranking_truncated', label: 'Ranking (Partial)' },
     { value: 'ranking_with_ties', label: 'Ranking (With Ties)' },

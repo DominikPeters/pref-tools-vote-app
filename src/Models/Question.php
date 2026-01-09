@@ -30,6 +30,7 @@ class Question
         'single_choice',
         'approval',
         'participatory_budgeting',
+        'distribution',
         'ranking',
         'ranking_truncated',
         'ranking_with_ties',
@@ -216,7 +217,7 @@ class Question
     public function requiresOptions(): bool
     {
         return in_array($this->type, [
-            'single_choice', 'approval', 'participatory_budgeting', 'ranking', 'ranking_truncated',
+            'single_choice', 'approval', 'participatory_budgeting', 'distribution', 'ranking', 'ranking_truncated',
             'ranking_with_ties', 'utility', 'star', 'grade', 'yes_no_abstain'
         ]);
     }
@@ -357,6 +358,50 @@ class Question
             case 'yes_no_abstain':
                 if (isset($settings['allowAbstain']) && !is_bool($settings['allowAbstain'])) {
                     $errors[] = "allowAbstain must be a boolean";
+                }
+                break;
+
+            case 'distribution':
+                $budget = $settings['budget'] ?? 100;
+                if (!is_int($budget) && !is_numeric($budget)) {
+                    $errors[] = "Distribution budget must be a number";
+                } else {
+                    $budget = (int) $budget;
+                    if ($budget < 1) {
+                        $errors[] = "Distribution budget must be at least 1";
+                    }
+                }
+
+                $maxPerOption = $settings['maxPerOption'] ?? null;
+                if ($maxPerOption !== null) {
+                    if (!is_int($maxPerOption) && !is_numeric($maxPerOption)) {
+                        $errors[] = "Distribution maxPerOption must be a number";
+                    } else {
+                        $maxPerOption = (int) $maxPerOption;
+                        if ($maxPerOption < 1) {
+                            $errors[] = "Distribution maxPerOption must be at least 1";
+                        }
+                        if (is_numeric($settings['budget'] ?? 100) && $maxPerOption > (int)($settings['budget'] ?? 100)) {
+                            // This is okay - we treat it as "all" (no limit)
+                        }
+                    }
+                }
+
+                $minOptions = $settings['minOptions'] ?? 1;
+                if (!is_int($minOptions) && !is_numeric($minOptions)) {
+                    $errors[] = "Distribution minOptions must be a number";
+                } else {
+                    $minOptions = (int) $minOptions;
+                    if ($minOptions < 1) {
+                        $errors[] = "Distribution minOptions must be at least 1";
+                    }
+                    if ($optionCount > 0 && $minOptions > $optionCount) {
+                        $errors[] = "Distribution minOptions ({$minOptions}) cannot exceed number of options ({$optionCount})";
+                    }
+                }
+
+                if (isset($settings['requireAll']) && !is_bool($settings['requireAll'])) {
+                    $errors[] = "Distribution requireAll must be a boolean";
                 }
                 break;
         }

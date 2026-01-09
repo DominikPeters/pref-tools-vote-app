@@ -506,6 +506,35 @@ function renderTypeSettings(question) {
                 </div>
             `;
 
+        case 'distribution':
+            const distBudget = settings.budget ?? 100;
+            const distMaxPerOption = settings.maxPerOption;
+            const distMaxDisplay = (distMaxPerOption === null || distMaxPerOption === undefined || distMaxPerOption >= distBudget) ? '' : distMaxPerOption;
+            const distMinOptions = settings.minOptions ?? 1;
+            const distOptionCount = question.options?.length || 0;
+            const distMinOptionsDisplay = distMinOptions <= 1 ? '' : distMinOptions;
+            const distRequireAll = settings.requireAll ?? false;
+            return `
+                <div class="type-settings distribution-settings" data-option-count="${distOptionCount}">
+                    <label>
+                        <span>Budget:</span>
+                        <input type="number" class="setting-budget" value="${distBudget}" min="1" placeholder="100">
+                    </label>
+                    <label>
+                        <span>Max per option:</span>
+                        <input type="number" class="setting-max-per-option" value="${distMaxDisplay}" min="1" max="${distBudget}" placeholder="All">
+                    </label>
+                    <label>
+                        <span>Spread across at least:</span>
+                        <input type="number" class="setting-min-options" value="${distMinOptionsDisplay}" min="1" max="${distOptionCount}" placeholder="1">
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="setting-require-all" ${distRequireAll ? 'checked' : ''}>
+                        <span>Require using all points</span>
+                    </label>
+                </div>
+            `;
+
         default:
             return '';
     }
@@ -946,6 +975,62 @@ function setupTypeSettingsEvents(wrapper, question) {
             markDirty();
         });
     }
+
+    // Distribution settings
+    const budgetInput = wrapper.querySelector('.setting-budget');
+    const maxPerOptionInput = wrapper.querySelector('.setting-max-per-option');
+    const minOptionsInput = wrapper.querySelector('.setting-min-options');
+    const requireAllInput = wrapper.querySelector('.setting-require-all');
+    const distSettings = wrapper.querySelector('.distribution-settings');
+
+    if (budgetInput) {
+        budgetInput.addEventListener('change', (e) => {
+            const value = parseInt(e.target.value) || 100;
+            question.settings.budget = Math.max(1, value);
+            // Update max-per-option max attribute
+            if (maxPerOptionInput) {
+                maxPerOptionInput.max = question.settings.budget;
+            }
+            renderQuestions();
+            markDirty();
+        });
+    }
+
+    if (maxPerOptionInput && distSettings) {
+        const budget = question.settings?.budget ?? 100;
+        maxPerOptionInput.addEventListener('change', (e) => {
+            const value = e.target.value ? parseInt(e.target.value) : null;
+            // Store null if max equals or exceeds budget (means "all")
+            question.settings.maxPerOption = (value === null || value >= budget) ? null : value;
+            // Clear display if it equals budget (show placeholder "All")
+            if (value !== null && value >= budget) {
+                maxPerOptionInput.value = '';
+            }
+            markDirty();
+        });
+    }
+
+    if (minOptionsInput && distSettings) {
+        const optionCount = parseInt(distSettings.dataset.optionCount) || 0;
+        minOptionsInput.addEventListener('change', (e) => {
+            const value = e.target.value ? parseInt(e.target.value) : 1;
+            // Store 1 as default if empty or less than 1
+            question.settings.minOptions = Math.max(1, Math.min(value, optionCount || value));
+            // Clear display if value is 1 (show placeholder)
+            if (question.settings.minOptions <= 1) {
+                minOptionsInput.value = '';
+                question.settings.minOptions = 1;
+            }
+            markDirty();
+        });
+    }
+
+    if (requireAllInput) {
+        requireAllInput.addEventListener('change', (e) => {
+            question.settings.requireAll = e.target.checked;
+            markDirty();
+        });
+    }
 }
 
 /**
@@ -1067,6 +1152,11 @@ function addQuestion(type = 'single_choice') {
         question.settings.grades = GRADE_PRESETS['default'].grades;
     } else if (type === 'yes_no_abstain') {
         question.settings.allowAbstain = true;
+    } else if (type === 'distribution') {
+        question.settings.budget = 100;
+        question.settings.maxPerOption = null;
+        question.settings.minOptions = 1;
+        question.settings.requireAll = false;
     }
 
     state.questions.push(question);

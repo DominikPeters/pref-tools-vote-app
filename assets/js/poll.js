@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarRatings();
     initGradeButtons();
     initYnaButtons();
+    initDistribution();
     initReportButton(window.POLL_DATA?.public_id);
 
     // Pre-fill form if editing existing response
@@ -268,6 +269,13 @@ function collectFormData() {
                     answer = JSON.parse(ynaInput.value);
                 }
                 break;
+
+            case 'distribution':
+                const distInput = block.querySelector('.distribution-value');
+                if (distInput?.value) {
+                    answer = JSON.parse(distInput.value);
+                }
+                break;
         }
 
         if (answer !== null) {
@@ -325,6 +333,33 @@ function validateForm(data) {
         }
         if (max !== null && count > max) {
             return `Please rank at most ${max} option(s) for "${question.text}"`;
+        }
+    }
+
+    // Validate distribution constraints
+    const distributionQuestions = document.querySelectorAll('.question-display[data-type="distribution"]');
+    for (const block of distributionQuestions) {
+        const questionId = block.dataset.questionId;
+        const question = window.POLL_DATA?.questions?.find(q => String(q.id) === questionId);
+        const budget = question?.settings?.budget ?? 100;
+        const minOptions = question?.settings?.minOptions ?? 1;
+        const requireAll = question?.settings?.requireAll ?? false;
+
+        const answer = data.answers[questionId];
+        if (answer && typeof answer === 'object') {
+            const values = Object.values(answer);
+            const totalUsed = values.reduce((sum, v) => sum + (v || 0), 0);
+            const optionsWithPoints = values.filter(v => v > 0).length;
+
+            if (requireAll && totalUsed !== budget) {
+                return `Please use all ${budget} points for "${question.text}"`;
+            }
+            if (totalUsed > budget) {
+                return `You've exceeded the budget of ${budget} points for "${question.text}"`;
+            }
+            if (minOptions > 1 && optionsWithPoints < minOptions) {
+                return `Please distribute points across at least ${minOptions} options for "${question.text}"`;
+            }
         }
     }
 
@@ -846,6 +881,115 @@ function initYnaButtons() {
     });
 }
 
+/**
+ * Initialize distribution (point voting) question type
+ */
+function initDistribution() {
+    document.querySelectorAll('.distribution-options').forEach(container => {
+        const budget = parseInt(container.dataset.budget) || 100;
+        const maxPerOption = parseInt(container.dataset.maxPerOption) || budget;
+        const input = container.querySelector('.distribution-value');
+        const remainingDisplay = container.querySelector('.budget-remaining');
+        const values = {};
+
+        // Initialize all options to 0
+        container.querySelectorAll('.distribution-row').forEach(row => {
+            const optionId = row.dataset.optionId;
+            values[optionId] = 0;
+        });
+
+        const getTotalUsed = () => Object.values(values).reduce((sum, v) => sum + v, 0);
+        const getRemaining = () => budget - getTotalUsed();
+
+        const updateDisplay = () => {
+            const remaining = getRemaining();
+            remainingDisplay.textContent = remaining;
+
+            // Update visual state
+            remainingDisplay.classList.toggle('budget-empty', remaining === 0);
+            remainingDisplay.classList.toggle('budget-over', remaining < 0);
+
+            // Update bars and button states
+            container.querySelectorAll('.distribution-row').forEach(row => {
+                const optionId = row.dataset.optionId;
+                const value = values[optionId] || 0;
+                const bar = row.querySelector('.distribution-bar');
+                const distInput = row.querySelector('.dist-input');
+
+                // Update bar width (percentage of budget)
+                const percentage = budget > 0 ? (value / budget) * 100 : 0;
+                bar.style.width = `${percentage}%`;
+
+                // Update input value
+                distInput.value = value;
+
+                // Update button states
+                row.querySelectorAll('.dist-btn').forEach(btn => {
+                    const step = parseInt(btn.dataset.step);
+                    if (step > 0) {
+                        // Plus buttons: disable if would exceed remaining or maxPerOption
+                        const newValue = value + step;
+                        const wouldExceedBudget = newValue > value + remaining;
+                        const wouldExceedMax = newValue > maxPerOption;
+                        btn.disabled = wouldExceedBudget || wouldExceedMax;
+                    } else {
+                        // Minus buttons: disable if would go below 0
+                        btn.disabled = value + step < 0;
+                    }
+                });
+            });
+
+            // Update hidden input
+            input.value = JSON.stringify(values);
+        };
+
+        const setValue = (optionId, newValue) => {
+            // Clamp value
+            newValue = Math.max(0, Math.min(newValue, maxPerOption));
+
+            // Check budget constraint
+            const currentValue = values[optionId] || 0;
+            const delta = newValue - currentValue;
+            if (delta > 0 && delta > getRemaining()) {
+                newValue = currentValue + getRemaining();
+            }
+
+            values[optionId] = newValue;
+            updateDisplay();
+        };
+
+        // Set up event handlers for each row
+        container.querySelectorAll('.distribution-row').forEach(row => {
+            const optionId = row.dataset.optionId;
+            const distInput = row.querySelector('.dist-input');
+            const buttons = row.querySelectorAll('.dist-btn');
+
+            // Button clicks
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const step = parseInt(btn.dataset.step);
+                    const currentValue = values[optionId] || 0;
+                    setValue(optionId, currentValue + step);
+                });
+            });
+
+            // Direct input
+            distInput.addEventListener('input', (e) => {
+                const newValue = parseInt(e.target.value) || 0;
+                setValue(optionId, newValue);
+            });
+
+            distInput.addEventListener('blur', (e) => {
+                // Ensure displayed value matches actual value
+                e.target.value = values[optionId] || 0;
+            });
+        });
+
+        // Initial display update
+        updateDisplay();
+    });
+}
+
 // ==========================================================================
 // Progress Saving
 // ==========================================================================
@@ -1132,6 +1276,39 @@ function prefillForm(response) {
                             if (btn) btn.classList.add('active');
                         }
                     });
+                    if (input) input.value = JSON.stringify(answer);
+                }
+                break;
+
+            case 'distribution':
+                if (typeof answer === 'object') {
+                    const container = block.querySelector('.distribution-options');
+                    const input = block.querySelector('.distribution-value');
+                    const budget = parseInt(container?.dataset.budget) || 100;
+                    const remainingDisplay = container?.querySelector('.budget-remaining');
+
+                    let totalUsed = 0;
+                    Object.entries(answer).forEach(([optionId, value]) => {
+                        const row = block.querySelector(`.distribution-row[data-option-id="${optionId}"]`);
+                        if (row) {
+                            const distInput = row.querySelector('.dist-input');
+                            const bar = row.querySelector('.distribution-bar');
+                            if (distInput) distInput.value = value;
+                            if (bar) {
+                                const percentage = budget > 0 ? (value / budget) * 100 : 0;
+                                bar.style.width = `${percentage}%`;
+                            }
+                            totalUsed += value;
+                        }
+                    });
+
+                    if (remainingDisplay) {
+                        const remaining = budget - totalUsed;
+                        remainingDisplay.textContent = remaining;
+                        remainingDisplay.classList.toggle('budget-empty', remaining === 0);
+                        remainingDisplay.classList.toggle('budget-over', remaining < 0);
+                    }
+
                     if (input) input.value = JSON.stringify(answer);
                 }
                 break;

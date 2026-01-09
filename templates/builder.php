@@ -114,6 +114,15 @@ ob_start();
                             </svg>
                             <span>Participatory Budgeting</span>
                         </button>
+                        <button type="button" class="type-btn" data-type="distribution">
+                            <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 12V3a9 9 0 0 1 7.79 13.5z" fill="currentColor" stroke="none"/>
+                                <path d="M12 3v9l7.79 4.5" fill="none"/>
+                                <path d="M12 12L4.21 16.5" fill="none"/>
+                            </svg>
+                            <span>Distribution</span>
+                        </button>
                     </div>
                     <!-- Ranking -->
                     <div class="type-category">
