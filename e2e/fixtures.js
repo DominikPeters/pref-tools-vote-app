@@ -163,7 +163,7 @@ const test = base.test.extend({
       const start = Date.now();
       while (Date.now() - start < timeout) {
         try {
-          const response = await fetch('http://127.0.0.1:8025/api/v2/messages');
+          const response = await fetch('http://localhost:8025/api/v2/messages');
           const data = await response.json();
           const email = data.items.find(predicate);
           if (email) return email;

@@ -53,12 +53,12 @@ test.describe('Access Modes', () => {
 
   test('can send and use email invitations', async ({ page, freshPage, api, waitForEmail }) => {
     // Check if Mailhog is available for testing
-    const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
+    const mailhogAvailable = await fetch('http://localhost:8025/api/v2/messages')
       .then(() => true)
       .catch(() => false);
 
     if (!mailhogAvailable) {
-      console.log('Skipping email invitation test: Mailhog not available at 127.0.0.1:8025');
+      console.log('Skipping email invitation test: Mailhog not available at localhost:8025');
       console.log('Start Mailhog with: docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog');
       test.skip();
       return;
@@ -70,7 +70,7 @@ test.describe('Access Modes', () => {
       data: {
         settings: {
           'mail.enabled': '1',
-          'mail.smtp_host': '127.0.0.1',
+          'mail.smtp_host': 'localhost',
           'mail.smtp_port': '1025',
           'mail.from_address': 'test@pref.tools',
           'mail.from_name': 'Test Pref.Tools',
@@ -81,7 +81,7 @@ test.describe('Access Modes', () => {
     expect(settingsResponse.ok()).toBeTruthy();
 
     // Clear any existing emails in Mailhog
-    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+    await fetch('http://localhost:8025/api/v1/messages', { method: 'DELETE' });
 
     const pollResponse = await api.post('/api/polls', {
       data: {

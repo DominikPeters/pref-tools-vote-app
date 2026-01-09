@@ -168,12 +168,12 @@ test.describe('Authentication', () => {
 
   test('can reset password via email link', async ({ freshPage, uniqueEmail, api, waitForEmail }) => {
     // Check if Mailhog is available
-    const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
+    const mailhogAvailable = await fetch('http://localhost:8025/api/v2/messages')
       .then(() => true)
       .catch(() => false);
 
     if (!mailhogAvailable) {
-      console.log('Skipping password reset test: Mailhog not available at 127.0.0.1:8025');
+      console.log('Skipping password reset test: Mailhog not available at localhost:8025');
       test.skip();
       return;
     }
@@ -183,7 +183,7 @@ test.describe('Authentication', () => {
       data: {
         settings: {
           'mail.enabled': '1',
-          'mail.smtp_host': '127.0.0.1',
+          'mail.smtp_host': 'localhost',
           'mail.smtp_port': '1025',
           'mail.from_address': 'test@pref.tools',
           'mail.from_name': 'Test Pref.Tools',
@@ -194,7 +194,7 @@ test.describe('Authentication', () => {
     expect(settingsResponse.ok()).toBeTruthy();
 
     // Clear existing emails
-    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+    await fetch('http://localhost:8025/api/v1/messages', { method: 'DELETE' });
 
     // 1. Register a new user
     await freshPage.goto('/login');
@@ -207,7 +207,7 @@ test.describe('Authentication', () => {
     await expect(freshPage).toHaveURL('/dashboard');
 
     // Clear emails (registration sends welcome email)
-    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+    await fetch('http://localhost:8025/api/v1/messages', { method: 'DELETE' });
 
     // 2. Log out and request password reset
     await freshPage.click('.user-menu-trigger');
@@ -259,12 +259,12 @@ test.describe('Authentication', () => {
 
   test('user can verify email via link from email', async ({ freshPage, uniqueEmail, api, waitForEmail }) => {
     // Check if Mailhog is available
-    const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
+    const mailhogAvailable = await fetch('http://localhost:8025/api/v2/messages')
       .then(() => true)
       .catch(() => false);
 
     if (!mailhogAvailable) {
-      console.log('Skipping email verification test: Mailhog not available at 127.0.0.1:8025');
+      console.log('Skipping email verification test: Mailhog not available at localhost:8025');
       test.skip();
       return;
     }
@@ -274,7 +274,7 @@ test.describe('Authentication', () => {
       data: {
         settings: {
           'mail.enabled': '1',
-          'mail.smtp_host': '127.0.0.1',
+          'mail.smtp_host': 'localhost',
           'mail.smtp_port': '1025',
           'mail.from_address': 'test@pref.tools',
           'mail.from_name': 'Test Pref.Tools',
@@ -285,7 +285,7 @@ test.describe('Authentication', () => {
     expect(settingsResponse.ok()).toBeTruthy();
 
     // Clear existing emails
-    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+    await fetch('http://localhost:8025/api/v1/messages', { method: 'DELETE' });
 
     // 1. Register a new user
     await freshPage.goto('/login');
