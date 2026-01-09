@@ -53,3 +53,4 @@ scripts/moderation_calibration_results.json
 /lib/abcvoting/examples
 /lib/abcvoting/paper
 /lib/abcvoting/tests
+/lib/pb/js

@@ -11,6 +11,13 @@ jobs:
     name: PHPUnit Tests
     runs-on: ubuntu-latest
 
+    services:
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+          - 8025:8025
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,6 +28,14 @@ jobs:
           php-version: '8.2'
           extensions: pdo_sqlite, sqlite3, mbstring
           coverage: none
+
+      - name: Fetch PHPMailer
+        run: |
+          curl -L https://github.com/PHPMailer/PHPMailer/archive/refs/tags/v7.0.2.zip -o phpmailer.zip
+          unzip phpmailer.zip
+          mkdir -p lib
+          mv PHPMailer-7.0.2 lib/PHPMailer
+          rm phpmailer.zip
 
       - name: Install PHPUnit
         run: |
@@ -56,6 +71,14 @@ jobs:
           php-version: '8.2'
           extensions: pdo_sqlite, sqlite3, mbstring
           coverage: none
+
+      - name: Fetch PHPMailer
+        run: |
+          curl -L https://github.com/PHPMailer/PHPMailer/archive/refs/tags/v7.0.2.zip -o phpmailer.zip
+          unzip phpmailer.zip
+          mkdir -p lib
+          mv PHPMailer-7.0.2 lib/PHPMailer
+          rm phpmailer.zip
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
