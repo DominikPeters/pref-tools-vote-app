@@ -89,7 +89,7 @@ $votingModeDescriptions = [
             <section class="card claim-cta-section">
                 <div class="claim-cta-content">
                     <div class="claim-cta-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     </div>
                     <div class="claim-cta-text">
                         <h3>Secure access to this poll</h3>
@@ -129,7 +129,7 @@ $votingModeDescriptions = [
                     <p class="voting-mode-description"><?= e($votingModeDescriptions[$poll->votingMode] ?? '') ?></p>
                     <?php if ($poll->modeLockedAt): ?>
                     <p class="mode-locked-note">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         Voting mode is locked. Responses have been submitted.
                     </p>
                     <?php endif; ?>
@@ -153,7 +153,7 @@ $votingModeDescriptions = [
                     
                     <?php if (!$user || $poll->userId === null || $poll->userId !== $user->id): ?>
                         <div class="info-banner">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                             <div class="info-banner-content">
                                 <strong>Account required.</strong>
                                 <p>Email invitations are only available for registered users. 
@@ -172,7 +172,7 @@ $votingModeDescriptions = [
                             <strong>Email not configured.</strong> Ask your system administrator to configure SMTP settings.
                         </div>
                         <div class="invitation-send">
-                            <textarea id="invitationEmails" placeholder="Enter email addresses (one per line, or comma-separated)" rows="3"></textarea>
+                            <textarea id="invitationEmails" name="emails" placeholder="Enter email addresses (one per line, or comma-separated)" rows="3"></textarea>
                             <button type="button" class="btn btn-primary" id="sendInvitations">Send Invitations</button>
                         </div>
                         <div id="invitationsList" class="invitations-list">
@@ -215,15 +215,15 @@ $votingModeDescriptions = [
                 <div class="section-header">
                     <h2>Responses</h2>
                     <div class="responses-actions">
-                        <button type="button" class="btn btn-secondary btn-small" id="refreshResponses">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        <button type="button" class="btn btn-secondary btn-small" id="refreshResponses" aria-label="Refresh responses">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                             Refresh
                         </button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary btn-small" id="exportJson">Export JSON</button>
                             <button type="button" class="btn btn-secondary btn-small" id="exportCsv">Export CSV</button>
                         </div>
-                        <button type="button" class="btn btn-outline-danger btn-small" id="deleteAllResponses" data-tooltip="Permanently delete all responses">Delete All</button>
+                        <button type="button" class="btn btn-outline-danger btn-small" id="deleteAllResponses" data-tooltip="Permanently delete all responses" aria-label="Delete all responses">Delete All</button>
                     </div>
                 </div>
                 <p class="responses-hint">Showing a summary of responses. For detailed analysis and charts, visit the <a href="<?= e(url($poll->publicId . '/admin/' . $adminToken . '/results')) ?>">Results & Analysis</a> page.</p>
@@ -251,7 +251,7 @@ $votingModeDescriptions = [
                 <div class="settings-form">
                     <div class="settings-row">
                         <div class="setting-group">
-                            <label for="settingVisibility">Results Visibility</label>
+                            <label for="settingVisibility" id="settingVisibilityLabel">Results Visibility</label>
                             <?php
                             // Show "anonymous" option only for non-secret polls that collect names
                             $showAnonymousOption = $poll->votingMode !== 'secret_ballot' && $poll->collectName;

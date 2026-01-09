@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<?= e($metaDescription ?? 'Create polls with advanced voting methods like Schulze, IRV, and Majority Judgment. Collect rankings, approval votes, and analyze results with research-grade social choice algorithms.') ?>">
+    <meta name="theme-color" content="#4f46e5">
+    <meta property="og:title" content="<?= e($title ?? 'Pref.Tools Vote') ?>">
+    <meta property="og:description" content="<?= e($metaDescription ?? 'Smarter polls with advanced voting methods. Go beyond simple polls with rankings, approval votes, and research-grade analysis.') ?>">
+    <meta property="og:type" content="website">
     <title><?= e($title ?? 'Pref.Tools Vote') ?></title>
     <?= csrf_meta() ?>
     <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
@@ -28,7 +33,7 @@
                     <div class="user-menu">
                         <button type="button" class="user-menu-trigger">
                             <span class="user-name"><?= e($user->name) ?></span>
-                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="user-menu-dropdown">
                             <a href="<?= basePath() ?>/dashboard" class="user-menu-item">Dashboard</a>

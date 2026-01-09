@@ -19,7 +19,7 @@ ob_start();
             </div>
 
             <!-- Login Form -->
-            <form id="loginForm" class="auth-form active" data-tab="login">
+            <form id="loginForm" class="auth-form active" data-tab="login" method="post">
                 <h2>Welcome Back</h2>
 
                 <div class="form-group">
@@ -42,7 +42,7 @@ ob_start();
             </form>
 
             <!-- Forgot Password Form -->
-            <form id="forgotPasswordForm" class="auth-form" data-tab="forgot">
+            <form id="forgotPasswordForm" class="auth-form" data-tab="forgot" method="post">
                 <h2>Reset Password</h2>
                 <p class="auth-subtitle">Enter your email and we'll send you a link to reset your password.</p>
 
@@ -66,7 +66,7 @@ ob_start();
             </form>
 
             <!-- Reset Password Form (shown via URL param) -->
-            <form id="resetPasswordForm" class="auth-form" data-tab="reset">
+            <form id="resetPasswordForm" class="auth-form" data-tab="reset" method="post">
                 <h2>Set New Password</h2>
                 <p class="auth-subtitle">Enter your new password below.</p>
 
@@ -87,7 +87,7 @@ ob_start();
             </form>
 
             <!-- Register Form -->
-            <form id="registerForm" class="auth-form" data-tab="register">
+            <form id="registerForm" class="auth-form" data-tab="register" method="post">
                 <h2>Create Account</h2>
 
                 <div class="form-group">

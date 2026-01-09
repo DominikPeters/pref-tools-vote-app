@@ -26,39 +26,39 @@ ob_start();
         </p>
     </div>
     <div class="gallery-grid">
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_single_choice.png" alt="Single Choice Question">
             <div class="gallery-item-label">Single Choice</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_approval.png" alt="Approval Voting Question">
             <div class="gallery-item-label">Approval Voting</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking.png" alt="Ranking Question">
             <div class="gallery-item-label">Rankings</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking_truncated.png" alt="Truncated Ranking Question">
             <div class="gallery-item-label">Partial Rankings</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking_with_ties.png" alt="Ranking with Ties Question">
             <div class="gallery-item-label">Rankings with Ties</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_star.png" alt="Star Rating Question">
             <div class="gallery-item-label">Star Ratings</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_grade.png" alt="Grade Question">
             <div class="gallery-item-label">Grades (Verbal)</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_grade_2.png" alt="Grade Question with Symbols">
             <div class="gallery-item-label">Grades (Symbols)</div>
         </div>
-        <div class="gallery-item" onclick="openLightbox(this)">
+        <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_yes_no_abstain.png" alt="Yes/No/Abstain Question">
             <div class="gallery-item-label">Yes / No / Abstain</div>
         </div>
@@ -66,20 +66,20 @@ ob_start();
 </section>
 
 <!-- Lightbox -->
-<div class="gallery-lightbox" id="galleryLightbox" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
-    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<div class="gallery-lightbox" id="galleryLightbox" role="dialog" aria-modal="true" aria-label="Image lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event)" aria-label="Close lightbox">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)" aria-label="Previous image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"/>
         </svg>
     </button>
-    <img id="lightboxImage" src="" alt="">
-    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <img id="lightboxImage" src="" alt="Enlarged screenshot">
+    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)" aria-label="Next image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polyline points="9 6 15 12 9 18"/>
         </svg>
     </button>
-    <div class="lightbox-counter" id="lightboxCounter"></div>
+    <div class="lightbox-counter" id="lightboxCounter" aria-live="polite"></div>
     <div class="lightbox-label" id="lightboxLabel"></div>
 </div>
 
@@ -286,6 +286,14 @@ ob_start();
 </div>
 
 <script>
+// Keyboard handler for gallery items (accessibility)
+function handleGalleryKeydown(event, element) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openLightbox(element);
+    }
+}
+
 // Toggle methods expansion
 function toggleMethods(containerId) {
     const container = document.getElementById(containerId);

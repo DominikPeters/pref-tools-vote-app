@@ -13,7 +13,7 @@ ob_start();
         <?php if (!$user->isEmailVerified()): ?>
         <div class="verification-banner" id="verificationBanner">
             <div class="verification-content">
-                <svg class="verification-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="verification-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                 </svg>
@@ -119,11 +119,11 @@ ob_start();
         </section>
 
         <!-- View Data Modal -->
-        <div class="modal" id="viewDataModal">
+        <div class="modal" id="viewDataModal" role="dialog" aria-modal="true" aria-labelledby="viewDataModalTitle">
             <div class="modal-overlay"></div>
             <div class="modal-content modal-large">
                 <div class="modal-header">
-                    <h2>Your Personal Data</h2>
+                    <h2 id="viewDataModalTitle">Your Personal Data</h2>
                     <button type="button" class="modal-close" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body" id="dataModalBody">
@@ -136,11 +136,11 @@ ob_start();
         </div>
 
         <!-- Delete Account Modal -->
-        <div class="modal" id="deleteAccountModal">
+        <div class="modal" id="deleteAccountModal" role="dialog" aria-modal="true" aria-labelledby="deleteAccountModalTitle">
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Delete Your Account</h2>
+                    <h2 id="deleteAccountModalTitle">Delete Your Account</h2>
                     <button type="button" class="modal-close" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body" id="deleteAccountBody">
@@ -150,15 +150,15 @@ ob_start();
         </div>
 
         <!-- Change Password Modal -->
-        <div class="modal" id="changePasswordModal">
+        <div class="modal" id="changePasswordModal" role="dialog" aria-modal="true" aria-labelledby="changePasswordModalTitle">
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Change Password</h2>
+                    <h2 id="changePasswordModalTitle">Change Password</h2>
                     <button type="button" class="modal-close" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form id="changePasswordForm">
+                    <form id="changePasswordForm" method="post">
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
                             <input type="password" id="currentPassword" name="current_password" required class="form-control" autocomplete="current-password">
@@ -183,15 +183,15 @@ ob_start();
         </div>
 
         <!-- Change Name Modal -->
-        <div class="modal" id="changeNameModal">
+        <div class="modal" id="changeNameModal" role="dialog" aria-modal="true" aria-labelledby="changeNameModalTitle">
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Change Name</h2>
+                    <h2 id="changeNameModalTitle">Change Name</h2>
                     <button type="button" class="modal-close" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form id="changeNameForm">
+                    <form id="changeNameForm" method="post">
                         <div class="form-group">
                             <label for="newName">New Name</label>
                             <input type="text" id="newName" name="name" required class="form-control" value="<?= e($user->name) ?>" autocomplete="name">
