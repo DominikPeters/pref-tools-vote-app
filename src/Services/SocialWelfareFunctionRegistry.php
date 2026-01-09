@@ -3,7 +3,7 @@
 namespace App\Services;
 
 // Load pref_voting library
-require_once __DIR__ . '/../../pref_voting/autoload.php';
+require_once __DIR__ . '/../../lib/pref_voting/autoload.php';
 
 use PrefVoting\ScoringMethods;
 use PrefVoting\C1Methods;

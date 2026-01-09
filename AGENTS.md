@@ -172,7 +172,7 @@ Key components:
 
 Available report types: `choice_counts`, `approval_winner`, `borda_scores`, `pairwise_margins`, `voting_rule_winner`
 
-The `pref_voting` library (symlinked at `/pref_voting`) provides voting rule implementations (Schulze, Ranked Pairs, IRV, Borda, Copeland, etc.)
+The `pref_voting` library (located at `lib/pref_voting/`) provides voting rule implementations (Schulze, Ranked Pairs, IRV, Borda, Copeland, etc.)
 
 ## Security
 
