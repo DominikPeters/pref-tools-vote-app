@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 export function renderMultiwinner(container, data, config) {
     const { rule, rule_name, committee_size, committees, explanation, is_tie, total_responses, error } = data;
@@ -14,17 +15,19 @@ export function renderMultiwinner(container, data, config) {
     }
 
     if (!committees || committees.length === 0) {
-        container.innerHTML = '<p class="no-data">No winning committee determined yet.</p>';
+        container.innerHTML = `<p class="no-data">${t('no_winning_committee_yet')}</p>`;
         return;
     }
 
+    const translatedRuleName = tFallback(`rule_${rule}`, rule_name);
+
     let committeesHtml = '';
-    
+
     committees.forEach((committee, idx) => {
         const memberNames = committee.map(m => `<li>${escapeHtml(m.option)}</li>`).join('');
         committeesHtml += `
             <div class="abc-committee">
-                ${is_tie ? `<p class="committee-idx">Committee #${idx + 1}</p>` : ''}
+                ${is_tie ? `<p class="committee-idx">${t('committee_number', { num: idx + 1 })}</p>` : ''}
                 <ul class="committee-members">
                     ${memberNames}
                 </ul>
@@ -36,17 +39,17 @@ export function renderMultiwinner(container, data, config) {
 
     const html = `
         <div class="report-winner-card abc-winner">
-            <p class="rule-name">${escapeHtml(rule_name)}</p>
-            <p class="committee-size">Committee Size: ${escapeHtml(committee_size)}</p>
-            ${is_tie ? '<p class="tie-notice">Tied winning committees:</p>' : '<p class="winner-label">Winning Committee:</p>'}
+            <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
+            <p class="committee-size">${t('committee_size')}: ${escapeHtml(committee_size)}</p>
+            ${is_tie ? `<p class="tie-notice">${t('tied_committees')}:</p>` : `<p class="winner-label">${t('winning_committee')}:</p>`}
             <div class="committees-container">
                 ${committeesHtml}
             </div>
-            
+
             ${hasExplanation ? `
                 <div class="explanation-container">
                     <button class="btn btn-secondary btn-small btn-toggle-explanation">
-                        Show Calculation Steps
+                        ${t('show_calculation_steps')}
                     </button>
                     <div class="explanation-content" style="display: none;">
                         ${explanation}
@@ -65,7 +68,7 @@ export function renderMultiwinner(container, data, config) {
         toggleBtn.addEventListener('click', () => {
             const isVisible = content.style.display !== 'none';
             content.style.display = isVisible ? 'none' : 'block';
-            toggleBtn.textContent = isVisible ? 'Show Calculation Steps' : 'Hide Calculation Steps';
+            toggleBtn.textContent = isVisible ? t('show_calculation_steps') : t('hide_calculation_steps');
         });
     }
 }

@@ -3,6 +3,7 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 export function renderApportionmentMultiRuleComparison(container, data, config) {
     const { results, options, seats, error } = data;
@@ -13,7 +14,7 @@ export function renderApportionmentMultiRuleComparison(container, data, config) 
     }
 
     if (!results || results.length === 0) {
-        container.innerHTML = '<p class="no-data">No methods selected for comparison.</p>';
+        container.innerHTML = `<p class="no-data">${t('no_methods_selected')}</p>`;
         return;
     }
 
@@ -22,9 +23,12 @@ export function renderApportionmentMultiRuleComparison(container, data, config) 
             <table class="multi-rule-table apportionment-comparison-table">
                 <thead>
                     <tr>
-                        <th class="text-left">Option</th>
-                        <th>Votes</th>
-                        ${results.map(r => `<th class="text-center">${escapeHtml(r.rule_name)}</th>`).join('')}
+                        <th class="text-left">${t('option')}</th>
+                        <th>${t('votes')}</th>
+                        ${results.map(r => {
+                            const translatedRuleName = tFallback(`rule_${r.rule}`, r.rule_name);
+                            return `<th class="text-center">${escapeHtml(translatedRuleName)}</th>`;
+                        }).join('')}
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +50,7 @@ export function renderApportionmentMultiRuleComparison(container, data, config) 
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <th colspan="2" class="text-right">Total Seats</th>
+                        <th colspan="2" class="text-right">${t('total_seats')}</th>
                         ${results.map(() => `<th class="text-center">${escapeHtml(seats)}</th>`).join('')}
                     </tr>
                 </tfoot>
@@ -56,7 +60,7 @@ export function renderApportionmentMultiRuleComparison(container, data, config) 
 
     container.innerHTML = `
         <div class="report-multi-rule apportionment-comparison">
-            <p class="committee-size">Comparison of ${results.length} apportionment methods for ${escapeHtml(seats)} seats</p>
+            <p class="committee-size">${t('apportionment_comparison_desc', { methods: results.length, seats: seats })}</p>
             ${tableHtml}
         </div>
     `;

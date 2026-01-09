@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 /**
  * Get a color for a grade based on its position in the scale
@@ -24,15 +25,16 @@ export function renderMajorityJudgment(container, data, config) {
     const { winners, is_tie, grades, distributions, total_responses } = data;
 
     if (!distributions || distributions.length === 0) {
-        container.innerHTML = '<p class="no-data">No responses yet.</p>';
+        container.innerHTML = `<p class="no-data">${t('no_responses')}</p>`;
         return;
     }
 
-    // Winner card
+    // Winner card - Majority Judgment is a specific rule with a well-known French name
+    const ruleName = tFallback('rule_majority_judgment', 'Majority Judgment');
     const winnerNames = winners.map(w => escapeHtml(w.option)).join(', ');
     const winnerHtml = `
         <div class="report-winner-card mj-winner">
-            ${is_tie ? '<p class="tie-notice">Tie between:</p>' : '<p class="winner-label">Majority Judgment Winner</p>'}
+            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${ruleName} ${t('result_winner')}</p>`}
             <div class="winner-name">${winnerNames}</div>
         </div>
     `;

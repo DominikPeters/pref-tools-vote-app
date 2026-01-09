@@ -4,9 +4,10 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 export function renderRankAggregation(container, data, config) {
-    const { swf_name, rankings, is_tie, error } = data;
+    const { swf, swf_name, rankings, is_tie, error } = data;
 
     if (error) {
         container.innerHTML = `<p class="report-error">${escapeHtml(error)}</p>`;
@@ -14,26 +15,28 @@ export function renderRankAggregation(container, data, config) {
     }
 
     if (!rankings || rankings.length === 0) {
-        container.innerHTML = '<p class="no-data">No ranking determined yet.</p>';
+        container.innerHTML = `<p class="no-data">${t('no_ranking_yet')}</p>`;
         return;
     }
 
+    const translatedSwfName = tFallback(`swf_${swf}`, swf_name);
+
     let html = `
         <div class="report-rank-aggregation">
-            <p class="swf-name">${escapeHtml(swf_name)}</p>
-            ${is_tie ? `<p class="tie-notice">There are ${rankings.length} tied optimal rankings:</p>` : ''}
+            <p class="swf-name">${escapeHtml(translatedSwfName)}</p>
+            ${is_tie ? `<p class="tie-notice">${t('tied_rankings', { count: rankings.length })}</p>` : ''}
     `;
 
     rankings.forEach((ranking, rIdx) => {
         if (is_tie) {
-            html += `<h5 class="ranking-header">Ranking #${rIdx + 1}</h5>`;
+            html += `<h5 class="ranking-header">${t('ranking_number', { num: rIdx + 1 })}</h5>`;
         }
-        
+
         html += `<div class="aggregated-ranking">`;
         ranking.forEach((tier, tIdx) => {
             const isTiedTier = tier.length > 1;
             const rankLabel = tIdx + 1;
-            
+
             html += `
                 <div class="ranking-tier">
                     <div class="tier-rank">${rankLabel}</div>

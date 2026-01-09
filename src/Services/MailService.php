@@ -75,6 +75,9 @@ class MailService
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 } elseif ($this->smtpEncryption === 'ssl') {
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                } elseif ($this->smtpEncryption === 'none') {
+                    $mail->SMTPSecure = false;
+                    $mail->SMTPAutoTLS = false;
                 }
             }
 

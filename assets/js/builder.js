@@ -29,6 +29,7 @@ const defaultState = {
     votingMode: 'open',
     randomizeOptions: false,
     thankYouMessage: '',
+    locale: 'en',
     questions: [],
     publicId: null,
     adminToken: null,
@@ -127,6 +128,12 @@ function initElements() {
     // Display options
     document.getElementById('randomizeOptions').addEventListener('change', (e) => {
         state.randomizeOptions = e.target.checked;
+        markDirty();
+    });
+
+    // Poll language
+    document.getElementById('pollLocale').addEventListener('change', (e) => {
+        state.locale = e.target.value;
         markDirty();
     });
 
@@ -304,6 +311,7 @@ function render() {
 
     // Display options
     document.getElementById('randomizeOptions').checked = state.randomizeOptions;
+    document.getElementById('pollLocale').value = state.locale;
 
     renderQuestions();
 }
@@ -1275,6 +1283,7 @@ function loadFromServer(voteData, adminToken) {
     state.votingMode = voteData.voting_mode || 'open';
     state.randomizeOptions = voteData.randomize_options || false;
     state.thankYouMessage = voteData.thank_you_message || '';
+    state.locale = voteData.locale || 'en';
     state.modeLocked = !!voteData.mode_locked_at;
 
     state.questions = (voteData.questions || []).map(q => ({
@@ -1310,6 +1319,7 @@ function resetForm() {
     state.votingMode = defaultState.votingMode;
     state.randomizeOptions = defaultState.randomizeOptions;
     state.thankYouMessage = defaultState.thankYouMessage;
+    state.locale = defaultState.locale;
     state.modeLocked = false;
     state.questions = [];
     state.publicId = null;
@@ -1452,6 +1462,7 @@ function prepareData() {
         voting_mode: state.votingMode,
         randomize_options: state.randomizeOptions,
         thank_you_message: state.thankYouMessage || null,
+        locale: state.locale,
         questions: state.questions.map((q, index) => ({
             id: q.id,
             type: q.type,

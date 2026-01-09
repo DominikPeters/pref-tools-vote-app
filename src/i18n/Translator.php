@@ -58,12 +58,35 @@ class Translator
             self::$strings = require __DIR__ . '/en.php';
         }
     }
-}
 
-/**
- * Helper function for translations
- */
-function __(string $key, array $params = []): string
-{
-    return Translator::translate($key, $params);
+    /**
+     * Get all translations for the current locale.
+     * Used to embed translations in templates for JavaScript.
+     *
+     * @return array<string, string>
+     */
+    public static function getAllTranslations(): array
+    {
+        if (self::$strings === null) {
+            self::loadStrings();
+        }
+
+        return self::$strings;
+    }
+
+    /**
+     * Get all translations for a specific locale.
+     *
+     * @param string $locale The locale code (e.g., 'en', 'fr')
+     * @return array<string, string>
+     */
+    public static function getAllTranslationsForLocale(string $locale): array
+    {
+        $currentLocale = self::$locale;
+        self::setLocale($locale);
+        $translations = self::getAllTranslations();
+        self::setLocale($currentLocale);
+
+        return $translations;
+    }
 }

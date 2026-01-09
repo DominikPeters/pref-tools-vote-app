@@ -278,3 +278,11 @@ function csrf_field(): string
 {
     return \App\Services\CsrfService::getInstance()->getHiddenInput();
 }
+
+/**
+ * Helper function for translations
+ */
+function __(string $key, array $params = []): string
+{
+    return \App\i18n\Translator::translate($key, $params);
+}

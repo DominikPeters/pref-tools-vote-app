@@ -1,14 +1,24 @@
 <?php
+use App\i18n\Translator;
+
 $title = e($poll->title) . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/poll.css', '/assets/css/report.css'];
 $extraJs = ['/assets/js/poll.js'];
 $isEditing = isset($existingResponse) && $existingResponse !== null;
 $isPreview = $isPreview ?? false;
+
+// Set locale for this poll and get translations for JavaScript
+$pollLocale = $poll->locale ?? 'en';
+Translator::setLocale($pollLocale);
+$translations = Translator::getAllTranslations();
+
 ob_start();
 ?>
 
 <script>
     window.POLL_DATA = <?= json_encode($poll->toPublicArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.LOCALE = <?= json_encode($pollLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
     <?php if ($isEditing): ?>
     window.EXISTING_RESPONSE = <?= json_encode($existingResponse->toArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
     <?php endif; ?>

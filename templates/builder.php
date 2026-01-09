@@ -1,7 +1,9 @@
 <?php
 use App\Services\TurnstileService;
+use App\i18n\Languages;
 
 $isEditing = isset($poll) && $poll !== null;
+$availableLanguages = Languages::getAll();
 $isLoggedIn = isset($user) && $user;
 $title = ($isEditing ? 'Edit: ' . e($poll->title) : 'Create Poll') . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/builder.css'];
@@ -271,6 +273,16 @@ ob_start();
                         <span>Randomize option order for each voter</span>
                         <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
                     </label>
+                </div>
+
+                <div class="settings-group" style="margin-top: 1rem;">
+                    <label for="pollLocale" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Poll Language</label>
+                    <select id="pollLocale" class="form-select" style="max-width: 200px;">
+                        <?php foreach ($availableLanguages as $code => $name): ?>
+                        <option value="<?= e($code) ?>"><?= e($name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="info-icon" data-tooltip="The language used for system text shown to voters (buttons, labels, etc.)" data-tooltip-pos="right">?</span>
                 </div>
 
                 <div class="settings-group" style="margin-top: 1rem;">

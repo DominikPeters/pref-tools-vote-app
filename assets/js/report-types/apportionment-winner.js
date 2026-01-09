@@ -3,14 +3,17 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 export function renderApportionmentWinner(container, data, config) {
-    const { rule_name, seats, allocation, explanation, ties, total_votes, error } = data;
+    const { rule, rule_name, seats, allocation, explanation, ties, total_votes, error } = data;
 
     if (error) {
         container.innerHTML = `<p class="report-error">${escapeHtml(error)}</p>`;
         return;
     }
+
+    const translatedRuleName = tFallback(`rule_${rule}`, rule_name);
 
     let allocationHtml = '';
     allocation.forEach(row => {
@@ -20,8 +23,8 @@ export function renderApportionmentWinner(container, data, config) {
                     <span class="party-name">${escapeHtml(row.option)}</span>
                 </div>
                 <div class="allocation-data">
-                    <span class="votes-count">${escapeHtml(row.votes.toLocaleString())} votes</span>
-                    <span class="seats-count">${escapeHtml(row.seats)} seats</span>
+                    <span class="votes-count">${t('vote_count', { count: row.votes })}</span>
+                    <span class="seats-count">${t('seat_count', { count: row.seats })}</span>
                 </div>
             </div>
         `;
@@ -29,16 +32,16 @@ export function renderApportionmentWinner(container, data, config) {
 
     const html = `
         <div class="report-winner-card apportionment-winner">
-            <p class="rule-name">${escapeHtml(rule_name)}</p>
-            <p class="total-seats">Total Seats: ${escapeHtml(seats)}</p>
+            <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
+            <p class="total-seats">${t('total_seats')}: ${escapeHtml(seats)}</p>
             <div class="allocation-container">
                 ${allocationHtml}
             </div>
-            
+
             ${explanation ? `
                 <div class="explanation-container">
                     <button class="btn btn-secondary btn-small btn-toggle-explanation">
-                        Show Calculation Steps
+                        ${t('show_calculation_steps')}
                     </button>
                     <div class="explanation-content" style="display: none;">
                         ${explanation}
@@ -56,7 +59,7 @@ export function renderApportionmentWinner(container, data, config) {
         toggleBtn.addEventListener('click', () => {
             const isVisible = content.style.display !== 'none';
             content.style.display = isVisible ? 'none' : 'block';
-            toggleBtn.textContent = isVisible ? 'Show Calculation Steps' : 'Hide Calculation Steps';
+            toggleBtn.textContent = isVisible ? t('show_calculation_steps') : t('hide_calculation_steps');
         });
     }
 }

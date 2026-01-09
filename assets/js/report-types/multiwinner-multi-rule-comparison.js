@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
+import { t, tFallback } from '../i18n.js';
 
 export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     const { results, summary, committee_size, total_rules, total_responses, error } = data;
@@ -14,7 +15,7 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     }
 
     if (!results || results.length === 0) {
-        container.innerHTML = '<p class="no-data">No results to compare.</p>';
+        container.innerHTML = `<p class="no-data">${t('no_results_to_compare')}</p>`;
         return;
     }
 
@@ -26,16 +27,18 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>Voting Rule</th>
-                            <th>Winning Committee (size ${escapeHtml(committee_size)})</th>
+                            <th>${t('voting_rule')}</th>
+                            <th>${t('winning_committee')} (${t('size')} ${escapeHtml(committee_size)})</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${results.map(res => `
+                        ${results.map(res => {
+                            const translatedRuleName = tFallback(`rule_${res.rule}`, res.rule_name);
+                            return `
                             <tr>
                                 <td class="rule-name">
-                                    ${escapeHtml(res.rule_name)}
-                                    ${res.is_tie ? '<span class="tie-badge" title="Tied (showing first winning committee)">Tie</span>' : ''}
+                                    ${escapeHtml(translatedRuleName)}
+                                    ${res.is_tie ? `<span class="tie-badge" title="${t('tie_showing_first')}">${t('result_tied')}</span>` : ''}
                                 </td>
                                 <td>
                                     <ul class="committee-list-inline">
@@ -43,7 +46,7 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
                                     </ul>
                                 </td>
                             </tr>
-                        `).join('')}
+                        `}).join('')}
                     </tbody>
                 </table>
             </div>
@@ -53,15 +56,15 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     if (showSummary && summary && summary.length > 0) {
         html += `
             <div class="report-summary mt-4">
-                <h5>Candidate Frequency</h5>
-                <p class="summary-desc">How often each candidate appears in a winning committee across the ${escapeHtml(total_rules)} rules compared.</p>
+                <h5>${t('candidate_frequency')}</h5>
+                <p class="summary-desc">${t('candidate_frequency_desc', { count: total_rules })}</p>
                 <div class="table-container">
                     <table class="report-table summary-table">
                         <thead>
                             <tr>
-                                <th>Candidate</th>
-                                <th>Count</th>
-                                <th>Rules</th>
+                                <th>${t('candidate')}</th>
+                                <th>${t('count')}</th>
+                                <th>${t('rules')}</th>
                             </tr>
                         </thead>
                         <tbody>
