@@ -68,46 +68,21 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Create test config
-        run: |
-          cat > config/config.test.php << 'EOF'
-          <?php
-          return [
-              'database' => [
-                  'driver' => 'sqlite',
-                  'sqlite_path' => __DIR__ . '/../data/poll.test.db',
-              ],
-              'app' => [
-                  'name' => 'Pref.Tools Vote',
-                  'url' => 'http://localhost:18080',
-                  'debug' => true,
-                  'timezone' => 'UTC',
-              ],
-              'session' => [
-                  'name' => 'poll_session_test',
-                  'lifetime' => 7200,
-              ],
-              'security' => [
-                  'public_id_length' => 8,
-                  'admin_token_length' => 32,
-                  'voter_token_length' => 32,
-                  'access_token_length' => 16,
-              ],
-              'mail' => [
-                  'enabled' => true,
-                  'from_address' => 'noreply@example.com',
-                  'from_name' => 'Pref.Tools Vote',
-                  'smtp_host' => 'localhost',
-                  'smtp_port' => 1025,
-                  'smtp_username' => '',
-                  'smtp_password' => '',
-                  'smtp_encryption' => '',
-              ],
-          ];
-          EOF
-
       - name: Create data directory
         run: mkdir -p data
+
+      - name: Wait for Mailhog
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8025/api/v2/messages > /dev/null; then
+              echo "Mailhog is ready"
+              exit 0
+            fi
+            echo "Waiting for Mailhog... ($i/30)"
+            sleep 1
+          done
+          echo "Mailhog failed to start"
+          exit 1
 
       - name: Run E2E tests
         run: npm run test:e2e

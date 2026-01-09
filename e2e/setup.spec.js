@@ -65,6 +65,32 @@ setup('install app and create admin session', async ({ page }) => {
   await page.click('#loginForm button[type="submit"]');
   await expect(page).toHaveURL('/dashboard');
 
+  // Step 7: Configure mail settings for Mailhog (CI) or local testing
+  // Get CSRF token from the page
+  const csrfToken = await page.evaluate(() => {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  });
+
+  // Configure mail to use Mailhog (127.0.0.1:1025, no auth, no encryption)
+  await page.request.put('/api/sysadmin/settings', {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': csrfToken
+    },
+    data: {
+      settings: {
+        'mail.enabled': '1',
+        'mail.smtp_host': '127.0.0.1',
+        'mail.smtp_port': '1025',
+        'mail.smtp_username': '',
+        'mail.smtp_password': '',
+        'mail.smtp_encryption': 'none',
+        'mail.from_address': 'noreply@example.com',
+        'mail.from_name': 'Pref.Tools Vote Test'
+      }
+    }
+  });
+
   // Save the authenticated state for other tests to reuse
   await page.context().storageState({ path: ADMIN_STATE_PATH });
 });

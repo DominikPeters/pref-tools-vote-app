@@ -154,6 +154,28 @@ const test = base.test.extend({
     }
     await use(undefined);
   }, { auto: false, scope: 'test' }],
+
+  /**
+   * Helper to wait for an email to arrive in Mailhog
+   */
+  waitForEmail: [async ({}, use) => {
+    const helper = async (predicate, timeout = 2000) => {
+      const start = Date.now();
+      while (Date.now() - start < timeout) {
+        try {
+          const response = await fetch('http://127.0.0.1:8025/api/v2/messages');
+          const data = await response.json();
+          const email = data.items.find(predicate);
+          if (email) return email;
+        } catch (e) {
+          // Ignore fetch errors (Mailhog might be temporarily unavailable)
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+      return null;
+    };
+    await use(helper);
+  }, { scope: 'test' }],
 });
 
 module.exports = { test, expect: base.expect, SYSADMIN };

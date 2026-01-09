@@ -166,7 +166,7 @@ test.describe('Authentication', () => {
     await expect(freshPage.locator('#forgotPasswordForm')).not.toBeVisible();
   });
 
-  test('can reset password via email link', async ({ freshPage, uniqueEmail, api }) => {
+  test('can reset password via email link', async ({ freshPage, uniqueEmail, api, waitForEmail }) => {
     // Check if Mailhog is available
     const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
       .then(() => true)
@@ -227,15 +227,11 @@ test.describe('Authentication', () => {
     // Should show success message
     await expect(freshPage.locator('#forgotSuccess')).toBeVisible();
 
-    // 3. Get reset link from Mailhog
-    const messagesResponse = await fetch('http://127.0.0.1:8025/api/v2/messages');
-    const messages = await messagesResponse.json();
-    expect(messages.items.length).toBeGreaterThan(0);
-
-    // Find the password reset email
-    const resetEmail = messages.items.find(m =>
-      m.Content.Headers.Subject?.[0]?.includes('Reset') ||
-      m.Content.Headers.Subject?.[0]?.includes('Password')
+    // 3. Get reset link from Mailhog with retry
+    const resetEmail = await waitForEmail(m =>
+      m.Content.Headers.To?.[0]?.includes(uniqueEmail.toLowerCase()) &&
+      (m.Content.Headers.Subject?.[0]?.includes('Reset') ||
+       m.Content.Headers.Subject?.[0]?.includes('Password'))
     );
     expect(resetEmail).toBeTruthy();
 
@@ -261,7 +257,7 @@ test.describe('Authentication', () => {
     await expect(freshPage.locator('.user-menu-trigger')).toBeVisible();
   });
 
-  test('user can verify email via link from email', async ({ freshPage, uniqueEmail, api }) => {
+  test('user can verify email via link from email', async ({ freshPage, uniqueEmail, api, waitForEmail }) => {
     // Check if Mailhog is available
     const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
       .then(() => true)
@@ -304,13 +300,8 @@ test.describe('Authentication', () => {
     await expect(freshPage).toHaveURL('/dashboard');
     await expect(freshPage.locator('.verification-banner')).toBeVisible();
 
-    // 2. Get the verification email from Mailhog
-    const messagesResponse = await fetch('http://127.0.0.1:8025/api/v2/messages');
-    const messages = await messagesResponse.json();
-    expect(messages.items.length).toBeGreaterThan(0);
-
-    // Find the verification email
-    const verifyEmail = messages.items.find(m =>
+    // 2. Get the verification email from Mailhog with retry
+    const verifyEmail = await waitForEmail(m =>
       m.Content.Headers.To?.[0]?.includes(uniqueEmail.toLowerCase()) &&
       (m.Content.Headers.Subject?.[0]?.includes('Verify') ||
        m.Content.Headers.Subject?.[0]?.includes('Welcome'))

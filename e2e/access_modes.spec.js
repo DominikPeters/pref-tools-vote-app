@@ -51,7 +51,7 @@ test.describe('Access Modes', () => {
     await expect(freshPage.locator('text=already been used')).toBeVisible();
   });
 
-  test('can send and use email invitations', async ({ page, freshPage, api }) => {
+  test('can send and use email invitations', async ({ page, freshPage, api, waitForEmail }) => {
     // Check if Mailhog is available for testing
     const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
       .then(() => true)
@@ -108,6 +108,13 @@ test.describe('Access Modes', () => {
     await page.fill('#invitationEmails', 'voter@example.com');
     await page.click('#sendInvitations');
     await expect(page.locator('.invitations-table')).toContainText('voter@example.com');
+
+    // Verify email arrived in Mailhog
+    const inviteEmail = await waitForEmail(m =>
+      m.Content.Headers.To?.[0]?.includes('voter@example.com') &&
+      m.Content.Headers.Subject?.[0]?.includes('Invitation')
+    );
+    expect(inviteEmail).toBeTruthy();
 
     // Get invitation URL from the table
     await page.waitForSelector('.invitations-table tbody tr .copy-invitation');
