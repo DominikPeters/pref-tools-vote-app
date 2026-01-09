@@ -148,4 +148,119 @@ test.describe('Specialized Input Types', () => {
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 
+  test('can create and vote on Distribution (point voting) question', async ({ page, freshPage }) => {
+    await page.goto('/create');
+    await page.fill('#pollTitle', 'Distribution Test');
+
+    // Add Distribution question
+    await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="distribution"]');
+    const q1 = page.locator('.question-wrapper').last();
+    await q1.locator('.question-title-input').fill('Distribute 100 points');
+
+    // Add a third option
+    await q1.locator('.btn-add-option').click();
+    await q1.locator('.option-label-input').nth(0).fill('Project A');
+    await q1.locator('.option-label-input').nth(1).fill('Project B');
+    await q1.locator('.option-label-input').nth(2).fill('Project C');
+
+    // Check default budget is 100
+    await expect(q1.locator('.setting-budget')).toHaveValue('100');
+
+    await page.click('#publishBtn');
+    await expect(page).toHaveURL(/\/admin\//);
+    const publicUrl = await page.locator('#publicLink').inputValue();
+
+    // Vote
+    await freshPage.goto(publicUrl);
+
+    // Verify budget display
+    await expect(freshPage.locator('.budget-remaining')).toHaveText('100');
+    await expect(freshPage.locator('.budget-total')).toHaveText('100');
+
+    // Verify we have 3 distribution rows
+    await expect(freshPage.locator('.distribution-row')).toHaveCount(3);
+
+    // Add points to Project A using +10 button (budget >= 50, so big buttons exist)
+    const projectA = freshPage.locator('.distribution-row', { hasText: 'Project A' });
+    await projectA.locator('.dist-plus-big').click(); // +10
+    await projectA.locator('.dist-plus-big').click(); // +10
+    await projectA.locator('.dist-plus-big').click(); // +10
+    await expect(projectA.locator('.dist-input')).toHaveValue('30');
+
+    // Remaining should be 70
+    await expect(freshPage.locator('.budget-remaining')).toHaveText('70');
+
+    // Add points to Project B using +1 button
+    const projectB = freshPage.locator('.distribution-row', { hasText: 'Project B' });
+    await projectB.locator('.dist-plus').click(); // +1
+    await projectB.locator('.dist-plus').click(); // +1
+    await projectB.locator('.dist-plus').click(); // +1
+    await expect(projectB.locator('.dist-input')).toHaveValue('3');
+
+    // Remaining should be 67
+    await expect(freshPage.locator('.budget-remaining')).toHaveText('67');
+
+    // Use input field for Project C
+    const projectC = freshPage.locator('.distribution-row', { hasText: 'Project C' });
+    await projectC.locator('.dist-input').fill('67');
+    await projectC.locator('.dist-input').blur();
+
+    // Remaining should be 0
+    await expect(freshPage.locator('.budget-remaining')).toHaveText('0');
+
+    // Verify plus buttons are now disabled (budget exhausted)
+    await expect(projectA.locator('.dist-plus')).toBeDisabled();
+    await expect(projectB.locator('.dist-plus')).toBeDisabled();
+    await expect(projectC.locator('.dist-plus')).toBeDisabled();
+
+    // Minus buttons should still work
+    await expect(projectA.locator('.dist-minus')).not.toBeDisabled();
+
+    // Submit
+    await freshPage.click('button[type="submit"]');
+    await expect(freshPage.locator('text=Thank you')).toBeVisible();
+  });
+
+  test('enforces distribution requireAll constraint', async ({ page, freshPage }) => {
+    await page.goto('/create');
+    await page.fill('#pollTitle', 'Distribution RequireAll Test');
+
+    await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="distribution"]');
+    const q1 = page.locator('.question-wrapper').last();
+    await q1.locator('.question-title-input').fill('Use all 30 points');
+
+    // Set budget to 30 and require all (30 is in the 25-49 range, so +5 buttons)
+    await q1.locator('.setting-budget').fill('30');
+    await q1.locator('.setting-require-all').check();
+
+    await page.click('#publishBtn');
+    const publicUrl = await page.locator('#publicLink').inputValue();
+
+    // Vote
+    await freshPage.goto(publicUrl);
+
+    // Verify big steps are -5/+5 (budget 30 is in range 25-49)
+    await expect(freshPage.locator('.dist-plus-big').first()).toContainText('+5');
+
+    // Add only 20 points (not all 30)
+    const option1 = freshPage.locator('.distribution-row').first();
+    await option1.locator('.dist-input').fill('20');
+    await option1.locator('.dist-input').blur();
+
+    // Try to submit - should fail because we require all 30 points
+    await freshPage.click('button[type="submit"]');
+    await expect(freshPage.locator('text=Please use all 30 points')).toBeVisible();
+
+    // Use remaining 10 points
+    const option2 = freshPage.locator('.distribution-row').nth(1);
+    await option2.locator('.dist-input').fill('10');
+    await option2.locator('.dist-input').blur();
+
+    // Now submit should succeed (20 + 10 = 30)
+    await freshPage.click('button[type="submit"]');
+    await expect(freshPage.locator('text=Thank you')).toBeVisible();
+  });
+
 });

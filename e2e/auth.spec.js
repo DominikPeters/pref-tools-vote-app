@@ -166,25 +166,135 @@ test.describe('Authentication', () => {
     await expect(freshPage.locator('#forgotPasswordForm')).not.toBeVisible();
   });
 
-  test('forgot password form accepts email', async ({ freshPage }) => {
-    await freshPage.goto('/login');
-    await freshPage.click('#showForgotPassword');
+  test('can reset password via email link', async ({ freshPage, uniqueEmail, api }) => {
+    // Check if Mailhog is available
+    const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
+      .then(() => true)
+      .catch(() => false);
 
-    // Fill in email
-    await freshPage.fill('#forgotEmail', 'test@example.com');
-    await freshPage.click('#forgotPasswordForm button[type="submit"]');
+    if (!mailhogAvailable) {
+      console.log('Skipping password reset test: Mailhog not available at 127.0.0.1:8025');
+      test.skip();
+      return;
+    }
 
-    // Should show success message (or at least not fail with validation error)
-    // Note: Mail may not be configured, but we should see either success or mail error
-    const message = freshPage.locator('#forgotSuccess, #forgotError').filter({ hasText: /./ });
-    await expect(message).toBeVisible();
-  });
+    // Configure mail settings
+    const settingsResponse = await api.put('/api/sysadmin/settings', {
+      data: {
+        settings: {
+          'mail.enabled': '1',
+          'mail.smtp_host': '127.0.0.1',
+          'mail.smtp_port': '1025',
+          'mail.from_address': 'test@pref.tools',
+          'mail.from_name': 'Test Pref.Tools',
+          'mail.smtp_encryption': 'none',
+        }
+      }
+    });
+    expect(settingsResponse.ok()).toBeTruthy();
 
-  test('user can verify email via link', async ({ freshPage, uniqueEmail }) => {
+    // Clear existing emails
+    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+
     // 1. Register a new user
     await freshPage.goto('/login');
     await freshPage.click('button.auth-tab:has-text("Register")');
-    await freshPage.fill('#registerForm input[name="name"]', 'Verification Test User');
+    await freshPage.fill('#registerForm input[name="name"]', 'Password Reset User');
+    await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
+    await freshPage.fill('#registerForm input[name="password"]', 'oldpassword123');
+    await freshPage.fill('#registerForm input[name="password_confirm"]', 'oldpassword123');
+    await freshPage.click('#registerForm button[type="submit"]');
+    await expect(freshPage).toHaveURL('/dashboard');
+
+    // Clear emails (registration sends welcome email)
+    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+
+    // 2. Log out and request password reset
+    await freshPage.click('.user-menu-trigger');
+    // Wait for navigation after clicking logout
+    await Promise.all([
+      freshPage.waitForURL('/'),
+      freshPage.click('button:has-text("Log Out")')
+    ]);
+
+    // Navigate to login and request password reset
+    await freshPage.goto('/login');
+    await expect(freshPage.locator('#loginForm')).toBeVisible();
+    await freshPage.click('#showForgotPassword');
+    await freshPage.fill('#forgotEmail', uniqueEmail);
+    await freshPage.click('#forgotPasswordForm button[type="submit"]');
+
+    // Should show success message
+    await expect(freshPage.locator('#forgotSuccess')).toBeVisible();
+
+    // 3. Get reset link from Mailhog
+    const messagesResponse = await fetch('http://127.0.0.1:8025/api/v2/messages');
+    const messages = await messagesResponse.json();
+    expect(messages.items.length).toBeGreaterThan(0);
+
+    // Find the password reset email
+    const resetEmail = messages.items.find(m =>
+      m.Content.Headers.Subject?.[0]?.includes('Reset') ||
+      m.Content.Headers.Subject?.[0]?.includes('Password')
+    );
+    expect(resetEmail).toBeTruthy();
+
+    // Extract reset link from email body
+    const emailBody = resetEmail.Content.Body;
+    const resetLinkMatch = emailBody.match(/https?:\/\/[^\s"<>]+reset_token=[^\s"<>]+/);
+    expect(resetLinkMatch).toBeTruthy();
+    const resetLink = resetLinkMatch[0];
+
+    // 4. Use reset link to set new password
+    await freshPage.goto(resetLink);
+    await expect(freshPage.locator('#resetPasswordForm')).toBeVisible();
+
+    await freshPage.fill('#resetPassword', 'newpassword456');
+    await freshPage.fill('#resetPasswordConfirm', 'newpassword456');
+    await freshPage.click('#resetPasswordForm button[type="submit"]');
+
+    // Should show success message and redirect to dashboard (auto-login)
+    await expect(freshPage.locator('.auth-message')).toContainText('Password reset successfully');
+    await expect(freshPage).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // 5. Verify we're logged in by checking user menu shows
+    await expect(freshPage.locator('.user-menu-trigger')).toBeVisible();
+  });
+
+  test('user can verify email via link from email', async ({ freshPage, uniqueEmail, api }) => {
+    // Check if Mailhog is available
+    const mailhogAvailable = await fetch('http://127.0.0.1:8025/api/v2/messages')
+      .then(() => true)
+      .catch(() => false);
+
+    if (!mailhogAvailable) {
+      console.log('Skipping email verification test: Mailhog not available at 127.0.0.1:8025');
+      test.skip();
+      return;
+    }
+
+    // Configure mail settings
+    const settingsResponse = await api.put('/api/sysadmin/settings', {
+      data: {
+        settings: {
+          'mail.enabled': '1',
+          'mail.smtp_host': '127.0.0.1',
+          'mail.smtp_port': '1025',
+          'mail.from_address': 'test@pref.tools',
+          'mail.from_name': 'Test Pref.Tools',
+          'mail.smtp_encryption': 'none',
+        }
+      }
+    });
+    expect(settingsResponse.ok()).toBeTruthy();
+
+    // Clear existing emails
+    await fetch('http://127.0.0.1:8025/api/v1/messages', { method: 'DELETE' });
+
+    // 1. Register a new user
+    await freshPage.goto('/login');
+    await freshPage.click('button.auth-tab:has-text("Register")');
+    await freshPage.fill('#registerForm input[name="name"]', 'Email Verification User');
     await freshPage.fill('#registerForm input[name="email"]', uniqueEmail);
     await freshPage.fill('#registerForm input[name="password"]', 'password123');
     await freshPage.fill('#registerForm input[name="password_confirm"]', 'password123');
@@ -194,23 +304,42 @@ test.describe('Authentication', () => {
     await expect(freshPage).toHaveURL('/dashboard');
     await expect(freshPage.locator('.verification-banner')).toBeVisible();
 
-    // 2. Get the verification token from the database
-    const dbPath = path.join(__dirname, '..', 'data', 'poll.test.db');
-    const query = `SELECT email_verification_token FROM users WHERE email = '${uniqueEmail.toLowerCase()}'`;
-    const token = execSync(`sqlite3 ${dbPath} "${query}"`).toString().trim();
+    // 2. Get the verification email from Mailhog
+    const messagesResponse = await fetch('http://127.0.0.1:8025/api/v2/messages');
+    const messages = await messagesResponse.json();
+    expect(messages.items.length).toBeGreaterThan(0);
 
-    expect(token).toBeTruthy();
+    // Find the verification email
+    const verifyEmail = messages.items.find(m =>
+      m.Content.Headers.To?.[0]?.includes(uniqueEmail.toLowerCase()) &&
+      (m.Content.Headers.Subject?.[0]?.includes('Verify') ||
+       m.Content.Headers.Subject?.[0]?.includes('Welcome'))
+    );
+    expect(verifyEmail).toBeTruthy();
 
-    // 3. Navigate to verification URL
-    await freshPage.goto(`/login?verify_token=${token}`);
+    // Extract verification link from email body
+    const emailBody = verifyEmail.Content.Body;
+    const verifyLinkMatch = emailBody.match(/https?:\/\/[^\s"<>]+verify_token=[^\s"<>]+/);
+    expect(verifyLinkMatch).toBeTruthy();
+    const verifyLink = verifyLinkMatch[0];
 
-    // 4. Should redirect to dashboard
+    // 3. Log out first (simulates clicking link from email client)
+    await freshPage.click('.user-menu-trigger');
+    await Promise.all([
+      freshPage.waitForURL('/'),
+      freshPage.click('button:has-text("Log Out")')
+    ]);
+
+    // 4. Click verification link from email
+    await freshPage.goto(verifyLink);
+
+    // 5. Should redirect to dashboard
     await expect(freshPage).toHaveURL(/\/dashboard/);
-    
-    // 5. Verification banner should be GONE
+
+    // 6. Verification banner should be GONE
     await expect(freshPage.locator('.verification-banner')).not.toBeVisible();
-    
-    // 6. Should show success toast
+
+    // 7. Should show success toast
     await expect(freshPage.locator('.toast-success')).toBeVisible();
     await expect(freshPage.locator('.toast-success')).toContainText('Email verified successfully');
   });

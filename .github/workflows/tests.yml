@@ -1,0 +1,127 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  phpunit:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3, mbstring
+          coverage: none
+
+      - name: Install PHPUnit
+        run: |
+          curl -L https://phar.phpunit.de/phpunit-10.phar -o phpunit
+          chmod +x phpunit
+
+      - name: Run PHPUnit tests
+        run: ./phpunit
+
+  e2e:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    services:
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+          - 8025:8025
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3, mbstring
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Create test config
+        run: |
+          cat > config/config.test.php << 'EOF'
+          <?php
+          return [
+              'database' => [
+                  'driver' => 'sqlite',
+                  'sqlite_path' => __DIR__ . '/../data/poll.test.db',
+              ],
+              'app' => [
+                  'name' => 'Pref.Tools Vote',
+                  'url' => 'http://localhost:18080',
+                  'debug' => true,
+                  'timezone' => 'UTC',
+              ],
+              'session' => [
+                  'name' => 'poll_session_test',
+                  'lifetime' => 7200,
+              ],
+              'security' => [
+                  'public_id_length' => 8,
+                  'admin_token_length' => 32,
+                  'voter_token_length' => 32,
+                  'access_token_length' => 16,
+              ],
+              'mail' => [
+                  'enabled' => true,
+                  'from_address' => 'noreply@example.com',
+                  'from_name' => 'Pref.Tools Vote',
+                  'smtp_host' => 'localhost',
+                  'smtp_port' => 1025,
+                  'smtp_username' => '',
+                  'smtp_password' => '',
+                  'smtp_encryption' => '',
+              ],
+          ];
+          EOF
+
+      - name: Create data directory
+        run: mkdir -p data
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          CI: true
+          BROWSER: ${{ matrix.browser }}
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7

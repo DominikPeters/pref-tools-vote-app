@@ -46,6 +46,9 @@ module.exports = defineConfig({
     {
       name: 'teardown',
       testMatch: /cleanup\.spec\.js/,
+      use: {
+        browserName: process.env.BROWSER || 'chromium',
+      },
     },
 
     // Setup project: installs app and creates admin session
@@ -54,6 +57,9 @@ module.exports = defineConfig({
       testMatch: /setup\.spec\.js/,
       dependencies: ['install'],
       teardown: 'teardown',
+      use: {
+        browserName: process.env.BROWSER || 'chromium',
+      },
     },
 
     // Main tests: run with admin storage state pre-loaded
@@ -64,6 +70,8 @@ module.exports = defineConfig({
       use: {
         // Pre-authenticate as admin - tests can override if needed
         storageState: path.join(__dirname, 'e2e', 'state', 'admin.json'),
+        // Use browser from BROWSER env var, default to chromium
+        browserName: process.env.BROWSER || 'chromium',
       },
       // Run tests in parallel - test isolation is handled via fixtures
       fullyParallel: true,
@@ -77,6 +85,9 @@ module.exports = defineConfig({
       // Single worker to avoid race conditions
       fullyParallel: false,
       workers: 1,
+      use: {
+        browserName: process.env.BROWSER || 'chromium',
+      },
     },
   ],
 
