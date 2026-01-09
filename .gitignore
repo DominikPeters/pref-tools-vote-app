@@ -48,3 +48,8 @@ secrets.txt
 scripts/moderation_calibration_results.json
 /.gemini-clipboard
 /coverage-report
+/lib/abcvoting/abcvoting
+/lib/abcvoting/docs
+/lib/abcvoting/examples
+/lib/abcvoting/paper
+/lib/abcvoting/tests
