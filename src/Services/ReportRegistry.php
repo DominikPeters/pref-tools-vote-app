@@ -68,6 +68,7 @@ class ReportRegistry
         // Basic reports for single_choice/approval
         self::register('choice_counts', new Reports\ChoiceCountsReport());
         self::register('approval_winner', new Reports\ApprovalWinnerReport());
+        self::register('median', new Reports\MedianReport());
 
         // Ranking-based reports
         self::register('borda_scores', new Reports\BordaScoresReport());

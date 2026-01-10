@@ -7,6 +7,7 @@
 
 import { renderChoiceCounts } from './choice-counts.js';
 import { renderApprovalWinner } from './approval-winner.js';
+import { renderMedian } from './median.js';
 import { renderBordaScores } from './borda-scores.js';
 import { renderPairwiseMargins } from './pairwise-margins.js';
 import { renderVotingRuleWinner } from './voting-rule-winner.js';
@@ -29,6 +30,7 @@ import { t } from '../i18n.js';
 const renderers = {
     'choice_counts': renderChoiceCounts,
     'approval_winner': renderApprovalWinner,
+    'median': renderMedian,
     'borda_scores': renderBordaScores,
     'pairwise_margins': renderPairwiseMargins,
     'voting_rule_winner': renderVotingRuleWinner,
@@ -85,6 +87,7 @@ export function getReportTypeName(type) {
     const names = {
         'choice_counts': t('report_type_choice_counts'),
         'approval_winner': t('report_type_approval_winner'),
+        'median': t('report_type_median'),
         'borda_scores': t('report_type_borda_scores'),
         'pairwise_margins': t('report_type_pairwise_margins'),
         'voting_rule_winner': t('report_type_voting_rule_winner'),
@@ -110,6 +113,7 @@ export function getReportTypeIcon(type) {
     const icons = {
         'choice_counts': 'chart-bar',
         'approval_winner': 'trophy',
+        'median': 'git-commit',
         'borda_scores': 'chart-bar',
         'pairwise_margins': 'diagram-project',
         'voting_rule_winner': 'trophy',
