@@ -34,7 +34,7 @@ export function renderMajorityJudgment(container, data, config) {
     const winnerNames = winners.map(w => escapeHtml(w.option)).join(', ');
     const winnerHtml = `
         <div class="report-winner-card mj-winner">
-            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${ruleName} ${t('result_winner')}</p>`}
+            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${t('result_winner_by_rule', { rule: ruleName })}</p>`}
             <div class="winner-name">${winnerNames}</div>
         </div>
     `;

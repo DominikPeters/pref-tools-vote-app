@@ -4,17 +4,18 @@
  */
 
 import { api, escapeHtml, showToast, setButtonLoading, clearButtonLoading } from './app.js';
+import { t } from './i18n.js';
 
 // Report reasons
-const REPORT_REASONS = [
-    { value: 'spam', label: 'Spam or misleading content' },
-    { value: 'harassment', label: 'Harassment or hate speech' },
-    { value: 'doxxing', label: 'Personal information exposure (doxxing)' },
-    { value: 'illegal', label: 'Illegal activity or content' },
-    { value: 'impersonation', label: 'Impersonation or fraud' },
-    { value: 'phishing', label: 'Malware or phishing attempt' },
-    { value: 'copyright', label: 'Copyright or trademark violation' },
-    { value: 'other', label: 'Other' },
+const getReportReasons = () => [
+    { value: 'spam', label: t('report_reason_spam') },
+    { value: 'harassment', label: t('report_reason_harassment') },
+    { value: 'doxxing', label: t('report_reason_doxxing') },
+    { value: 'illegal', label: t('report_reason_illegal') },
+    { value: 'impersonation', label: t('report_reason_impersonation') },
+    { value: 'phishing', label: t('report_reason_phishing') },
+    { value: 'copyright', label: t('report_reason_copyright') },
+    { value: 'other', label: t('report_reason_other') },
 ];
 
 /**
@@ -38,7 +39,7 @@ async function showReportModal(publicId) {
     const overlay = document.createElement('div');
     overlay.className = 'report-modal-overlay';
 
-    const reasonsHtml = REPORT_REASONS.map(reason => `
+    const reasonsHtml = getReportReasons().map(reason => `
         <label class="report-reason">
             <input type="radio" name="report_reason" value="${reason.value}">
             <span>${escapeHtml(reason.label)}</span>
@@ -48,21 +49,21 @@ async function showReportModal(publicId) {
     overlay.innerHTML = `
         <div class="report-modal">
             <div class="report-modal-header">
-                <h3>Report this poll</h3>
+                <h3>${t('report_this_poll')}</h3>
             </div>
             <div class="report-modal-body">
-                <p>If you believe this poll violates our guidelines, please let us know.</p>
+                <p>${t('report_guidelines')}</p>
                 <div class="report-reasons">
                     ${reasonsHtml}
                 </div>
                 <div class="report-note-group">
-                    <label>Additional details <span class="optional">(optional)</span></label>
-                    <textarea id="reportNote" placeholder="Please provide any additional context that might help us review this report..."></textarea>
+                    <label>${t('report_details')} <span class="optional">${t('report_optional')}</span></label>
+                    <textarea id="reportNote" placeholder="${t('report_placeholder')}"></textarea>
                 </div>
             </div>
             <div class="report-modal-actions">
-                <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
-                <button type="button" class="btn btn-primary btn-submit">Submit Report</button>
+                <button type="button" class="btn btn-secondary btn-cancel">${t('cancel')}</button>
+                <button type="button" class="btn btn-primary btn-submit">${t('submit_report')}</button>
             </div>
         </div>
     `;
@@ -93,7 +94,7 @@ async function showReportModal(publicId) {
     submitBtn.addEventListener('click', async () => {
         const selectedReason = overlay.querySelector('input[name="report_reason"]:checked');
         if (!selectedReason) {
-            showToast('Please select a reason for reporting', 'error');
+            showToast(t('select_report_reason'), 'error');
             return;
         }
 
@@ -102,7 +103,7 @@ async function showReportModal(publicId) {
 
         // Require note for "other" reason
         if (reason === 'other' && !note) {
-            showToast('Please provide details for your report', 'error');
+            showToast(t('provide_report_details'), 'error');
             noteInput.focus();
             return;
         }
@@ -111,10 +112,10 @@ async function showReportModal(publicId) {
             setButtonLoading(submitBtn);
             await api.post(`/api/polls/${publicId}/report`, { reason, note });
             close();
-            showToast('Thank you for your report. We will review it shortly.', 'success');
+            showToast(t('report_submitted'), 'success');
         } catch (err) {
             clearButtonLoading(submitBtn);
-            showToast(err.message || 'Failed to submit report', 'error');
+            showToast(err.message || t('error_loading'), 'error');
         }
     });
 

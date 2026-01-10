@@ -6,6 +6,8 @@
  * creator sees while building and what voters see.
  */
 
+import { t } from './i18n.js';
+
 /**
  * Escape HTML to prevent XSS
  */
@@ -30,7 +32,7 @@ export function renderQuestion(question, options = {}) {
 
     // Section headers have different rendering
     if (question.type === 'section_header') {
-        const headerText = question.text || 'Section';
+        const headerText = question.text || t('section');
         const descriptionHtml = renderDescription(question);
         return `
             <div class="section-header" data-question-id="${question.id || question._id}" data-type="${question.type}">
@@ -41,7 +43,7 @@ export function renderQuestion(question, options = {}) {
     }
 
     const numberPrefix = showNumbers ? `${questionNumber}. ` : '';
-    const questionText = question.text || 'Untitled Question';
+    const questionText = question.text || t('untitled_question');
     const requiredMarker = question.required ? '<span class="required-marker">*</span>' : '';
     const descriptionHtml = renderDescription(question);
 
@@ -86,10 +88,10 @@ export function renderQuestionInput(question, disabled = false) {
 
     switch (question.type) {
         case 'text_single':
-            return `<input type="text" class="form-control" ${disabledAttr} placeholder="Short answer">`;
+            return `<input type="text" class="form-control" ${disabledAttr} placeholder="${t('short_answer')}">`;
 
         case 'text_multi':
-            return `<textarea class="form-control" rows="3" ${disabledAttr} placeholder="Long answer"></textarea>`;
+            return `<textarea class="form-control" rows="3" ${disabledAttr} placeholder="${t('long_answer')}"></textarea>`;
 
         case 'single_choice':
             // Filter out user-added options (they're created by voters, not shown as predefined)
@@ -106,8 +108,8 @@ export function renderQuestionInput(question, disabled = false) {
                     ${scAllowOther ? `
                         <label class="radio-option radio-option-other">
                             <input type="radio" name="q_${question.id || question._id}" value="__other__" ${disabledAttr} data-is-other="true">
-                            <span>Other:</span>
-                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="Please specify...">
+                            <span>${t('other_option')}</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${t('please_specify')}">
                         </label>
                     ` : ''}
                 </div>
@@ -128,8 +130,8 @@ export function renderQuestionInput(question, disabled = false) {
                     ${apAllowOther ? `
                         <label class="checkbox-option checkbox-option-other">
                             <input type="checkbox" name="q_${question.id || question._id}[]" value="__other__" ${disabledAttr} data-is-other="true">
-                            <span>Other:</span>
-                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="Please specify...">
+                            <span>${t('other_option')}</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${t('please_specify')}">
                         </label>
                     ` : ''}
                 </div>
@@ -165,7 +167,7 @@ export function renderQuestionInput(question, disabled = false) {
         case 'ranking':
             return `
                 <div class="ranking-options">
-                    <p class="ranking-hint">Drag to reorder (top = best)</p>
+                    <p class="ranking-hint">${t('ranking_hint')}</p>
                     <ol class="ranking-list">
                         ${options.map(o => `
                             <li class="ranking-item" data-option-id="${o.id || o._id}">
@@ -184,7 +186,7 @@ export function renderQuestionInput(question, disabled = false) {
                     <div class="ranking-truncated-hint"></div>
                     <div class="ranking-truncated-zones">
                         <div class="ranking-zone ranking-zone-available">
-                            <div class="ranking-zone-header">Available options</div>
+                            <div class="ranking-zone-header">${t('available_options')}</div>
                             <ul class="ranking-available-list">
                                 ${options.map(o => `
                                     <li class="ranking-truncated-item" data-option-id="${o.id || o._id}">
@@ -195,10 +197,10 @@ export function renderQuestionInput(question, disabled = false) {
                             </ul>
                         </div>
                         <div class="ranking-zone ranking-zone-ranked">
-                            <div class="ranking-zone-header">Your ranking</div>
+                            <div class="ranking-zone-header">${t('your_ranking')}</div>
                             <ol class="ranking-ranked-list">
                             </ol>
-                            <div class="ranking-drop-placeholder">Drag options here to rank them</div>
+                            <div class="ranking-drop-placeholder">${t('drag_to_rank')}</div>
                         </div>
                     </div>
                     <input type="hidden" class="ranking-value" name="q_${question.id || question._id}">
@@ -208,7 +210,7 @@ export function renderQuestionInput(question, disabled = false) {
         case 'ranking_with_ties':
             return `
                 <div class="ranking-ties-options" data-question-id="${question.id || question._id}">
-                    <p class="ranking-hint">Drag to reorder. Items in the same group are tied.</p>
+                    <p class="ranking-hint">${t('ranking_ties_hint')}</p>
                     <div class="ranking-ties-container">
                         <div class="indifference-class">
                             ${options.map(o => `
@@ -242,6 +244,7 @@ export function renderQuestionInput(question, disabled = false) {
             `;
 
         case 'grade':
+            // Fallback grades if question.settings.grades is missing (rare edge case)
             const defaultGrades = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'];
             const grades = question.settings?.grades || defaultGrades;
             // Estimate button row width to decide between buttons vs dropdown
@@ -279,7 +282,7 @@ export function renderQuestionInput(question, disabled = false) {
                         <div class="grade-row">
                             <span class="option-label">${escapeHtml(o.label)}</span>
                             <select class="grade-select" name="q_${question.id || question._id}[${o.id || o._id}]" ${disabledAttr}>
-                                <option value="">Select...</option>
+                                <option value="">${t('select_placeholder')}</option>
                                 ${grades.map(g => `<option value="${g.toLowerCase()}">${escapeHtml(g)}</option>`).join('')}
                             </select>
                         </div>
@@ -295,9 +298,9 @@ export function renderQuestionInput(question, disabled = false) {
                         <div class="yna-row">
                             <span class="option-label">${escapeHtml(o.label)}</span>
                             <div class="yna-buttons" data-option-id="${o.id || o._id}">
-                                <button type="button" class="yna-btn yes" data-value="yes" ${disabledAttr}>Yes</button>
-                                <button type="button" class="yna-btn no" data-value="no" ${disabledAttr}>No</button>
-                                ${allowAbstain ? `<button type="button" class="yna-btn abstain" data-value="abstain" ${disabledAttr}>Abstain</button>` : ''}
+                                <button type="button" class="yna-btn yes" data-value="yes" ${disabledAttr}>${t('yes')}</button>
+                                <button type="button" class="yna-btn no" data-value="no" ${disabledAttr}>${t('no')}</button>
+                                ${allowAbstain ? `<button type="button" class="yna-btn abstain" data-value="abstain" ${disabledAttr}>${t('abstain')}</button>` : ''}
                             </div>
                         </div>
                     `).join('')}
@@ -321,11 +324,11 @@ export function renderQuestionInput(question, disabled = false) {
             return `
                 <div class="distribution-options" data-budget="${budget}" data-max-per-option="${effectiveMax}">
                     <div class="distribution-budget-display">
-                        <span class="budget-label">Remaining:</span>
+                        <span class="budget-label">${t('remaining')}</span>
                         <span class="budget-remaining">${budget}</span>
                         <span class="budget-separator">/</span>
                         <span class="budget-total">${budget}</span>
-                        <span class="budget-unit">points</span>
+                        <span class="budget-unit">${t('points')}</span>
                     </div>
                     ${options.map(o => `
                         <div class="distribution-row" data-option-id="${o.id || o._id}">
@@ -350,7 +353,7 @@ export function renderQuestionInput(question, disabled = false) {
             return ''; // No input for section headers
 
         default:
-            return `<p class="text-muted">Unknown question type: ${escapeHtml(question.type)}</p>`;
+            return `<p class="text-muted">${t('unknown_question_type', { type: question.type })}</p>`;
     }
 }
 
@@ -359,18 +362,18 @@ export function renderQuestionInput(question, disabled = false) {
  */
 export function getQuestionTypeLabel(type) {
     const labels = {
-        'single_choice': 'Single Choice',
-        'approval': 'Approval (Multiple Choice)',
-        'participatory_budgeting': 'Participatory Budgeting',
-        'distribution': 'Distribution (Point Voting)',
-        'ranking': 'Ranking',
-        'ranking_truncated': 'Ranking (Partial)',
-        'ranking_with_ties': 'Ranking (With Ties)',
-        'star': 'Star Rating',
-        'grade': 'Grades',
-        'yes_no_abstain': 'Yes / No / Abstain',
-        'text_single': 'Short Text',
-        'text_multi': 'Long Text',
+        'single_choice': t('type_single_choice'),
+        'approval': t('type_approval'),
+        'participatory_budgeting': t('type_participatory_budgeting'),
+        'distribution': t('type_distribution'),
+        'ranking': t('type_ranking'),
+        'ranking_truncated': t('type_ranking_truncated'),
+        'ranking_with_ties': t('type_ranking_with_ties'),
+        'star': t('type_star'),
+        'grade': t('type_grade'),
+        'yes_no_abstain': t('type_yes_no_abstain'),
+        'text_single': t('type_text_single'),
+        'text_multi': t('type_text_multi'),
     };
     return labels[type] || type;
 }
@@ -386,19 +389,19 @@ export const OPTION_TYPES = [
  * All available question types
  */
 export const QUESTION_TYPES = [
-    { value: 'single_choice', label: 'Single Choice' },
-    { value: 'approval', label: 'Approval (Multiple Choice)' },
-    { value: 'participatory_budgeting', label: 'Participatory Budgeting' },
-    { value: 'distribution', label: 'Distribution (Point Voting)' },
-    { value: 'ranking', label: 'Ranking' },
-    { value: 'ranking_truncated', label: 'Ranking (Partial)' },
-    { value: 'ranking_with_ties', label: 'Ranking (With Ties)' },
-    { value: 'star', label: 'Star Rating' },
-    { value: 'grade', label: 'Grades' },
-    { value: 'yes_no_abstain', label: 'Yes / No / Abstain' },
-    { value: 'text_single', label: 'Short Text' },
-    { value: 'text_multi', label: 'Long Text' },
-    { value: 'section_header', label: 'Section Header' },
+    { value: 'single_choice', label: t('type_single_choice') },
+    { value: 'approval', label: t('type_approval') },
+    { value: 'participatory_budgeting', label: t('type_participatory_budgeting') },
+    { value: 'distribution', label: t('type_distribution') },
+    { value: 'ranking', label: t('type_ranking') },
+    { value: 'ranking_truncated', label: t('type_ranking_truncated') },
+    { value: 'ranking_with_ties', label: t('type_ranking_with_ties') },
+    { value: 'star', label: t('type_star') },
+    { value: 'grade', label: t('type_grade') },
+    { value: 'yes_no_abstain', label: t('type_yes_no_abstain') },
+    { value: 'text_single', label: t('type_text_single') },
+    { value: 'text_multi', label: t('type_text_multi') },
+    { value: 'section_header', label: t('type_section_header') },
 ];
 
 

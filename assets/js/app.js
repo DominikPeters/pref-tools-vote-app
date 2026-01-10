@@ -2,6 +2,8 @@
  * Pref.Tools Vote - Main Application JavaScript
  */
 
+import { t } from './i18n.js';
+
 // Get base path for URLs (supports subfolder deployment)
 const basePath = window.BASE_PATH || '';
 
@@ -166,7 +168,7 @@ export function showUndoToast(message, onUndo, duration = 5000) {
     toast.appendChild(messageSpan);
 
     const undoBtn = document.createElement('button');
-    undoBtn.textContent = 'Undo';
+    undoBtn.textContent = t('undo');
     undoBtn.style.cssText = `
         background: transparent;
         border: 1px solid var(--color-border-muted);
@@ -221,7 +223,7 @@ export function showUndoToast(message, onUndo, duration = 5000) {
  * @param {boolean} [options.danger=true] - Whether to style confirm as danger
  * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
  */
-export function showConfirmModal({ title, message, confirmText = 'Delete', cancelText = 'Cancel', danger = true }) {
+export function showConfirmModal({ title, message, confirmText = t('delete'), cancelText = t('cancel'), danger = true }) {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-modal-overlay';
@@ -322,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const success = await copyToClipboard(input.value);
                 if (success) {
                     const originalText = btn.textContent;
-                    btn.textContent = 'Copied!';
+                    btn.textContent = t('copied');
                     setTimeout(() => btn.textContent = originalText, 2000);
                 }
             }
@@ -338,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await api.post('/api/auth/logout');
                 window.location.href = basePath + '/';
             } catch (err) {
-                showToast('Logout failed', 'error');
+                showToast(t('logout_failed'), 'error');
             }
         });
     }
@@ -376,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await api.post('/api/auth/logout');
                     window.location.href = basePath + '/';
                 } catch (err) {
-                    showToast('Logout failed', 'error');
+                    showToast(t('logout_failed'), 'error');
                 }
             });
         }

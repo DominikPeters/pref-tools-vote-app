@@ -8,6 +8,7 @@
 import { api, escapeHtml, showToast } from './app.js';
 import { loadAndRenderResults } from './results-core.js';
 import { initReportButton } from './report.js';
+import { t } from './i18n.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.results-content');
@@ -63,7 +64,7 @@ async function loadResults(publicId) {
         const responses = responsesResult.responses;
 
         if (responses.length === 0) {
-            container.innerHTML = '<p class="empty-message">No responses yet.</p>';
+            container.innerHTML = `<p class="empty-message">${t('no_responses')}</p>`;
             return;
         }
 
@@ -83,11 +84,11 @@ async function loadResults(publicId) {
         // Add response count
         container.insertAdjacentHTML('afterbegin', `
             <div class="results-summary card">
-                <p><strong>${responses.length}</strong> responses received</p>
+                <p><strong>${t('response_count', { count: responses.length })}</strong></p>
             </div>
         `);
     } catch (err) {
-        container.innerHTML = '<p class="error-message">Failed to load results.</p>';
+        container.innerHTML = `<p class="error-message">${t('error_loading')}</p>`;
         console.error(err);
     }
 }
@@ -98,7 +99,7 @@ function renderQuestionResults(question, responses) {
         .filter(a => a !== undefined && a !== null);
 
     if (answers.length === 0) {
-        return '<p class="no-answers">No answers for this question.</p>';
+        return `<p class="no-answers">${t('no_results_available')}</p>`;
     }
 
     switch (question.type) {
@@ -200,7 +201,7 @@ function renderRankingResults(options, answers) {
     const maxScore = Math.max(...Object.values(scores));
 
     return `
-        <p class="result-note">Ranked by Borda score (higher = better)</p>
+        <p class="result-note">${t('borda_score_note')}</p>
         <div class="bar-chart">
             ${sorted.map((option, rank) => {
                 const score = scores[option.id];
@@ -297,16 +298,17 @@ function renderGradeResults(options, answers) {
                             ${grades.map(grade => {
                                 const count = counts[grade];
                                 const width = total > 0 ? (count / total * 100) : 0;
+                                const gradeLabel = t('grade_' + grade.replace(' ', '_'));
                                 return `<div class="grade-segment grade-${grade.replace(' ', '-')}"
                                             style="width: ${width}%"
-                                            title="${grade}: ${count}"></div>`;
+                                            title="${gradeLabel}: ${count}"></div>`;
                             }).join('')}
                         </div>
                     </div>
                 `;
             }).join('')}
             <div class="grade-legend">
-                ${grades.map(g => `<span class="legend-item grade-${g.replace(' ', '-')}">${g}</span>`).join('')}
+                ${grades.map(g => `<span class="legend-item grade-${g.replace(' ', '-')}">${t('grade_' + g.replace(' ', '_'))}</span>`).join('')}
             </div>
         </div>
     `;
@@ -339,9 +341,9 @@ function renderYnaResults(options, answers) {
                     <div class="yna-result-row">
                         <div class="option-label">${escapeHtml(option.label)}</div>
                         <div class="yna-counts">
-                            <span class="yna-yes">Yes: ${c.yes}</span>
-                            <span class="yna-no">No: ${c.no}</span>
-                            <span class="yna-abstain">Abstain: ${c.abstain}</span>
+                            <span class="yna-yes">${t('yes')}: ${c.yes}</span>
+                            <span class="yna-no">${t('no')}: ${c.no}</span>
+                            <span class="yna-abstain">${t('abstain')}: ${c.abstain}</span>
                         </div>
                     </div>
                 `;

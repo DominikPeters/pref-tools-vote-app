@@ -23,12 +23,12 @@
         <div class="container">
             <a href="<?= basePath() ?>/" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
-                <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>>Create Poll</a>
-                <a href="<?= basePath() ?>/about">About</a>
+                <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>><?= __('create_poll') ?></a>
+                <a href="<?= basePath() ?>/about"><?= __('about') ?></a>
                 <?php if (!empty($user)): ?>
-                    <a href="<?= basePath() ?>/dashboard">Dashboard</a>
+                    <a href="<?= basePath() ?>/dashboard"><?= __('dashboard') ?></a>
                     <?php if ($user->isSysadmin()): ?>
-                        <a href="<?= basePath() ?>/sysadmin">Sysadmin</a>
+                        <a href="<?= basePath() ?>/sysadmin"><?= __('sysadmin') ?></a>
                     <?php endif; ?>
                     <div class="user-menu">
                         <button type="button" class="user-menu-trigger">
@@ -36,12 +36,12 @@
                             <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="user-menu-dropdown">
-                            <a href="<?= basePath() ?>/dashboard" class="user-menu-item">Dashboard</a>
-                            <button type="button" class="user-menu-item user-menu-logout">Log Out</button>
+                            <a href="<?= basePath() ?>/dashboard" class="user-menu-item"><?= __('dashboard') ?></a>
+                            <button type="button" class="user-menu-item user-menu-logout"><?= __('log_out') ?></button>
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="<?= basePath() ?>/login">Login</a>
+                    <a href="<?= basePath() ?>/login"><?= __('login') ?></a>
                 <?php endif; ?>
             </nav>
         </div>
@@ -53,7 +53,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy">Privacy Policy</a></p>
+            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a></p>
         </div>
     </footer>
 

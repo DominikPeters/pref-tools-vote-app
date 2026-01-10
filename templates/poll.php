@@ -38,11 +38,11 @@ ob_start();
             <?php endif; ?>
             <?php if ($isPreview): ?>
                 <div class="poll-status-banner preview">
-                    Preview Mode - This is how your poll will appear to voters.
+                    <?= __('preview_mode_message') ?>
                 </div>
             <?php elseif ($poll->status === 'draft'): ?>
                 <div class="poll-status-banner draft">
-                    This poll is not yet open for submissions.
+                    <?= __('poll_not_open') ?>
                 </div>
             <?php endif; ?>
         </header>
@@ -55,29 +55,29 @@ ob_start();
                             <?= markdown($poll->thankYouMessage) ?>
                         </div>
                     <?php else: ?>
-                        <h2>Thank you!</h2>
-                        <p>Your response has already been recorded.</p>
+                        <h2><?= __('thank_you') ?></h2>
+                        <p><?= __('response_recorded') ?></p>
                     <?php endif; ?>
                     <?php if ($poll->areResultsViewable()): ?>
                         <div style="margin-top: 2rem;">
-                            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary">View Results</a>
+                            <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary"><?= __('view_results') ?></a>
                         </div>
                     <?php else: ?>
                         <p style="color: var(--color-text-muted); margin-top: 1rem;">
-                            You can now close this page.
+                            <?= __('can_close_page') ?>
                         </p>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
                 <?php if ($isEditing): ?>
                     <div class="editing-banner">
-                        You have already submitted a response. You can update it below.
+                        <?= __('already_submitted_can_update') ?>
                     </div>
                 <?php endif; ?>
                 <form id="pollForm" class="poll-form" method="post" data-public-id="<?= e($poll->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
                     <?php if ($poll->collectName): ?>
                         <div class="form-group name-field">
-                            <label for="voterName">Your Name</label>
+                            <label for="voterName"><?= __('your_name') ?></label>
                             <input type="text" id="voterName" name="voter_name" required value="<?= !empty($user) ? e($user->name) : '' ?>">
                         </div>
                     <?php endif; ?>
@@ -89,19 +89,19 @@ ob_start();
 
                     <div class="form-actions">
                         <?php if ($isPreview): ?>
-                        <button type="button" class="btn btn-primary btn-large" disabled>Submit Vote (Disabled in Preview)</button>
+                        <button type="button" class="btn btn-primary btn-large" disabled><?= __('submit_disabled_preview') ?></button>
                         <?php else: ?>
-                        <button type="submit" class="btn btn-primary btn-large"><?= $isEditing ? 'Update Response' : 'Submit Vote' ?></button>
+                        <button type="submit" class="btn btn-primary btn-large"><?= $isEditing ? __('update_response') : __('submit_vote') ?></button>
                         <?php endif; ?>
                     </div>
                 </form>
             <?php endif; ?>
         <?php else: ?>
             <div class="poll-closed-message card">
-                <h2>Voting is Closed</h2>
-                <p>This poll is no longer accepting responses.</p>
+                <h2><?= __('voting_closed') ?></h2>
+                <p><?= __('poll_no_longer_accepting') ?></p>
                 <?php if ($poll->visibility !== 'private'): ?>
-                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary">View Results</a>
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary"><?= __('view_results') ?></a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -113,7 +113,7 @@ ob_start();
                     <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
                     <line x1="4" y1="22" x2="4" y2="15"></line>
                 </svg>
-                Report this poll
+                <?= __('report_poll') ?>
             </button>
         </div>
         <?php endif; ?>

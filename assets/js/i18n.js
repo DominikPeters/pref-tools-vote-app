@@ -9,7 +9,7 @@
  *
  *   // Standard translation (returns key if not found)
  *   t('submit_vote')                    // => "Submit Vote"
- *   t('responses_count', { count: 5 })  // => "5 responses"
+ *   t('response_count', { count: 5 })   // => "5 responses"
  *
  *   // With explicit fallback (for technical terms like voting rules)
  *   tFallback('rule_schulze', 'Schulze')  // => Uses fallback if no translation

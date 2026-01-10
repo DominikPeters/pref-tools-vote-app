@@ -6,6 +6,7 @@
 
 import { api, escapeHtml, showUndoToast } from './app.js';
 import { renderReport, getReportTypeName } from './report-types/index.js';
+import { t, formatDate as i18nFormatDate } from './i18n.js';
 
 // SVG Icons (Feather Icons style)
 const icons = {
@@ -37,12 +38,7 @@ export { getIcon };
  */
 function formatDate(isoString) {
     if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+    return i18nFormatDate(new Date(isoString));
 }
 
 /**
@@ -64,7 +60,7 @@ export async function loadAndRenderResults(publicId, options = {}) {
         return;
     }
 
-    container.innerHTML = '<p class="loading">Loading results...</p>';
+    container.innerHTML = `<p class="loading">${t('loading_results')}</p>`;
 
     try {
         // Fetch poll data
@@ -86,7 +82,7 @@ export async function loadAndRenderResults(publicId, options = {}) {
 
     } catch (err) {
         console.error('Failed to load results:', err);
-        container.innerHTML = '<p class="error-message">Failed to load results.</p>';
+        container.innerHTML = `<p class="error-message">${t('error_loading')}</p>`;
     }
 }
 
@@ -116,16 +112,22 @@ function renderResults(container, poll, reports, options) {
 
     let dateInfo = '';
     if (poll.closed_at) {
-        dateInfo = `Closed ${formatDate(poll.closed_at)}`;
+        dateInfo = t('closed_on', { date: formatDate(poll.closed_at) });
     } else if (poll.created_at) {
-        dateInfo = `Created ${formatDate(poll.created_at)}`;
+        dateInfo = t('created_on', { date: formatDate(poll.created_at) });
     }
+
+    // Wrap the count in strong tag by splitting the translated string
+    const formatStat = (key, count) => {
+        const translated = t(key, { count });
+        return translated.replace(count.toString(), `<strong>${count}</strong>`);
+    };
 
     html += `<div class="results-summary card">
         <div class="summary-stats">
-            <span class="stat"><strong>${responseCount}</strong> response${responseCount !== 1 ? 's' : ''}</span>
-            <span class="stat">${questionCount} question${questionCount !== 1 ? 's' : ''}</span>
-            <span class="status-badge status-${poll.status}">${poll.status}</span>
+            <span class="stat">${formatStat('response_count', responseCount)}</span>
+            <span class="stat">${formatStat('question_count', questionCount)}</span>
+            <span class="status-badge status-${poll.status}">${t('status_' + poll.status)}</span>
             ${dateInfo ? `<span class="stat date-info">${dateInfo}</span>` : ''}
         </div>
     </div>`;
@@ -144,13 +146,13 @@ function renderResults(container, poll, reports, options) {
 
                 <div class="question-reports" data-question-id="${question.id}">
                     ${questionReports.length === 0 && !isAdmin
-                        ? '<p class="no-reports">No results available for this question.</p>'
+                        ? `<p class="no-reports">${t('no_results_available')}</p>`
                         : ''}
                 </div>
 
                 ${isAdmin ? `
                     <button class="btn btn-secondary btn-add-report" data-question-id="${question.id}">
-                        + Add Analysis
+                        + ${t('add_analysis')}
                     </button>
                 ` : ''}
             </div>
@@ -205,18 +207,18 @@ function renderReportCard(container, report, options) {
     if (!isPublicTextBlock) {
         headerHtml = `
             <div class="report-header">
-                ${isAdmin ? `<span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">${getIcon('menu')}</span>` : ''}
+                ${isAdmin ? `<span class="report-drag-handle" data-tooltip="${t('drag_to_reorder')}" data-tooltip-pos="left">${getIcon('menu')}</span>` : ''}
                 <span class="report-name">${escapeHtml(typeName)}</span>
         `;
 
         if (isAdmin) {
             headerHtml += `
                 <div class="report-actions">
-                    ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="Settings">${getIcon('settings')}</button>` : ''}
-                    <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
+                    ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="${t('settings')}">${getIcon('settings')}</button>` : ''}
+                    <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? t('make_private') : t('make_public')}">
                         ${getIcon(report.is_public ? 'eye' : 'lock')}
                     </button>
-                    <button class="btn-icon delete-report" data-tooltip="Delete analysis">${getIcon('trash')}</button>
+                    <button class="btn-icon delete-report" data-tooltip="${t('delete_analysis')}">${getIcon('trash')}</button>
                 </div>
             `;
         }
@@ -252,7 +254,7 @@ function renderReportCard(container, report, options) {
                 );
                 report.is_public = result.report.is_public;
                 toggleBtn.innerHTML = getIcon(report.is_public ? 'eye' : 'lock');
-                toggleBtn.setAttribute('data-tooltip', report.is_public ? 'Make private' : 'Make public');
+                toggleBtn.setAttribute('data-tooltip', report.is_public ? t('make_private') : t('make_public'));
             } catch (err) {
                 console.error('Failed to toggle visibility:', err);
             }
@@ -268,7 +270,7 @@ function renderReportCard(container, report, options) {
             let shouldDelete = true;
 
             // Show undo toast
-            const undoToast = showUndoToast('Analysis deleted', () => {
+            const undoToast = showUndoToast(t('analysis_deleted'), () => {
                 // Undo - show card again
                 shouldDelete = false;
                 card.style.display = '';

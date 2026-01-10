@@ -24,6 +24,7 @@ import { renderApportionmentMultiRuleComparison } from './apportionment-multi-ru
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
+import { t } from '../i18n.js';
 
 const renderers = {
     'choice_counts': renderChoiceCounts,
@@ -57,12 +58,12 @@ export function renderReport(container, report, context = {}) {
     const renderer = renderers[report.report_type];
 
     if (!renderer) {
-        container.innerHTML = `<p class="report-error">Unknown report type: ${report.report_type}</p>`;
+        container.innerHTML = `<p class="report-error">${t('unknown_report_type', { type: report.report_type })}</p>`;
         return;
     }
 
     if (!report.cached_result) {
-        container.innerHTML = '<p class="report-loading">Computing results...</p>';
+        container.innerHTML = `<p class="report-loading">${t('computing_results')}</p>`;
         return;
     }
 
@@ -73,7 +74,7 @@ export function renderReport(container, report, context = {}) {
         renderer(container, report.cached_result, report.config, fullContext);
     } catch (err) {
         console.error('Error rendering report:', err);
-        container.innerHTML = '<p class="report-error">Failed to render report.</p>';
+        container.innerHTML = `<p class="report-error">${t('error_loading')}</p>`;
     }
 }
 
@@ -82,25 +83,25 @@ export function renderReport(container, report, context = {}) {
  */
 export function getReportTypeName(type) {
     const names = {
-        'choice_counts': 'Vote Counts',
-        'approval_winner': 'Approval Winner',
-        'borda_scores': 'Borda Scores',
-        'pairwise_margins': 'Pairwise Margins',
-        'voting_rule_winner': 'Voting Rule Winner',
-        'rank_aggregation': 'Rank Aggregation',
-        'multiwinner': 'Multi-Winner Voting Rule Winner',
-        'pb_winner': 'PB Voting Rule Winner',
-        'condorcet_winner': 'Condorcet Winner',
-        'apportionment_winner': 'Apportionment Rule Winner',
-        'yna_counts': 'Yes/No/Abstain Tallies',
-        'majority_judgment': 'Majority Judgment',
-        'multi_rule_comparison': 'Multi-Rule Comparison',
-        'multi_swf_comparison': 'Rank Aggregation Rule Comparison',
-        'multiwinner_multi_rule_comparison': 'Multi-Winner Multi-Rule Comparison',
-        'apportionment_multi_rule_comparison': 'Apportionment Multi-Rule Comparison',
-        'response_matrix': 'Response Matrix',
-        'raw_data_export': 'Export Raw Vote Data',
-        'text_block': 'Text Block',
+        'choice_counts': t('report_type_choice_counts'),
+        'approval_winner': t('report_type_approval_winner'),
+        'borda_scores': t('report_type_borda_scores'),
+        'pairwise_margins': t('report_type_pairwise_margins'),
+        'voting_rule_winner': t('report_type_voting_rule_winner'),
+        'rank_aggregation': t('report_type_rank_aggregation'),
+        'multiwinner': t('report_type_multiwinner'),
+        'pb_winner': t('report_type_pb_winner'),
+        'condorcet_winner': t('report_type_condorcet_winner'),
+        'apportionment_winner': t('report_type_apportionment_winner'),
+        'yna_counts': t('report_type_yna_counts'),
+        'majority_judgment': t('report_type_majority_judgment'),
+        'multi_rule_comparison': t('report_type_multi_rule_comparison'),
+        'multi_swf_comparison': t('report_type_multi_swf_comparison'),
+        'multiwinner_multi_rule_comparison': t('report_type_multiwinner_multi_rule_comparison'),
+        'apportionment_multi_rule_comparison': t('report_type_apportionment_multi_rule_comparison'),
+        'response_matrix': t('report_type_response_matrix'),
+        'raw_data_export': t('report_type_raw_data_export'),
+        'text_block': t('report_type_text_block'),
     };
     return names[type] || type;
 }

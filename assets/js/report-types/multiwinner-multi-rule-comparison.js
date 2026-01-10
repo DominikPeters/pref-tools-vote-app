@@ -28,7 +28,7 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
                     <thead>
                         <tr>
                             <th>${t('voting_rule')}</th>
-                            <th>${t('winning_committee')} (${t('size')} ${escapeHtml(committee_size)})</th>
+                            <th>${t('winning_committee')} (${t('committee_size_label', { size: committee_size })})</th>
                         </tr>
                     </thead>
                     <tbody>
