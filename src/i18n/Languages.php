@@ -16,8 +16,14 @@ class Languages
      * Key is the locale code, value is the native name.
      */
     private const AVAILABLE = [
+        'de' => 'Deutsch',
         'en' => 'English',
+        'es' => 'Español',
         'fr' => 'Français',
+        'it' => 'Italiano',
+        'nl' => 'Nederlands',
+        'pl' => 'Polski',
+        'pt' => 'Português',
     ];
 
     /**

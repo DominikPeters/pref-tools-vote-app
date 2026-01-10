@@ -201,6 +201,7 @@ return [
     // Report Type Names
     'report_type_choice_counts' => 'Vote Counts',
     'report_type_approval_winner' => 'Approval Winner',
+    'report_type_median' => 'Median Choice',
     'report_type_borda_scores' => 'Borda Scores',
     'report_type_pairwise_margins' => 'Pairwise Margins',
     'report_type_voting_rule_winner' => 'Voting Rule Winner',
@@ -243,6 +244,11 @@ return [
     'no_condorcet_winner' => 'No Condorcet Winner',
     'condorcet_explanation' => 'Beats all other options in head-to-head matchups',
     'condorcet_cycle' => 'There is a cycle in pairwise preferences',
+
+    // Median choice
+    'median_choice' => 'Median',
+    'no_median_yet' => 'No median determined yet.',
+    'median_interval' => 'Median interval', // shown when there are multiple median options (even number of voters)
 
     // Participatory Budgeting
     'no_winning_projects_yet' => 'No winning projects determined yet.',
