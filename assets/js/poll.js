@@ -918,10 +918,14 @@ function initDistribution() {
 
                 // Update bar width (percentage of budget)
                 const percentage = budget > 0 ? (value / budget) * 100 : 0;
-                bar.style.width = `${percentage}%`;
+                if (bar) bar.style.width = `${percentage}%`;
 
                 // Update input value
                 distInput.value = value;
+
+                // Update visual classes for rows with points allocated
+                row.classList.toggle('has-points', value > 0);
+                distInput.classList.toggle('has-value', value > 0);
 
                 // Update button states
                 row.querySelectorAll('.dist-btn').forEach(btn => {
