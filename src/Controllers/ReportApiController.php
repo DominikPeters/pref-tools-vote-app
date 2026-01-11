@@ -89,6 +89,8 @@ class ReportApiController extends ApiController
         $multiwinnerRulesByQuestion = [];
         // Get apportionment rules for each question type
         $apportionmentRulesByQuestion = [];
+        // Get distribution aggregation rules for each question type
+        $distributionRulesByQuestion = [];
         // Get social welfare functions for each question type
         $swfsByQuestion = [];
 
@@ -102,6 +104,10 @@ class ReportApiController extends ApiController
                 $apportionmentRulesByQuestion[$question->id] = \App\Services\ApportionmentRulesRegistry::getRulesAsOptions();
             }
 
+            if ($question->type === 'distribution') {
+                $distributionRulesByQuestion[$question->id] = \App\Services\DistributionRulesRegistry::getRulesAsOptions();
+            }
+
             $swfsByQuestion[$question->id] = \App\Services\SocialWelfareFunctionRegistry::getSWFsAsOptions($question->type);
         }
 
@@ -110,6 +116,7 @@ class ReportApiController extends ApiController
             'voting_rules_by_question' => $votingRulesByQuestion,
             'multiwinner_rules_by_question' => $multiwinnerRulesByQuestion,
             'apportionment_rules_by_question' => $apportionmentRulesByQuestion,
+            'distribution_rules_by_question' => $distributionRulesByQuestion,
             'social_welfare_functions_by_question' => $swfsByQuestion,
             'all_types' => ReportRegistry::all(),
             'categories' => \App\Services\Reports\BaseReport::getCategories(),

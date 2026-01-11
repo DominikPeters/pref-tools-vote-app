@@ -84,6 +84,10 @@ class ReportRegistry
         self::register('multiwinner_multi_rule_comparison', new Reports\MultiwinnerMultiRuleComparisonReport());
         self::register('apportionment_multi_rule_comparison', new Reports\ApportionmentMultiRuleComparisonReport());
 
+        // Distribution aggregation reports
+        self::register('distribution_aggregation', new Reports\DistributionAggregationReport());
+        self::register('distribution_multi_rule_comparison', new Reports\DistributionMultiRuleComparisonReport());
+
         // Grade-based reports
         self::register('majority_judgment', new Reports\MajorityJudgmentReport());
 

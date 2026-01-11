@@ -66,6 +66,7 @@ abstract class BaseReport
             'rank_aggregation' => 'Rank Aggregation',
             'apportionment' => 'Apportionment',
             'participatory_budgeting' => 'Participatory Budgeting',
+            'distribution_aggregation' => 'Distribution Aggregation',
             'data_export' => 'Data & Export',
         ];
     }

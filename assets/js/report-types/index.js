@@ -22,6 +22,8 @@ import { renderMultiwinnerMultiRuleComparison } from './multiwinner-multi-rule-c
 import { renderPBWinner } from './pb-winner.js';
 import { renderApportionmentWinner } from './apportionment-winner.js';
 import { renderApportionmentMultiRuleComparison } from './apportionment-multi-rule-comparison.js';
+import { renderDistributionAggregation } from './distribution-aggregation.js';
+import { renderDistributionMultiRuleComparison } from './distribution-multi-rule-comparison.js';
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
@@ -45,6 +47,8 @@ const renderers = {
     'multi_swf_comparison': renderMultiSWFComparison,
     'multiwinner_multi_rule_comparison': renderMultiwinnerMultiRuleComparison,
     'apportionment_multi_rule_comparison': renderApportionmentMultiRuleComparison,
+    'distribution_aggregation': renderDistributionAggregation,
+    'distribution_multi_rule_comparison': renderDistributionMultiRuleComparison,
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
     'text_block': renderTextBlock,
@@ -102,6 +106,8 @@ export function getReportTypeName(type) {
         'multi_swf_comparison': t('report_type_multi_swf_comparison'),
         'multiwinner_multi_rule_comparison': t('report_type_multiwinner_multi_rule_comparison'),
         'apportionment_multi_rule_comparison': t('report_type_apportionment_multi_rule_comparison'),
+        'distribution_aggregation': t('report_type_distribution_aggregation'),
+        'distribution_multi_rule_comparison': t('report_type_distribution_multi_rule_comparison'),
         'response_matrix': t('report_type_response_matrix'),
         'raw_data_export': t('report_type_raw_data_export'),
         'text_block': t('report_type_text_block'),
@@ -128,6 +134,8 @@ export function getReportTypeIcon(type) {
         'multi_swf_comparison': 'columns',
         'multiwinner_multi_rule_comparison': 'table',
         'apportionment_multi_rule_comparison': 'table',
+        'distribution_aggregation': 'chart-pie',
+        'distribution_multi_rule_comparison': 'table',
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',
         'text_block': 'file-lines',

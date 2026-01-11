@@ -189,6 +189,7 @@ return [
 
     // Common report labels (table headers in result reports)
     'voting_rule' => 'Voting Rule',
+    'rule' => 'Rule', // generic column header for rule name in comparison tables
     'winners' => 'Winner(s)',
     'votes' => 'Votes',
     'option' => 'Option', // column header for poll choices (e.g., parties in apportionment)
@@ -216,6 +217,8 @@ return [
     'report_type_multi_swf_comparison' => 'Rank Aggregation Rule Comparison',
     'report_type_multiwinner_multi_rule_comparison' => 'Multi-Winner Multi-Rule Comparison',
     'report_type_apportionment_multi_rule_comparison' => 'Apportionment Multi-Rule Comparison',
+    'report_type_distribution_aggregation' => 'Distribution Aggregation', // aggregates voter point distributions into consensus
+    'report_type_distribution_multi_rule_comparison' => 'Distribution Multi-Rule Comparison', // compares multiple distribution aggregation rules
     'report_type_response_matrix' => 'Response Matrix',
     'report_type_raw_data_export' => 'Export Raw Vote Data',
     'report_type_text_block' => 'Text Block',
@@ -273,6 +276,15 @@ return [
     'total_seats' => 'Total Seats',
     'no_methods_selected' => 'No methods selected for comparison.',
     'apportionment_comparison_desc' => 'Comparison of :methods apportionment methods for :seats seats',
+
+    // Distribution Aggregation
+    // These rules aggregate voter point distributions (from "distribution" question type)
+    // into a single consensus distribution. Used in budget/resource allocation scenarios.
+    'dist_rule_mean' => 'Mean Rule', // simple average of all voter distributions
+    'dist_rule_median' => 'Median Rule', // moving phantom mechanism with uniform phantom progression
+    'dist_rule_independent_markets' => 'Independent Markets', // moving phantom mechanism modeling independent market shares
+    'dist_rule_ladder' => 'Ladder Rule', // moving phantom mechanism with ladder-shaped progression
+    'percentage' => 'Percentage', // column header for distribution results table
 
     // Rank aggregation (Social Welfare Functions)
     'no_ranking_yet' => 'No ranking determined yet.',
