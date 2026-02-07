@@ -16,6 +16,9 @@ return [
         'mysql_username' => 'root',
         'mysql_password' => '',
         'mysql_charset' => 'utf8mb4',
+
+        // Automatically run pending migrations on startup
+        'auto_migrate' => true,
     ],
 
     // Application settings

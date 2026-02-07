@@ -58,9 +58,14 @@ abstract class TestCase extends BaseTestCase
     {
         $db = Database::getInstance();
 
-        // Load and run migrations
-        $sql = file_get_contents(MIGRATIONS_PATH . '/001_initial_schema.sql');
-        $db->runMigration($sql);
+        // Run all migrations
+        $migrationFiles = glob(MIGRATIONS_PATH . '/*.sql');
+        sort($migrationFiles); // Ensure order (001_, 002_, etc.)
+
+        foreach ($migrationFiles as $file) {
+            $sql = file_get_contents($file);
+            $db->runMigration($sql);
+        }
     }
 
     /**
@@ -210,6 +215,7 @@ abstract class TestCase extends BaseTestCase
             $exemptions = [
                 '/unsubscribe/one-click',
                 '/api/unsubscribe',
+                '/api/embed/', // Embed endpoints use token-based auth, not CSRF
             ];
 
             foreach ($exemptions as $exemption) {
@@ -250,6 +256,11 @@ abstract class TestCase extends BaseTestCase
         $router->post('/api/polls/:publicId/admin/:adminToken/close', [\App\Controllers\PollApiController::class, 'close']);
         $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [\App\Controllers\PollApiController::class, 'reopen']);
         $router->post('/api/polls/:publicId/admin/:adminToken/duplicate', [\App\Controllers\PollApiController::class, 'duplicate']);
+
+        // Embed routes
+        $router->post('/api/polls/:publicId/admin/:adminToken/embed-token', [\App\Controllers\EmbedApiController::class, 'generateToken']);
+        $router->get('/api/embed/:publicId/:embedToken', [\App\Controllers\EmbedApiController::class, 'show']);
+        $router->post('/api/embed/:publicId/:embedToken/responses', [\App\Controllers\EmbedApiController::class, 'submitResponse']);
 
         // Response routes
         $router->post('/api/polls/:publicId/responses', [\App\Controllers\PollApiController::class, 'submitResponse']);

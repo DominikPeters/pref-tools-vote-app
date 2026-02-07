@@ -36,6 +36,9 @@ class Poll
 
     public ?string $thankYouMessage = null;
 
+    public bool $allowEmbedding = false;
+    public ?string $embedToken = null;
+
     public ?\DateTime $createdAt = null;
     public ?\DateTime $updatedAt = null;
     public ?\DateTime $closedAt = null;
@@ -79,6 +82,9 @@ class Poll
         $poll->notifyOnResponse = (bool) ($row['notify_on_response'] ?? false);
 
         $poll->thankYouMessage = $row['thank_you_message'] ?? null;
+
+        $poll->allowEmbedding = (bool) ($row['allow_embedding'] ?? false);
+        $poll->embedToken = $row['embed_token'] ?? null;
 
         $poll->createdAt = new \DateTime($row['created_at']);
         $poll->updatedAt = new \DateTime($row['updated_at']);
@@ -234,14 +240,14 @@ class Poll
             'user_id', 'title', 'description', 'status', 'visibility',
             'collect_name', 'name_visibility', 'allow_edit_own', 'allow_edit_any',
             'randomize_options', 'access_mode', 'voting_mode', 'access_methods', 'locale',
-            'notify_on_response', 'thank_you_message'
+            'notify_on_response', 'thank_you_message', 'allow_embedding'
         ];
 
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
                 $value = $data[$field];
                 // Convert booleans to integers
-                if (in_array($field, ['collect_name', 'allow_edit_own', 'allow_edit_any', 'randomize_options', 'notify_on_response'])) {
+                if (in_array($field, ['collect_name', 'allow_edit_own', 'allow_edit_any', 'randomize_options', 'notify_on_response', 'allow_embedding'])) {
                     $value = $value ? 1 : 0;
                 }
                 // JSON encode arrays
@@ -439,6 +445,73 @@ class Poll
     }
 
     /**
+     * Check if this poll can be embedded
+     * Only open voting mode (anonymous) can be embedded
+     */
+    public function canBeEmbedded(): bool
+    {
+        return $this->allowEmbedding
+            && $this->votingMode === 'open'
+            && $this->status === 'open';
+    }
+
+    /**
+     * Get or create an embed token for this poll
+     */
+    public function getOrCreateEmbedToken(): string
+    {
+        if ($this->embedToken) {
+            return $this->embedToken;
+        }
+
+        $db = Database::getInstance();
+        $token = TokenService::generateAdminToken(); // 32 char hex
+
+        $db->update(
+            'polls',
+            ['embed_token' => $token],
+            'id = :id',
+            ['id' => $this->id]
+        );
+
+        $this->embedToken = $token;
+        return $token;
+    }
+
+    /**
+     * Find a poll by embed token
+     */
+    public static function findByEmbedToken(string $publicId, string $embedToken): ?self
+    {
+        $db = Database::getInstance();
+        $row = $db->fetch(
+            "SELECT * FROM polls WHERE public_id = :public_id AND embed_token = :embed_token",
+            ['public_id' => $publicId, 'embed_token' => $embedToken]
+        );
+        return $row ? self::fromRow($row) : null;
+    }
+
+    /**
+     * Convert to array for embed JSON output (minimal, public-facing)
+     */
+    public function toEmbedArray(): array
+    {
+        return [
+            'public_id' => $this->publicId,
+            'title' => $this->title,
+            'description' => $this->description,
+            'status' => $this->status,
+            'randomize_options' => $this->randomizeOptions,
+            'collect_name' => $this->canCollectName() && $this->collectName,
+            'locale' => $this->locale,
+            'thank_you_message' => $this->thankYouMessage,
+            'thank_you_message_html' => $this->thankYouMessage ? markdown($this->thankYouMessage) : null,
+            'results_viewable' => $this->areResultsViewable(),
+            'questions' => array_map(fn($q) => $q->toArray(), $this->questions),
+        ];
+    }
+
+    /**
      * Convert to array for public JSON output (voter-facing)
      */
     public function toPublicArray(): array
@@ -495,6 +568,9 @@ class Poll
             'locale' => $this->locale,
             'notify_on_response' => $this->notifyOnResponse,
             'thank_you_message' => $this->thankYouMessage,
+            'allow_embedding' => $this->allowEmbedding,
+            'embed_token' => $this->embedToken,
+            'can_be_embedded' => $this->canBeEmbedded(),
             'created_at' => $this->createdAt?->format('c'),
             'updated_at' => $this->updatedAt?->format('c'),
             'closed_at' => $this->closedAt?->format('c'),

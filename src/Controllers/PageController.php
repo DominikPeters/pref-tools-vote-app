@@ -553,4 +553,46 @@ class PageController
             'content' => $html,
         ]);
     }
+
+    /**
+     * GET /:publicId/embed/:embedToken - Embedded poll page
+     */
+    public function embed(array $params): void
+    {
+        $poll = Poll::findByEmbedToken($params['publicId'], $params['embedToken']);
+
+        if (!$poll) {
+            http_response_code(404);
+            view('error', [
+                'title' => 'Poll Not Found',
+                'message' => 'The poll you are looking for does not exist or the embed link is invalid.',
+            ]);
+            return;
+        }
+
+        if (!$poll->canBeEmbedded()) {
+            http_response_code(403);
+            $message = 'This poll cannot be embedded.';
+            if ($poll->votingMode !== 'open') {
+                $message = 'Only polls with open voting mode can be embedded.';
+            } elseif ($poll->status !== 'open') {
+                $message = 'This poll is not currently open for voting.';
+            } elseif (!$poll->allowEmbedding) {
+                $message = 'Embedding is not enabled for this poll.';
+            }
+            view('error', [
+                'title' => 'Embedding Not Available',
+                'message' => $message,
+            ]);
+            return;
+        }
+
+        $poll->loadQuestions();
+
+        view('embed', [
+            'poll' => $poll,
+            'embedToken' => $params['embedToken'],
+            'isPreview' => isset($_GET['preview']),
+        ]);
+    }
 }

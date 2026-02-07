@@ -103,7 +103,7 @@ class TranslatorTest extends TestCase
 
         // Majority Judgment should have a French translation
         $result = Translator::translate('rule_majority_judgment');
-        $this->assertEquals('Jugement Majoritaire', $result);
+        $this->assertEquals('Jugement majoritaire', $result);
     }
 
     public function test_fallback_to_english_for_unknown_locale(): void

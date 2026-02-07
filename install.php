@@ -115,6 +115,7 @@ function handleDatabaseSetup() {
             'mysql_username' => $_POST['mysql_username'] ?? 'root',
             'mysql_password' => $_POST['mysql_password'] ?? '',
             'mysql_charset' => 'utf8mb4',
+            'auto_migrate' => true, // Automatically run pending migrations on startup
         ],
         'app' => [
             'name' => 'Pref.Tools Vote',
@@ -172,30 +173,17 @@ function handleDatabaseSetup() {
 
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Run migrations
-        $migrationSql = file_get_contents($basePath . '/migrations/001_initial_schema.sql');
-
-        if ($driver === 'sqlite') {
-            // Adjust SQL for SQLite
-            $migrationSql = preg_replace('/\bAUTO_INCREMENT\b/i', '', $migrationSql);
-            $migrationSql = preg_replace('/\bINT\s+PRIMARY\s+KEY/i', 'INTEGER PRIMARY KEY', $migrationSql);
-        }
-
-        // Execute statements
-        $statements = array_filter(
-            array_map('trim', explode(';', $migrationSql)),
-            fn($s) => !empty($s)
-        );
-
-        foreach ($statements as $statement) {
-            $pdo->exec($statement);
-        }
-
-        // Write config file
+        // Write config file first (needed for MigrationService)
         $configContent = "<?php\n\nreturn " . var_export($config, true) . ";\n";
         if (!file_put_contents($configPath, $configContent)) {
             return 'Failed to write configuration file. Check directory permissions.';
         }
+
+        // Load bootstrap and run migrations using MigrationService
+        require_once $basePath . '/src/bootstrap.php';
+
+        $migrationService = new \App\Services\MigrationService();
+        $ran = $migrationService->runPending();
 
         return true;
     } catch (PDOException $e) {

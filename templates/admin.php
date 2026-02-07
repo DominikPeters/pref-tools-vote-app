@@ -294,6 +294,69 @@ $votingModeDescriptions = [
                     </div>
                 </div>
             </section>
+
+            <!-- Embed on Your Website -->
+            <section class="card settings-section embed-section">
+                <div class="section-header">
+                    <h2>Embed on Your Website</h2>
+                </div>
+
+                <?php if ($poll->votingMode !== 'open'): ?>
+                <div class="info-banner">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <div class="info-banner-content">
+                        <strong>Not available for this voting mode.</strong>
+                        <p>Embedding is only available for polls with "Open" voting mode (anonymous voting). Identified and Secret Ballot polls require authentication that doesn't work in embeds.</p>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="settings-form">
+                    <div class="settings-row settings-checkboxes">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="settingAllowEmbedding" <?= $poll->allowEmbedding ? 'checked' : '' ?>>
+                            <span>Allow embedding this poll on external websites</span>
+                        </label>
+                    </div>
+
+                    <div id="embedCodeSection" class="embed-code-section" style="<?= $poll->allowEmbedding ? '' : 'display: none;' ?>">
+                        <div class="setting-group">
+                            <label>Embed Code <span class="label-hint">(copy and paste into your website)</span></label>
+                            <div class="embed-code-container">
+                                <textarea id="embedCode" readonly rows="3" class="embed-code-textarea"></textarea>
+                                <button type="button" class="btn btn-secondary btn-small copy-embed-btn" data-target="embedCode">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group" style="margin-top: 1rem;">
+                            <label>Preview</label>
+                            <div id="embedPreview" class="embed-preview">
+                                <!-- Preview iframe will be inserted here -->
+                            </div>
+                        </div>
+
+                        <details class="embed-customization" style="margin-top: 1rem;">
+                            <summary>Customization Options</summary>
+                            <div class="customization-content">
+                                <p style="margin-bottom: 0.5rem;">Use CSS variables to customize the appearance:</p>
+                                <pre><code>&lt;style&gt;
+vote-poll {
+  --vp-color-primary: #2563eb;
+  --vp-color-text: #1e293b;
+  --vp-color-bg: #ffffff;
+  --vp-font-family: system-ui, sans-serif;
+  --vp-border-radius: 8px;
+}
+&lt;/style&gt;</code></pre>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </section>
         </div>
     </div>
 </div>

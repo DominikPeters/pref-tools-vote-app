@@ -65,7 +65,7 @@ module.exports = defineConfig({
     // Main tests: run with admin storage state pre-loaded
     {
       name: 'main',
-      testMatch: /(auth|poll|sysadmin|extended_poll|advanced_sysadmin|specialized_inputs|voter_experience|builder_advanced|poll_thank_you|results_reports|privacy_visibility|access_modes|participatory_budgeting)\.spec\.js$/,
+      testMatch: /(auth|poll|sysadmin|extended_poll|advanced_sysadmin|specialized_inputs|voter_experience|builder_advanced|poll_thank_you|results_reports|privacy_visibility|access_modes|participatory_budgeting|embed)\.spec\.js$/,
       dependencies: ['setup'],
       use: {
         // Pre-authenticate as admin - tests can override if needed

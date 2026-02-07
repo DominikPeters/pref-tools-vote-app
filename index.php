@@ -18,6 +18,7 @@ use App\Controllers\ReportApiController;
 use App\Controllers\TokenApiController;
 use App\Controllers\InvitationApiController;
 use App\Controllers\UnsubscribeController;
+use App\Controllers\EmbedApiController;
 
 // Check if installation is needed
 if (needsInstall()) {
@@ -31,9 +32,14 @@ checkMaintenanceMode();
 
 // Set security headers
 header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+
+// Set X-Frame-Options only for non-embed routes
+$requestPath = $_SERVER['REQUEST_URI'] ?? '/';
+if (strpos($requestPath, '/embed/') === false && strpos($requestPath, '/api/embed/') === false) {
+    header('X-Frame-Options: SAMEORIGIN');
+}
 
 // Maybe run data cleanup (10% probability, then 24h check)
 \App\Services\CleanupService::maybeRun();
@@ -56,6 +62,7 @@ $router->middleware(function($params) {
     $exemptions = [
         '/unsubscribe/one-click',
         '/api/unsubscribe', // Legacy or external hooks
+        '/api/embed/', // Embed endpoints use token-based auth, not CSRF
     ];
 
     foreach ($exemptions as $exemption) {
@@ -109,6 +116,9 @@ $router->get('/demo', [PageController::class, 'demo']);
 $router->post('/demo', [PageController::class, 'demo']);
 $router->get('/demo/results', [PageController::class, 'demoResults']);
 
+// Embed page (for iframe preview and direct embed access)
+$router->get('/:publicId/embed/:embedToken', [PageController::class, 'embed']);
+
 // Poll pages - dynamic routes
 $router->get('/:publicId', [PageController::class, 'poll']);
 $router->post('/:publicId', [PageController::class, 'poll']);
@@ -142,6 +152,15 @@ $router->delete('/api/polls/:publicId/admin/:adminToken', [PollApiController::cl
 $router->post('/api/polls/:publicId/admin/:adminToken/close', [PollApiController::class, 'close']);
 $router->post('/api/polls/:publicId/admin/:adminToken/reopen', [PollApiController::class, 'reopen']);
 $router->post('/api/polls/:publicId/admin/:adminToken/duplicate', [PollApiController::class, 'duplicate']);
+
+// Embed token generation
+$router->post('/api/polls/:publicId/admin/:adminToken/embed-token', [EmbedApiController::class, 'generateToken']);
+
+// Embed API (public, with CORS - for external websites embedding polls)
+$router->options('/api/embed/:publicId/:embedToken', [EmbedApiController::class, 'preflight']);
+$router->get('/api/embed/:publicId/:embedToken', [EmbedApiController::class, 'show']);
+$router->options('/api/embed/:publicId/:embedToken/responses', [EmbedApiController::class, 'preflight']);
+$router->post('/api/embed/:publicId/:embedToken/responses', [EmbedApiController::class, 'submitResponse']);
 
 // Poll reports (user reports of inappropriate content)
 $router->post('/api/polls/:publicId/report', [PollApiController::class, 'report']);

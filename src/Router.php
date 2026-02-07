@@ -34,6 +34,11 @@ class Router
         return $this->addRoute('DELETE', $path, $handler);
     }
 
+    public function options(string $path, callable|array $handler): self
+    {
+        return $this->addRoute('OPTIONS', $path, $handler);
+    }
+
     public function addRoute(string $method, string $path, callable|array $handler): self
     {
         $this->routes[] = [
@@ -54,11 +59,6 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $uri = $this->getUri();
-
-        // Handle preflight requests for CORS
-        if ($method === 'OPTIONS') {
-            return null;
-        }
 
         // Find matching route
         foreach ($this->routes as $route) {

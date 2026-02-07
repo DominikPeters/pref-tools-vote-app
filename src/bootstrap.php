@@ -119,6 +119,31 @@ if (!$needsInstall) {
     if ($sysadminCount === 0) {
         $needsInstall = true;
     }
+
+    // Run pending migrations automatically (unless disabled)
+    if (!$needsInstall && \App\Config::get('database.auto_migrate', true)) {
+        runPendingMigrations();
+    }
+}
+
+/**
+ * Run any pending database migrations
+ */
+function runPendingMigrations(): void
+{
+    static $hasRun = false;
+    if ($hasRun) {
+        return;
+    }
+    $hasRun = true;
+
+    try {
+        $migrationService = new \App\Services\MigrationService();
+        $migrationService->runPending();
+    } catch (\Exception $e) {
+        // Log error but don't crash the app
+        error_log('Migration error: ' . $e->getMessage());
+    }
 }
 
 /**

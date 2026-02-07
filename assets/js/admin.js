@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Response notification setting
     initNotificationSetting(publicId, adminToken);
 
+    // Embedding settings
+    initEmbedding(publicId, adminToken);
+
     // Action buttons
     const publishBtn = document.getElementById('publishPoll');
     if (publishBtn) {
@@ -717,6 +720,7 @@ function initSettings(publicId, adminToken) {
         'settingAllowEditOwn',
         'settingAllowEditAny',
         'settingRandomizeOptions',
+        'settingAllowEmbedding',
     ];
 
     // Track changes
@@ -738,6 +742,7 @@ function initSettings(publicId, adminToken) {
             allow_edit_own: document.getElementById('settingAllowEditOwn')?.checked,
             allow_edit_any: document.getElementById('settingAllowEditAny')?.checked,
             randomize_options: document.getElementById('settingRandomizeOptions')?.checked,
+            allow_embedding: document.getElementById('settingAllowEmbedding')?.checked,
         };
 
         try {
@@ -774,4 +779,83 @@ function initNotificationSetting(publicId, adminToken) {
             showToast(err.message, 'error');
         }
     });
+}
+
+// ==========================================================================
+// Embedding Settings
+// ==========================================================================
+
+function initEmbedding(publicId, adminToken) {
+    const checkbox = document.getElementById('settingAllowEmbedding');
+    const codeSection = document.getElementById('embedCodeSection');
+    const embedCodeTextarea = document.getElementById('embedCode');
+    const previewContainer = document.getElementById('embedPreview');
+    const copyBtn = document.querySelector('.copy-embed-btn');
+
+    if (!checkbox) return;
+
+    const updateEmbedCode = async () => {
+        if (!checkbox.checked) {
+            if (codeSection) codeSection.style.display = 'none';
+            return;
+        }
+
+        if (codeSection) codeSection.style.display = '';
+
+        try {
+            // Get or generate embed token
+            const result = await api.post(`/api/polls/${publicId}/admin/${adminToken}/embed-token`);
+            const embedUrl = result.embed_url;
+            const scriptUrl = `${window.location.origin}${window.BASE_PATH}/assets/js/embed/vote-poll.js`;
+
+            const code = `<script src="${scriptUrl}"><\/script>\n<vote-poll src="${embedUrl}"></vote-poll>`;
+            if (embedCodeTextarea) {
+                embedCodeTextarea.value = code;
+            }
+
+            // Show preview
+            if (previewContainer) {
+                previewContainer.innerHTML = `
+                    <iframe
+                        src="${embedUrl}?preview=1"
+                        style="width: 100%; height: 400px; border: 1px solid var(--color-border); border-radius: var(--radius-md);"
+                        sandbox="allow-scripts allow-forms allow-same-origin"
+                    ></iframe>
+                `;
+            }
+        } catch (err) {
+            showToast('Failed to generate embed code: ' + err.message, 'error');
+        }
+    };
+
+    // Listen for checkbox changes from settings save
+    checkbox.addEventListener('change', () => {
+        // Only update if becoming checked - the save button will handle the API call
+        if (checkbox.checked) {
+            // Delay to allow the save to complete first
+            setTimeout(updateEmbedCode, 500);
+        } else {
+            if (codeSection) codeSection.style.display = 'none';
+        }
+    });
+
+    // Copy button
+    if (copyBtn && embedCodeTextarea) {
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(embedCodeTextarea.value);
+                showToast('Embed code copied to clipboard', 'success');
+            } catch (err) {
+                // Fallback for older browsers
+                embedCodeTextarea.select();
+                document.execCommand('copy');
+                showToast('Embed code copied to clipboard', 'success');
+            }
+        });
+    }
+
+    // Initialize if already checked
+    if (checkbox.checked) {
+        updateEmbedCode();
+    }
 }
