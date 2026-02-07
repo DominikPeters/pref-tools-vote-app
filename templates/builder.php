@@ -275,9 +275,9 @@ ob_start();
                     </label>
                 </div>
 
-                <div class="settings-group" style="margin-top: 1rem;">
-                    <label for="pollLocale" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Poll Language</label>
-                    <select id="pollLocale" class="form-select" style="max-width: 200px;">
+                <div class="settings-group builder-settings-group-spaced">
+                    <label for="pollLocale" class="builder-settings-label">Poll Language</label>
+                    <select id="pollLocale" class="form-select builder-locale-select">
                         <?php foreach ($availableLanguages as $code => $name): ?>
                         <option value="<?= e($code) ?>"><?= e($name) ?></option>
                         <?php endforeach; ?>
@@ -285,11 +285,11 @@ ob_start();
                     <span class="info-icon" data-tooltip="The language used for system text shown to voters (buttons, labels, etc.)" data-tooltip-pos="right">?</span>
                 </div>
 
-                <div class="settings-group" style="margin-top: 1rem;">
+                <div class="settings-group builder-settings-group-spaced">
                     <button type="button" class="btn btn-secondary btn-small" id="editThankYouBtn">
                         Customize Thank You Message
                     </button>
-                    <span id="thankYouStatus" class="status-indicator" style="display: none; margin-left: 0.5rem; color: var(--color-success);">Custom message set</span>
+                    <span id="thankYouStatus" class="status-indicator thank-you-status-indicator" style="display: none;">Custom message set</span>
                 </div>
             </section>
 

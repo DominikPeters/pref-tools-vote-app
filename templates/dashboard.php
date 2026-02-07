@@ -102,7 +102,7 @@ ob_start();
             <div class="account-actions">
                 <button type="button" class="btn btn-secondary" id="changeNameBtn">Change Name</button>
                 <button type="button" class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
-                <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" style="display: inline;">
+                <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" class="account-logout-form">
                     <button type="submit" class="btn btn-secondary">Log Out</button>
                 </form>
             </div>

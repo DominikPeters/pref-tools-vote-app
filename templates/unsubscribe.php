@@ -5,11 +5,11 @@ ob_start();
 
 <div class="auth-container">
     <div class="container">
-        <div class="auth-card card" style="text-align: center;">
+        <div class="auth-card card unsubscribe-card">
             <?php if (!$isValid): ?>
                 <h2>Invalid Link</h2>
                 <p>This unsubscribe link is invalid or has expired.</p>
-                <p style="margin-top: 2rem;">
+                <p class="unsubscribe-action">
                     <a href="<?= e(url('/')) ?>" class="btn btn-primary">Go to Homepage</a>
                 </p>
             <?php else: ?>
@@ -21,16 +21,16 @@ ob_start();
                 <div id="successState" style="display: none;">
                     <h2 id="successTitle"></h2>
                     <p id="successMessage"></p>
-                    <p style="color: #666; margin-top: 1rem;">
+                    <p class="unsubscribe-email">
                         Email: <strong><?= e($email) ?></strong>
                     </p>
-                    <div id="toggleAction" style="margin-top: 2rem;"></div>
+                    <div id="toggleAction" class="unsubscribe-action"></div>
                 </div>
 
                 <div id="errorState" style="display: none;">
                     <h2>Something Went Wrong</h2>
                     <p id="errorMessage">An error occurred. Please try again later.</p>
-                    <p style="margin-top: 2rem;">
+                    <p class="unsubscribe-action">
                         <a href="<?= e(url('/')) ?>" class="btn btn-primary">Go to Homepage</a>
                     </p>
                 </div>
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     action: 'resubscribe'
                 }).toString();
                 document.getElementById('toggleAction').innerHTML =
-                    '<p style="color: #666;">Changed your mind?</p>' +
+                    '<p class="unsubscribe-toggle-label">Changed your mind?</p>' +
                     '<a href="' + resubscribeUrl + '" class="btn btn-secondary">Resubscribe</a>';
             } else {
                 document.getElementById('successTitle').textContent = 'Resubscribed Successfully';
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     action: 'unsubscribe'
                 }).toString();
                 document.getElementById('toggleAction').innerHTML =
-                    '<p style="color: #666;">Changed your mind?</p>' +
+                    '<p class="unsubscribe-toggle-label">Changed your mind?</p>' +
                     '<a href="' + unsubscribeUrl + '" class="btn btn-secondary">Unsubscribe</a>';
             }
         } else {

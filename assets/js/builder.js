@@ -1597,18 +1597,18 @@ function openThankYouModal() {
     overlay.className = 'confirm-modal-overlay';
 
     overlay.innerHTML = `
-        <div class="confirm-modal thank-you-modal" style="max-width: 600px;">
+        <div class="confirm-modal thank-you-modal">
             <div class="confirm-modal-header">
                 <h3>Customize Thank You Message</h3>
             </div>
             <div class="confirm-modal-body">
-                <p style="margin-bottom: 0.75rem; color: var(--color-text-muted); font-size: 0.875rem;">
+                <p class="thank-you-modal-description">
                     Shown to voters after they submit. Supports Markdown formatting.
                 </p>
                 <textarea id="thankYouInput" class="thank-you-textarea" rows="6" placeholder="Thank you for voting!&#10;&#10;Your response has been recorded.">${escapeHtml(state.thankYouMessage || '')}</textarea>
-                <div class="thank-you-preview-section" style="margin-top: 1rem;">
-                    <label style="font-size: 0.875rem; color: var(--color-text-muted); display: block; margin-bottom: 0.5rem;">Preview:</label>
-                    <div id="thankYouPreview" class="thank-you-preview markdown" style="padding: 1rem; background: var(--color-bg); border-radius: 0.5rem; min-height: 3rem;"></div>
+                <div class="thank-you-preview-section">
+                    <label class="thank-you-preview-label">Preview:</label>
+                    <div id="thankYouPreview" class="thank-you-preview markdown"></div>
                 </div>
             </div>
             <div class="confirm-modal-actions">
@@ -1631,7 +1631,7 @@ function openThankYouModal() {
         if (text) {
             preview.innerHTML = marked.parse(text);
         } else {
-            preview.innerHTML = '<p style="color: var(--color-text-muted); font-style: italic;">Default message: "Thank you! Your response has been recorded."</p>';
+            preview.innerHTML = '<p class="thank-you-preview-default">Default message: "Thank you! Your response has been recorded."</p>';
         }
     };
 

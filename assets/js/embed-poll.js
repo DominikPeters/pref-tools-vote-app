@@ -135,9 +135,9 @@ function showThankYou(result) {
 
     container.innerHTML = `
         <div class="container">
-            <div class="card" style="text-align: center;">
+            <div class="card poll-thank-you-card">
                 ${messageContent}
-                <div class="thank-you-actions" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                <div class="thank-you-actions embed-thank-you-actions">
                     ${actionsHtml}
                 </div>
             </div>
@@ -153,18 +153,6 @@ function showMessage(message, type) {
     const toast = document.createElement('div');
     toast.className = `embed-toast embed-toast-${type}`;
     toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        background: ${type === 'error' ? '#ef4444' : '#22c55e'};
-        color: white;
-        font-size: 0.875rem;
-        z-index: 1000;
-    `;
     document.body.appendChild(toast);
 
     setTimeout(() => toast.remove(), 5000);

@@ -492,6 +492,10 @@
     color: var(--color-text-muted);
 }
 
+.form-hint-block {
+    margin-bottom: var(--spacing-md);
+}
+
 /* Secret field with masked value */
 input[data-secret].has-value:not(:focus) {
     font-family: var(--font-mono);

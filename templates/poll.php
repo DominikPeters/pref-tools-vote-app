@@ -49,7 +49,7 @@ ob_start();
 
         <?php if ($poll->status === 'open'): ?>
             <?php if ($hasVoted && !$isEditing): ?>
-                <div class="card" style="text-align: center;">
+                <div class="card poll-thank-you-card">
                     <?php if ($poll->thankYouMessage): ?>
                         <div class="thank-you-custom markdown">
                             <?= markdown($poll->thankYouMessage) ?>
@@ -59,11 +59,11 @@ ob_start();
                         <p><?= __('response_recorded') ?></p>
                     <?php endif; ?>
                     <?php if ($poll->areResultsViewable()): ?>
-                        <div style="margin-top: 2rem;">
+                        <div class="poll-thank-you-actions">
                             <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-primary"><?= __('view_results') ?></a>
                         </div>
                     <?php else: ?>
-                        <p style="color: var(--color-text-muted); margin-top: 1rem;">
+                        <p class="poll-thank-you-hint">
                             <?= __('can_close_page') ?>
                         </p>
                     <?php endif; ?>

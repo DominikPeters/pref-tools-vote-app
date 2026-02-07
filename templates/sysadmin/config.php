@@ -164,7 +164,7 @@ ob_start();
                 </div>
 
                 <h3>Cloudflare Turnstile</h3>
-                <p class="form-hint" style="margin-bottom: var(--spacing-md);">
+                <p class="form-hint form-hint-block">
                     Turnstile is a CAPTCHA alternative. Get your keys at
                     <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener">Cloudflare Dashboard</a>
                 </p>
@@ -207,7 +207,7 @@ ob_start();
                 </div>
 
                 <h3>Category Thresholds</h3>
-                <p class="form-hint" style="margin-bottom: var(--spacing-md);">
+                <p class="form-hint form-hint-block">
                     Adjust how sensitive each category is. Lower values = stricter (block more content). Higher values = more permissive.
                     Range: 0.0 (block everything) to 1.0 (block nothing).
                 </p>

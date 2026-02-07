@@ -145,14 +145,14 @@ function initForm() {
 
             container.innerHTML = `
                 <div class="container">
-                    <div class="card" style="text-align: center;">
+                    <div class="card poll-thank-you-card">
                         ${messageContent}
                         ${actionsHtml ? `
-                            <div class="thank-you-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <div class="thank-you-actions poll-thank-you-actions">
                                 ${actionsHtml}
                             </div>
                         ` : `
-                            <p style="color: var(--color-text-muted); margin-top: 1rem;">
+                            <p class="poll-thank-you-hint">
                                 You can now close this page.
                             </p>
                         `}
@@ -1319,4 +1319,3 @@ function prefillForm(response) {
         }
     });
 }
-

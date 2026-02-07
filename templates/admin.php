@@ -331,17 +331,17 @@ $votingModeDescriptions = [
                             </div>
                         </div>
 
-                        <div class="setting-group" style="margin-top: 1rem;">
+                        <div class="setting-group embed-preview-group">
                             <label>Preview</label>
                             <div id="embedPreview" class="embed-preview">
                                 <!-- Preview iframe will be inserted here -->
                             </div>
                         </div>
 
-                        <details class="embed-customization" style="margin-top: 1rem;">
+                        <details class="embed-customization embed-customization-block">
                             <summary>Customization Options</summary>
                             <div class="customization-content">
-                                <p style="margin-bottom: 0.5rem;">Use CSS variables to customize the appearance:</p>
+                                <p class="customization-description">Use CSS variables to customize the appearance:</p>
                                 <pre><code>&lt;style&gt;
 vote-poll {
   --vp-color-primary: #2563eb;

@@ -818,7 +818,7 @@ function initEmbedding(publicId, adminToken) {
                 previewContainer.innerHTML = `
                     <iframe
                         src="${embedUrl}?preview=1"
-                        style="width: 100%; height: 400px; border: 1px solid var(--color-border); border-radius: var(--radius-md);"
+                        class="embed-preview-iframe"
                         sandbox="allow-scripts allow-forms allow-same-origin"
                     ></iframe>
                 `;

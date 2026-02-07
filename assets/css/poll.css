@@ -137,6 +137,23 @@
     margin-bottom: var(--spacing-lg);
 }
 
+.poll-thank-you-card {
+    text-align: center;
+}
+
+.poll-thank-you-actions {
+    margin-top: var(--spacing-xl);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.poll-thank-you-hint {
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-md);
+}
+
 /* --------------------------------------------------------------------------
    Questions Container
    -------------------------------------------------------------------------- */

@@ -621,6 +621,25 @@
     margin-bottom: var(--spacing-sm);
 }
 
+.builder-settings-group-spaced {
+    margin-top: var(--spacing-md);
+}
+
+.builder-settings-label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+}
+
+.builder-locale-select {
+    max-width: 200px;
+}
+
+.thank-you-status-indicator {
+    margin-left: var(--spacing-sm);
+    color: var(--color-success);
+}
+
 .radio-group {
     display: flex;
     flex-direction: column;
@@ -708,6 +727,39 @@
     color: var(--color-text-muted);
     font-style: italic;
     margin-left: var(--spacing-xs);
+}
+
+.thank-you-modal {
+    max-width: 600px;
+}
+
+.thank-you-modal-description {
+    margin-bottom: 0.75rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.thank-you-preview-section {
+    margin-top: var(--spacing-md);
+}
+
+.thank-you-preview-label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: var(--spacing-sm);
+}
+
+.thank-you-preview {
+    padding: var(--spacing-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-sm);
+    min-height: 3rem;
+}
+
+.thank-you-preview-default {
+    color: var(--color-text-muted);
+    font-style: italic;
 }
 
 /* Section header editor styling */

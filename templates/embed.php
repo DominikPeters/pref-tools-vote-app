@@ -20,51 +20,7 @@ $translations = Translator::getAllTranslations();
     <link rel="stylesheet" href="<?= basePath() ?>/assets/css/main.css">
     <link rel="stylesheet" href="<?= basePath() ?>/assets/css/question.css">
     <link rel="stylesheet" href="<?= basePath() ?>/assets/css/poll.css">
-    <style>
-        /* Embed-specific overrides */
-        body {
-            background: transparent;
-            min-height: auto;
-        }
-        .poll-container {
-            padding: 0;
-        }
-        .container {
-            max-width: 100%;
-            padding: 0;
-        }
-        .poll-header {
-            margin-bottom: 1rem;
-        }
-        .poll-footer {
-            display: none;
-        }
-        .embed-footer {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-border);
-            text-align: center;
-        }
-        .embed-footer a {
-            color: var(--color-text-muted);
-            text-decoration: none;
-            font-size: 0.875rem;
-        }
-        .embed-footer a:hover {
-            text-decoration: underline;
-        }
-        <?php if ($isPreview): ?>
-        .preview-banner {
-            background: var(--color-warning-bg, #fef3c7);
-            color: var(--color-warning-text, #92400e);
-            padding: 0.5rem 1rem;
-            text-align: center;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-            border-radius: var(--radius-md);
-        }
-        <?php endif; ?>
-    </style>
+    <link rel="stylesheet" href="<?= basePath() ?>/assets/css/embed.css">
 </head>
 <body>
     <script>

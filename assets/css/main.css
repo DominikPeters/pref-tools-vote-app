@@ -1373,6 +1373,23 @@ textarea {
     width: 100%;
 }
 
+.unsubscribe-card {
+    text-align: center;
+}
+
+.unsubscribe-action {
+    margin-top: var(--spacing-xl);
+}
+
+.unsubscribe-email,
+.unsubscribe-toggle-label {
+    color: var(--color-text-muted);
+}
+
+.unsubscribe-email {
+    margin-top: var(--spacing-md);
+}
+
 .auth-tabs {
     display: flex;
     gap: var(--spacing-sm);
@@ -1661,6 +1678,10 @@ textarea {
     row-gap: var(--spacing-sm);
 }
 
+.account-logout-form {
+    display: inline;
+}
+
 @media (max-width: 600px) {
     .dashboard-container .card {
         padding: var(--spacing-lg) var(--spacing-md);
@@ -1688,6 +1709,11 @@ textarea {
 .error-card {
     text-align: center;
     max-width: 400px;
+}
+
+.maintenance-admin-note {
+    font-size: 0.875rem;
+    margin-top: var(--spacing-md);
 }
 
 /* --------------------------------------------------------------------------
