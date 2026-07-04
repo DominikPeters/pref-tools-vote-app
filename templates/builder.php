@@ -1,11 +1,19 @@
 <?php
 use App\Services\TurnstileService;
 use App\i18n\Languages;
+use App\i18n\Translator;
 
 $isEditing = isset($poll) && $poll !== null;
 $availableLanguages = Languages::getAll();
+$builderLocale = $isEditing ? ($poll->locale ?? Languages::getDefault()) : Languages::getDefault();
+Translator::setLocale($builderLocale);
+$translations = Translator::getAllTranslations();
+$allTranslations = [];
+foreach ($availableLanguages as $code => $name) {
+    $allTranslations[$code] = Translator::getAllTranslationsForLocale($code);
+}
 $isLoggedIn = isset($user) && $user;
-$title = ($isEditing ? 'Edit: ' . e($poll->title) : 'Create Poll') . ' - Pref.Tools Vote';
+$title = ($isEditing ? __('edit_poll') . ': ' . $poll->title : __('create_poll')) . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/builder.css'];
 $extraJs = ['/assets/js/builder.js'];
 
@@ -14,6 +22,12 @@ $needsTurnstile = !$isEditing && !$isLoggedIn && TurnstileService::isConfigured(
 $turnstileSiteKey = $needsTurnstile ? TurnstileService::getSiteKey() : '';
 ob_start();
 ?>
+
+<script>
+    window.LOCALE = <?= json_encode($builderLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.BUILDER_TRANSLATIONS = <?= json_encode($allTranslations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+</script>
 
 <?php if ($isEditing): ?>
 <script>
@@ -39,29 +53,29 @@ ob_start();
         <div class="container">
             <?php if ($isEditing): ?>
             <nav class="breadcrumbs">
-                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>">Poll Admin</a>
+                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>"><?= e(__('poll_admin')) ?></a>
                 <span class="separator">/</span>
-                <span class="current">Edit Poll</span>
+                <span class="current"><?= e(__('edit_poll')) ?></span>
             </nav>
             <?php endif; ?>
-            <h1><?= $isEditing ? 'Edit Poll' : 'Create a New Poll' ?></h1>
+            <h1><?= e($isEditing ? __('edit_poll') : __('create_new_poll')) ?></h1>
             <div class="builder-actions">
                 <?php if ($isEditing): ?>
-                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelBtn"><?= e(__('cancel')) ?></button>
                 <?php else: ?>
-                <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;">Clear</button>
+                <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;"><?= e(__('clear')) ?></button>
                 <?php endif; ?>
-                <button type="button" class="btn btn-secondary" id="previewBtn">Preview</button>
+                <button type="button" class="btn btn-secondary" id="previewBtn"><?= e(__('preview')) ?></button>
                 <?php if ($isEditing && $poll->status === 'draft'): ?>
-                <button type="button" class="btn btn-primary" id="saveBtn">Update Draft</button>
-                <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
+                <button type="button" class="btn btn-primary" id="saveBtn"><?= e(__('update_draft')) ?></button>
+                <button type="button" class="btn btn-success" id="publishBtn"><?= e(__('publish')) ?></button>
                 <?php elseif ($isEditing): ?>
-                <button type="button" class="btn btn-success" id="publishBtn">Save Changes</button>
+                <button type="button" class="btn btn-success" id="publishBtn"><?= e(__('save_changes')) ?></button>
                 <?php else: ?>
                 <?php if (isset($user) && $user): ?>
-                <button type="button" class="btn btn-primary" id="saveBtn">Save Draft</button>
+                <button type="button" class="btn btn-primary" id="saveBtn"><?= e(__('save_draft')) ?></button>
                 <?php endif; ?>
-                <button type="button" class="btn btn-success" id="publishBtn">Publish</button>
+                <button type="button" class="btn btn-success" id="publishBtn"><?= e(__('publish')) ?></button>
                 <?php endif; ?>
             </div>
         </div>
@@ -72,11 +86,11 @@ ob_start();
             <!-- Poll Metadata -->
             <section class="card poll-meta">
                 <div class="form-group">
-                    <input type="text" id="pollTitle" class="input-title" placeholder="Untitled Poll" value="">
+                    <input type="text" id="pollTitle" class="input-title" placeholder="<?= e(__('untitled_poll')) ?>" value="">
                 </div>
                 <div class="form-group poll-description-group">
-                    <button type="button" class="btn-add-description" id="addPollDescriptionBtn">+ Add description</button>
-                    <textarea id="pollDescription" class="input-description" style="display: none;" placeholder="Description (optional, Markdown supported)"></textarea>
+                    <button type="button" class="btn-add-description" id="addPollDescriptionBtn">+ <?= e(__('add_description')) ?></button>
+                    <textarea id="pollDescription" class="input-description" style="display: none;" placeholder="<?= e(__('description_markdown_placeholder')) ?>"></textarea>
                     <div id="pollDescriptionPreview" class="description-preview markdown" style="display: none;"></div>
                 </div>
             </section>
@@ -89,32 +103,32 @@ ob_start();
             <!-- Add Question Button & Type Selector Tray -->
             <div class="add-question-wrapper">
                 <button type="button" class="btn btn-add" id="addQuestionBtn">
-                    + Add Question
+                    + <?= e(__('add_question')) ?>
                 </button>
                 <div class="question-type-tray" id="questionTypeTray">
                     <!-- Choice -->
                     <div class="type-category">
-                        <div class="type-category-label">Choice</div>
+                        <div class="type-category-label"><?= e(__('category_choice')) ?></div>
                         <button type="button" class="type-btn" data-type="single_choice">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="9"/>
                                 <circle cx="12" cy="12" r="4" fill="currentColor"/>
                             </svg>
-                            <span>Single Choice</span>
+                            <span><?= e(__('type_single_choice')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="approval">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="3"/>
                                 <polyline points="7 12 10 15 17 8"/>
                             </svg>
-                            <span>Approval</span>
+                            <span><?= e(__('type_approval')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="participatory_budgeting">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="5" width="18" height="14" rx="2"/>
                                 <path d="M8 15V9M12 15v-3M16 15v-5"/>
                             </svg>
-                            <span>Participatory Budgeting</span>
+                            <span><?= e(__('type_participatory_budgeting')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="distribution">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -123,19 +137,19 @@ ob_start();
                                 <path d="M12 3v9l7.79 4.5" fill="none"/>
                                 <path d="M12 12L4.21 16.5" fill="none"/>
                             </svg>
-                            <span>Distribution</span>
+                            <span><?= e(__('type_distribution')) ?></span>
                         </button>
                     </div>
                     <!-- Ranking -->
                     <div class="type-category">
-                        <div class="type-category-label">Ranking</div>
+                        <div class="type-category-label"><?= e(__('category_ranking')) ?></div>
                         <button type="button" class="type-btn" data-type="ranking">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                                 <rect x="4" y="3" width="16" height="5" rx="1"/>
                                 <rect x="4" y="10" width="16" height="5" rx="1"/>
                                 <rect x="4" y="17" width="16" height="5" rx="1"/>
                             </svg>
-                            <span>Full Ranking</span>
+                            <span><?= e(__('type_ranking')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="ranking_truncated">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -143,7 +157,7 @@ ob_start();
                                 <rect x="4" y="10" width="16" height="5" rx="1"/>
                                 <rect x="4" y="17" width="16" height="5" rx="1" stroke-dasharray="1 1" opacity="0.4"/>
                             </svg>
-                            <span>Partial Ranking</span>
+                            <span><?= e(__('type_ranking_truncated')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="ranking_with_ties">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -152,24 +166,24 @@ ob_start();
                                 <rect x="13" y="8" width="7" height="4" rx="1"/>
                                 <rect x="7" y="14" width="10" height="4" rx="1"/>
                             </svg>
-                            <span>Ranking with Ties</span>
+                            <span><?= e(__('type_ranking_with_ties')) ?></span>
                         </button>
                     </div>
                     <!-- Rating -->
                     <div class="type-category">
-                        <div class="type-category-label">Rating</div>
+                        <div class="type-category-label"><?= e(__('category_rating')) ?></div>
                         <button type="button" class="type-btn" data-type="star">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                             </svg>
-                            <span>Star Rating</span>
+                            <span><?= e(__('type_star')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="grade">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="4" y="4" width="16" height="16" rx="2"/>
                                 <text x="8" y="16" font-size="12" font-weight="bold" fill="currentColor" stroke="none">A</text>
                             </svg>
-                            <span>Grades</span>
+                            <span><?= e(__('type_grade')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="yes_no_abstain">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -178,25 +192,25 @@ ob_start();
                                 <circle cx="17.5" cy="12" r="5"/>
                                 <path d="M15.5 10l4 4M19.5 10l-4 4" stroke-width="1.5"/>
                             </svg>
-                            <span>Yes / No</span>
+                            <span><?= e(__('type_yes_no_abstain')) ?></span>
                         </button>
                     </div>
                     <!-- Other -->
                     <div class="type-category">
-                        <div class="type-category-label">Other</div>
+                        <div class="type-category-label"><?= e(__('category_other')) ?></div>
                         <button type="button" class="type-btn" data-type="text_single">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="2" y="8" width="20" height="8" rx="2"/>
                                 <path d="M5 12h10"/>
                             </svg>
-                            <span>Short Text</span>
+                            <span><?= e(__('type_text_single')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="text_multi">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="2" y="3" width="20" height="18" rx="2"/>
                                 <path d="M5 7h14M5 11h12M5 15h8"/>
                             </svg>
-                            <span>Long Text</span>
+                            <span><?= e(__('type_text_multi')) ?></span>
                         </button>
                         <button type="button" class="type-btn" data-type="section_header">
                             <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -204,7 +218,7 @@ ob_start();
                                 <path d="M2 15h20" stroke-width="1.5"/>
                                 <path d="M2 19h14" stroke-width="1" opacity="0.5"/>
                             </svg>
-                            <span>Section Header</span>
+                            <span><?= e(__('type_section_header')) ?></span>
                         </button>
                     </div>
                 </div>
@@ -212,8 +226,8 @@ ob_start();
 
             <!-- Voting Mode -->
             <section class="voting-mode-panel card">
-                <h2>Voting Mode</h2>
-                <p class="section-description">Choose how voters will access your poll and how their votes are recorded.</p>
+                <h2><?= e(__('voting_mode')) ?></h2>
+                <p class="section-description"><?= e(__('voting_mode_description')) ?></p>
 
                 <div class="mode-options">
                     <label class="mode-option">
@@ -224,9 +238,9 @@ ob_start();
                                     <circle cx="12" cy="12" r="10"/>
                                     <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                                 </svg>
-                                <h3>Open</h3>
+                                <h3><?= e(__('voting_mode_open')) ?></h3>
                             </div>
-                            <p>Anyone with the link can vote. One vote per browser.</p>
+                            <p><?= e(__('voting_mode_open_description')) ?></p>
                         </div>
                     </label>
                     <label class="mode-option">
@@ -237,9 +251,9 @@ ob_start();
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
                                 </svg>
-                                <h3>Identified</h3>
+                                <h3><?= e(__('voting_mode_identified')) ?></h3>
                             </div>
-                            <p>One vote per person via access tokens or email invitations. Votes are linked to identity.</p>
+                            <p><?= e(__('voting_mode_identified_description')) ?></p>
                         </div>
                     </label>
                     <label class="mode-option">
@@ -251,45 +265,45 @@ ob_start();
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                     <circle cx="12" cy="16" r="1" fill="currentColor"/>
                                 </svg>
-                                <h3>Secret Ballot</h3>
+                                <h3><?= e(__('voting_mode_secret_ballot')) ?></h3>
                             </div>
-                            <p>One vote per person, but votes are completely anonymous.</p>
+                            <p><?= e(__('voting_mode_secret_ballot_description')) ?></p>
                         </div>
                     </label>
                 </div>
 
                 <div id="modeLockWarning" class="warning-banner" style="display: none;">
-                    <strong>Voting mode is locked.</strong> Responses have been submitted. Delete all responses to change the mode.
+                    <strong><?= e(__('voting_mode_locked')) ?></strong> <?= e(__('voting_mode_locked_description')) ?>
                 </div>
             </section>
 
             <!-- Display Options -->
             <section class="settings-panel card">
-                <h2>Display Options</h2>
+                <h2><?= e(__('display_options')) ?></h2>
 
                 <div class="settings-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="randomizeOptions">
-                        <span>Randomize option order for each voter</span>
-                        <span class="info-icon" data-tooltip="Randomizing option order helps reduce position bias in responses" data-tooltip-pos="right">?</span>
+                        <span><?= e(__('randomize_options_label')) ?></span>
+                        <span class="info-icon" data-tooltip="<?= e(__('randomize_options_tooltip')) ?>" data-tooltip-pos="right">?</span>
                     </label>
                 </div>
 
                 <div class="settings-group builder-settings-group-spaced">
-                    <label for="pollLocale" class="builder-settings-label">Poll Language</label>
+                    <label for="pollLocale" class="builder-settings-label"><?= e(__('poll_language')) ?></label>
                     <select id="pollLocale" class="form-select builder-locale-select">
                         <?php foreach ($availableLanguages as $code => $name): ?>
                         <option value="<?= e($code) ?>"><?= e($name) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span class="info-icon" data-tooltip="The language used for system text shown to voters (buttons, labels, etc.)" data-tooltip-pos="right">?</span>
+                    <span class="info-icon" data-tooltip="<?= e(__('poll_language_tooltip')) ?>" data-tooltip-pos="right">?</span>
                 </div>
 
                 <div class="settings-group builder-settings-group-spaced">
                     <button type="button" class="btn btn-secondary btn-small" id="editThankYouBtn">
-                        Customize Thank You Message
+                        <?= e(__('customize_thank_you_message')) ?>
                     </button>
-                    <span id="thankYouStatus" class="status-indicator thank-you-status-indicator" style="display: none;">Custom message set</span>
+                    <span id="thankYouStatus" class="status-indicator thank-you-status-indicator" style="display: none;"><?= e(__('custom_message_set')) ?></span>
                 </div>
             </section>
 

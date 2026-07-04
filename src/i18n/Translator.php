@@ -50,12 +50,13 @@ class Translator
     private static function loadStrings(): void
     {
         $file = __DIR__ . '/' . self::$locale . '.php';
+        $englishStrings = require __DIR__ . '/en.php';
 
         if (file_exists($file)) {
-            self::$strings = require $file;
+            self::$strings = array_replace($englishStrings, require $file);
         } else {
             // Fallback to English
-            self::$strings = require __DIR__ . '/en.php';
+            self::$strings = $englishStrings;
         }
     }
 

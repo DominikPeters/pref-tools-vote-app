@@ -115,6 +115,17 @@ class TranslatorTest extends TestCase
         $this->assertEquals('Submit Vote', $result);
     }
 
+    public function test_locale_falls_back_to_english_for_missing_key(): void
+    {
+        Translator::setLocale('fr');
+
+        $this->assertEquals('Clear Poll', Translator::translate('clear_poll'));
+
+        $translations = Translator::getAllTranslations();
+        $this->assertArrayHasKey('clear_poll', $translations);
+        $this->assertEquals('Clear Poll', $translations['clear_poll']);
+    }
+
     public function test_translate_preserves_unknown_parameters(): void
     {
         // If a parameter placeholder exists but no value is provided,

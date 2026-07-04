@@ -10,7 +10,8 @@
  */
 
 import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath, escapeHtml } from './app.js';
-import { renderQuestion, OPTION_TYPES, QUESTION_TYPES } from './question-renderer.js';
+import { t } from './i18n.js';
+import { renderQuestion, OPTION_TYPES, getQuestionTypes } from './question-renderer.js';
 import { marked } from './marked.esm.js';
 
 // Configure marked to match Parsedown behavior
@@ -24,7 +25,7 @@ marked.setOptions({
 // ==========================================================================
 
 const defaultState = {
-    title: 'Untitled Poll',
+    title: t('untitled_poll'),
     description: '',
     votingMode: 'open',
     randomizeOptions: false,
@@ -64,16 +65,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    setBuilderLocale(state.locale);
     initElements();
     render();
     setupAutoSave();
     setupClickHandling();
 });
 
+function setBuilderLocale(locale) {
+    const translations = window.BUILDER_TRANSLATIONS?.[locale];
+    if (!translations) return;
+    window.LOCALE = locale;
+    window.TRANSLATIONS = translations;
+}
+
 function initElements() {
     // Title
     document.getElementById('pollTitle').addEventListener('input', (e) => {
-        state.title = e.target.value || 'Untitled Poll';
+        state.title = e.target.value || t('untitled_poll');
         markDirty();
     });
 
@@ -134,6 +143,8 @@ function initElements() {
     // Poll language
     document.getElementById('pollLocale').addEventListener('change', (e) => {
         state.locale = e.target.value;
+        setBuilderLocale(state.locale);
+        renderQuestions();
         markDirty();
     });
 
@@ -186,9 +197,9 @@ function initElements() {
     if (clearBtn) {
         clearBtn.addEventListener('click', async () => {
             const confirmed = await showConfirmModal({
-                title: 'Clear Poll',
-                message: 'Are you sure you want to clear all questions and settings? This cannot be undone.',
-                confirmText: 'Clear All',
+                title: t('clear_poll'),
+                message: t('clear_poll_confirm'),
+                confirmText: t('clear_all'),
                 danger: true,
             });
             if (confirmed) {
@@ -333,7 +344,7 @@ function renderQuestions() {
 
         // Drag handle is always present (visible on hover or always in edit mode)
         const dragHandle = `
-            <div class="drag-handle-question" data-tooltip="Drag to reorder" data-tooltip-pos="right">
+            <div class="drag-handle-question" data-tooltip="${escapeAttr(t('drag_to_reorder'))}" data-tooltip-pos="right">
                 <span class="drag-dots">&#8942;&#8942;</span>
             </div>
         `;
@@ -378,13 +389,18 @@ function getRequiredBehavior(question) {
 /**
  * Grade preset definitions
  */
-const GRADE_PRESETS = {
-    'default': { label: 'Excellent → Reject', grades: ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'] },
-    'a-f': { label: 'A – F', grades: ['A', 'B', 'C', 'D', 'E', 'F'] },
-    'plus-minus': { label: '++ / + / 0 / − / −−', grades: ['++', '+', '0', '−', '−−'] },
-    'pass-fail': { label: 'Pass / Fail', grades: ['Pass', 'Fail'] },
-    'custom': { label: 'Custom...', grades: null },
-};
+function getGradePresets() {
+    return {
+        'default': {
+            label: t('grade_preset_default'),
+            grades: [t('grade_excellent'), t('grade_very_good'), t('grade_good'), t('grade_fair'), t('grade_poor'), t('grade_reject')],
+        },
+        'a-f': { label: t('grade_preset_a_f'), grades: ['A', 'B', 'C', 'D', 'E', 'F'] },
+        'plus-minus': { label: t('grade_preset_plus_minus'), grades: ['++', '+', '0', '−', '−−'] },
+        'pass-fail': { label: t('grade_preset_pass_fail'), grades: [t('grade_pass'), t('grade_fail')] },
+        'custom': { label: t('grade_preset_custom'), grades: null },
+    };
+}
 
 /**
  * Render type-specific settings for a question
@@ -399,7 +415,7 @@ function renderTypeSettings(question) {
                 <div class="type-settings single-choice-settings">
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-other" ${scAllowOther ? 'checked' : ''}>
-                        <span>Allow "Other" option</span>
+                        <span>${t('allow_other_option')}</span>
                     </label>
                 </div>
             `;
@@ -414,16 +430,16 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings approval-settings" data-option-count="${optionCount}">
                     <label>
-                        <span>Min:</span>
+                        <span>${t('min_label')}</span>
                         <input type="number" class="setting-min" value="${min}" min="0" max="${optionCount}">
                     </label>
                     <label>
-                        <span>Max:</span>
-                        <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="All">
+                        <span>${t('max_label')}</span>
+                        <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-other" ${apAllowOther ? 'checked' : ''}>
-                        <span>Allow "Other"</span>
+                        <span>${t('allow_other')}</span>
                     </label>
                 </div>
             `;
@@ -437,15 +453,15 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings pb-settings" data-option-count="${pbOptionCount}">
                     <label>
-                        <span>Min:</span>
+                        <span>${t('min_label')}</span>
                         <input type="number" class="setting-min" value="${pbMin}" min="0" max="${pbOptionCount}">
                     </label>
                     <label>
-                        <span>Max:</span>
-                        <input type="number" class="setting-max" value="${pbMaxDisplay}" min="1" max="${pbOptionCount}" placeholder="All">
+                        <span>${t('max_label')}</span>
+                        <input type="number" class="setting-max" value="${pbMaxDisplay}" min="1" max="${pbOptionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label>
-                        <span>Currency:</span>
+                        <span>${t('currency_label')}</span>
                         <input type="text" class="setting-currency" value="${escapeAttr(currency)}" placeholder="$, €, zł...">
                     </label>
                 </div>
@@ -459,12 +475,12 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings ranking-truncated-settings" data-option-count="${rtOptionCount}">
                     <label>
-                        <span>Min:</span>
+                        <span>${t('min_label')}</span>
                         <input type="number" class="setting-min" value="${rtMin}" min="0" max="${rtOptionCount}">
                     </label>
                     <label>
-                        <span>Max:</span>
-                        <input type="number" class="setting-max" value="${rtMaxDisplay}" min="1" max="${rtOptionCount}" placeholder="All">
+                        <span>${t('max_label')}</span>
+                        <input type="number" class="setting-max" value="${rtMaxDisplay}" min="1" max="${rtOptionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                 </div>
             `;
@@ -474,14 +490,15 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings star-settings">
                     <label>
-                        <span>Stars:</span>
+                        <span>${t('stars_label')}</span>
                         <input type="number" class="setting-star-count" value="${starCount}" min="2" max="10">
                     </label>
                 </div>
             `;
 
         case 'grade':
-            const currentGrades = settings.grades || GRADE_PRESETS['default'].grades;
+            const gradePresets = getGradePresets();
+            const currentGrades = settings.grades || gradePresets['default'].grades;
             const currentPreset = settings.preset || 'default';
             const isCustom = currentPreset === 'custom';
             const customValue = isCustom ? currentGrades.join(', ') : '';
@@ -489,16 +506,16 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings grade-settings">
                     <label>
-                        <span>Scale:</span>
+                        <span>${t('scale_label')}</span>
                         <select class="setting-grade-preset">
-                            ${Object.entries(GRADE_PRESETS).map(([key, preset]) =>
+                            ${Object.entries(gradePresets).map(([key, preset]) =>
                                 `<option value="${key}" ${key === currentPreset ? 'selected' : ''}>${preset.label}</option>`
                             ).join('')}
                         </select>
                     </label>
                     <label class="custom-grades-row" style="${isCustom ? '' : 'display: none'}">
                         <input type="text" class="setting-custom-grades" value="${escapeAttr(customValue)}"
-                            placeholder="Comma separated, e.g. Excellent, Good, Poor">
+                            placeholder="${escapeAttr(t('custom_grades_placeholder'))}">
                     </label>
                 </div>
             `;
@@ -509,7 +526,7 @@ function renderTypeSettings(question) {
                 <div class="type-settings yna-settings">
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-abstain" ${allowAbstain ? 'checked' : ''}>
-                        <span>Allow "Abstain"</span>
+                        <span>${t('allow_abstain')}</span>
                     </label>
                 </div>
             `;
@@ -525,20 +542,20 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings distribution-settings" data-option-count="${distOptionCount}">
                     <label>
-                        <span>Budget:</span>
+                        <span>${t('budget_label')}</span>
                         <input type="number" class="setting-budget" value="${distBudget}" min="1" placeholder="100">
                     </label>
                     <label>
-                        <span>Max per option:</span>
-                        <input type="number" class="setting-max-per-option" value="${distMaxDisplay}" min="1" max="${distBudget}" placeholder="All">
+                        <span>${t('max_per_option_label')}</span>
+                        <input type="number" class="setting-max-per-option" value="${distMaxDisplay}" min="1" max="${distBudget}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label>
-                        <span>Spread across at least:</span>
+                        <span>${t('spread_across_at_least_label')}</span>
                         <input type="number" class="setting-min-options" value="${distMinOptionsDisplay}" min="1" max="${distOptionCount}" placeholder="1">
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-require-all" ${distRequireAll ? 'checked' : ''}>
-                        <span>Require using all points</span>
+                        <span>${t('require_using_all_points')}</span>
                     </label>
                 </div>
             `;
@@ -552,8 +569,8 @@ function renderTypeSettings(question) {
  * Render the editing UI for a question
  */
 function renderQuestionEditor(question, index, questionNumber) {
-    const typeOptions = QUESTION_TYPES.map(t =>
-        `<option value="${t.value}" ${t.value === question.type ? 'selected' : ''}>${t.label}</option>`
+    const typeOptions = getQuestionTypes().map(type =>
+        `<option value="${escapeAttr(type.value)}" ${type.value === question.type ? 'selected' : ''}>${escapeHtml(type.label)}</option>`
     ).join('');
 
     const showOptions = OPTION_TYPES.includes(question.type);
@@ -562,30 +579,30 @@ function renderQuestionEditor(question, index, questionNumber) {
 
     // For section headers, show "Section" instead of question number
     const numberDisplay = isSectionHeader ? '' : `<span class="question-number">${questionNumber}.</span>`;
-    const titlePlaceholder = isSectionHeader ? 'Section title' : 'Question text';
+    const titlePlaceholder = isSectionHeader ? t('section_title_placeholder') : t('question_text_placeholder');
 
     return `
         <div class="question-editor ${isSectionHeader ? 'section-header-editor' : ''}">
             <div class="editor-accent-bar"></div>
             <div class="editor-toolbar">
-                <button type="button" class="btn-icon copy-question" data-tooltip="Duplicate">
+                <button type="button" class="btn-icon copy-question" data-tooltip="${escapeAttr(t('duplicate'))}">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon delete-question" data-tooltip="Delete question">
+                <button type="button" class="btn-icon delete-question" data-tooltip="${escapeAttr(t('delete_question'))}">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon move-up" data-tooltip="Move up" ${index === 0 ? 'disabled' : ''}>
+                <button type="button" class="btn-icon move-up" data-tooltip="${escapeAttr(t('move_up'))}" ${index === 0 ? 'disabled' : ''}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15"></polyline>
                     </svg>
                 </button>
-                <button type="button" class="btn-icon move-down" data-tooltip="Move down" ${index === state.questions.length - 1 ? 'disabled' : ''}>
+                <button type="button" class="btn-icon move-down" data-tooltip="${escapeAttr(t('move_down'))}" ${index === state.questions.length - 1 ? 'disabled' : ''}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -594,13 +611,13 @@ function renderQuestionEditor(question, index, questionNumber) {
 
             <div class="editor-header">
                 ${numberDisplay}
-                <input type="text" class="question-title-input" value="${escapeAttr(question.text)}" placeholder="${titlePlaceholder}">
+                <input type="text" class="question-title-input" value="${escapeAttr(question.text)}" placeholder="${escapeAttr(titlePlaceholder)}">
                 <select class="question-type-select">${typeOptions}</select>
             </div>
 
             <div class="editor-description">
-                <button type="button" class="btn-add-description" style="${question.description ? 'display: none' : ''}">+ Add description</button>
-                <textarea class="question-description-input" style="${!question.description ? 'display: none' : ''}" placeholder="Description (optional)">${escapeAttr(question.description || '')}</textarea>
+                <button type="button" class="btn-add-description" style="${question.description ? 'display: none' : ''}">+ ${t('add_description')}</button>
+                <textarea class="question-description-input" style="${!question.description ? 'display: none' : ''}" placeholder="${escapeAttr(t('description_optional_placeholder'))}">${escapeAttr(question.description || '')}</textarea>
             </div>
 
             ${showOptions ? `
@@ -608,7 +625,7 @@ function renderQuestionEditor(question, index, questionNumber) {
                     <div class="options-list" data-question-id="${question._id}">
                         ${question.options.map((opt, i) => renderOptionEditor(opt, i, question)).join('')}
                     </div>
-                    <button type="button" class="btn btn-small btn-add-option">+ Add Option</button>
+                    <button type="button" class="btn btn-small btn-add-option">+ ${t('add_option')}</button>
                 </div>
             ` : ''}
 
@@ -619,8 +636,8 @@ function renderQuestionEditor(question, index, questionNumber) {
                         <input type="checkbox" class="question-required-input"
                             ${question.required || requiredBehavior.forced ? 'checked' : ''}
                             ${requiredBehavior.disabled ? 'disabled' : ''}>
-                        <span>Required</span>
-                        ${requiredBehavior.disabled ? '<span class="required-hint">(always)</span>' : ''}
+                        <span>${t('required')}</span>
+                        ${requiredBehavior.disabled ? `<span class="required-hint">${t('always_parenthetical')}</span>` : ''}
                     </label>
                 ` : ''}
             </div>
@@ -638,10 +655,10 @@ function renderOptionEditor(option, index, question) {
         return `
             <div class="option-editor option-editor-card" data-option-id="${option._id}">
                 <div class="option-card-header">
-                    <span class="option-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">&#9776;</span>
+                    <span class="option-drag-handle" data-tooltip="${escapeAttr(t('drag_to_reorder'))}" data-tooltip-pos="left">&#9776;</span>
                     <span class="option-type-indicator">${getOptionIndicator(question.type)}</span>
-                    <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="Project name">
-                    <button type="button" class="btn-icon delete-option" data-tooltip="Delete option" data-tooltip-pos="left">
+                    <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="${escapeAttr(t('project_name_placeholder'))}">
+                    <button type="button" class="btn-icon delete-option" data-tooltip="${escapeAttr(t('delete_option'))}" data-tooltip-pos="left">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -649,10 +666,10 @@ function renderOptionEditor(option, index, question) {
                     </button>
                 </div>
                 <div class="option-card-body">
-                    <textarea class="option-description-input" placeholder="Description (supports Markdown)" rows="2">${escapeAttr(option.description || '')}</textarea>
+                    <textarea class="option-description-input" placeholder="${escapeAttr(t('description_supports_markdown_placeholder'))}" rows="2">${escapeAttr(option.description || '')}</textarea>
                     <div class="option-cost-row">
                         <label>
-                            <span>Cost:</span>
+                            <span>${t('cost_label')}</span>
                             <input type="number" class="option-cost-input" value="${cost}" placeholder="0" min="0">
                         </label>
                     </div>
@@ -663,10 +680,10 @@ function renderOptionEditor(option, index, question) {
 
     return `
         <div class="option-editor" data-option-id="${option._id}">
-            <span class="option-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">&#9776;</span>
+            <span class="option-drag-handle" data-tooltip="${escapeAttr(t('drag_to_reorder'))}" data-tooltip-pos="left">&#9776;</span>
             <span class="option-type-indicator">${getOptionIndicator(question.type)}</span>
-            <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="Option ${index + 1}">
-            <button type="button" class="btn-icon delete-option" data-tooltip="Delete option" data-tooltip-pos="left">
+            <input type="text" class="option-label-input" value="${escapeAttr(option.label)}" placeholder="${escapeAttr(t('option_number', { number: index + 1 }))}">
+            <button type="button" class="btn-icon delete-option" data-tooltip="${escapeAttr(t('delete_option'))}" data-tooltip-pos="left">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -740,8 +757,8 @@ function setupEditorEvents(wrapper, question) {
         // Add default options if switching to option type
         if (OPTION_TYPES.includes(question.type) && question.options.length === 0) {
             question.options = [
-                { _id: generateTempId(), label: 'Option 1' },
-                { _id: generateTempId(), label: 'Option 2' },
+                { _id: generateTempId(), label: t('option_number', { number: 1 }) },
+                { _id: generateTempId(), label: t('option_number', { number: 2 }) },
             ];
         }
         renderQuestions();
@@ -785,7 +802,7 @@ function setupEditorEvents(wrapper, question) {
         markDirty();
 
         // Show undo toast
-        showUndoToast('Question deleted', () => {
+        showUndoToast(t('question_deleted'), () => {
             // Restore the question at its original position
             state.questions.splice(questionIndex, 0, deletedQuestion);
             activeQuestionId = deletedQuestion._id;
@@ -820,7 +837,7 @@ function setupEditorEvents(wrapper, question) {
             const newOptionId = generateTempId();
             question.options.push({
                 _id: newOptionId,
-                label: `Option ${question.options.length + 1}`,
+                label: t('option_number', { number: question.options.length + 1 }),
             });
             renderQuestions();
             markDirty();
@@ -935,6 +952,7 @@ function setupTypeSettingsEvents(wrapper, question) {
     if (gradePresetSelect) {
         gradePresetSelect.addEventListener('change', (e) => {
             const preset = e.target.value;
+            const gradePresets = getGradePresets();
             question.settings.preset = preset;
 
             if (preset === 'custom') {
@@ -946,7 +964,7 @@ function setupTypeSettingsEvents(wrapper, question) {
                 }
             } else {
                 if (customGradesLabel) customGradesLabel.style.display = 'none';
-                question.settings.grades = GRADE_PRESETS[preset].grades;
+                question.settings.grades = gradePresets[preset].grades;
             }
 
             renderQuestions();
@@ -1091,7 +1109,7 @@ function setupOptionEvents(optionsList, question) {
                 markDirty();
 
                 // Show undo toast
-                showUndoToast('Option deleted', () => {
+                showUndoToast(t('option_deleted'), () => {
                     // Restore the option at its original position
                     question.options.splice(optionIndex, 0, deletedOption);
                     activeQuestionId = currentQuestionId; // Keep question in edit mode
@@ -1099,7 +1117,7 @@ function setupOptionEvents(optionsList, question) {
                     markDirty();
                 });
             } else {
-                showToast('Need at least 2 options', 'error');
+                showToast(t('need_at_least_two_options'), 'error');
             }
         });
     });
@@ -1147,8 +1165,8 @@ function addQuestion(type = 'single_choice') {
     // Add default options for types that need them
     if (OPTION_TYPES.includes(type)) {
         question.options = [
-            { _id: generateTempId(), label: 'Option 1' },
-            { _id: generateTempId(), label: 'Option 2' },
+            { _id: generateTempId(), label: t('option_number', { number: 1 }) },
+            { _id: generateTempId(), label: t('option_number', { number: 2 }) },
         ];
     }
 
@@ -1156,8 +1174,9 @@ function addQuestion(type = 'single_choice') {
     if (type === 'star') {
         question.settings.starCount = 5;
     } else if (type === 'grade') {
+        const gradePresets = getGradePresets();
         question.settings.preset = 'default';
-        question.settings.grades = GRADE_PRESETS['default'].grades;
+        question.settings.grades = gradePresets['default'].grades;
     } else if (type === 'yes_no_abstain') {
         question.settings.allowAbstain = true;
     } else if (type === 'distribution') {
@@ -1177,7 +1196,7 @@ function duplicateQuestion(question) {
     const copy = {
         _id: generateTempId(),
         type: question.type,
-        text: question.text + ' (copy)',
+        text: question.text + t('copy_suffix'),
         description: question.description,
         required: question.required,
         settings: question.settings ? { ...question.settings } : {},
@@ -1274,7 +1293,7 @@ function loadFromLocalStorage() {
 }
 
 function loadFromServer(voteData, adminToken) {
-    state.title = voteData.title || 'Untitled Poll';
+    state.title = voteData.title || t('untitled_poll');
     state.description = voteData.description || '';
     state.publicId = voteData.public_id;
     state.adminToken = adminToken;
@@ -1333,7 +1352,7 @@ function resetForm() {
     if (clearBtn) clearBtn.style.display = 'none';
 
     const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.textContent = 'Save Draft';
+    if (saveBtn) saveBtn.textContent = t('save_draft');
 
     updateThankYouStatus();
     render();
@@ -1388,8 +1407,8 @@ async function saveDraft() {
         } else {
             // Create mode - show success toast with link, stay on page
             if (saveBtn) clearButtonLoading(saveBtn);
-            showToast('Saved! View in <a href="' + basePath + '/dashboard">Dashboard</a>', 'success');
-            if (saveBtn) saveBtn.textContent = 'Update Draft';
+            showToast(t('saved_view_dashboard', { url: basePath + '/dashboard' }), 'success');
+            if (saveBtn) saveBtn.textContent = t('update_draft');
         }
     } catch (err) {
         if (saveBtn) clearButtonLoading(saveBtn);
@@ -1401,25 +1420,25 @@ async function saveDraft() {
 async function publishPoll() {
     // Validate
     if (!state.title.trim()) {
-        showToast('Please add a title', 'error');
+        showToast(t('please_add_title'), 'error');
         return;
     }
 
     if (state.questions.length === 0) {
-        showToast('Please add at least one question', 'error');
+        showToast(t('please_add_question'), 'error');
         return;
     }
 
     for (const q of state.questions) {
         if (!q.text.trim()) {
-            showToast('Please fill in all question texts', 'error');
+            showToast(t('please_fill_question_texts'), 'error');
             return;
         }
     }
 
     // Check Turnstile if required for new polls
     if (window.TURNSTILE_ENABLED && !state.publicId && !getTurnstileToken()) {
-        showToast('Please wait for security verification to complete', 'error');
+        showToast(t('security_verification_wait'), 'error');
         return;
     }
 
@@ -1537,12 +1556,12 @@ function resetTurnstile() {
 async function openPreview() {
     // Validate basic requirements
     if (!state.title.trim()) {
-        showToast('Please add a title before previewing', 'error');
+        showToast(t('please_add_title_before_preview'), 'error');
         return;
     }
 
     if (state.questions.length === 0) {
-        showToast('Please add at least one question before previewing', 'error');
+        showToast(t('please_add_question_before_preview'), 'error');
         return;
     }
 
@@ -1577,7 +1596,7 @@ async function openPreview() {
         form.submit();
         document.body.removeChild(form);
     } catch (err) {
-        showToast('Failed to open preview', 'error');
+        showToast(t('failed_open_preview'), 'error');
     }
 }
 
@@ -1599,22 +1618,22 @@ function openThankYouModal() {
     overlay.innerHTML = `
         <div class="confirm-modal thank-you-modal">
             <div class="confirm-modal-header">
-                <h3>Customize Thank You Message</h3>
+                <h3>${t('customize_thank_you_message')}</h3>
             </div>
             <div class="confirm-modal-body">
                 <p class="thank-you-modal-description">
-                    Shown to voters after they submit. Supports Markdown formatting.
+                    ${t('thank_you_modal_description')}
                 </p>
-                <textarea id="thankYouInput" class="thank-you-textarea" rows="6" placeholder="Thank you for voting!&#10;&#10;Your response has been recorded.">${escapeHtml(state.thankYouMessage || '')}</textarea>
+                <textarea id="thankYouInput" class="thank-you-textarea" rows="6" placeholder="${escapeAttr(t('thank_you_placeholder'))}">${escapeHtml(state.thankYouMessage || '')}</textarea>
                 <div class="thank-you-preview-section">
-                    <label class="thank-you-preview-label">Preview:</label>
+                    <label class="thank-you-preview-label">${t('preview')}:</label>
                     <div id="thankYouPreview" class="thank-you-preview markdown"></div>
                 </div>
             </div>
             <div class="confirm-modal-actions">
-                <button class="btn btn-secondary btn-cancel">Cancel</button>
-                <button class="btn btn-danger btn-clear" style="${state.thankYouMessage ? '' : 'display: none'}">Reset to Default</button>
-                <button class="btn btn-primary btn-save">Save</button>
+                <button class="btn btn-secondary btn-cancel">${t('cancel')}</button>
+                <button class="btn btn-danger btn-clear" style="${state.thankYouMessage ? '' : 'display: none'}">${t('reset_to_default')}</button>
+                <button class="btn btn-primary btn-save">${t('save')}</button>
             </div>
         </div>
     `;
@@ -1631,7 +1650,7 @@ function openThankYouModal() {
         if (text) {
             preview.innerHTML = marked.parse(text);
         } else {
-            preview.innerHTML = '<p class="thank-you-preview-default">Default message: "Thank you! Your response has been recorded."</p>';
+            preview.innerHTML = `<p class="thank-you-preview-default">${escapeHtml(t('default_thank_you_preview'))}</p>`;
         }
     };
 

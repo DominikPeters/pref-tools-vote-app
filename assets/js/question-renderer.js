@@ -388,21 +388,25 @@ export const OPTION_TYPES = [
 /**
  * All available question types
  */
-export const QUESTION_TYPES = [
-    { value: 'single_choice', label: t('type_single_choice') },
-    { value: 'approval', label: t('type_approval') },
-    { value: 'participatory_budgeting', label: t('type_participatory_budgeting') },
-    { value: 'distribution', label: t('type_distribution') },
-    { value: 'ranking', label: t('type_ranking') },
-    { value: 'ranking_truncated', label: t('type_ranking_truncated') },
-    { value: 'ranking_with_ties', label: t('type_ranking_with_ties') },
-    { value: 'star', label: t('type_star') },
-    { value: 'grade', label: t('type_grade') },
-    { value: 'yes_no_abstain', label: t('type_yes_no_abstain') },
-    { value: 'text_single', label: t('type_text_single') },
-    { value: 'text_multi', label: t('type_text_multi') },
-    { value: 'section_header', label: t('type_section_header') },
-];
+export function getQuestionTypes() {
+    return [
+        { value: 'single_choice', label: t('type_single_choice') },
+        { value: 'approval', label: t('type_approval') },
+        { value: 'participatory_budgeting', label: t('type_participatory_budgeting') },
+        { value: 'distribution', label: t('type_distribution') },
+        { value: 'ranking', label: t('type_ranking') },
+        { value: 'ranking_truncated', label: t('type_ranking_truncated') },
+        { value: 'ranking_with_ties', label: t('type_ranking_with_ties') },
+        { value: 'star', label: t('type_star') },
+        { value: 'grade', label: t('type_grade') },
+        { value: 'yes_no_abstain', label: t('type_yes_no_abstain') },
+        { value: 'text_single', label: t('type_text_single') },
+        { value: 'text_multi', label: t('type_text_multi') },
+        { value: 'section_header', label: t('type_section_header') },
+    ];
+}
+
+export const QUESTION_TYPES = getQuestionTypes();
 
 
 /**
