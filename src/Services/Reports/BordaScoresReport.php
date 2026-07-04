@@ -19,7 +19,7 @@ class BordaScoresReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Point totals using the Borda count method';
+        return 'Point totals where options earn more points for higher ranks (Borda count)';
     }
 
     public function getSupportedQuestionTypes(): array

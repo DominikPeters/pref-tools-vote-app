@@ -93,10 +93,13 @@ class ReportApiController extends ApiController
         $distributionRulesByQuestion = [];
         // Get social welfare functions for each question type
         $swfsByQuestion = [];
+        // Recommended default reports for each question
+        $defaultReportsByQuestion = [];
 
         foreach ($poll->questions as $question) {
             $typesByQuestion[$question->id] = ReportRegistry::getTypesForQuestionType($question->type);
-            
+            $defaultReportsByQuestion[$question->id] = \App\Services\DefaultReportsService::getDefaultsForQuestionType($question->type);
+
             $votingRulesByQuestion[$question->id] = VotingRulesRegistry::getRulesAsOptions($question->type);
             $multiwinnerRulesByQuestion[$question->id] = \App\Services\MultiwinnerRulesRegistry::getRulesAsOptions($question->type);
 
@@ -118,8 +121,10 @@ class ReportApiController extends ApiController
             'apportionment_rules_by_question' => $apportionmentRulesByQuestion,
             'distribution_rules_by_question' => $distributionRulesByQuestion,
             'social_welfare_functions_by_question' => $swfsByQuestion,
+            'default_reports_by_question' => $defaultReportsByQuestion,
             'all_types' => ReportRegistry::all(),
             'categories' => \App\Services\Reports\BaseReport::getCategories(),
+            'intents' => \App\Services\Reports\BaseReport::getIntents(),
         ]);
     }
 

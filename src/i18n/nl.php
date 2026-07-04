@@ -212,6 +212,8 @@ return [
     'report_type_apportionment_winner' => 'Zetelverdeling',
     'report_type_yna_counts' => 'Ja/Nee/Onthouding telling',
     'report_type_majority_judgment' => 'Majority Judgment',
+    'report_type_score_distribution' => 'Scoreverdeling', // histogram of scores/grades per option
+    'report_type_text_responses' => 'Tekstantwoorden', // list of free-text answers
     'report_type_multi_rule_comparison' => 'Methodevergelijking',
     'report_type_multi_swf_comparison' => 'Rangschikkingsvergelijking',
     'report_type_multiwinner_multi_rule_comparison' => 'Multi-winnaar vergelijking',

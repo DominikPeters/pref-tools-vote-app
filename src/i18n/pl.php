@@ -212,6 +212,8 @@ return [
     'report_type_apportionment_winner' => 'Podział mandatów',
     'report_type_yna_counts' => 'Podsumowanie Tak/Nie/Wstrzymuję się',
     'report_type_majority_judgment' => 'Majority Judgment',
+    'report_type_score_distribution' => 'Rozkład ocen', // histogram of scores/grades per option
+    'report_type_text_responses' => 'Odpowiedzi tekstowe', // list of free-text answers
     'report_type_multi_rule_comparison' => 'Porównanie metod',
     'report_type_multi_swf_comparison' => 'Porównanie agregacji rankingów',
     'report_type_multiwinner_multi_rule_comparison' => 'Porównanie metod wielozwycięskich',

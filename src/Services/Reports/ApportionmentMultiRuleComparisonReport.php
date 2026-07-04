@@ -20,7 +20,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Compares seat allocations under multiple apportionment methods';
+        return 'Compares seat allocations under different apportionment methods';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
     public function getCategory(): string
     {
         return 'apportionment';
+    }
+
+    public function getIntent(): string
+    {
+        return 'compare_methods';
     }
 
     public function getConfigSchema(): ?array

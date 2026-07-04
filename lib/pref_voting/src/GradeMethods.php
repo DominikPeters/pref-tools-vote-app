@@ -46,8 +46,18 @@ class GradeMethods
 
                 if (empty($scores)) return [];
 
-                $maxScore = null; foreach ($scores as $s) { if ($maxScore === null || ($gprofile->compareFunction)($s, $maxScore) === 1) { $maxScore = $s; } }
-                $winners = array_keys(array_filter($scores, fn($s) => ($gprofile->compareFunction)($s, $maxScore) === 0));
+                // Medians are grades and must be compared in grade order;
+                // sums and means are plain numbers and must be compared
+                // numerically (the grade comparator only knows grade values)
+                $compare = $evaluationMethod === 'median'
+                    ? $gprofile->compareFunction
+                    : function ($v1, $v2) {
+                        if ($v1 === null || $v2 === null) return null;
+                        return $v1 <=> $v2;
+                    };
+
+                $maxScore = null; foreach ($scores as $s) { if ($maxScore === null || $compare($s, $maxScore) === 1) { $maxScore = $s; } }
+                $winners = array_keys(array_filter($scores, fn($s) => $compare($s, $maxScore) === 0));
                 sort($winners);
                 return $winners;
             },

@@ -188,7 +188,7 @@ function renderResults(container, poll, reports, options) {
  * Render a single report card
  */
 function renderReportCard(container, report, options) {
-    const { isAdmin, publicId, adminToken, configurableTypes, onEditConfig } = options;
+    const { isAdmin, publicId, adminToken, configurableTypes, onEditConfig, onReportDeleted } = options;
 
     // Text blocks in public view: no card styling, no header
     const isPublicTextBlock = report.report_type === 'text_block' && !isAdmin;
@@ -282,6 +282,7 @@ function renderReportCard(container, report, options) {
                 try {
                     await api.delete(`/api/polls/${publicId}/admin/${adminToken}/reports/${report.id}`);
                     card.remove();
+                    if (onReportDeleted) onReportDeleted(report);
                 } catch (err) {
                     console.error('Failed to delete report:', err);
                     // Show card again on error

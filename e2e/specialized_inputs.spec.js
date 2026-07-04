@@ -49,12 +49,13 @@ test.describe('Specialized Input Types', () => {
     await freshPage.click('button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
-    // Verify in admin results
+    // Verify the default analyses on the results page:
+    // score winner card plus per-option score distribution
     await page.reload();
     await page.goto(`${publicUrl}/results`);
-    await page.waitForSelector('.star-result-row');
-    await expect(page.locator('text=Apple')).toBeVisible();
-    // (Note: Results rendering depends on implementation, but checking visibility is a start)
+    await page.waitForSelector('.score-dist-row');
+    await expect(page.locator('.score-dist-option', { hasText: 'Apple' })).toBeVisible();
+    await expect(page.locator('.winner-name')).toContainText('Apple');
   });
 
   test('can create and vote on Grade (Majority Judgment) question', async ({ page, freshPage }) => {

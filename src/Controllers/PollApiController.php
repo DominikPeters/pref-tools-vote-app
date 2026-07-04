@@ -13,6 +13,7 @@ use App\Models\AccessToken;
 use App\Models\EmailInvitation;
 use App\Models\SiteSetting;
 use App\Services\LogService;
+use App\Services\DefaultReportsService;
 use App\Services\AccessControlService;
 use App\Services\MailService;
 use App\Services\TurnstileService;
@@ -49,7 +50,8 @@ class PollApiController extends ApiController
             // Create questions if provided
             if (!empty($data['questions'])) {
                 foreach ($data['questions'] as $qData) {
-                    Question::create($poll->id, $qData);
+                    $question = Question::create($poll->id, $qData);
+                    DefaultReportsService::addDefaultsForQuestion($question);
                 }
             }
 
@@ -153,6 +155,7 @@ class PollApiController extends ApiController
             // Handle questions update
             if (isset($data['questions'])) {
                 $this->syncQuestions($poll, $data['questions']);
+                Report::invalidateCacheForPoll($poll->id);
             }
 
             $poll->loadQuestions();
@@ -290,7 +293,24 @@ class PollApiController extends ApiController
                     ];
                 }
 
-                Question::create($newPoll->id, $qData);
+                $newQuestion = Question::create($newPoll->id, $qData);
+
+                // Carry over the source question's report setup; fall back
+                // to the defaults if the source had no reports at all
+                $sourceReports = Report::findByQuestionId($question->id);
+                if (!empty($sourceReports)) {
+                    foreach ($sourceReports as $sourceReport) {
+                        Report::create([
+                            'question_id' => $newQuestion->id,
+                            'report_type' => $sourceReport->reportType,
+                            'config' => $sourceReport->config,
+                            'position' => $sourceReport->position,
+                            'is_public' => $sourceReport->isPublic,
+                        ]);
+                    }
+                } else {
+                    DefaultReportsService::addDefaultsForQuestion($newQuestion);
+                }
             }
 
             $newPoll->loadQuestions();
@@ -889,18 +909,22 @@ class PollApiController extends ApiController
             if (!empty($qData['id']) && in_array($qData['id'], $existingIds)) {
                 // Update existing question
                 $question = Question::find($qData['id']);
-                $question->update(array_merge($qData, ['sort_order' => $index]));
+                $oldType = $question->type;
+                $question = $question->update(array_merge($qData, ['sort_order' => $index]));
                 $newIds[] = $question->id;
 
                 // Sync options
                 if (isset($qData['options'])) {
                     $this->syncOptions($question, $qData['options']);
                 }
+
+                DefaultReportsService::handleQuestionTypeChange($question, $oldType);
             } else {
                 // Create new question
                 $qData['sort_order'] = $index;
                 $question = Question::create($poll->id, $qData);
                 $newIds[] = $question->id;
+                DefaultReportsService::addDefaultsForQuestion($question);
             }
         }
 

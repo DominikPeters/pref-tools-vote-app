@@ -20,7 +20,7 @@ class DistributionMultiRuleComparisonReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Compares aggregated distributions under multiple budget aggregation rules';
+        return 'Compares the collective distribution under different aggregation rules';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class DistributionMultiRuleComparisonReport extends BaseReport
     public function getCategory(): string
     {
         return 'distribution_aggregation';
+    }
+
+    public function getIntent(): string
+    {
+        return 'compare_methods';
     }
 
     public function getConfigSchema(): ?array

@@ -213,6 +213,8 @@ return [
     'report_type_apportionment_winner' => 'Apportionment Rule Winner',
     'report_type_yna_counts' => 'Yes/No/Abstain Tallies',
     'report_type_majority_judgment' => 'Majority Judgment',
+    'report_type_score_distribution' => 'Score Distribution', // histogram of scores/grades per option
+    'report_type_text_responses' => 'Text Answers', // list of free-text answers
     'report_type_multi_rule_comparison' => 'Multi-Rule Comparison',
     'report_type_multi_swf_comparison' => 'Rank Aggregation Rule Comparison',
     'report_type_multiwinner_multi_rule_comparison' => 'Multi-Winner Multi-Rule Comparison',

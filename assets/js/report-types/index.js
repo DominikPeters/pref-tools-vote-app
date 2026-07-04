@@ -15,6 +15,7 @@ import { renderRankAggregation } from './rank-aggregation.js';
 import { renderCondorcetWinner } from './condorcet-winner.js';
 import { renderYNACounts } from './yna-counts.js';
 import { renderMajorityJudgment } from './majority-judgment.js';
+import { renderScoreDistribution } from './score-distribution.js';
 import { renderMultiRuleComparison } from './multi-rule-comparison.js';
 import { renderMultiSWFComparison } from './multi-swf-comparison.js';
 import { renderMultiwinner } from './multiwinner.js';
@@ -27,6 +28,7 @@ import { renderDistributionMultiRuleComparison } from './distribution-multi-rule
 import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
+import { renderTextResponses } from './text-responses.js';
 import { t } from '../i18n.js';
 
 const renderers = {
@@ -43,6 +45,7 @@ const renderers = {
     'apportionment_winner': renderApportionmentWinner,
     'yna_counts': renderYNACounts,
     'majority_judgment': renderMajorityJudgment,
+    'score_distribution': renderScoreDistribution,
     'multi_rule_comparison': renderMultiRuleComparison,
     'multi_swf_comparison': renderMultiSWFComparison,
     'multiwinner_multi_rule_comparison': renderMultiwinnerMultiRuleComparison,
@@ -52,6 +55,7 @@ const renderers = {
     'response_matrix': renderResponseMatrix,
     'raw_data_export': renderRawDataExport,
     'text_block': renderTextBlock,
+    'text_responses': renderTextResponses,
 };
 
 /**
@@ -102,6 +106,7 @@ export function getReportTypeName(type) {
         'apportionment_winner': t('report_type_apportionment_winner'),
         'yna_counts': t('report_type_yna_counts'),
         'majority_judgment': t('report_type_majority_judgment'),
+        'score_distribution': t('report_type_score_distribution'),
         'multi_rule_comparison': t('report_type_multi_rule_comparison'),
         'multi_swf_comparison': t('report_type_multi_swf_comparison'),
         'multiwinner_multi_rule_comparison': t('report_type_multiwinner_multi_rule_comparison'),
@@ -111,6 +116,7 @@ export function getReportTypeName(type) {
         'response_matrix': t('report_type_response_matrix'),
         'raw_data_export': t('report_type_raw_data_export'),
         'text_block': t('report_type_text_block'),
+        'text_responses': t('report_type_text_responses'),
     };
     return names[type] || type;
 }
@@ -130,6 +136,7 @@ export function getReportTypeIcon(type) {
         'apportionment_winner': 'calculator',
         'yna_counts': 'check-circle',
         'majority_judgment': 'scale-balanced',
+        'score_distribution': 'chart-bar',
         'multi_rule_comparison': 'table',
         'multi_swf_comparison': 'columns',
         'multiwinner_multi_rule_comparison': 'table',
@@ -139,6 +146,7 @@ export function getReportTypeIcon(type) {
         'response_matrix': 'table-cells',
         'raw_data_export': 'file-export',
         'text_block': 'file-lines',
+        'text_responses': 'file-lines',
     };
     return icons[type] || 'chart-bar';
 }

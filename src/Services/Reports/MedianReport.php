@@ -37,6 +37,11 @@ class MedianReport extends BaseReport
         return 'single_winner';
     }
 
+    public function getIntent(): string
+    {
+        return 'who_wins';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

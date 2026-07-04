@@ -211,6 +211,8 @@ return [
     'report_type_apportionment_winner' => 'Sitzzuteilung',
     'report_type_yna_counts' => 'Ja/Nein/Enthaltung-Auszählung',
     'report_type_majority_judgment' => 'Majority Judgment',
+    'report_type_score_distribution' => 'Bewertungsverteilung', // histogram of scores/grades per option
+    'report_type_text_responses' => 'Textantworten', // list of free-text answers
     'report_type_multi_rule_comparison' => 'Regelvergleich',
     'report_type_multi_swf_comparison' => 'Rangaggregationsvergleich',
     'report_type_multiwinner_multi_rule_comparison' => 'Mehrgewinner-Regelvergleich',

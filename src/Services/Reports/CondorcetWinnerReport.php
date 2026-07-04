@@ -19,7 +19,7 @@ class CondorcetWinnerReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the Condorcet winner (beats all others head-to-head) if one exists';
+        return 'The option that beats every other option in head-to-head comparisons, if one exists';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -35,6 +35,11 @@ class CondorcetWinnerReport extends BaseReport
     public function getCategory(): string
     {
         return 'ranking_analysis';
+    }
+
+    public function getIntent(): string
+    {
+        return 'who_wins';
     }
 
     public function compute(Question $question, array $responses, ?array $config): array

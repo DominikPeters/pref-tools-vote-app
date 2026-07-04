@@ -20,7 +20,7 @@ class DistributionAggregationReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Aggregates voter distributions into a consensus distribution using budget aggregation rules';
+        return 'Combines everyone\'s allocations into a single collective distribution';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class DistributionAggregationReport extends BaseReport
     public function getCategory(): string
     {
         return 'distribution_aggregation';
+    }
+
+    public function getIntent(): string
+    {
+        return 'who_wins';
     }
 
     public function getConfigSchema(): ?array

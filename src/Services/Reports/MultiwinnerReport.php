@@ -21,7 +21,7 @@ class MultiwinnerReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the winning committee under a selected multi-winner voting rule (ABC for approval, STV for rankings)';
+        return 'Elects a committee of several winners using a multi-winner voting rule';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -37,6 +37,11 @@ class MultiwinnerReport extends BaseReport
     public function getCategory(): string
     {
         return 'multi_winner';
+    }
+
+    public function getIntent(): string
+    {
+        return 'multiple_winners';
     }
 
     public function getConfigSchema(): ?array

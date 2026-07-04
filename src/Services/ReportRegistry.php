@@ -90,6 +90,7 @@ class ReportRegistry
 
         // Grade-based reports
         self::register('majority_judgment', new Reports\MajorityJudgmentReport());
+        self::register('score_distribution', new Reports\ScoreDistributionReport());
 
         // Yes/No/Abstain reports
         self::register('yna_counts', new Reports\YNACountsReport());
@@ -102,6 +103,7 @@ class ReportRegistry
 
         // Text/narrative reports
         self::register('text_block', new Reports\TextBlockReport());
+        self::register('text_responses', new Reports\TextResponsesReport());
 
         self::$initialized = true;
     }

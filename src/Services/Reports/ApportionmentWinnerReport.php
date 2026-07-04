@@ -21,7 +21,7 @@ class ApportionmentWinnerReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the seat allocation under a selected apportionment method';
+        return 'Divides a number of seats among the options in proportion to their votes';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -37,6 +37,11 @@ class ApportionmentWinnerReport extends BaseReport
     public function getCategory(): string
     {
         return 'apportionment';
+    }
+
+    public function getIntent(): string
+    {
+        return 'multiple_winners';
     }
 
     public function getConfigSchema(): ?array

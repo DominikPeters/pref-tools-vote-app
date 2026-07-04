@@ -20,7 +20,7 @@ class MultiRuleComparisonReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows winners under multiple voting rules in a comparison table';
+        return 'Do different voting rules agree on the winner? Compare them side by side';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class MultiRuleComparisonReport extends BaseReport
     public function getCategory(): string
     {
         return 'single_winner';
+    }
+
+    public function getIntent(): string
+    {
+        return 'compare_methods';
     }
 
     public function getConfigSchema(): ?array

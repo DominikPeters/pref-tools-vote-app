@@ -212,6 +212,8 @@ return [
     'report_type_apportionment_winner' => 'Asignación de escaños',
     'report_type_yna_counts' => 'Recuento Sí/No/Abstención',
     'report_type_majority_judgment' => 'Juicio mayoritario',
+    'report_type_score_distribution' => 'Distribución de puntuaciones', // histogram of scores/grades per option
+    'report_type_text_responses' => 'Respuestas de texto', // list of free-text answers
     'report_type_multi_rule_comparison' => 'Comparación de métodos',
     'report_type_multi_swf_comparison' => 'Comparación de agregaciones',
     'report_type_multiwinner_multi_rule_comparison' => 'Comparación multiganador',

@@ -41,6 +41,11 @@ class TextBlockReport extends BaseReport
         return 'file-lines';
     }
 
+    public function getIntent(): string
+    {
+        return 'text';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

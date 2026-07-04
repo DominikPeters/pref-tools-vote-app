@@ -19,7 +19,7 @@ class PairwiseMarginsReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Graph showing head-to-head margins between candidates';
+        return 'Graph showing, for each pair of options, the margin by which one beats the other';
     }
 
     public function getSupportedQuestionTypes(): array

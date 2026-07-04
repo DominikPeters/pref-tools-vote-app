@@ -111,11 +111,15 @@ if (!$needsInstall) {
     }
 
     // Check if sysadmin exists - if not, installation is incomplete
+    // (during installation the config exists before migrations have run,
+    // so the users table may not be there yet)
     $db = \App\Database::getInstance();
-    $sysadminCount = (int) $db->fetchColumn(
-        "SELECT COUNT(*) FROM users WHERE role = :role",
-        ['role' => 'sysadmin']
-    );
+    $sysadminCount = $db->tableExists('users')
+        ? (int) $db->fetchColumn(
+            "SELECT COUNT(*) FROM users WHERE role = :role",
+            ['role' => 'sysadmin']
+        )
+        : 0;
     if ($sysadminCount === 0) {
         $needsInstall = true;
     }

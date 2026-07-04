@@ -20,7 +20,7 @@ class VotingRuleWinnerReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the winner under a selected voting rule';
+        return 'The winning option according to a voting rule of your choice';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class VotingRuleWinnerReport extends BaseReport
     public function getCategory(): string
     {
         return 'single_winner';
+    }
+
+    public function getIntent(): string
+    {
+        return 'who_wins';
     }
 
     public function getConfigSchema(): ?array
@@ -78,6 +83,17 @@ class VotingRuleWinnerReport extends BaseReport
             $profile = ProfileBuilder::fromGradeResponses($question, $responses);
         } else {
             return ['error' => 'Unsupported question type'];
+        }
+
+        // No votes yet: voting methods cannot run on an empty profile
+        if ($profile->numVoters === 0) {
+            return [
+                'rule' => $rule,
+                'rule_name' => $allRules[$rule]['name'] ?? $rule,
+                'winners' => [],
+                'is_tie' => false,
+                'total_responses' => 0,
+            ];
         }
 
         // Compute winners

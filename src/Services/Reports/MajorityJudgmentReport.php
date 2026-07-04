@@ -20,7 +20,7 @@ class MajorityJudgmentReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the Majority Judgment winner with grade distribution bars and median line';
+        return 'The option with the best median grade wins; shows each option\'s grade distribution';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -38,11 +38,27 @@ class MajorityJudgmentReport extends BaseReport
         return 'single_winner';
     }
 
+    public function getIntent(): string
+    {
+        return 'who_wins';
+    }
+
     public function compute(Question $question, array $responses, ?array $config): array
     {
         $profile = ProfileBuilder::fromGradeResponses($question, $responses);
         $labels = ProfileBuilder::getOptionLabels($question);
         $grades = ProfileBuilder::getGradesForQuestion($question);
+
+        // No votes yet: the MJ method cannot run on an empty profile
+        if ($profile->numVoters === 0) {
+            return [
+                'winners' => [],
+                'is_tie' => false,
+                'grades' => $grades,
+                'distributions' => [],
+                'total_responses' => 0,
+            ];
+        }
 
         // Get winner(s) using Majority Judgment
         $mjMethod = GradeMethods::majorityJudgement();

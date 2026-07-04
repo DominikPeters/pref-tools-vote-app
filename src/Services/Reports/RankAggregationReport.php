@@ -20,7 +20,7 @@ class RankAggregationReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Aggregates votes into one or more rankings using a Rank Aggregation Rule';
+        return 'Combines all ballots into a consensus ranking of the options';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class RankAggregationReport extends BaseReport
     public function getCategory(): string
     {
         return 'rank_aggregation';
+    }
+
+    public function getIntent(): string
+    {
+        return 'who_wins';
     }
 
     public function getConfigSchema(): ?array

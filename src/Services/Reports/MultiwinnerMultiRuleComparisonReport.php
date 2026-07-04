@@ -21,7 +21,7 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Compares winning committees under multiple multi-winner voting rules';
+        return 'Compares the elected committee under different multi-winner voting rules';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -37,6 +37,11 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
     public function getCategory(): string
     {
         return 'multi_winner';
+    }
+
+    public function getIntent(): string
+    {
+        return 'compare_methods';
     }
 
     public function getConfigSchema(): ?array

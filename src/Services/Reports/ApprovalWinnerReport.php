@@ -37,6 +37,11 @@ class ApprovalWinnerReport extends BaseReport
         return 'vote_tallies';
     }
 
+    public function getIntent(): string
+    {
+        return 'who_wins';
+    }
+
     public function getConfigSchema(): ?array
     {
         return [

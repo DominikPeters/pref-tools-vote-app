@@ -20,7 +20,7 @@ class PBWinnerReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Shows the winning projects under a selected participatory budgeting rule (e.g., Method of Equal Shares)';
+        return 'Shows which projects are funded within the budget under a participatory budgeting rule (e.g., Method of Equal Shares)';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -36,6 +36,11 @@ class PBWinnerReport extends BaseReport
     public function getCategory(): string
     {
         return 'participatory_budgeting';
+    }
+
+    public function getIntent(): string
+    {
+        return 'who_wins';
     }
 
     public function getConfigSchema(): ?array

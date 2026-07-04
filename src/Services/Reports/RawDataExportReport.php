@@ -19,7 +19,7 @@ class RawDataExportReport extends BaseReport
 
     public function getDescription(): string
     {
-        return 'Export raw vote data in PrefLib format for analysis in external tools';
+        return 'Download the raw ballots (PrefLib/Pabulib format) for analysis in external tools';
     }
 
     public function getSupportedQuestionTypes(): array
@@ -41,6 +41,11 @@ class RawDataExportReport extends BaseReport
     public function getIcon(): string
     {
         return 'file-export';
+    }
+
+    public function getIntent(): string
+    {
+        return 'export';
     }
 
     public function getConfigSchema(): ?array

@@ -72,6 +72,47 @@ abstract class BaseReport
     }
 
     /**
+     * Get the intent identifier for the "What do you want to show?" wizard
+     */
+    public function getIntent(): string
+    {
+        return 'how_voted';
+    }
+
+    /**
+     * Get all wizard intents with display labels and descriptions, in order
+     */
+    public static function getIntents(): array
+    {
+        return [
+            'who_wins' => [
+                'label' => 'Who wins?',
+                'description' => 'Determine the winning option using a voting method',
+            ],
+            'how_voted' => [
+                'label' => 'How did people vote?',
+                'description' => 'Tallies, tables, and visualizations of the votes',
+            ],
+            'multiple_winners' => [
+                'label' => 'Multiple winners',
+                'description' => 'Elect a committee or divide seats among the options',
+            ],
+            'compare_methods' => [
+                'label' => 'Compare voting methods',
+                'description' => 'See how the outcome differs across voting rules',
+            ],
+            'export' => [
+                'label' => 'Export the data',
+                'description' => 'Download the raw ballots for external analysis',
+            ],
+            'text' => [
+                'label' => 'Add explanatory text',
+                'description' => 'Write notes shown alongside the results',
+            ],
+        ];
+    }
+
+    /**
      * Get the configuration schema for the UI
      * Returns null if no configuration is needed
      *
@@ -122,6 +163,7 @@ abstract class BaseReport
             'description' => $this->getDescription(),
             'icon' => $this->getIcon(),
             'category' => $this->getCategory(),
+            'intent' => $this->getIntent(),
             'supported_question_types' => $this->getSupportedQuestionTypes(),
             'has_config' => $this->hasConfig(),
             'requires_config' => $this->requiresConfig(),

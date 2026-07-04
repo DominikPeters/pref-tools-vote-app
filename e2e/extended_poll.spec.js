@@ -135,9 +135,11 @@ test.describe('Extended Poll Features', () => {
     await freshPage.goto(`${publicUrl}/results`);
     await freshPage.waitForSelector('.result-question');
     await expect(freshPage.locator('h1')).toContainText('Results');
-    await expect(freshPage.locator('text=Choice A')).toBeVisible();
-    await expect(freshPage.locator('text=Approve 1')).toBeVisible();
-    await expect(freshPage.locator('text=Hello E2E')).toBeVisible();
+    // Default analyses can render an option name more than once
+    // (e.g. vote-count bars plus a winner card), so match the first
+    await expect(freshPage.locator('text=Choice A').first()).toBeVisible();
+    await expect(freshPage.locator('text=Approve 1').first()).toBeVisible();
+    await expect(freshPage.locator('text=Hello E2E').first()).toBeVisible();
   });
 
   test('collects voter name when enabled', async ({ page, freshPage }) => {

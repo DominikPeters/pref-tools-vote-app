@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vote-app-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["APP_ENV=test", "php", "-S", "localhost:18080"],
+      "port": 18080
+    }
+  ]
+}
