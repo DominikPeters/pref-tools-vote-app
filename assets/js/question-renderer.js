@@ -42,7 +42,7 @@ export function renderQuestion(question, options = {}) {
         `;
     }
 
-    const numberPrefix = showNumbers ? `${questionNumber}. ` : '';
+    const numberPrefix = showNumbers ? `<span class="question-number">${questionNumber}.</span> ` : '';
     const questionText = question.text || t('untitled_question');
     const requiredMarker = question.required ? '<span class="required-marker">*</span>' : '';
     const descriptionHtml = renderDescription(question);

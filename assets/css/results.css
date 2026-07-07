@@ -29,7 +29,8 @@
 }
 
 .results-container {
-    margin-bottom: var(--spacing-xl);
+    max-width: 800px;
+    margin: 0 auto var(--spacing-xl);
 }
 
 /* Results Header - matches admin-header-top pattern */
@@ -52,10 +53,8 @@
 
 .results-label {
     display: inline-block;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-text-muted);
     margin-bottom: 0.25rem;
 }
@@ -99,31 +98,35 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    border: 1px solid var(--color-border-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
     margin-top: var(--spacing-sm);
-    background: var(--color-success-bg);
-    color: var(--color-success-text);
+    background: transparent;
+    color: var(--color-text-muted);
+}
+
+.results-header .live-badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-success);
 }
 
 /* Report Cards */
 .report-card {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
     margin-bottom: 1rem;
 }
 
 .report-card.report-card-plain {
     background: transparent;
     border: none;
-    border-radius: 0;
 }
 
 .report-card.report-card-plain .report-content {
@@ -134,10 +137,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: var(--color-bg);
+    padding: 0.65rem 1rem;
+    background: transparent;
     border-bottom: 1px solid var(--color-border);
-    border-radius: 8px 8px 0 0;
 }
 
 .report-drag-handle {
@@ -165,6 +167,7 @@
 .report-name {
     flex-grow: 1;
     font-weight: 600;
+    font-size: 0.9rem;
     color: var(--color-text);
 }
 
@@ -214,7 +217,7 @@
 .report-drawer {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 0;
     margin: 1rem 0;
     overflow: hidden;
 }
@@ -257,9 +260,7 @@
 .report-category-header {
     font-size: 0.875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
+    color: var(--color-text);
     margin-bottom: 0.5rem;
     padding-left: 0.25rem;
 }
@@ -276,7 +277,7 @@
     gap: var(--spacing-md);
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: 0;
     padding: var(--spacing-md);
     text-align: left;
     cursor: pointer;
@@ -312,7 +313,7 @@
 }
 
 .report-type-card:hover .type-icon {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .report-type-card.disabled:hover .type-icon {
@@ -354,7 +355,7 @@
     width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 1rem;
     background: var(--color-bg-card);
     color: var(--color-text);
@@ -366,31 +367,34 @@
     justify-content: flex-end;
 }
 
-/* Winner Card */
+/* Winner Card: left-aligned block with an accent tick, label + name only */
 .report-winner-card {
-    text-align: center;
-    padding: var(--spacing-sm);
+    text-align: left;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent-text);
 }
 
 .winner-label,
 .tie-notice {
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: var(--color-text-muted);
     margin: 0;
 }
 
 .tie-notice {
-    color: var(--color-warning);
+    color: var(--color-warning-text);
 }
 
 .winner-name {
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 650;
     color: var(--color-text-strong);
-    margin: var(--spacing-sm) 0;
+    margin: 0.15rem 0;
 }
 
 .winner-stats {
+    font-size: 0.85rem;
     color: var(--color-text-muted);
 }
 
@@ -399,11 +403,9 @@
 }
 
 .rule-name {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    /* color: var(--color-text-dim); */
-    margin-bottom: var(--spacing-sm);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.15rem;
 }
 
 /* Bar Charts */
@@ -442,18 +444,16 @@
 .bar-container {
     flex-grow: 1;
     min-width: 200px;
-    height: 24px;
-    background: var(--color-bg-secondary);
-    border-radius: 4px;
+    height: 16px;
+    background: var(--color-bg-tertiary);
     overflow: hidden;
 }
 
 .bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-chart-bar-start), var(--color-chart-bar-end));
-    border-radius: 4px;
+    background: var(--color-chart-bar-start);
     transition: width 0.3s ease;
-    min-width: 4px;
+    min-width: 2px;
 }
 
 .bar-value {
@@ -481,8 +481,8 @@
 }
 
 .candidate-node.condorcet-winner {
-    fill: var(--color-warning-bg);
-    stroke: var(--color-warning);
+    fill: var(--color-primary-bg);
+    stroke: var(--color-accent-text);
 }
 
 .candidate-label {
@@ -501,16 +501,26 @@
     background: var(--color-warning-bg);
     color: var(--color-warning-text);
     padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border-radius: 0;
     margin: 0;
 }
 
-/* Summary Stats */
+/* Summary Stats: a compact strip, not a full-padding card */
+.results-summary.card {
+    padding: 0.65rem 1rem;
+}
+
 .results-summary .summary-stats {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem 1.5rem;
+    gap: 0.5rem 1.5rem;
     align-items: center;
+}
+
+/* In the compact strip, the status badge stays chip-sized */
+.results-summary .status-badge {
+    padding: 2px 10px;
+    font-size: 0.8rem;
 }
 
 .results-summary .stat {
@@ -588,7 +598,7 @@
 
 .config-modal {
     background: var(--color-bg-card);
-    border-radius: 8px;
+    border-radius: 0;
     width: 90%;
     max-width: 400px;
     max-height: 90vh;
@@ -628,7 +638,7 @@
     overflow-y: auto;
     padding: 0.5rem;
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: 0;
     background: var(--color-bg);
 }
 
@@ -638,7 +648,7 @@ label.checkbox-item {
     align-items: center;
     gap: 0.5rem;
     padding: 0.375rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0;
     cursor: pointer;
     transition: background-color 0.15s;
     font-weight: normal;
@@ -674,7 +684,7 @@ label.checkbox-item {
 
 .condorcet-no-winner {
     background: var(--color-danger-bg);
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .condorcet-no-winner .no-winner-label {
@@ -751,7 +761,7 @@ label.checkbox-item {
 
 .yna-bar {
     height: 20px;
-    border-radius: 3px;
+    border-radius: 0;
     min-width: 2px;
 }
 
@@ -813,7 +823,7 @@ label.checkbox-item {
 .mj-bar {
     display: flex;
     height: 100%;
-    border-radius: 4px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -829,7 +839,7 @@ label.checkbox-item {
     bottom: -4px;
     width: 3px;
     background: var(--color-text-strong);
-    border-radius: 2px;
+    border-radius: 0;
     transform: translateX(-50%);
 }
 
@@ -861,7 +871,7 @@ label.checkbox-item {
 .mj-legend-color {
     width: 12px;
     height: 12px;
-    border-radius: 2px;
+    border-radius: 0;
 }
 
 /* ==========================================================================
@@ -911,8 +921,8 @@ label.checkbox-item {
 .summary-bar {
     height: 20px;
     min-width: 200px;
-    background: linear-gradient(90deg, var(--color-chart-success-start), var(--color-chart-success-end));
-    border-radius: 4px;
+    background: var(--color-chart-success-start);
+    border-radius: 0;
     transition: width 0.3s ease;
 }
 
@@ -1114,7 +1124,7 @@ label.checkbox-item {
 
 .export-preview {
     background: var(--color-text-strong); /* Keep it dark even in light mode for code */
-    border-radius: 6px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -1138,12 +1148,12 @@ label.checkbox-item {
 
 .export-data::-webkit-scrollbar-track {
     background: var(--color-bg-tertiary);
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .export-data::-webkit-scrollbar-thumb {
     background: var(--color-text-dim);
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .export-data::-webkit-scrollbar-thumb:hover {
@@ -1204,14 +1214,14 @@ label.checkbox-item {
 .report-text-block .markdown-content code {
     background: var(--color-bg-secondary);
     padding: 0.125rem 0.375rem;
-    border-radius: 3px;
+    border-radius: 0;
     font-size: 0.875em;
 }
 
 .report-text-block .markdown-content pre {
     background: var(--color-bg-secondary);
     padding: 0.75rem;
-    border-radius: 4px;
+    border-radius: 0;
     overflow-x: auto;
     margin-bottom: 0.75rem;
 }
@@ -1230,7 +1240,7 @@ label.checkbox-item {
 }
 
 .report-text-block .markdown-content a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     text-decoration: underline;
 }
 
@@ -1248,9 +1258,8 @@ label.checkbox-item {
     align-items: center;
     gap: 1rem;
     margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    background: var(--color-bg);
-    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    background: var(--color-bg-card);
     border: 1px solid var(--color-border);
 }
 
@@ -1271,7 +1280,7 @@ label.checkbox-item {
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: 0;
     background: var(--color-bg-card);
     color: var(--color-text);
     cursor: pointer;
@@ -1279,14 +1288,8 @@ label.checkbox-item {
 
 .visibility-control select:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
-
-.results-visibility-bar .admin-notice {
-    margin: 0;
-    flex: 1;
-    min-width: 200px;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-muted);
 }
 
 @media (max-width: 640px) {
@@ -1297,10 +1300,6 @@ label.checkbox-item {
     .results-visibility-bar {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .results-visibility-bar .admin-notice {
-        width: 100%;
     }
 }
 
@@ -1329,10 +1328,9 @@ label.checkbox-item {
 }
 
 .committee-idx {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--color-text-dim);
-    text-transform: uppercase;
+    color: var(--color-text-muted);
     margin-bottom: 0.5rem;
 }
 
@@ -1359,7 +1357,7 @@ label.checkbox-item {
 
 .abc-committee li {
     padding: 0.375rem 0.75rem;
-    border-radius: 9999px;
+    border-radius: 0;
     font-size: 0.9375rem;
     font-weight: 500;
     border: 1px solid var(--color-border);
@@ -1386,7 +1384,7 @@ label.checkbox-item {
     margin-bottom: 1.5rem;
     padding: 1rem;
     background: var(--color-bg);
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--color-border);
 }
 
@@ -1397,10 +1395,8 @@ label.checkbox-item {
 }
 
 .budget-stat .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .budget-stat .stat-value {
@@ -1428,7 +1424,7 @@ label.checkbox-item {
     padding: 0.75rem 1rem;
     background: var(--color-primary-muted);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 0;
     color: var(--color-primary-dark);
 }
 
@@ -1458,7 +1454,7 @@ label.checkbox-item {
     margin-top: 1rem;
     padding: 0.75rem;
     background: var(--color-bg-secondary);
-    border-radius: 6px;
+    border-radius: 0;
     font-style: italic;
 }
 
@@ -1483,7 +1479,7 @@ label.checkbox-item {
     padding: 0.75rem 1rem;
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .apportionment-winner .party-info {
@@ -1515,7 +1511,7 @@ label.checkbox-item {
 
 .apportionment-winner .seats-count {
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     font-size: 1.125rem;
     min-width: 4rem;
     text-align: right;
@@ -1550,7 +1546,7 @@ label.checkbox-item {
     margin-top: 1rem;
     padding: 1rem;
     background: var(--color-bg);
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--color-border);
     font-size: 0.9375rem;
 }
@@ -1612,7 +1608,7 @@ label.checkbox-item {
 .aggregated-ranking {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 0.5rem;
 }
 
@@ -1661,7 +1657,7 @@ label.checkbox-item {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
     padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
+    border-radius: 0;
     font-size: 0.9375rem;
     color: var(--color-text);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -1687,7 +1683,7 @@ label.checkbox-item {
     padding: 1rem;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .swf-title {
@@ -1772,7 +1768,7 @@ label.checkbox-item {
 .da-bar {
     display: flex;
     height: 100%;
-    border-radius: 6px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -1807,7 +1803,7 @@ label.checkbox-item {
 .da-legend-color {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 0;
     flex-shrink: 0;
 }
 
@@ -1842,7 +1838,7 @@ label.checkbox-item {
 .da-color-swatch {
     width: 16px;
     height: 16px;
-    border-radius: 3px;
+    border-radius: 0;
     flex-shrink: 0;
 }
 
@@ -1987,7 +1983,7 @@ label.checkbox-item {
 .btn-link {
     background: none;
     border: none;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     cursor: pointer;
     font-size: 0.95rem;
     text-decoration: underline;
@@ -2001,17 +1997,14 @@ label.checkbox-item {
 /* Neutral "default" badge on report types and voting rules */
 .badge-default {
     display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-primary);
-    border: 1px solid currentColor;
-    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-muted);
     padding: 0 0.4rem;
     margin-left: 0.35rem;
     vertical-align: middle;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 /* Rule pickers: radio cards with descriptions */
@@ -2029,7 +2022,7 @@ label.rule-radio-item {
     gap: 0.625rem;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: 0;
     padding: 0.5rem 0.75rem;
     margin-bottom: 0;
     font-weight: 400;
@@ -2070,6 +2063,7 @@ label.rule-radio-item:has(input:checked) {
 }
 
 /* Setup banner */
+/* Quiet onboarding hint: same vocabulary as the visibility bar, muted text */
 .results-setup-banner {
     display: flex;
     align-items: flex-start;
@@ -2077,12 +2071,10 @@ label.rule-radio-item:has(input:checked) {
     gap: var(--spacing-md);
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-left: 3px solid var(--color-primary);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 1rem;
     margin-bottom: var(--spacing-lg);
-    color: var(--color-text);
-    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
 }
 
 /* One-click recommended button sits next to "+ Add Analysis" */
@@ -2142,7 +2134,7 @@ label.rule-radio-item:has(input:checked) {
     width: 100%;
     min-height: 2px;
     background: var(--color-primary);
-    border-radius: 3px 3px 0 0;
+    border-radius: 0;
     opacity: 0.85;
 }
 

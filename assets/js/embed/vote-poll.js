@@ -9,11 +9,11 @@
  *
  * Styling via CSS variables:
  *   vote-poll {
- *     --vp-color-primary: #2563eb;
+ *     --vp-color-primary: #34456b;
  *     --vp-color-text: #1e293b;
  *     --vp-color-bg: #ffffff;
  *     --vp-font-family: system-ui, sans-serif;
- *     --vp-border-radius: 8px;
+ *     --vp-border-radius: 0px;
  *   }
  */
 
@@ -631,7 +631,7 @@ class VotePoll extends HTMLElement {
                 font-family: var(--vp-font-family, system-ui, -apple-system, sans-serif);
                 color: var(--vp-color-text, #1e293b);
                 background: var(--vp-color-bg, #ffffff);
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 padding: var(--vp-spacing, 1.5rem);
                 box-sizing: border-box;
             }
@@ -669,7 +669,7 @@ class VotePoll extends HTMLElement {
                 width: 100%;
                 padding: 0.5rem 0.75rem;
                 border: 1px solid var(--vp-color-border, #e2e8f0);
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 font-size: 1rem;
             }
 
@@ -678,7 +678,7 @@ class VotePoll extends HTMLElement {
                 font-weight: 600;
                 margin: 1.5rem 0 1rem 0;
                 padding-bottom: 0.5rem;
-                border-bottom: 2px solid var(--vp-color-primary, #2563eb);
+                border-bottom: 2px solid var(--vp-color-primary, #34456b);
             }
 
             .question {
@@ -720,7 +720,7 @@ class VotePoll extends HTMLElement {
                 width: 100%;
                 padding: 0.5rem 0.75rem;
                 border: 1px solid var(--vp-color-border, #e2e8f0);
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 font-size: 1rem;
                 font-family: inherit;
             }
@@ -739,7 +739,7 @@ class VotePoll extends HTMLElement {
             }
 
             input[type="radio"], input[type="checkbox"] {
-                accent-color: var(--vp-color-primary, #2563eb);
+                accent-color: var(--vp-color-primary, #34456b);
                 width: 1.125rem;
                 height: 1.125rem;
             }
@@ -771,7 +771,7 @@ class VotePoll extends HTMLElement {
             }
 
             .star:hover, .star.active {
-                color: var(--vp-color-warning, #f59e0b);
+                color: var(--vp-color-warning, #34456b);
             }
 
             .grade-buttons, .yna-buttons {
@@ -790,12 +790,12 @@ class VotePoll extends HTMLElement {
             }
 
             .grade-btn:hover, .yna-btn:hover {
-                border-color: var(--vp-color-primary, #2563eb);
+                border-color: var(--vp-color-primary, #34456b);
             }
 
             .grade-btn.active, .yna-btn.active {
-                background: var(--vp-color-primary, #2563eb);
-                border-color: var(--vp-color-primary, #2563eb);
+                background: var(--vp-color-primary, #34456b);
+                border-color: var(--vp-color-primary, #34456b);
                 color: white;
             }
 
@@ -822,7 +822,7 @@ class VotePoll extends HTMLElement {
 
             .ranking-list {
                 border: 1px solid var(--vp-color-border, #e2e8f0);
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 overflow: hidden;
             }
 
@@ -846,7 +846,7 @@ class VotePoll extends HTMLElement {
 
             .rank-number {
                 font-weight: 600;
-                color: var(--vp-color-primary, #2563eb);
+                color: var(--vp-color-primary, #34456b);
                 min-width: 1.5rem;
             }
 
@@ -858,12 +858,12 @@ class VotePoll extends HTMLElement {
             .unsupported {
                 padding: 1rem;
                 background: var(--vp-color-bg-muted, #f8fafc);
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 color: var(--vp-color-text-muted, #64748b);
             }
 
             .unsupported a {
-                color: var(--vp-color-primary, #2563eb);
+                color: var(--vp-color-primary, #34456b);
             }
 
             .form-actions {
@@ -871,11 +871,11 @@ class VotePoll extends HTMLElement {
             }
 
             .btn-submit {
-                background: var(--vp-color-primary, #2563eb);
+                background: var(--vp-color-primary, #34456b);
                 color: white;
                 border: none;
                 padding: 0.75rem 1.5rem;
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 font-size: 1rem;
                 cursor: pointer;
                 font-weight: 500;
@@ -926,10 +926,10 @@ class VotePoll extends HTMLElement {
             }
 
             .btn-link {
-                background: var(--vp-color-primary, #2563eb);
+                background: var(--vp-color-primary, #34456b);
                 color: white;
                 padding: 0.5rem 1rem;
-                border-radius: var(--vp-border-radius, 8px);
+                border-radius: var(--vp-border-radius, 0px);
                 text-decoration: none;
                 font-weight: 500;
             }

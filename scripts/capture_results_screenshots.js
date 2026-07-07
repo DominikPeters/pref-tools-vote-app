@@ -155,8 +155,17 @@ async function captureResultsScreenshots() {
       });
       const page = await context.newPage();
 
+      // Establish a session and read the CSRF token; the API rejects
+      // state-changing requests without an X-CSRF-TOKEN header.
+      await page.goto(BASE_URL);
+      const csrfToken = await page.evaluate(() => document.querySelector('meta[name="csrf-token"]')?.content);
+      if (!csrfToken) {
+        throw new Error('Could not read the CSRF token from the home page.');
+      }
+      const csrfHeaders = { 'X-CSRF-TOKEN': csrfToken };
+
       console.log('📝 Creating poll...');
-      const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData });
+      const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData, headers: csrfHeaders });
       if (!response.ok()) throw new Error(`Failed to create poll: ${response.status()}`);
       const result = await response.json();
       const publicId = result.poll.public_id;
@@ -223,8 +232,21 @@ async function captureResultsScreenshots() {
         }
       ];
 
+      // Each response must come from a fresh context: in open voting mode a
+      // shared voter_token cookie would collapse them into one updated vote.
       for (const rData of responsesToSubmit) {
-        await page.request.post(`${BASE_URL}/api/polls/${publicId}/responses`, { data: rData });
+        const voterContext = await browser.newContext();
+        const voterPage = await voterContext.newPage();
+        await voterPage.goto(BASE_URL);
+        const voterCsrf = await voterPage.evaluate(() => document.querySelector('meta[name="csrf-token"]')?.content);
+        const submitResponse = await voterPage.request.post(`${BASE_URL}/api/polls/${publicId}/responses`, {
+          data: rData,
+          headers: { 'X-CSRF-TOKEN': voterCsrf }
+        });
+        if (!submitResponse.ok()) {
+          throw new Error(`Failed to submit response: ${submitResponse.status()}`);
+        }
+        await voterContext.close();
       }
 
       console.log('📊 Adding reports...');
@@ -235,7 +257,8 @@ async function captureResultsScreenshots() {
         { qIndex: 2, type: 'borda_scores' },
         { qIndex: 2, type: 'pairwise_margins' },
         { qIndex: 2, type: 'voting_rule_winner', config: { rule: 'schulze' } },
-        { qIndex: 3, type: 'voting_rule_winner', config: { rule: 'irv' } },
+        // Truncated rankings only support margin-based rules (no IRV)
+        { qIndex: 3, type: 'voting_rule_winner', config: { rule: 'ranked_pairs' } },
         { qIndex: 4, type: 'condorcet_winner' },
         { qIndex: 5, type: 'majority_judgment' },
         { qIndex: 6, type: 'majority_judgment' },
@@ -243,14 +266,24 @@ async function captureResultsScreenshots() {
         { qIndex: 8, type: 'yna_counts' }
       ];
 
+      // Default analyses are created automatically with the poll, so only
+      // add report types a question doesn't already have.
+      const existingResponse = await page.request.get(`${BASE_URL}/api/polls/${publicId}/admin/${adminToken}/reports`);
+      const existingReports = existingResponse.ok() ? (await existingResponse.json()).reports || [] : [];
+      const hasReport = (questionId, type) =>
+        existingReports.some(r => r.question_id === questionId && r.report_type === type);
+
       for (const r of reportsToAdd) {
+        const questionId = questions[r.qIndex].id;
+        if (hasReport(questionId, r.type)) continue;
         await page.request.post(`${BASE_URL}/api/polls/${publicId}/admin/${adminToken}/reports`, {
           data: {
-            question_id: questions[r.qIndex].id,
+            question_id: questionId,
             report_type: r.type,
             config: r.config || null,
             is_public: true
-          }
+          },
+          headers: csrfHeaders
         });
       }
 

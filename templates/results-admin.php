@@ -40,7 +40,7 @@ ob_start();
             </div>
             <div class="results-visibility-bar">
                 <div class="visibility-control">
-                    <label for="resultsVisibility">Results Visibility:</label>
+                    <label for="resultsVisibility">Results visibility</label>
                     <?php
                     // Show "anonymous" option only for non-secret polls that collect names
                     $showAnonymousOption = $poll->votingMode !== 'secret_ballot' && $poll->collectName;
@@ -55,7 +55,6 @@ ob_start();
                         <?php endif; ?>
                     </select>
                 </div>
-                <p class="admin-notice">Configure results visibility and which analyses to show publicly. Changes to visibility are saved automatically.</p>
             </div>
         </header>
 

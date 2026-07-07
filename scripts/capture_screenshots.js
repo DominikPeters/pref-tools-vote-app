@@ -158,9 +158,18 @@ async function captureScreenshots() {
       });
       const page = await context.newPage();
 
+      // Establish a session and read the CSRF token; the API rejects
+      // state-changing requests without an X-CSRF-TOKEN header.
+      await page.goto(BASE_URL);
+      const csrfToken = await page.evaluate(() => document.querySelector('meta[name="csrf-token"]')?.content);
+      if (!csrfToken) {
+        throw new Error('Could not read the CSRF token from the home page.');
+      }
+      const csrfHeaders = { 'X-CSRF-TOKEN': csrfToken };
+
       // 4. Create poll via API
       console.log('📝 Creating poll...');
-      const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData });
+      const response = await page.request.post(`${BASE_URL}/api/polls`, { data: pollData, headers: csrfHeaders });
       
       if (!response.ok()) {
         const errorText = await response.text();
@@ -205,7 +214,8 @@ async function captureScreenshots() {
       });
 
       const submitResponse = await page.request.post(`${BASE_URL}/api/polls/${publicId}/responses`, {
-        data: { answers }
+        data: { answers },
+        headers: csrfHeaders
       });
       
       if (!submitResponse.ok()) {

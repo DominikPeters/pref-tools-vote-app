@@ -48,7 +48,7 @@
 }
 
 .about-section a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     text-decoration: none;
 }
 

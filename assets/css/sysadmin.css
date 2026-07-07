@@ -68,14 +68,12 @@
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: var(--spacing-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .stat-card .stat-value {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     margin-bottom: var(--spacing-xs);
 }
 
@@ -163,9 +161,7 @@
 .data-table th {
     font-weight: 600;
     color: var(--color-text-muted);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.8rem;
     background: var(--color-bg);
 }
 
@@ -196,30 +192,7 @@
     background: var(--color-bg-card);
 }
 
-/* Status in tables */
-.data-table .status {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.data-table .status-draft {
-    background: var(--color-text-muted);
-    color: white;
-}
-
-.data-table .status-open {
-    background: var(--color-success);
-    color: white;
-}
-
-.data-table .status-closed {
-    background: var(--color-warning);
-    color: white;
-}
+/* Status in tables: outlined badge with a colored dot (see .status in main.css) */
 
 /* --------------------------------------------------------------------------
    Pagination

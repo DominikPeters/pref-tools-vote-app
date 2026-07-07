@@ -15,10 +15,8 @@
 }
 
 .responses-label {
-    font-size: var(--font-size-sm);
+    font-size: 0.85rem;
     color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .responses-header h1 {
@@ -186,7 +184,7 @@
 .response-form-readonly input[type="radio"]:checked + span,
 .response-form-readonly input[type="checkbox"]:checked + span {
     font-weight: 600;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .response-form-readonly .grade-btn.active,
@@ -195,7 +193,7 @@
 }
 
 .response-form-readonly .star.active {
-    color: var(--color-warning) !important;
+    color: var(--color-accent-text) !important;
 }
 
 @media (max-width: 600px) {

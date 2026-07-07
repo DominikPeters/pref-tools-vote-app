@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast(`${data.message} <a href="${data.link}">${data.linkText}</a>`, 'info');
     }
 
-    // Load poll data first, then responses (so formatAnswers has pollData)
+    // Load poll data first, then responses (the answered-count needs pollData)
     await loadVote(publicId, adminToken);
     loadResponses(publicId, adminToken);
 
@@ -165,18 +165,27 @@ async function loadResponses(publicId, adminToken) {
             return;
         }
 
-        container.innerHTML = result.responses.map((response, index) => `
-            <div class="response-item card">
-                <div class="response-header">
+        const totalQuestions = pollData?.questions
+            ? pollData.questions.filter(q => q.type !== 'section_header').length
+            : null;
+
+        container.innerHTML = result.responses.map((response, index) => {
+            const answeredCount = pollData?.questions
+                ? pollData.questions.filter(q => {
+                    const answer = response.answers[q.id];
+                    return answer !== undefined && answer !== null && answer !== '';
+                }).length
+                : null;
+            return `
+                <div class="response-item">
                     <span class="response-number">#${index + 1}</span>
                     ${response.voter_name ? `<span class="voter-name">${escapeHtml(response.voter_name)}</span>` : ''}
                     <span class="response-time">${new Date(response.created_at).toLocaleString()}</span>
+                    ${answeredCount !== null ? `<span class="response-answered">${answeredCount}/${totalQuestions} answered</span>` : ''}
+                    <a class="response-view" href="${basePath}/${publicId}/admin/${adminToken}/responses?r=${response.id}">View</a>
                 </div>
-                <div class="response-answers">
-                    ${formatAnswers(response.answers)}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         // Update count
         document.getElementById('responseCount').textContent = result.responses.length;
@@ -185,73 +194,6 @@ async function loadResponses(publicId, adminToken) {
     }
 }
 
-function formatAnswers(answers) {
-    if (!pollData || !pollData.questions) {
-        // Show a loading placeholder instead of raw JSON
-        return '<em class="loading-answers">Loading...</em>';
-    }
-
-    // Show a compact summary: number of questions answered
-    const answeredCount = pollData.questions.filter(q => {
-        const answer = answers[q.id];
-        return answer !== undefined && answer !== null && answer !== '';
-    }).length;
-
-    const totalQuestions = pollData.questions.filter(q => q.type !== 'section_header').length;
-
-    // Create a compact summary with expandable details
-    const summaryItems = pollData.questions.slice(0, 3).map(q => {
-        const answer = answers[q.id];
-        let displayValue = formatSingleAnswer(q, answer);
-        if (displayValue.length > 50) {
-            displayValue = displayValue.substring(0, 47) + '...';
-        }
-        return `<span class="answer-preview">${escapeHtml(q.text.substring(0, 30))}${q.text.length > 30 ? '...' : ''}: ${displayValue}</span>`;
-    }).join('');
-
-    const moreCount = pollData.questions.length - 3;
-    const moreText = moreCount > 0 ? `<span class="answer-more">+${moreCount} more</span>` : '';
-
-    return `
-        <div class="answer-summary">
-            <span class="answer-count">${answeredCount}/${totalQuestions} answered</span>
-            ${summaryItems}${moreText}
-        </div>
-    `;
-}
-
-function formatSingleAnswer(q, answer) {
-    if (answer === undefined || answer === null) {
-        return '<em>-</em>';
-    } else if (typeof answer === 'string' || typeof answer === 'number') {
-        if (q.type === 'single_choice') {
-            const option = q.options?.find(o => o.id === answer);
-            return option ? escapeHtml(option.label) : String(answer);
-        } else {
-            return escapeHtml(String(answer));
-        }
-    } else if (Array.isArray(answer)) {
-        const labels = answer.map(id => {
-            const option = q.options?.find(o => o.id === id);
-            return option ? option.label : id;
-        });
-        if (labels.length <= 2) {
-            return labels.map(l => escapeHtml(l)).join(q.type === 'ranking' ? ' > ' : ', ');
-        }
-        return `${labels.length} selections`;
-    } else if (typeof answer === 'object') {
-        const entries = Object.entries(answer);
-        if (entries.length <= 2) {
-            return entries.map(([optId, value]) => {
-                const option = q.options?.find(o => o.id === parseInt(optId));
-                const label = option ? option.label : optId;
-                return `${escapeHtml(label)}: ${escapeHtml(String(value))}`;
-            }).join(', ');
-        }
-        return `${entries.length} ratings`;
-    }
-    return '-';
-}
 
 async function publishPoll(publicId, adminToken) {
     const btn = document.getElementById('publishPoll');

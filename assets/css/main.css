@@ -6,55 +6,62 @@
    CSS Variables
    -------------------------------------------------------------------------- */
 :root {
-    --color-primary: #2563eb;
-    --color-primary-dark: #1d4ed8;
-    --color-primary-muted: hsl(221, 70%, 80%);
-    --color-secondary: #64748b;
-    --color-success: #22c55e;
-    --color-warning: #f59e0b;
-    --color-danger: #ef4444;
+    /* Accent has two roles: --color-primary for filled surfaces (buttons,
+       bars, selected controls), --color-accent-text for colored text and
+       small marks (question numbers, links, ticks). They coincide in light
+       mode but split in dark mode, where the fill must stay deep and the
+       text must stay legible. */
+    --color-primary: #34456b;
+    --color-primary-dark: #2a3a5c;
+    --color-primary-muted: #b6c0d4;
+    --color-accent-text: #34456b;
+    --color-secondary: #71716f;
+    --color-success: #3a7d4f;
+    --color-warning: #a87b23;
+    --color-danger: #a04040;
 
-    --color-bg: #f8fafc;
+    --color-bg: #f4f4f2;
     --color-bg-card: #ffffff;
-    --color-bg-secondary: #f1f5f9;
-    --color-bg-tertiary: #e2e8f0;
-    --color-bg-hover: hsl(210, 80%, 96%);
-    --color-bg-muted: #f1f5f9;
+    --color-bg-secondary: #f7f7f5;
+    --color-bg-tertiary: #ececea;
+    --color-bg-hover: #f7f7f5;
+    --color-bg-muted: #f7f7f5;
     --color-bg-input: #ffffff;
-    --color-bg-tooltip: #1e293b;
-    --color-text-tooltip: #f1f5f9;
+    --color-bg-tooltip: #2c2c2a;
+    --color-text-tooltip: #f4f4f2;
     --color-overlay: rgba(0, 0, 0, 0.5);
-    --color-primary-bg: #eff6ff;
-    --color-text: #1e293b;
-    --color-text-muted: #64748b;
-    --color-text-dim: #94a3b8;
-    --color-text-strong: #0f172a;
-    --color-border: #e2e8f0;
-    --color-border-muted: #cbd5e1;
+    --color-primary-bg: #eef0f4;
+    --color-text: #191919;
+    --color-text-muted: #71716f;
+    --color-text-dim: #9a9a98;
+    --color-text-strong: #111111;
+    --color-border: #e3e3e1;
+    --color-border-muted: #c9c9c7;
 
-    --color-success-bg: #d1fae5;
-    --color-success-text: #065f46;
-    --color-warning-bg: #fef3c7;
-    --color-warning-text: #92400e;
-    --color-danger-bg: #fee2e2;
-    --color-danger-text: #991b1b;
+    --color-success-bg: #e8f0ea;
+    --color-success-text: #2e6045;
+    --color-warning-bg: #f5eeda;
+    --color-warning-text: #7a5c17;
+    --color-danger-bg: #f5e4e4;
+    --color-danger-text: #8c3838;
 
-    --color-chart-bar-start: #3b82f6;
-    --color-chart-bar-end: #60a5fa;
+    /* Chart bars are flat: both gradient stops share one color */
+    --color-chart-bar-start: #34456b;
+    --color-chart-bar-end: #34456b;
 
-    --color-chart-success-start: #10b981;
-    --color-chart-success-end: #34d399;
+    --color-chart-success-start: #3a7d4f;
+    --color-chart-success-end: #3a7d4f;
 
     --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
 
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
 
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -69,38 +76,44 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --color-bg: #0f172a;
-        --color-bg-card: #1e293b;
-        --color-bg-secondary: #334155;
-        --color-bg-tertiary: #475569;
-        --color-bg-hover: #1e293b;
-        --color-bg-muted: #1e293b;
-        --color-bg-input: #334155;
-        --color-bg-tooltip: #f1f5f9;
-        --color-text-tooltip: #0f172a;
+        /* Neutral dark grays (not blue-slate); the accent splits into a
+           deep fill and a light text tint, see note in the light block. */
+        --color-bg: #151514;
+        --color-bg-card: #1d1d1c;
+        --color-bg-secondary: #242423;
+        --color-bg-tertiary: #2e2e2d;
+        --color-bg-hover: #242423;
+        --color-bg-muted: #242423;
+        --color-bg-input: #242423;
+        --color-bg-tooltip: #f4f4f2;
+        --color-text-tooltip: #191919;
         --color-overlay: rgba(0, 0, 0, 0.75);
-        --color-primary-bg: #1e293b;
-        --color-text: #f1f5f9;
-        --color-text-muted: #94a3b8;
-        --color-text-dim: #64748b;
-        --color-text-strong: #ffffff;
-        --color-border: #334155;
-        --color-border-muted: #475569;
+        --color-primary-bg: #232733;
+        --color-text: #e6e6e4;
+        --color-text-muted: #969694;
+        --color-text-dim: #6e6e6c;
+        --color-text-strong: #f4f4f2;
+        --color-border: #333331;
+        --color-border-muted: #454543;
 
-        --color-success-bg: rgba(16, 185, 129, 0.15);
-        --color-success-text: #34d399;
-        --color-warning-bg: rgba(245, 158, 11, 0.15);
-        --color-warning-text: #fbbf24;
-        --color-danger-bg: rgba(239, 68, 68, 0.15);
-        --color-danger-text: #f87171;
+        --color-primary: #48598a;
+        --color-primary-dark: #56689c;
+        --color-primary-muted: #3c4a6e;
+        --color-accent-text: #a9bcdf;
+        --color-success: #5c9a72;
 
-        --color-chart-bar-start: #2563eb;
-        --color-chart-bar-end: #3b82f6;
+        --color-success-bg: rgba(92, 154, 114, 0.15);
+        --color-success-text: #85b898;
+        --color-warning-bg: rgba(200, 163, 90, 0.15);
+        --color-warning-text: #c9a35a;
+        --color-danger-bg: rgba(207, 145, 145, 0.15);
+        --color-danger-text: #cf9191;
 
-        --color-chart-success-start: #059669;
-        --color-chart-success-end: #10b981;
+        --color-chart-bar-start: #62779f;
+        --color-chart-bar-end: #62779f;
 
-        --color-primary-muted: hsl(221, 50%, 30%);
+        --color-chart-success-start: #5c9a72;
+        --color-chart-success-end: #5c9a72;
     }
 
     .confirm-modal-overlay,
@@ -150,7 +163,7 @@ p {
 }
 
 a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     text-decoration: none;
 }
 
@@ -203,7 +216,7 @@ img {
 
 .logo:hover {
     text-decoration: none;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .main-nav {
@@ -324,7 +337,7 @@ img {
 }
 
 .breadcrumbs a:hover {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     text-decoration: underline;
 }
 
@@ -421,23 +434,26 @@ input[type="submit"]:disabled {
     background: var(--color-primary-dark);
 }
 
+/* Ghost button: transparent so it sits quietly on any surface */
 .btn-secondary {
-    background: var(--color-bg);
+    background: transparent;
     color: var(--color-text);
-    border-color: var(--color-border);
+    border-color: var(--color-border-muted);
 }
 
 .btn-secondary:hover {
-    background: var(--color-border);
+    background: var(--color-bg-secondary);
 }
 
+/* Success buttons (Publish, Save) share the single accent color:
+   green is reserved for status indicators, not actions */
 .btn-success {
-    background: var(--color-success);
+    background: var(--color-primary);
     color: white;
 }
 
 .btn-success:hover {
-    background: var(--color-success-text);
+    background: var(--color-primary-dark);
 }
 
 .btn-warning:hover {
@@ -486,7 +502,7 @@ input[type="submit"]:disabled {
 
 .btn-add:hover {
     border-color: var(--color-primary);
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 /* --------------------------------------------------------------------------
@@ -561,6 +577,11 @@ textarea {
 .checkbox-label input,
 .radio-label input {
     width: auto;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    accent-color: var(--color-primary);
 }
 
 /* --------------------------------------------------------------------------
@@ -682,7 +703,8 @@ textarea {
     width: 64px;
     height: 64px;
     background: white;
-    color: var(--color-primary);
+    /* stays on a white disc in both themes, so the deep navy is correct */
+    color: #34456b;
     font-size: 1.75rem;
     font-weight: 700;
     border-radius: 50%;
@@ -961,7 +983,6 @@ textarea {
     padding: 4px 10px;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 9999px;
     font-size: 0.75rem;
     color: var(--color-text-muted);
 }
@@ -972,18 +993,17 @@ textarea {
     align-items: center;
     gap: 4px;
     padding: 4px 12px;
-    background: var(--color-primary-muted);
-    border: none;
-    border-radius: 9999px;
+    background: transparent;
+    border: 1px solid var(--color-border-muted);
     font-size: 0.75rem;
-    color: white;
+    color: var(--color-text-muted);
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .analysis-method-more:hover {
-    background: var(--color-primary);
-    transform: scale(1.05);
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
 }
 
 .analysis-method-more svg {
@@ -1340,8 +1360,7 @@ textarea {
     display: inline-block;
     padding: 6px 16px;
     background: var(--color-primary-bg);
-    color: var(--color-primary);
-    border-radius: 9999px;
+    color: var(--color-accent-text);
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: var(--spacing-md);
@@ -1470,7 +1489,7 @@ textarea {
 
 .auth-forgot-link a,
 .auth-back-link a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
     text-decoration: none;
 }
 
@@ -1642,27 +1661,31 @@ textarea {
 }
 
 .status {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 2px 8px;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-muted);
+    background: transparent;
+    color: var(--color-text-muted);
     font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase;
 }
 
-.status-draft {
-    background: var(--color-text-muted);
-    color: white;
+.status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-text-dim);
 }
 
-.status-open {
+.status-open::before {
     background: var(--color-success);
-    color: white;
 }
 
-.status-closed {
-    background: var(--color-warning);
-    color: white;
+.status-closed::before {
+    background: var(--color-danger);
 }
 
 .empty-message {
@@ -1740,10 +1763,8 @@ textarea {
 
 .admin-label {
     display: inline-block;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-xs);
 }
@@ -1760,47 +1781,38 @@ textarea {
     align-items: center;
     gap: var(--spacing-sm);
     flex-shrink: 0;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-bg);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--color-border);
 }
 
+/* Same box metrics as .btn so badge and adjacent buttons align */
 .status-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px;
-    border-radius: 9999px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border-muted);
+    background: transparent;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    line-height: 1.5;
+    font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .status-badge::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: currentColor;
+    background: var(--color-text-dim);
 }
 
-.status-badge.status-draft {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-muted);
+.status-badge.status-open::before {
+    background: var(--color-success);
 }
 
-.status-badge.status-open {
-    background: var(--color-success-bg);
-    color: var(--color-success-text);
-}
-
-.status-badge.status-closed {
-    background: var(--color-warning-bg);
-    color: var(--color-warning-text);
+.status-badge.status-closed::before {
+    background: var(--color-danger);
 }
 
 .admin-header-actions {
@@ -1809,15 +1821,17 @@ textarea {
     flex-wrap: wrap;
 }
 
+/* Danger ghost: same quiet box as .btn-secondary, only the text warns */
 .btn-outline-danger {
     background: transparent;
-    color: var(--color-danger);
-    border: 1px solid var(--color-danger);
+    color: var(--color-danger-text);
+    border: 1px solid var(--color-border-muted);
 }
 
 .btn-outline-danger:hover {
-    background: var(--color-danger);
-    color: white;
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger-text);
+    color: var(--color-danger-text);
 }
 
 .share-link-group {
@@ -1896,15 +1910,49 @@ textarea {
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--color-text-muted);
-    text-transform: uppercase;
+}
+
+/* Poll-admin statistics: a quiet key-value list instead of number cards
+   (scoped to .stats-section; the sysadmin dashboard keeps its grid) */
+.stats-section .stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.stats-section .stat-item {
+    display: flex;
+    flex-direction: row-reverse; /* markup is value-then-label; show label left */
+    justify-content: space-between;
+    align-items: baseline;
+    text-align: left;
+    background: transparent;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.stats-section .stat-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.stats-section .stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.stats-section .stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
 }
 
 /* Claim CTA Section */
 .claim-cta-section {
-    background: linear-gradient(135deg, var(--color-primary-muted) 0%, var(--color-bg-secondary) 100%);
-    border: 2px solid var(--color-primary);
+    background: var(--color-primary-bg);
+    border: 1px solid var(--color-primary);
 }
 
 .claim-cta-content {
@@ -1915,7 +1963,7 @@ textarea {
 
 .claim-cta-icon {
     flex-shrink: 0;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .claim-cta-text {
@@ -1997,7 +2045,7 @@ textarea {
 }
 
 .responses-hint a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .responses-notification-setting {
@@ -2006,60 +2054,55 @@ textarea {
     border-top: 1px solid var(--color-border);
 }
 
-/* Response answer summary styles */
-.answer-summary {
+/* Response list: one compact hairline row per response */
+.responses-list {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.875rem;
+    flex-direction: column;
+    gap: 0;
 }
 
-.answer-count {
+.response-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
+    font-size: 0.9rem;
+}
+
+.response-item + .response-item {
+    margin-top: -1px;
+}
+
+.response-number {
+    font-weight: 600;
+    color: var(--color-accent-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.response-item .voter-name {
     font-weight: 500;
-    color: var(--color-text);
-    padding: 2px 8px;
-    background: var(--color-bg);
-    border-radius: var(--radius-sm);
 }
 
-.answer-preview {
+.response-item .response-time {
     color: var(--color-text-muted);
+    font-size: 0.85rem;
 }
 
-.answer-preview em {
+.response-item .response-answered {
+    margin-left: auto;
     color: var(--color-text-muted);
-    opacity: 0.6;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
 }
 
-.answer-more {
-    color: var(--color-primary);
-    font-size: 0.75rem;
+.response-item .response-view {
+    flex-shrink: 0;
 }
 
 .loading-answers {
     color: var(--color-text-muted);
-}
-
-.btn-group {
-    display: flex;
-    gap: 1px;
-    background: var(--color-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-}
-
-.btn-group .btn {
-    border-radius: 0;
-    border: none;
-}
-
-.btn-group .btn:first-child {
-    border-radius: var(--radius-md) 0 0 var(--radius-md);
-}
-
-.btn-group .btn:last-child {
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .btn svg {
@@ -2421,7 +2464,7 @@ textarea {
 
 .response-card summary {
     cursor: pointer;
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .response-card ul {

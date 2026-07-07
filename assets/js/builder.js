@@ -583,32 +583,6 @@ function renderQuestionEditor(question, index, questionNumber) {
 
     return `
         <div class="question-editor ${isSectionHeader ? 'section-header-editor' : ''}">
-            <div class="editor-accent-bar"></div>
-            <div class="editor-toolbar">
-                <button type="button" class="btn-icon copy-question" data-tooltip="${escapeAttr(t('duplicate'))}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                </button>
-                <button type="button" class="btn-icon delete-question" data-tooltip="${escapeAttr(t('delete_question'))}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                </button>
-                <button type="button" class="btn-icon move-up" data-tooltip="${escapeAttr(t('move_up'))}" ${index === 0 ? 'disabled' : ''}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </button>
-                <button type="button" class="btn-icon move-down" data-tooltip="${escapeAttr(t('move_down'))}" ${index === state.questions.length - 1 ? 'disabled' : ''}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-            </div>
-
             <div class="editor-header">
                 ${numberDisplay}
                 <input type="text" class="question-title-input" value="${escapeAttr(question.text)}" placeholder="${escapeAttr(titlePlaceholder)}">
@@ -640,6 +614,32 @@ function renderQuestionEditor(question, index, questionNumber) {
                         ${requiredBehavior.disabled ? `<span class="required-hint">${t('always_parenthetical')}</span>` : ''}
                     </label>
                 ` : ''}
+                <div class="editor-actions">
+                    <button type="button" class="btn-editor-action move-up" data-tooltip="${escapeAttr(t('move_up'))}" ${index === 0 ? 'disabled' : ''}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                    </button>
+                    <button type="button" class="btn-editor-action move-down" data-tooltip="${escapeAttr(t('move_down'))}" ${index === state.questions.length - 1 ? 'disabled' : ''}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <button type="button" class="btn-editor-action copy-question">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>${t('duplicate')}</span>
+                    </button>
+                    <button type="button" class="btn-editor-action delete-question">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        <span>${t('delete_question')}</span>
+                    </button>
+                </div>
             </div>
         </div>
     `;

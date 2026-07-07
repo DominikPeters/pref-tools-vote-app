@@ -6,25 +6,41 @@
 
 /* --------------------------------------------------------------------------
    Poll Container & Header
+
+   The voter form is a single continuous "ballot sheet": one white surface
+   with a hairline border, whose sections (header, name field, questions,
+   submit row) are separated by hairlines rather than rendered as
+   free-floating cards.
    -------------------------------------------------------------------------- */
 .poll-container {
-    max-width: 800px;
+    max-width: 680px;
     margin: 0 auto;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-xl) 0 var(--spacing-2xl);
+}
+
+.poll-container > .container {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 0;
 }
 
 .poll-header {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 0;
+    padding: 1.8rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .poll-header h1 {
     margin-bottom: var(--spacing-sm);
+    font-size: 1.5rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
 }
 
 .poll-description {
     color: var(--color-text-muted);
-    font-size: 1.125rem;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 /* Markdown content styling */
@@ -37,7 +53,7 @@
 }
 
 .poll-description.markdown a {
-    color: var(--color-primary);
+    color: var(--color-accent-text);
 }
 
 .poll-description.markdown ul,
@@ -107,18 +123,19 @@
    Name Field
    -------------------------------------------------------------------------- */
 .name-field {
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    background: transparent;
+    padding: 1.2rem 2rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--color-border);
 }
 
 /* --------------------------------------------------------------------------
    Form Actions
    -------------------------------------------------------------------------- */
 .form-actions {
-    margin-top: var(--spacing-xl);
-    text-align: center;
+    margin-top: 0;
+    padding: 1.5rem 2rem 1.8rem;
+    background: var(--color-bg-secondary);
 }
 
 /* --------------------------------------------------------------------------
@@ -156,25 +173,82 @@
 
 /* --------------------------------------------------------------------------
    Questions Container
+
+   Questions are sections of the sheet, not cards: no own border box,
+   separated by hairlines.
    -------------------------------------------------------------------------- */
 #questionsContainer {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 0;
+}
+
+#questionsContainer .question-display {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1.5rem 2rem 1.7rem;
+    margin-bottom: 0;
+}
+
+#questionsContainer .section-header {
+    display: block; /* undo the admin-page flex .section-header from main.css */
+    border-top: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1.5rem 2rem 1.2rem;
+    margin: 0;
+}
+
+#questionsContainer .section-header:first-child {
+    padding-top: 1.5rem;
 }
 
 /* --------------------------------------------------------------------------
    Poll Footer & Report Link
    -------------------------------------------------------------------------- */
 .poll-footer {
-    margin-top: var(--spacing-xl);
-    padding-top: var(--spacing-lg);
+    margin-top: 0;
+    padding: var(--spacing-md) 2rem;
     border-top: 1px solid var(--color-border);
     text-align: center;
 }
 
+/* Thank-you and closed-poll cards render inside the sheet: drop their own box */
+.poll-container .card {
+    border: none;
+    margin-bottom: 0;
+    box-shadow: none;
+}
+
+.poll-container .editing-banner {
+    border-radius: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
 @media (max-width: 600px) {
-    .poll-container .container {
-        padding: 0 var(--spacing-md);
+    .poll-container {
+        padding-top: 0;
+    }
+
+    .poll-container > .container {
+        border-left: none;
+        border-right: none;
+    }
+
+    .poll-header {
+        padding: 1.4rem 1rem 1.2rem;
+    }
+
+    #questionsContainer .question-display,
+    #questionsContainer .section-header {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .name-field,
+    .form-actions {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }

@@ -103,8 +103,8 @@
 }
 
 .access-tab.active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
+    color: var(--color-accent-text);
+    border-bottom-color: var(--color-accent-text);
 }
 
 .access-tab-content {
@@ -222,9 +222,7 @@
 .invitations-table th {
     font-weight: 600;
     color: var(--color-text-muted);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.8rem;
     background: var(--color-bg);
     position: sticky;
     top: 0;
