@@ -123,7 +123,7 @@ test.describe('Poll Embedding', () => {
     await expect(freshPage.locator('text=What is 2 + 2?')).toBeVisible();
 
     // Select an answer
-    await freshPage.locator('input[value]').nth(1).check(); // Select "4"
+    await freshPage.getByRole('radio', { name: '4', exact: true }).check();
 
     // Submit
     await freshPage.click('button[type="submit"]');
@@ -131,6 +131,11 @@ test.describe('Poll Embedding', () => {
     // Should see thank you page
     await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });
     await expect(freshPage.locator('text=Pref.Tools Vote')).toBeVisible();
+
+    // Verify that the embed API persisted the vote.
+    const savedPollResponse = await api.get(`/api/polls/${public_id}/admin/${admin_token}`);
+    const savedPollData = await savedPollResponse.json();
+    expect(savedPollData.poll.response_count).toBe(1);
   });
 
   test('embed page shows error for disabled embedding', async ({ freshPage, api }) => {
@@ -240,6 +245,6 @@ test.describe('Poll Embedding', () => {
     await page.click('.copy-embed-btn');
 
     // Should show success toast
-    await expect(page.locator('.toast')).toContainText('copied');
+    await expect(page.locator('.toast').filter({ hasText: 'Embed code copied to clipboard' })).toBeVisible();
   });
 });
