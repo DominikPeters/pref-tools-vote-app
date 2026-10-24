@@ -111,6 +111,30 @@ test('selects only hashed files under the asset subtree and never publishes a ma
     assert.deepEqual([...server.files.keys()], [`${remoteRoot}/app-abcdefgh.js`]);
 });
 
+test('many assets share one directory setup, with a fresh setup after a disconnect', async t => {
+    const { localDir } = await fixture(t, {
+        'hu/one-12345678.webp': 'one',
+        'hu/two-12345678.webp': 'two',
+        'hu/three-12345678.webp': 'three',
+    });
+    let interrupted = false;
+    const server = fakeServer({ fail(method, { client }) {
+        if (method === 'upload' && !interrupted) {
+            interrupted = true;
+            client.closed = true;
+            throw Object.assign(new Error('Data connection interrupted'), { code: 'ECONNRESET' });
+        }
+    } });
+    const result = await uploadAssets(options(localDir, server));
+    assert.equal(result.uploaded, 3);
+    assert.equal(server.clients.length, 2);
+    for (const client of server.clients) {
+        const directories = server.calls.filter(call => call.id === client.id && call.method === 'ensureDir');
+        assert.deepEqual(directories.map(call => call.path), [remoteRoot, `${remoteRoot}/hu`]);
+    }
+    for (const name of ['one', 'two', 'three']) assert.ok(server.files.has(`${remoteRoot}/hu/${name}-12345678.webp`));
+});
+
 test('rejects symlinks instead of reading a file outside the build', async t => {
     const { root, localDir } = await fixture(t);
     const outside = join(root, 'outside.txt');

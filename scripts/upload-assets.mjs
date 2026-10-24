@@ -89,10 +89,12 @@ export async function uploadAssets({
     const config = configuration(env);
     let client;
     let root;
+    const ensuredDirectories = new Set();
     const disconnect = () => {
         client?.close();
         client = undefined;
         root = undefined;
+        ensuredDirectories.clear();
     };
     try {
         for (const asset of assets) {
@@ -110,6 +112,7 @@ export async function uploadAssets({
                         if (!posix.isAbsolute(initialDirectory)) throw new Error('Expected an absolute FTP login directory.');
                         root = posix.join(initialDirectory, config.root);
                         await client.ensureDir(root);
+                        ensuredDirectories.add(root);
                     }
                     const destination = posix.join(root, asset.remotePath);
                     if (await remoteSize(client, destination) === asset.size) {
@@ -118,7 +121,10 @@ export async function uploadAssets({
                         break;
                     }
                     const directory = posix.dirname(destination);
-                    await client.ensureDir(directory);
+                    if (!ensuredDirectories.has(directory)) {
+                        await client.ensureDir(directory);
+                        ensuredDirectories.add(directory);
+                    }
                     const temporaryPath = posix.join(directory, temporaryName);
                     await client.uploadFrom(asset.localPath, temporaryPath);
                     if (await remoteSize(client, temporaryPath) !== asset.size) {
