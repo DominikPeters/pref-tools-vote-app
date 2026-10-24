@@ -9,6 +9,7 @@ let tokensData = [];
 let invitationsData = [];
 let mailConfigured = false;
 let settingsChanged = false;
+let accessTabChosen = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.querySelector('.admin-content');
@@ -31,21 +32,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     initNotificationSetting(publicId, adminToken);
     initEmbedding(publicId, adminToken);
 
-    // Load poll data first, then responses (the answered-count needs pollData)
-    await loadVote(publicId, adminToken);
-    loadResponses(publicId, adminToken);
-
-    // Load access management data if not open mode
-    if (document.querySelector('.access-section')) {
-        // Load both tokens and invitations, then select the appropriate tab
-        await Promise.all([
-            loadTokens(publicId, adminToken),
-            loadInvitations(publicId, adminToken)
-        ]);
-        selectInitialTab();
+    const hasAccessManagement = !!document.querySelector('.access-section');
+    if (hasAccessManagement) {
         initAccessTabs();
         initTokenManagement(publicId, adminToken);
         initInvitationManagement(publicId, adminToken);
+        document.getElementById('generateTokens').disabled = true;
+        const sendButton = document.getElementById('sendInvitations');
+        if (sendButton) sendButton.disabled = true;
     }
 
     // Action buttons
@@ -138,6 +132,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const claimInviteBtn = document.getElementById('claimPollInvite');
     if (claimInviteBtn) {
         claimInviteBtn.addEventListener('click', () => claimPoll(publicId, adminToken));
+    }
+
+    // All static controls are bound before the first network wait. Load poll
+    // data before responses, whose answered counts depend on its questions.
+    await loadVote(publicId, adminToken);
+    loadResponses(publicId, adminToken);
+    if (hasAccessManagement) {
+        await Promise.all([
+            loadTokens(publicId, adminToken),
+            loadInvitations(publicId, adminToken)
+        ]);
+        selectInitialTab();
+        document.getElementById('generateTokens').disabled = false;
     }
 });
 
@@ -336,6 +343,7 @@ function escapeHtml(text) {
 function initAccessTabs() {
     document.querySelectorAll('.access-tab').forEach(tab => {
         tab.addEventListener('click', () => {
+            accessTabChosen = true;
             switchToTab(tab.dataset.tab);
         });
     });
@@ -353,6 +361,7 @@ function switchToTab(tabName) {
 }
 
 function selectInitialTab() {
+    if (accessTabChosen) return;
     // If poll has tokens of one type but not the other, focus on the tab that has tokens
     const hasManualTokens = tokensData.length > 0;
     const hasEmailInvitations = invitationsData.length > 0;
@@ -497,7 +506,8 @@ async function loadInvitations(publicId, adminToken) {
         mailConfigured = result.mail_configured;
         renderInvitations();
     } catch (err) {
-        document.getElementById('invitationsList').innerHTML = '<p class="error-message">Failed to load invitations.</p>';
+        const container = document.getElementById('invitationsList');
+        if (container) container.innerHTML = '<p class="error-message">Failed to load invitations.</p>';
     }
 }
 
@@ -541,6 +551,7 @@ function initInvitationManagement(publicId, adminToken) {
 
 function renderInvitations() {
     const container = document.getElementById('invitationsList');
+    if (!container) return; // Invitation controls are only rendered for the owner.
     const warningBanner = document.getElementById('mailConfigWarning');
 
     // Show warning if mail not configured

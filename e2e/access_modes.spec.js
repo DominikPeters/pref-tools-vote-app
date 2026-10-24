@@ -23,9 +23,23 @@ test.describe('Access Modes', () => {
     }).toPass();
 
     // 3. Go to admin and generate tokens
+    // Hold the initial data request open: the visible tabs must already work,
+    // and token generation must wait until its initial list has loaded.
+    let releaseInitialData;
+    const initialData = new Promise(resolve => { releaseInitialData = resolve; });
+    await page.route(`**/api/polls/${poll.public_id}/admin/${poll.admin_token}`, async route => {
+      await initialData;
+      await route.continue();
+    });
     await page.goto(`/${poll.public_id}/admin/${poll.admin_token}`);
-    await page.click('button[data-tab="tokens"]');
-    await page.fill('#tokenCount', '2');
+    try {
+      await page.click('button[data-tab="tokens"]');
+      await expect(page.locator('#tokenCount')).toBeVisible();
+      await expect(page.locator('#generateTokens')).toBeDisabled();
+      await page.fill('#tokenCount', '2');
+    } finally {
+      releaseInitialData();
+    }
     await page.click('#generateTokens');
     await expect(page.locator('text=Generated 2 tokens')).toBeVisible();
 
