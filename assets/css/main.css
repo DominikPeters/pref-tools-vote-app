@@ -771,8 +771,12 @@ input[type="checkbox"] {
 
 .hiw-tray {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
+}
+
+.hiw-tray > div {
+    min-width: 0;
 }
 
 .hiw-cat-label {
@@ -792,8 +796,9 @@ input[type="checkbox"] {
     margin-bottom: 5px;
     position: relative;
     font-size: 11px;
-    white-space: nowrap;
-    overflow: hidden;
+    white-space: normal;
+    hyphens: auto;
+    overflow-wrap: anywhere;
 }
 
 .hiw-type-btn svg {
@@ -976,7 +981,7 @@ input[type="checkbox"] {
     }
 
     .hiw-tray {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
