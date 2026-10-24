@@ -51,7 +51,7 @@ test.describe('Installation Flow', () => {
 
     // Should be on homepage now
     await expect(page).toHaveURL('/');
-    await expect(page.locator('h1')).toContainText('Smarter Polls');
+    await expect(page.locator('h1')).toContainText('Polls with rankings');
 
     // Check dashboard - should NOT show verification banner
     await page.goto('/dashboard');

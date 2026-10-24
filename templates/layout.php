@@ -53,7 +53,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a></p>
+            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
         </div>
     </footer>
 

@@ -28,7 +28,7 @@ class PageControllerTest extends TestCase
     public function test_home(): void
     {
         $output = $this->captureView(fn() => $this->controller->home([]));
-        $this->assertStringContainsString('Smarter Polls', $output);
+        $this->assertStringContainsString('Polls with rankings', $output);
     }
 
     public function test_about(): void

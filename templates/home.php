@@ -1,38 +1,38 @@
 <?php
-$title = 'Pref.Tools Vote - Polls with Advanced Voting Methods';
+$title = 'Pref.Tools Vote - Polls with Rankings, Approvals, Ratings, and Grades';
 ob_start();
 ?>
 
 <div class="container hero-container">
     <section class="hero-enhanced">
-        <span class="hero-tagline">Social Choice Theory Made Accessible</span>
-        <h1>Smarter Polls.<br>Better Decisions.</h1>
+        <h1>Polls with rankings, approvals,<br>ratings, and grades</h1>
         <p class="lead">
-            Go beyond simple polls. Collect rankings, approval votes, star ratings, and grades &mdash;
-            then analyze results with research-grade voting methods like Schulze, IRV, and Majority Judgment.
+            Create a poll, share a link, and analyze the results with Schulze, ranked pairs, STV,
+            majority judgment, and many other voting rules from the social choice literature.
+            It's free and <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">open source</a>, and no account is required.
         </p>
         <div class="hero-actions">
-            <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Poll</a>
-            <a href="#demo" class="btn btn-secondary btn-large">Try the Demo</a>
+            <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a poll</a>
+            <a href="#demo" class="btn btn-secondary btn-large">Try the demo</a>
         </div>
     </section>
 </div>
 
 <section class="screenshot-gallery">
     <div class="container">
-        <h2>Rich Question Types</h2>
+        <h2>Question types</h2>
         <p class="section-subtitle">
-            Capture nuanced preferences with specialized input types designed for group decision-making.
+            Nine formats, from single choice to full rankings and grades.
         </p>
     </div>
     <div class="gallery-grid">
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_single_choice.png" alt="Single Choice Question">
-            <div class="gallery-item-label">Single Choice</div>
+            <div class="gallery-item-label">Single choice</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_approval.png" alt="Approval Voting Question">
-            <div class="gallery-item-label">Approval Voting</div>
+            <div class="gallery-item-label">Approval voting</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking.png" alt="Ranking Question">
@@ -40,27 +40,27 @@ ob_start();
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking_truncated.png" alt="Truncated Ranking Question">
-            <div class="gallery-item-label">Partial Rankings</div>
+            <div class="gallery-item-label">Partial rankings</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_ranking_with_ties.png" alt="Ranking with Ties Question">
-            <div class="gallery-item-label">Rankings with Ties</div>
+            <div class="gallery-item-label">Rankings with ties</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_star.png" alt="Star Rating Question">
-            <div class="gallery-item-label">Star Ratings</div>
+            <div class="gallery-item-label">Star ratings</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_grade.png" alt="Grade Question">
-            <div class="gallery-item-label">Grades (Verbal)</div>
+            <div class="gallery-item-label">Grades (verbal)</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_grade_2.png" alt="Grade Question with Symbols">
-            <div class="gallery-item-label">Grades (Symbols)</div>
+            <div class="gallery-item-label">Grades (symbols)</div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
             <img src="<?= basePath() ?>/screenshots/question_yes_no_abstain.png" alt="Yes/No/Abstain Question">
-            <div class="gallery-item-label">Yes / No / Abstain</div>
+            <div class="gallery-item-label">Yes / no / abstain</div>
         </div>
     </div>
 </section>
@@ -85,9 +85,11 @@ ob_start();
 
 <section class="analysis-section">
     <div class="container">
-        <h2>Powerful Analysis</h2>
+        <h2>Results and analysis</h2>
         <p class="section-subtitle">
-            Don't just count votes. Understand group preferences with algorithms developed by social choice researchers.
+            Attach analyses to any question and compare rules side by side. Rule implementations are based on
+            the open-source <a href="https://github.com/voting-tools/pref_voting" target="_blank" rel="noopener">pref_voting</a>
+            and <a href="https://github.com/martinlackner/abcvoting" target="_blank" rel="noopener">abcvoting</a> libraries.
         </p>
         <div class="analysis-grid">
             <div class="analysis-category">
@@ -228,30 +230,141 @@ ob_start();
 </section>
 
 <div class="container">
-    <section class="how-it-works">
-        <h2>How It Works</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <h3>Build Your Poll</h3>
-                    <p>Use our drag-and-drop builder. Mix question types, set privacy options, and customize access control.</p>
+    <section class="hiw">
+        <h2>How it works</h2>
+        <div class="hiw-rows">
+
+            <div class="hiw-row">
+                <div class="hiw-vignette">
+                    <div class="hiw-card">
+                        <span class="hiw-add-btn">+ Add question</span>
+                        <div class="hiw-tray">
+                            <div>
+                                <div class="hiw-cat-label">Choice</div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+                                    Single choice
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><polyline points="7 12 10 15 17 8"/></svg>
+                                    Approval
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><path d="M8 15V9M12 15v-3M16 15v-5"/></svg>
+                                    Budgeting
+                                </div>
+                            </div>
+                            <div>
+                                <div class="hiw-cat-label">Ranking</div>
+                                <div class="hiw-type-btn hiw-hovered">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="5"/><rect x="4" y="10" width="16" height="5"/><rect x="4" y="17" width="16" height="5"/></svg>
+                                    Ranking
+                                    <span class="hiw-cursor" style="left: 62%; top: 45%;">
+                                        <svg viewBox="0 0 24 24"><path d="M5 3l14 9-6.5 1.5L16 20l-2.5 1-3.5-6.5L5 19V3z" fill="#fff" stroke="#191919" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                                    </span>
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="5"/><rect x="4" y="10" width="16" height="5"/><rect x="4" y="17" width="16" height="5" stroke-dasharray="2 2" opacity="0.4"/></svg>
+                                    Partial ranking
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="2" width="10" height="4"/><rect x="4" y="8" width="7" height="4"/><rect x="13" y="8" width="7" height="4"/><rect x="7" y="14" width="10" height="4"/></svg>
+                                    Ranking with ties
+                                </div>
+                            </div>
+                            <div class="hiw-cat-rating">
+                                <div class="hiw-cat-label">Rating</div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    Star rating
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20L8 4M12 20V10M16 20l4-10"/></svg>
+                                    Grades
+                                </div>
+                                <div class="hiw-type-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4L19 6"/></svg>
+                                    Yes / no / abstain
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hiw-text">
+                    <h3><em>1</em>Build the ballot</h3>
+                    <p>Nine question types, from single choice to rankings and grades &mdash; mixed freely in one poll.</p>
                 </div>
             </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <h3>Collect Responses</h3>
-                    <p>Share a link, send email invitations, or generate one-time tokens. No account required for voters.</p>
+
+            <div class="hiw-row">
+                <div class="hiw-vignette">
+                    <div class="hiw-card">
+                        <div class="hiw-label">Poll link</div>
+                        <div class="hiw-link-field">
+                            <span class="hiw-url">pref.tools/vote/k3v9q2</span>
+                            <span class="hiw-copy">Copy
+                                <span class="hiw-cursor" style="left: 70%; top: 50%;">
+                                    <svg viewBox="0 0 24 24"><path d="M5 3l14 9-6.5 1.5L16 20l-2.5 1-3.5-6.5L5 19V3z" fill="#fff" stroke="#191919" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="hiw-label">Who can vote</div>
+                        <div class="hiw-radio-row"><span class="hiw-radio on"></span>Anyone with the link</div>
+                        <div class="hiw-radio-row"><span class="hiw-radio"></span>Password required</div>
+                        <div class="hiw-radio-row"><span class="hiw-radio"></span>One-time tokens</div>
+                        <div class="hiw-radio-row"><span class="hiw-radio"></span>Email invitations</div>
+                    </div>
+                </div>
+                <div class="hiw-text">
+                    <h3><em>2</em>Share it</h3>
+                    <p>A public link, a password, one-time tokens, or email invitations. Voters don't need an account.</p>
                 </div>
             </div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <h3>Analyze Results</h3>
-                    <p>Add reports per question. Compare voting rules, visualize pairwise matchups, and export data.</p>
+
+            <div class="hiw-row">
+                <div class="hiw-vignette">
+                    <div class="hiw-card">
+                        <div class="hiw-drawer-head">Add analysis <span class="hiw-x">&times;</span></div>
+                        <p class="hiw-wizard-q">What do you want to show?</p>
+                        <div class="hiw-intent-card hiw-hovered">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>
+                            <div class="hiw-intent-text">
+                                <div class="hiw-intent-name">Who wins?</div>
+                                <div class="hiw-intent-desc">Determine the winning option using a voting method</div>
+                            </div>
+                            <span class="hiw-cursor" style="left: 89%; top: 55%;">
+                                <svg viewBox="0 0 24 24"><path d="M5 3l14 9-6.5 1.5L16 20l-2.5 1-3.5-6.5L5 19V3z" fill="#fff" stroke="#191919" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                            </span>
+                        </div>
+                        <div class="hiw-intent-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-7"/></svg>
+                            <div class="hiw-intent-text">
+                                <div class="hiw-intent-name">How did people vote?</div>
+                                <div class="hiw-intent-desc">Tallies, tables, and visualizations of the votes</div>
+                            </div>
+                        </div>
+                        <div class="hiw-intent-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13.5c2.5 0.5 4 2.7 4 5.5"/></svg>
+                            <div class="hiw-intent-text">
+                                <div class="hiw-intent-name">Multiple winners</div>
+                                <div class="hiw-intent-desc">Elect a committee or divide seats among the options</div>
+                            </div>
+                        </div>
+                        <div class="hiw-intent-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M12 6l7 3-7-3-7 3 7-3z"/><path d="M5 9l-2 5a3 3 0 0 0 6 0l-2-5M19 9l-2 5a3 3 0 0 0 6 0l-2-5" transform="translate(0 -1)"/></svg>
+                            <div class="hiw-intent-text">
+                                <div class="hiw-intent-name">Compare voting methods</div>
+                                <div class="hiw-intent-desc">See how the outcome differs across voting rules</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hiw-text">
+                    <h3><em>3</em>Analyze the results</h3>
+                    <p>Pick analyses per question: winners, tallies, committees, and rule comparisons.</p>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -268,20 +381,19 @@ ob_start();
                 </div>
             </div>
             <div class="demo-actions">
-                <h3>Try the Demo</h3>
+                <h3>Try the demo</h3>
                 <p>Vote in a sample poll with multiple question types, then explore the results page to see different analysis methods in action.</p>
                 <div class="demo-buttons">
-                    <a href="<?= basePath() ?>/demo" class="btn btn-primary btn-large">Take the Demo Poll</a>
-                    <a href="<?= basePath() ?>/demo/results" class="btn btn-secondary btn-large">View Demo Results</a>
+                    <a href="<?= basePath() ?>/demo" class="btn btn-primary btn-large">Take the demo poll</a>
+                    <a href="<?= basePath() ?>/demo/results" class="btn btn-secondary btn-large">View demo results</a>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="cta">
-        <h2>Ready to Make Better Decisions?</h2>
-        <p>Create your first poll in minutes. No account required.</p>
-        <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a Poll</a>
+        <p>Create a poll in minutes. No account needed.</p>
+        <a href="<?= basePath() ?>/create" class="btn btn-primary btn-large">Create a poll</a>
     </section>
 </div>
 
