@@ -30,7 +30,8 @@ class ResponseNotificationTest extends TestCase
         $email = $this->getLastEmailTo($owner->email);
         $this->assertSame(
             \App\i18n\Translator::translateForLocale('fr', 'email_new_response_to_title_from_name', ['title' => $poll->title, 'name' => 'Besucher']),
-            mb_decode_mimeheader($email['Content']['Headers']['Subject'][0])
+            // mb_decode_mimeheader only decodes Q-encoded spaces correctly from PHP 8.3.
+            iconv_mime_decode($email['Content']['Headers']['Subject'][0], ICONV_MIME_DECODE_STRICT, 'UTF-8')
         );
         $this->assertStringContainsString('lang="fr" dir="ltr"', $email['Content']['Body']);
         $this->assertSame('de', \App\i18n\Translator::getLocale());
