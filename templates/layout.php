@@ -48,13 +48,38 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
         <div class="container">
             <a href="<?= e(MarketingLocale::path('home')) ?>" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
-                <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>><?= __('create_poll') ?></a>
+                <?php if (!empty($user)): ?>
+                    <a href="<?= basePath() ?>/create"><?= __('create_poll') ?></a>
+                <?php endif; ?>
                 <a href="<?= e(MarketingLocale::path('about')) ?>"><?= __('about') ?></a>
                 <?php if (!empty($user)): ?>
                     <a href="<?= basePath() ?>/dashboard"><?= __('dashboard') ?></a>
                     <?php if ($user->isSysadmin()): ?>
                         <a href="<?= basePath() ?>/sysadmin"><?= __('sysadmin') ?></a>
                     <?php endif; ?>
+                <?php endif; ?>
+                <?php
+                $suggestedLocales = UiLocale::suggestions($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', $uiLocale);
+                $otherLocales = array_values(array_diff(array_keys(Languages::getAll()), $suggestedLocales));
+                ?>
+                <details class="language-menu">
+                    <summary>
+                        <span class="visually-hidden"><?= e(__('interface_language')) ?>: </span>
+                        <span lang="<?= e($uiLocale) ?>" dir="<?= e(Languages::getDirection($uiLocale)) ?>"><?= e(Languages::getName($uiLocale)) ?></span>
+                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <form method="post" action="<?= basePath() ?>/language" class="language-menu-list">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="return_to" value="<?= e($_SERVER['REQUEST_URI'] ?? (basePath() . '/')) ?>">
+                        <?php foreach ([$suggestedLocales, $otherLocales] as $group => $codes): ?>
+                            <?php if ($group === 1 && $codes): ?><hr><?php endif; ?>
+                            <?php foreach ($codes as $code): ?>
+                                <button type="submit" name="locale" value="<?= e($code) ?>" lang="<?= e($code) ?>" dir="<?= e(Languages::getDirection($code)) ?>"<?= $code === $uiLocale ? ' aria-current="true"' : '' ?>><?= e(Languages::getName($code)) ?></button>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </form>
+                </details>
+                <?php if (!empty($user)): ?>
                     <div class="user-menu">
                         <button type="button" class="user-menu-trigger">
                             <span class="user-name"><?= e($user->name) ?></span>
@@ -67,18 +92,8 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
                     </div>
                 <?php else: ?>
                     <a href="<?= basePath() ?>/login"><?= __('login') ?></a>
+                    <a href="<?= basePath() ?>/create" class="btn btn-primary"><?= __('create_poll') ?></a>
                 <?php endif; ?>
-                <form method="post" action="<?= basePath() ?>/language" class="language-picker">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="return_to" value="<?= e($_SERVER['REQUEST_URI'] ?? (basePath() . '/')) ?>">
-                    <label class="visually-hidden" for="interfaceLocale"><?= e(__('interface_language')) ?></label>
-                    <select id="interfaceLocale" name="locale" aria-label="<?= e(__('interface_language')) ?>">
-                        <?php foreach (Languages::getAll() as $code => $name): ?>
-                            <option value="<?= e($code) ?>" lang="<?= e($code) ?>" <?= $code === $uiLocale ? 'selected' : '' ?>><?= e($name) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" class="btn btn-secondary btn-small" aria-label="<?= e(__('change_language')) ?>">✓</button>
-                </form>
             </nav>
         </div>
     </header>

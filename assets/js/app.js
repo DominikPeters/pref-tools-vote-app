@@ -354,6 +354,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Language menu: close on outside click or Escape
+    const languageMenu = document.querySelector('.language-menu');
+    if (languageMenu) {
+        document.addEventListener('click', (e) => {
+            if (!languageMenu.contains(e.target)) languageMenu.open = false;
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && languageMenu.open) {
+                languageMenu.open = false;
+                languageMenu.querySelector('summary').focus();
+            }
+        });
+    }
+
     // User menu dropdown
     const userMenu = document.querySelector('.user-menu');
     if (userMenu) {

@@ -33,6 +33,15 @@ class UiLocaleTest extends TestCase
         $this->assertSame('en', UiLocale::negotiate('fr;q=banana'));
     }
 
+    public function test_suggests_current_and_browser_languages_followed_by_english(): void
+    {
+        $this->assertSame(['fr', 'de', 'en'], UiLocale::suggestions('fr-CH, de;q=0.8, xx;q=0.7', 'fr'));
+        $this->assertSame(['en', 'fr', 'de'], UiLocale::suggestions('fr, de', 'en'));
+        $this->assertSame(['de', 'fr', 'es', 'en'], UiLocale::suggestions('fr, fr-CA, es, it, nl', 'de'));
+        $this->assertSame(['en'], UiLocale::suggestions('', 'en'));
+        $this->assertSame(['hu', 'en'], UiLocale::suggestions('xx, *;q=0.1', 'hu'));
+    }
+
     public function test_explicit_preference_wins_and_poll_locale_does_not_change_it(): void
     {
         UiLocale::initialize('de', 'fr-FR');

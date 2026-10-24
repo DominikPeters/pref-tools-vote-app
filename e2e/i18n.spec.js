@@ -6,17 +6,17 @@ test.describe('Internationalization infrastructure', () => {
   test('negotiates a language, persists an explicit preference and protects the change with CSRF', async ({ freshPage }) => {
     await freshPage.goto('/create');
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('fr');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'fr');
     await expect(freshPage.locator('#pollLocale')).toHaveValue('fr');
 
-    await freshPage.selectOption('#interfaceLocale', 'en');
+    await freshPage.click('.language-menu summary');
     await Promise.all([
       freshPage.waitForResponse(r => r.url().endsWith('/language') && r.request().method() === 'POST'),
-      freshPage.click('.language-picker button[type="submit"]'),
+      freshPage.click('.language-menu-list button[value="en"]'),
     ]);
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'en');
     await freshPage.goto('/login');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('en');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'en');
     const cookie = (await freshPage.context().cookies()).find(c => c.name === 'ui_locale');
     expect(cookie.value).toBe('en');
     expect(cookie.httpOnly).toBe(true);
@@ -25,6 +25,23 @@ test.describe('Internationalization infrastructure', () => {
     const denied = await freshPage.request.post('/language', { form: { locale: 'de', return_to: '/create' } });
     expect(denied.status()).toBe(403);
     expect((await freshPage.context().cookies()).find(c => c.name === 'ui_locale').value).toBe('en');
+  });
+
+  test('the language menu lists the active and browser languages, then English, before the rest', async ({ freshPage }) => {
+    await freshPage.goto('/create');
+    await freshPage.click('.language-menu summary');
+    const items = freshPage.locator('.language-menu-list button');
+    const firstGroup = await freshPage.locator('.language-menu-list hr').evaluate(hr => {
+      const codes = [];
+      for (let el = hr.previousElementSibling; el; el = el.previousElementSibling) if (el.tagName === 'BUTTON') codes.unshift(el.value);
+      return codes;
+    });
+    expect(firstGroup).toEqual(['fr', 'en']);
+    await expect(items.first()).toHaveAttribute('aria-current', 'true');
+    expect(await items.count()).toBe(Object.keys(require('../src/i18n/languages.json')).length);
+
+    await freshPage.keyboard.press('Escape');
+    await expect(freshPage.locator('.language-menu')).not.toHaveAttribute('open');
   });
 
   test('changing the poll preview language does not change the builder interface', async ({ freshPage }) => {
@@ -40,7 +57,7 @@ test.describe('Internationalization infrastructure', () => {
     await expect(preview).toHaveAttribute('lang', 'de');
     await expect(preview.locator('input')).toHaveAttribute('placeholder', 'Kurzantwort');
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('fr');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'fr');
     await expect(freshPage.locator('.type-btn[data-type="single_choice"]')).toHaveText(uiLabel);
     expect(await freshPage.evaluate(() => window.I18N.locale)).toBe('fr');
   });
@@ -55,7 +72,7 @@ test.describe('Internationalization infrastructure', () => {
     await freshPage.goto(`/${poll.public_id}`);
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
     await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', 'de');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('de');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'de');
     await freshPage.locator('#pollForm input[type="text"]').fill('Très bien');
     await freshPage.getByRole('button', { name: 'Soumettre le vote', exact: true }).click();
     await expect(freshPage.getByRole('heading', { name: 'Merci !', exact: true })).toBeVisible();
@@ -157,25 +174,25 @@ test.describe('Internationalization coverage with an English browser', () => {
 
   test('switching language on a marketing page navigates to its equivalent language URL', async ({ freshPage, baseURL }) => {
     await freshPage.goto('/hu/about');
-    await freshPage.selectOption('#interfaceLocale', 'fr');
+    await freshPage.click('.language-menu summary');
     await Promise.all([
       freshPage.waitForResponse(response => response.url().endsWith('/language') && response.request().method() === 'POST'),
-      freshPage.locator('.language-picker button[type="submit"]').click(),
+      freshPage.click('.language-menu-list button[value="fr"]'),
     ]);
     await expect(freshPage).toHaveURL(`${baseURL}/fr/about`);
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('fr');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'fr');
   });
 
   test('an isolated account keeps its saved interface language after its language cookie is cleared', async ({ userAccount }) => {
     const { page, context } = userAccount;
     expect(await page.evaluate(() => navigator.language)).toBe('en-US');
-    await expect(page.locator('#interfaceLocale')).toHaveValue('en');
+    await expect(page.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'en');
 
-    await page.selectOption('#interfaceLocale', 'fr');
+    await page.click('.language-menu summary');
     await Promise.all([
       page.waitForResponse(response => response.url().endsWith('/language') && response.request().method() === 'POST'),
-      page.click('.language-picker button[type="submit"]'),
+      page.click('.language-menu-list button[value="fr"]'),
     ]);
     await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 
@@ -183,7 +200,7 @@ test.describe('Internationalization coverage with an English browser', () => {
     expect((await context.cookies()).some(cookie => cookie.name === 'ui_locale')).toBe(false);
     await page.goto('/create');
     await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
-    await expect(page.locator('#interfaceLocale')).toHaveValue('fr');
+    await expect(page.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'fr');
     await expect(page.locator('#pollLocale')).toHaveValue('fr');
     expect(await page.evaluate(() => navigator.language)).toBe('en-US');
   });
@@ -212,8 +229,8 @@ test.describe('Internationalization coverage with an English browser', () => {
           await expect(freshPage.locator('html')).toHaveAttribute('lang', locale);
           await expect(freshPage.locator('html')).toHaveAttribute('dir', metadata.direction);
           await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', locale);
-          await expect(freshPage.locator('#interfaceLocale')).toHaveValue(locale);
-          await expect(freshPage.locator(`#interfaceLocale option[value="${locale}"]`)).toHaveText(metadata.name);
+          await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', locale);
+          await expect(freshPage.locator(`.language-menu-list button[value="${locale}"]`)).toHaveText(metadata.name);
           if (path === '/create') await expect(freshPage.locator('#pollLocale')).toHaveValue(locale);
           if (path === adminPath) await expect(freshPage.locator('#responsesList .empty-message')).toBeVisible();
           if (path === '/login' && locale === 'fr') {
@@ -248,7 +265,7 @@ test.describe('Internationalization coverage with an English browser', () => {
     await freshPage.goto(`/${poll.public_id}`);
     await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
     await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', 'de');
-    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('de');
+    await expect(freshPage.locator('.language-menu summary [lang]')).toHaveAttribute('lang', 'de');
     await expect(freshPage.getByRole('heading', { name: 'Mot de passe requis', exact: true })).toBeVisible();
 
     await freshPage.fill('#access_password', 'incorrect-password');
