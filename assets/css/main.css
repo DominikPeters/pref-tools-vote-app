@@ -221,8 +221,31 @@ img {
 
 .main-nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-md);
+}
+
+.main-nav > a {
+    white-space: nowrap;
+}
+
+.language-picker {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+}
+
+.language-picker select {
+    inline-size: 7.5rem;
+    padding: .3rem;
+    font: inherit;
+    font-size: .8rem;
+    color: inherit;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
 }
 
 .user-name {

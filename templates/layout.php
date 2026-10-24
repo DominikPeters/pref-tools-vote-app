@@ -1,5 +1,14 @@
+<?php
+use App\i18n\Languages;
+use App\i18n\Translator;
+use App\i18n\UiLocale;
+$uiLocale = UiLocale::get();
+$pageLocale = $pageLocale ?? $uiLocale;
+Translator::setLocale($uiLocale);
+$jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($pageLocale) ?>" dir="<?= Languages::getDirection($pageLocale) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +27,14 @@
     <?php endif; ?>
 </head>
 <body>
-    <script>window.BASE_PATH = '<?= basePath() ?>';</script>
-    <header class="site-header">
+    <script>
+        window.BASE_PATH = <?= json_encode(basePath(), $jsonFlags) ?>;
+        window.I18N = <?= json_encode(Translator::configuration($pageLocale), $jsonFlags) ?>;
+        window.UI_I18N = <?= $uiLocale === $pageLocale ? 'window.I18N' : json_encode(Translator::configuration($uiLocale), $jsonFlags) ?>;
+        window.LOCALE = window.I18N.locale;
+        window.TRANSLATIONS = { ...window.I18N.fallback, ...window.I18N.messages };
+    </script>
+    <header class="site-header" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
             <a href="<?= basePath() ?>/" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
@@ -43,6 +58,17 @@
                 <?php else: ?>
                     <a href="<?= basePath() ?>/login"><?= __('login') ?></a>
                 <?php endif; ?>
+                <form method="post" action="<?= basePath() ?>/language" class="language-picker">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="return_to" value="<?= e($_SERVER['REQUEST_URI'] ?? (basePath() . '/')) ?>">
+                    <label class="visually-hidden" for="interfaceLocale"><?= e(__('interface_language')) ?></label>
+                    <select id="interfaceLocale" name="locale" aria-label="<?= e(__('interface_language')) ?>">
+                        <?php foreach (Languages::getAll() as $code => $name): ?>
+                            <option value="<?= e($code) ?>" lang="<?= e($code) ?>" <?= $code === $uiLocale ? 'selected' : '' ?>><?= e($name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="btn btn-secondary btn-small" aria-label="<?= e(__('change_language')) ?>">✓</button>
+                </form>
             </nav>
         </div>
     </header>
@@ -51,7 +77,7 @@
         <?= $content ?? '' ?>
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
             <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
         </div>

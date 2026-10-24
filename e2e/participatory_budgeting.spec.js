@@ -54,7 +54,7 @@ test.describe('Participatory Budgeting', () => {
     await expect(sidewalksCheckbox).toBeDisabled();
 
     // Submit valid
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 

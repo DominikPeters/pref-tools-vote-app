@@ -6,12 +6,11 @@
 
 use App\i18n\Translator;
 
-$pollLocale = $poll->locale ?? 'en';
+$pollLocale = \App\i18n\Languages::resolve($poll->locale ?? 'en') ?? 'en';
 Translator::setLocale($pollLocale);
-$translations = Translator::getAllTranslations();
 ?>
 <!DOCTYPE html>
-<html lang="<?= e($pollLocale) ?>">
+<html lang="<?= e($pollLocale) ?>" dir="<?= \App\i18n\Languages::getDirection($pollLocale) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,8 +25,8 @@ $translations = Translator::getAllTranslations();
     <script>
         window.BASE_PATH = <?= json_encode(basePath(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
         window.POLL_DATA = <?= json_encode($poll->toPublicArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-        window.LOCALE = <?= json_encode($pollLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-        window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+        window.I18N = <?= json_encode(Translator::configuration($pollLocale), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+        window.UI_I18N = window.I18N;
         window.EMBED_TOKEN = <?= json_encode($embedToken, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
         window.IS_EMBED = true;
         window.SITE_URL = <?= json_encode(url($poll->publicId), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;

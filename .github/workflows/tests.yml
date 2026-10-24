@@ -31,11 +31,14 @@ jobs:
       - name: Build frontend assets
         run: npm ci && npm run build
 
+      - name: Check frontend internationalization
+        run: npm run test:i18n
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pdo_sqlite, sqlite3, mbstring
+          extensions: pdo_sqlite, sqlite3, mbstring, intl
           coverage: xdebug
 
       - name: Fetch PHPMailer
@@ -78,7 +81,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pdo_sqlite, sqlite3, mbstring
+          extensions: pdo_sqlite, sqlite3, mbstring, intl
           coverage: none
 
       - name: Fetch PHPMailer

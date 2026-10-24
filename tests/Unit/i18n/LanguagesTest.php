@@ -61,7 +61,7 @@ class LanguagesTest extends TestCase
         $i18nDir = __DIR__ . '/../../../src/i18n/';
 
         foreach (array_keys($languages) as $code) {
-            $filePath = $i18nDir . $code . '.php';
+            $filePath = $i18nDir . 'locales/' . $code . '.json';
             $this->assertFileExists(
                 $filePath,
                 "Translation file missing for language: {$code}"
@@ -75,7 +75,7 @@ class LanguagesTest extends TestCase
         $i18nDir = __DIR__ . '/../../../src/i18n/';
 
         foreach (array_keys($languages) as $code) {
-            $translations = require $i18nDir . $code . '.php';
+            $translations = json_decode(file_get_contents($i18nDir . 'locales/' . $code . '.json'), true, 512, JSON_THROW_ON_ERROR);
             $this->assertIsArray(
                 $translations,
                 "Translation file for {$code} should return an array"

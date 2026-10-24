@@ -6,6 +6,7 @@
  */
 
 import { renderQuestion } from './question-renderer.js';
+import { t } from './i18n.js';
 
 // ==========================================================================
 // Initialization
@@ -158,13 +159,6 @@ function showMessage(message, type) {
     setTimeout(() => toast.remove(), 5000);
 }
 
-function t(key, params = {}) {
-    let text = window.TRANSLATIONS?.[key] || key;
-    for (const [name, value] of Object.entries(params)) {
-        text = text.replace(`:${name}`, String(value));
-    }
-    return text;
-}
 
 function collectFormData() {
     const form = document.getElementById('pollForm');
@@ -294,7 +288,7 @@ function validateForm(data) {
         if (answer === null || answer === undefined || answer === '' ||
             (Array.isArray(answer) && answer.length === 0) ||
             (typeof answer === 'object' && !Array.isArray(answer) && Object.keys(answer).length === 0)) {
-            return t('required_question_error') || 'Please answer all required questions';
+            return t('required_field');
         }
     }
 

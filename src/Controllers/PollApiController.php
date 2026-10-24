@@ -29,8 +29,10 @@ class PollApiController extends ApiController
     {
         $data = $this->getBody() ?? [];
 
-        if (array_key_exists('locale', $data) && (!is_string($data['locale']) || !Languages::isValid($data['locale']))) {
-            return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+        if (array_key_exists('locale', $data)) {
+            $locale = is_string($data['locale']) ? Languages::resolve($data['locale']) : null;
+            if ($locale === null) return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+            $data['locale'] = $locale;
         }
 
         $userId = $this->user()?->id;
@@ -134,8 +136,10 @@ class PollApiController extends ApiController
 
         $data = $this->getBody() ?? [];
 
-        if (array_key_exists('locale', $data) && (!is_string($data['locale']) || !Languages::isValid($data['locale']))) {
-            return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+        if (array_key_exists('locale', $data)) {
+            $locale = is_string($data['locale']) ? Languages::resolve($data['locale']) : null;
+            if ($locale === null) return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+            $data['locale'] = $locale;
         }
 
         // Prevent voting_mode change if mode is locked

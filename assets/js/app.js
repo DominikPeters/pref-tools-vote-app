@@ -2,7 +2,7 @@
  * Pref.Tools Vote - Main Application JavaScript
  */
 
-import { t } from './i18n.js';
+import { t, pageTranslator } from './i18n.js';
 
 // Get base path for URLs (supports subfolder deployment)
 const basePath = window.BASE_PATH || '';
@@ -37,7 +37,8 @@ export const api = {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.error || 'Request failed');
+            const key = `api_error_${String(result.code || '').toLowerCase()}`;
+            throw new Error(pageTranslator.has(key) ? t(key) : result.error || t('request_failed'));
         }
 
         return result;
@@ -103,10 +104,19 @@ export async function copyToClipboard(text) {
 }
 
 // Toast notifications
-export function showToast(message, type = 'info') {
+export function showToast(message, type = 'info', action = null) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = message;
+    toast.textContent = message;
+    if (action) {
+        const url = new URL(action.href, window.location.href);
+        if (['http:', 'https:'].includes(url.protocol)) {
+            const link = document.createElement('a');
+            link.href = url.href;
+            link.textContent = action.label;
+            toast.append(' ', link);
+        }
+    }
     
     const bgColor = type === 'error' ? 'var(--color-danger)' : type === 'success' ? 'var(--color-success)' : 'var(--color-primary)';
     

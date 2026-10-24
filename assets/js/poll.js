@@ -7,6 +7,7 @@
 
 import { api, showToast, showConfirmModal, setButtonLoading, clearButtonLoading, escapeHtml } from './app.js';
 import { renderQuestion } from './question-renderer.js';
+import { tHtml } from './i18n.js';
 import { initReportButton } from './report.js';
 
 // ==========================================================================
@@ -126,10 +127,10 @@ function initForm() {
 
             let actionsHtml = '';
             if (canEdit) {
-                actionsHtml += `<button type="button" class="btn btn-secondary" onclick="location.reload()">Edit Your Response</button>`;
+                actionsHtml += `<button type="button" class="btn btn-secondary" onclick="location.reload()">${tHtml('edit_response')}</button>`;
             }
             if (canViewResults) {
-                actionsHtml += `<a href="${window.BASE_PATH}/${publicId}/results" class="btn btn-primary">View Results</a>`;
+                actionsHtml += `<a href="${window.BASE_PATH}/${publicId}/results" class="btn btn-primary">${tHtml('view_results')}</a>`;
             }
 
             // Use custom message if set, otherwise default message
@@ -138,8 +139,8 @@ function initForm() {
                 messageContent = `<div class="thank-you-custom markdown">${customMessage}</div>`;
             } else {
                 messageContent = `
-                    <h2>Thank you!</h2>
-                    <p>Your response has been ${isEditing ? 'updated' : 'recorded'}.</p>
+                    <h2>${tHtml('thank_you')}</h2>
+                    <p>${tHtml(isEditing ? 'response_updated' : 'response_recorded')}</p>
                 `;
             }
 
@@ -153,7 +154,7 @@ function initForm() {
                             </div>
                         ` : `
                             <p class="poll-thank-you-hint">
-                                You can now close this page.
+                                ${tHtml('can_close_page')}
                             </p>
                         `}
                     </div>

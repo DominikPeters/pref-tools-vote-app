@@ -140,6 +140,6 @@ class TranslatorTest extends TestCase
         // If a parameter placeholder exists but no value is provided,
         // the placeholder should remain
         $result = Translator::translate('closed_on', []); // No 'date' param
-        $this->assertEquals('Closed :date', $result);
+        $this->assertEquals('Closed {date}', $result);
     }
 }

@@ -47,7 +47,7 @@ test.describe('Voter Experience', () => {
     // 1. Submit first time
     await freshPage.goto(`/${poll.public_id}`);
     await freshPage.fill('input[type="text"]', 'Initial Answer');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // 2. Return to the poll page
@@ -86,14 +86,14 @@ test.describe('Voter Experience', () => {
 
     // 2. Try wrong password
     await freshPage.fill('#access_password', 'wrong-password');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('main form button[type="submit"]');
     // Wait for the page to reload and show error
     await expect(freshPage.locator('.error-message')).toBeVisible();
     await expect(freshPage.locator('.error-message')).toContainText('Incorrect password');
 
     // 3. Enter correct password
     await freshPage.fill('#access_password', 'correct-password');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('main form button[type="submit"]');
 
     // 4. Should now see the poll
     await expect(freshPage.locator('h1')).toContainText('Secret Poll');

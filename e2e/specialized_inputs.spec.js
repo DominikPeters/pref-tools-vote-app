@@ -46,7 +46,7 @@ test.describe('Specialized Input Types', () => {
     await bananaRating.locator('.star[data-value="1"]').click();
 
     // Submit
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // Verify the default analyses on the results page:
@@ -79,7 +79,7 @@ test.describe('Specialized Input Types', () => {
     await candidate1.locator('.grade-btn[data-value="pass"]').click();
     await expect(candidate1.locator('.grade-btn[data-value="pass"]')).toHaveClass(/active/);
 
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 
@@ -105,7 +105,7 @@ test.describe('Specialized Input Types', () => {
     await expect(proposal1.locator('.yna-btn.no')).toHaveClass(/active/);
     await expect(proposal1.locator('.yna-btn.yes')).not.toHaveClass(/active/);
 
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 
@@ -134,7 +134,7 @@ test.describe('Specialized Input Types', () => {
 
     // Try to submit with only 1 selected
     await freshPage.check('text=Option 1');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=at least 2')).toBeVisible();
 
     // Select more
@@ -145,7 +145,7 @@ test.describe('Specialized Input Types', () => {
     await expect(freshPage.locator('text=Option 4').locator('xpath=..').locator('input')).toBeDisabled();
 
     // Submit valid
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 
@@ -219,7 +219,7 @@ test.describe('Specialized Input Types', () => {
     await expect(projectA.locator('.dist-minus')).not.toBeDisabled();
 
     // Submit
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 
@@ -251,7 +251,7 @@ test.describe('Specialized Input Types', () => {
     await option1.locator('.dist-input').blur();
 
     // Try to submit - should fail because we require all 30 points
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Please use all 30 points')).toBeVisible();
 
     // Use remaining 10 points
@@ -260,7 +260,7 @@ test.describe('Specialized Input Types', () => {
     await option2.locator('.dist-input').blur();
 
     // Now submit should succeed (20 + 10 = 30)
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
   });
 

@@ -99,6 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function handleDatabaseSetup() {
     global $configPath, $basePath, $isTestEnv;
 
+    if (!extension_loaded('intl')) {
+        return 'The PHP intl extension is required for internationalized messages. Enable it before installing.';
+    }
+
     $driver = $_POST['driver'] ?? 'sqlite';
     $appUrl = rtrim($_POST['app_url'] ?? 'http://localhost', '/');
 

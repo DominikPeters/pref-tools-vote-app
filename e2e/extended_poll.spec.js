@@ -161,7 +161,7 @@ test.describe('Extended Poll Features', () => {
     // Answer Q4
     await freshPage.fill('input[type="text"]', 'Hello E2E');
 
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // View results
@@ -198,7 +198,7 @@ test.describe('Extended Poll Features', () => {
     await freshPage.goto(publicUrl);
     await freshPage.fill('#voterName', 'John Doe');
     await freshPage.click('text=Option 1');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // Check admin panel for name

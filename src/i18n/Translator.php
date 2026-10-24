@@ -2,94 +2,81 @@
 
 namespace App\i18n;
 
-class Translator
+final class Translator
 {
-    private static ?array $strings = null;
+    private static array $catalogs = [];
     private static string $locale = 'en';
 
-    /**
-     * Set the current locale
-     */
     public static function setLocale(string $locale): void
     {
-        // Locale values can originate in poll API input. Never use arbitrary
-        // strings as PHP include paths, including values already stored in polls.
-        self::$locale = Languages::isValid($locale) ? $locale : Languages::getDefault();
-        self::$strings = null; // Force reload
+        self::$locale = Languages::resolve($locale) ?? Languages::getDefault();
     }
 
-    /**
-     * Get current locale
-     */
     public static function getLocale(): string
     {
         return self::$locale;
     }
 
-    /**
-     * Translate a string
-     */
     public static function translate(string $key, array $params = []): string
     {
-        if (self::$strings === null) {
-            self::loadStrings();
-        }
-
-        $text = self::$strings[$key] ?? $key;
-
-        if (!empty($params)) {
-            foreach ($params as $name => $value) {
-                $text = str_replace(":{$name}", $value, $text);
-            }
-        }
-
-        return $text;
+        return self::translateForLocale(self::$locale, $key, $params);
     }
 
-    /**
-     * Load translation strings for current locale
-     */
-    private static function loadStrings(): void
+    /** Explicit locale calls do not mutate another render's active locale. */
+    public static function translateForLocale(string $locale, string $key, array $params = []): string
     {
-        $file = __DIR__ . '/' . self::$locale . '.php';
-        $englishStrings = require __DIR__ . '/en.php';
-
-        if (file_exists($file)) {
-            self::$strings = array_replace($englishStrings, require $file);
-        } else {
-            // Fallback to English
-            self::$strings = $englishStrings;
+        $locale = Languages::resolve($locale) ?? Languages::getDefault();
+        $messages = self::getCatalog($locale);
+        if (!array_key_exists($key, $messages)) {
+            $locale = Languages::getDefault();
+            $messages = self::getCatalog($locale);
         }
+        return isset($messages[$key]) ? MessageFormat::format($messages[$key], $params, $locale) : $key;
     }
 
-    /**
-     * Get all translations for the current locale.
-     * Used to embed translations in templates for JavaScript.
-     *
-     * @return array<string, string>
-     */
+    public static function getCatalog(string $locale): array
+    {
+        $locale = Languages::resolve($locale) ?? Languages::getDefault();
+        return self::$catalogs[$locale] ??= json_decode(
+            file_get_contents(__DIR__ . '/locales/' . $locale . '.json'),
+            true, 512, JSON_THROW_ON_ERROR
+        );
+    }
+
     public static function getAllTranslations(): array
     {
-        if (self::$strings === null) {
-            self::loadStrings();
-        }
-
-        return self::$strings;
+        return self::getAllTranslationsForLocale(self::$locale);
     }
 
-    /**
-     * Get all translations for a specific locale.
-     *
-     * @param string $locale The locale code (e.g., 'en', 'fr')
-     * @return array<string, string>
-     */
     public static function getAllTranslationsForLocale(string $locale): array
     {
-        $currentLocale = self::$locale;
-        self::setLocale($locale);
-        $translations = self::getAllTranslations();
-        self::setLocale($currentLocale);
+        return array_replace(self::getCatalog(Languages::getDefault()), self::getCatalog($locale));
+    }
 
-        return $translations;
+    /** Plain labels for older, cached embed components that predate ICU. */
+    public static function getLegacyLabelsForLocale(string $locale): array
+    {
+        $messages = self::getAllTranslationsForLocale($locale);
+        foreach ($messages as $key => $pattern) {
+            try {
+                $messages[$key] = MessageFormat::format($pattern, [], $locale);
+            } catch (\Throwable $error) {
+                // Old components only consume labels without arguments.
+                $messages[$key] = $pattern;
+            }
+        }
+        return $messages;
+    }
+
+    /** Preserve message origins so English fallbacks use English plural rules. */
+    public static function configuration(string $locale): array
+    {
+        $locale = Languages::resolve($locale) ?? Languages::getDefault();
+        return [
+            'locale' => $locale,
+            'direction' => Languages::getDirection($locale),
+            'messages' => self::getCatalog($locale),
+            'fallback' => $locale === Languages::getDefault() ? [] : self::getCatalog(Languages::getDefault()),
+        ];
     }
 }

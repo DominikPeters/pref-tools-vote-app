@@ -24,7 +24,7 @@ test.describe('Privacy and Visibility Settings', () => {
     await freshPage.goto(`/${poll.public_id}`);
     await freshPage.fill('#voterName', 'Secret Voter');
     await freshPage.click('text=Yes');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // 3. Check public results page
@@ -63,7 +63,7 @@ test.describe('Privacy and Visibility Settings', () => {
     await freshPage.goto(`/${poll.public_id}`);
     await freshPage.fill('#voterName', 'Public Voter');
     await freshPage.click('text=Yes');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
 
     // 3. Check public results page
     await freshPage.goto(`/${poll.public_id}/results`);

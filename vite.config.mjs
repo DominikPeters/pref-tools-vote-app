@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { defineConfig } from 'vite';
+import { readdirSync } from 'node:fs';
+import { build, defineConfig } from 'vite';
 
 // PHP renders the HTML; Vite builds the page scripts and their shared imports.
 const scripts = [
@@ -19,12 +19,21 @@ export default defineConfig({
     input,
     plugins: [{
         name: 'standalone-embed-script',
-        buildStart() {
+        async buildStart() {
             // External sites use a classic script tag. Keep the self-contained
             // web component classic, while giving it a content-hashed URL too.
-            const path = 'assets/js/embed/vote-poll.js';
-            this.addWatchFile(path);
-            this.emitFile({ type: 'asset', name: 'vote-poll.js', originalFileName: path, source: readFileSync(path) });
+            const path = 'assets/js/embed/vote-poll-component.js';
+            const result = await build({
+                configFile: false, publicDir: false, logLevel: 'silent',
+                build: {
+                    write: false, modulePreload: false,
+                    lib: { entry: path, formats: ['iife'], name: 'PrefToolsVote' },
+                },
+            });
+            const bundle = Array.isArray(result) ? result[0] : result;
+            const chunk = bundle.output.find(file => file.type === 'chunk' && file.isEntry);
+            for (const dependency of Object.keys(chunk.modules)) this.addWatchFile(dependency);
+            this.emitFile({ type: 'asset', name: 'vote-poll.js', originalFileName: 'assets/js/embed/vote-poll.js', source: chunk.code });
         },
     }],
     build: {

@@ -6,15 +6,14 @@
  * creator sees while building and what voters see.
  */
 
-import { t } from './i18n.js';
+import { t as defaultTranslate } from './i18n.js';
+import { escapeMessage } from './message-format.mjs';
 
 /**
  * Escape HTML to prevent XSS
  */
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text || '';
-    return div.innerHTML;
+    return escapeMessage(text ?? '');
 }
 
 /**
@@ -28,14 +27,15 @@ function escapeHtml(text) {
  * @returns {string} HTML string
  */
 export function renderQuestion(question, options = {}) {
-    const { disabled = false, showNumbers = false, questionNumber = 1 } = options;
+    const { disabled = false, showNumbers = false, questionNumber = 1, translate: t = defaultTranslate } = options;
+    const languageAttributes = options.locale ? `lang="${escapeHtml(options.locale)}" dir="${escapeHtml(options.direction || 'ltr')}"` : '';
 
     // Section headers have different rendering
     if (question.type === 'section_header') {
         const headerText = question.text || t('section');
         const descriptionHtml = renderDescription(question);
         return `
-            <div class="section-header" data-question-id="${question.id || question._id}" data-type="${question.type}">
+            <div class="section-header" ${languageAttributes} data-question-id="${question.id || question._id}" data-type="${question.type}">
                 <div class="section-header-text">${escapeHtml(headerText)}</div>
                 ${descriptionHtml ? `<div class="section-header-description${question.description_html ? ' markdown' : ''}">${descriptionHtml}</div>` : ''}
             </div>
@@ -48,13 +48,13 @@ export function renderQuestion(question, options = {}) {
     const descriptionHtml = renderDescription(question);
 
     return `
-        <div class="question-display" data-question-id="${question.id || question._id}" data-type="${question.type}">
+        <div class="question-display" ${languageAttributes} data-question-id="${question.id || question._id}" data-type="${question.type}">
             <div class="question-text">
                 ${numberPrefix}${escapeHtml(questionText)} ${requiredMarker}
             </div>
             ${descriptionHtml ? `<div class="question-description${question.description_html ? ' markdown' : ''}">${descriptionHtml}</div>` : ''}
             <div class="question-input">
-                ${renderQuestionInput(question, disabled)}
+                ${renderQuestionInput(question, disabled, t)}
             </div>
         </div>
     `;
@@ -82,16 +82,16 @@ function renderDescription(question) {
  * @param {boolean} disabled - Whether inputs should be disabled
  * @returns {string} HTML string
  */
-export function renderQuestionInput(question, disabled = false) {
+export function renderQuestionInput(question, disabled = false, t = defaultTranslate) {
     const disabledAttr = disabled ? 'disabled' : '';
     const options = question.options || [];
 
     switch (question.type) {
         case 'text_single':
-            return `<input type="text" class="form-control" ${disabledAttr} placeholder="${t('short_answer')}">`;
+            return `<input type="text" class="form-control" ${disabledAttr} placeholder="${escapeHtml(t('short_answer'))}">`;
 
         case 'text_multi':
-            return `<textarea class="form-control" rows="3" ${disabledAttr} placeholder="${t('long_answer')}"></textarea>`;
+            return `<textarea class="form-control" rows="3" ${disabledAttr} placeholder="${escapeHtml(t('long_answer'))}"></textarea>`;
 
         case 'single_choice':
             // Filter out user-added options (they're created by voters, not shown as predefined)
@@ -108,8 +108,8 @@ export function renderQuestionInput(question, disabled = false) {
                     ${scAllowOther ? `
                         <label class="radio-option radio-option-other">
                             <input type="radio" name="q_${question.id || question._id}" value="__other__" ${disabledAttr} data-is-other="true">
-                            <span>${t('other_option')}</span>
-                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${t('please_specify')}">
+                            <span>${escapeHtml(t('other_option'))}</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${escapeHtml(t('please_specify'))}">
                         </label>
                     ` : ''}
                 </div>
@@ -130,8 +130,8 @@ export function renderQuestionInput(question, disabled = false) {
                     ${apAllowOther ? `
                         <label class="checkbox-option checkbox-option-other">
                             <input type="checkbox" name="q_${question.id || question._id}[]" value="__other__" ${disabledAttr} data-is-other="true">
-                            <span>${t('other_option')}</span>
-                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${t('please_specify')}">
+                            <span>${escapeHtml(t('other_option'))}</span>
+                            <input type="text" class="other-text-input" ${disabledAttr} placeholder="${escapeHtml(t('please_specify'))}">
                         </label>
                     ` : ''}
                 </div>
@@ -167,7 +167,7 @@ export function renderQuestionInput(question, disabled = false) {
         case 'ranking':
             return `
                 <div class="ranking-options">
-                    <p class="ranking-hint">${t('ranking_hint')}</p>
+                    <p class="ranking-hint">${escapeHtml(t('ranking_hint'))}</p>
                     <ol class="ranking-list">
                         ${options.map(o => `
                             <li class="ranking-item" data-option-id="${o.id || o._id}">
@@ -186,7 +186,7 @@ export function renderQuestionInput(question, disabled = false) {
                     <div class="ranking-truncated-hint"></div>
                     <div class="ranking-truncated-zones">
                         <div class="ranking-zone ranking-zone-available">
-                            <div class="ranking-zone-header">${t('available_options')}</div>
+                            <div class="ranking-zone-header">${escapeHtml(t('available_options'))}</div>
                             <ul class="ranking-available-list">
                                 ${options.map(o => `
                                     <li class="ranking-truncated-item" data-option-id="${o.id || o._id}">
@@ -197,10 +197,10 @@ export function renderQuestionInput(question, disabled = false) {
                             </ul>
                         </div>
                         <div class="ranking-zone ranking-zone-ranked">
-                            <div class="ranking-zone-header">${t('your_ranking')}</div>
+                            <div class="ranking-zone-header">${escapeHtml(t('your_ranking'))}</div>
                             <ol class="ranking-ranked-list">
                             </ol>
-                            <div class="ranking-drop-placeholder">${t('drag_to_rank')}</div>
+                            <div class="ranking-drop-placeholder">${escapeHtml(t('drag_to_rank'))}</div>
                         </div>
                     </div>
                     <input type="hidden" class="ranking-value" name="q_${question.id || question._id}">
@@ -210,7 +210,7 @@ export function renderQuestionInput(question, disabled = false) {
         case 'ranking_with_ties':
             return `
                 <div class="ranking-ties-options" data-question-id="${question.id || question._id}">
-                    <p class="ranking-hint">${t('ranking_ties_hint')}</p>
+                    <p class="ranking-hint">${escapeHtml(t('ranking_ties_hint'))}</p>
                     <div class="ranking-ties-container">
                         <div class="indifference-class">
                             ${options.map(o => `
@@ -282,7 +282,7 @@ export function renderQuestionInput(question, disabled = false) {
                         <div class="grade-row">
                             <span class="option-label">${escapeHtml(o.label)}</span>
                             <select class="grade-select" name="q_${question.id || question._id}[${o.id || o._id}]" ${disabledAttr}>
-                                <option value="">${t('select_placeholder')}</option>
+                                <option value="">${escapeHtml(t('select_placeholder'))}</option>
                                 ${grades.map(g => `<option value="${g.toLowerCase()}">${escapeHtml(g)}</option>`).join('')}
                             </select>
                         </div>
@@ -298,9 +298,9 @@ export function renderQuestionInput(question, disabled = false) {
                         <div class="yna-row">
                             <span class="option-label">${escapeHtml(o.label)}</span>
                             <div class="yna-buttons" data-option-id="${o.id || o._id}">
-                                <button type="button" class="yna-btn yes" data-value="yes" ${disabledAttr}>${t('yes')}</button>
-                                <button type="button" class="yna-btn no" data-value="no" ${disabledAttr}>${t('no')}</button>
-                                ${allowAbstain ? `<button type="button" class="yna-btn abstain" data-value="abstain" ${disabledAttr}>${t('abstain')}</button>` : ''}
+                                <button type="button" class="yna-btn yes" data-value="yes" ${disabledAttr}>${escapeHtml(t('yes'))}</button>
+                                <button type="button" class="yna-btn no" data-value="no" ${disabledAttr}>${escapeHtml(t('no'))}</button>
+                                ${allowAbstain ? `<button type="button" class="yna-btn abstain" data-value="abstain" ${disabledAttr}>${escapeHtml(t('abstain'))}</button>` : ''}
                             </div>
                         </div>
                     `).join('')}
@@ -324,11 +324,11 @@ export function renderQuestionInput(question, disabled = false) {
             return `
                 <div class="distribution-options" data-budget="${budget}" data-max-per-option="${effectiveMax}">
                     <div class="distribution-budget-display">
-                        <span class="budget-label">${t('remaining')}</span>
+                        <span class="budget-label">${escapeHtml(t('remaining'))}</span>
                         <span class="budget-remaining">${budget}</span>
                         <span class="budget-separator">/</span>
                         <span class="budget-total">${budget}</span>
-                        <span class="budget-unit">${t('points')}</span>
+                        <span class="budget-unit">${escapeHtml(t('points'))}</span>
                     </div>
                     ${options.map(o => `
                         <div class="distribution-row" data-option-id="${o.id || o._id}">
@@ -353,7 +353,7 @@ export function renderQuestionInput(question, disabled = false) {
             return ''; // No input for section headers
 
         default:
-            return `<p class="text-muted">${t('unknown_question_type', { type: question.type })}</p>`;
+            return `<p class="text-muted">${escapeHtml(t('unknown_question_type', { type: question.type }))}</p>`;
     }
 }
 
@@ -361,6 +361,7 @@ export function renderQuestionInput(question, disabled = false) {
  * Get human-readable label for a question type
  */
 export function getQuestionTypeLabel(type) {
+    const t = defaultTranslate;
     const labels = {
         'single_choice': t('type_single_choice'),
         'approval': t('type_approval'),
@@ -389,6 +390,7 @@ export const OPTION_TYPES = [
  * All available question types
  */
 export function getQuestionTypes() {
+    const t = defaultTranslate;
     return [
         { value: 'single_choice', label: t('type_single_choice') },
         { value: 'approval', label: t('type_approval') },

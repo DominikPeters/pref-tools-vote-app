@@ -43,7 +43,7 @@ test.describe('Access Modes', () => {
 
     // Click on the radio button option (use specific selector to avoid ambiguity)
     await freshPage.click('.radio-option input[type="radio"]');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // 6. Try to use same token again - should be blocked
@@ -126,7 +126,7 @@ test.describe('Access Modes', () => {
     await expect(freshPage.locator('h1')).toContainText('Email Invitation Poll');
     await freshPage.waitForSelector('#questionsContainer .question-display');
     await freshPage.click('.radio-option input[type="radio"]');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
     // Verify invitation is now marked as used

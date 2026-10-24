@@ -5,18 +5,13 @@ $title = 'Results: ' . e($poll->title) . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/results.js'];
 $extraCss = ['/assets/css/results.css', '/assets/css/report.css'];
 
-// Set locale for this poll and get translations for JavaScript
-$pollLocale = $poll->locale ?? 'en';
+// Public results use the same language as the poll.
+$pollLocale = \App\i18n\Languages::resolve($poll->locale ?? 'en') ?? 'en';
+$pageLocale = $pollLocale;
 Translator::setLocale($pollLocale);
-$translations = Translator::getAllTranslations();
 
 ob_start();
 ?>
-
-<script>
-    window.LOCALE = <?= json_encode($pollLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-    window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-</script>
 
 <div class="results-container">
     <div class="container">

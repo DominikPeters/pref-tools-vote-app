@@ -10,8 +10,9 @@ class PollApiTest extends TestCase
 {
     public function test_locale_must_be_supported_when_creating_and_updating_polls(): void
     {
-        $created = $this->callApi('POST', '/api/polls', ['title' => 'French poll', 'locale' => 'fr']);
+        $created = $this->callApi('POST', '/api/polls', ['title' => 'French poll', 'locale' => 'FR-ch']);
         $this->assertSuccess($created);
+        $this->assertSame('fr', $created['poll']['locale']);
         $poll = $created['poll'];
 
         foreach (['../../tests/config', 'xx', ['fr'], null] as $locale) {

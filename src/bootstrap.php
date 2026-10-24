@@ -130,6 +130,11 @@ if (!$needsInstall) {
     }
 }
 
+\App\i18n\UiLocale::initialize(
+    is_string($_COOKIE[\App\i18n\UiLocale::COOKIE] ?? null) ? $_COOKIE[\App\i18n\UiLocale::COOKIE] : null,
+    $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''
+);
+
 /**
  * Run any pending database migrations
  */

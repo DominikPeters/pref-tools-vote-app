@@ -93,6 +93,7 @@ $router->get('/', [PageController::class, 'home']);
 $router->get('/create', [PageController::class, 'builder']);
 $router->get('/login', [PageController::class, 'login']);
 $router->get('/dashboard', [PageController::class, 'dashboard']);
+$router->post('/language', [\App\Controllers\LanguageController::class, 'update']);
 $router->get('/privacy', [PageController::class, 'privacy']);
 $router->get('/about', [PageController::class, 'about']);
 

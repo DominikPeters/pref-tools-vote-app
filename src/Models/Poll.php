@@ -77,7 +77,7 @@ class Poll
             ? new \DateTime($row['mode_locked_at'])
             : null;
 
-        $poll->locale = $row['locale'];
+        $poll->locale = \App\i18n\Languages::resolve($row['locale'] ?? '') ?? 'en';
 
         $poll->notifyOnResponse = (bool) ($row['notify_on_response'] ?? false);
 

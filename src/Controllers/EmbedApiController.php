@@ -66,11 +66,12 @@ class EmbedApiController extends ApiController
         $poll->loadQuestions();
 
         // Get translations for poll locale
-        $translations = Translator::getAllTranslationsForLocale($poll->locale);
+        $translations = Translator::getLegacyLabelsForLocale($poll->locale);
 
         return $this->success([
             'poll' => $poll->toEmbedArray(),
             'translations' => $translations,
+            'i18n' => Translator::configuration($poll->locale),
             'locale' => $poll->locale,
             'site_url' => url($poll->publicId),
             'results_url' => $poll->areResultsViewable() ? url("{$poll->publicId}/results") : null,

@@ -31,6 +31,8 @@ tests/            # PHPUnit tests
 
 Run `npm ci && npm run build` after checkout. Use `npm run watch` while editing frontend files. Node.js 20.19+ or 22.12+ is required for Vite. E2E npm scripts rebuild assets automatically; rebuild before running PHPUnit after frontend edits.
 
+PHP requires `intl`. Shared ICU catalogs live in `src/i18n/locales/*.json` and language metadata in `src/i18n/languages.json`. Run `npm run check:i18n` and `npm run test:i18n` after i18n changes. UI language and poll language are independent; never change global interface translations to render a poll preview. Keep messages as plain text and escape at the rendering location. Review translation coverage baseline changes explicitly.
+
 **PHP Unit Tests:**
 ```bash
 phpunit

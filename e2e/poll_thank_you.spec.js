@@ -18,8 +18,8 @@ test.describe('Thank You Message Buttons', () => {
     // Wait for questions to be rendered
     await freshPage.waitForSelector('.question-display');
     
-    await freshPage.click('label:has-text("A")');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
+    await freshPage.click('#pollForm button[type="submit"]');
 
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
     await expect(freshPage.locator('button:has-text("Edit Your Response")')).toBeVisible();
@@ -49,8 +49,8 @@ test.describe('Thank You Message Buttons', () => {
     // Wait for questions to be rendered
     await freshPage.waitForSelector('.question-display');
     
-    await freshPage.click('label:has-text("A")');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
+    await freshPage.click('#pollForm button[type="submit"]');
     
     // Handle secret ballot confirmation modal
     await freshPage.click('.confirm-modal .btn-confirm');
@@ -72,8 +72,8 @@ test.describe('Thank You Message Buttons', () => {
     const pollData = await response.json();
 
     await freshPage.goto(`/${pollData.poll.public_id}`);
-    await freshPage.click('label:has-text("A")');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
+    await freshPage.click('#pollForm button[type="submit"]');
 
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
 
@@ -82,7 +82,7 @@ test.describe('Thank You Message Buttons', () => {
 
     // Should see editing banner, not the thank you message
     await expect(freshPage.locator('.editing-banner')).toBeVisible();
-    await expect(freshPage.locator('button[type="submit"]')).toContainText('Update');
+    await expect(freshPage.locator('#pollForm button[type="submit"]')).toContainText('Update');
     await expect(freshPage.locator('text=Thank you')).not.toBeVisible();
   });
 
@@ -102,8 +102,8 @@ test.describe('Thank You Message Buttons', () => {
     // Wait for questions to be rendered
     await freshPage.waitForSelector('.question-display');
     
-    await freshPage.click('label:has-text("A")');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
+    await freshPage.click('#pollForm button[type="submit"]');
 
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
     await expect(freshPage.locator('a:has-text("View Results")')).toBeVisible();
@@ -126,8 +126,8 @@ test.describe('Thank You Message Buttons', () => {
     // Wait for questions to be rendered
     await freshPage.waitForSelector('.question-display');
     
-    await freshPage.click('label:has-text("A")');
-    await freshPage.click('button[type="submit"]');
+    await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
+    await freshPage.click('#pollForm button[type="submit"]');
 
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
     await expect(freshPage.locator('button:has-text("Edit Your Response")')).not.toBeVisible();

@@ -2,16 +2,14 @@
 use App\Services\TurnstileService;
 use App\i18n\Languages;
 use App\i18n\Translator;
+use App\i18n\UiLocale;
 
 $isEditing = isset($poll) && $poll !== null;
 $availableLanguages = Languages::getAll();
-$builderLocale = $isEditing ? ($poll->locale ?? Languages::getDefault()) : Languages::getDefault();
+$builderLocale = UiLocale::get();
+$pageLocale = $builderLocale;
+$pollLocale = $isEditing ? (Languages::resolve($poll->locale) ?? Languages::getDefault()) : $builderLocale;
 Translator::setLocale($builderLocale);
-$translations = Translator::getAllTranslations();
-$allTranslations = [];
-foreach ($availableLanguages as $code => $name) {
-    $allTranslations[$code] = Translator::getAllTranslationsForLocale($code);
-}
 $isLoggedIn = isset($user) && $user;
 $title = ($isEditing ? __('edit_poll') . ': ' . $poll->title : __('create_poll')) . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/builder.css'];
@@ -24,9 +22,8 @@ ob_start();
 ?>
 
 <script>
-    window.LOCALE = <?= json_encode($builderLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-    window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-    window.BUILDER_TRANSLATIONS = <?= json_encode($allTranslations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+    window.POLL_LOCALE = <?= json_encode($pollLocale) ?>;
+    window.POLL_I18N = <?= json_encode(Translator::configuration($pollLocale), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
 </script>
 
 <?php if ($isEditing): ?>

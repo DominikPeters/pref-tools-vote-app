@@ -142,7 +142,7 @@ test.describe('Poll Embedding', () => {
     await freshPage.getByRole('radio', { name: '4', exact: true }).check();
 
     // Submit
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
 
     // Should see thank you page
     await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });
@@ -222,7 +222,7 @@ test.describe('Poll Embedding', () => {
 
     // Vote
     await freshPage.locator('input[type="radio"]').first().check();
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
 
     // Should see View Results link on thank you page
     await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });

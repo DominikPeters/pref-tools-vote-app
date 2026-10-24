@@ -102,7 +102,7 @@ test.describe('Poll Creation and Voting', () => {
     await freshPage.click('text=Option A');
 
     // Submit vote
-    await freshPage.click('button[type="submit"]');
+    await freshPage.click('#pollForm button[type="submit"]');
 
     // Should see success message or confirmation
     await expect(freshPage.locator('text=Thank you')).toBeVisible({ timeout: 5000 });

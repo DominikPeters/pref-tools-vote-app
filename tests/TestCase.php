@@ -37,6 +37,7 @@ abstract class TestCase extends BaseTestCase
         $_POST = [];
         $_GET = [];
         $_COOKIE = [];
+        \App\i18n\UiLocale::initialize('en');
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
     }

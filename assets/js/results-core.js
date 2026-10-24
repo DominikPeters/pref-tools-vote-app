@@ -117,10 +117,10 @@ function renderResults(container, poll, reports, options) {
         dateInfo = t('created_on', { date: formatDate(poll.created_at) });
     }
 
-    // Wrap the count in strong tag by splitting the translated string
+    // Keep the localized message intact; digits and word order vary by language.
     const formatStat = (key, count) => {
         const translated = t(key, { count });
-        return translated.replace(count.toString(), `<strong>${count}</strong>`);
+        return escapeHtml(translated);
     };
 
     html += `<div class="results-summary card">

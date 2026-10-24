@@ -5,18 +5,12 @@ $title = 'Results: ' . e($poll->title) . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/results-admin.js'];
 $extraCss = ['/assets/css/results.css'];
 
-// The shared results renderers translate report content into the poll's locale
-$pollLocale = $poll->locale ?? 'en';
-Translator::setLocale($pollLocale);
-$translations = Translator::getAllTranslations();
+// Analysis controls use the creator's interface language, independently of the poll.
+$pageLocale = \App\i18n\UiLocale::get();
+Translator::setLocale($pageLocale);
 
 ob_start();
 ?>
-
-<script>
-    window.LOCALE = <?= json_encode($pollLocale, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-    window.TRANSLATIONS = <?= json_encode($translations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
-</script>
 
 <div class="results-container results-admin">
     <div class="container">

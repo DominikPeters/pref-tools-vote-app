@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (closeToastData) {
         sessionStorage.removeItem('closeToast');
         const data = JSON.parse(closeToastData);
-        showToast(`${data.message} <a href="${data.link}">${data.linkText}</a>`, 'info');
+        showToast(data.message, 'info', { href: data.link, label: data.linkText });
     }
 
     // Bind visible settings before waiting for network requests, so an early

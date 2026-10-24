@@ -10,7 +10,8 @@
  */
 
 import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath, escapeHtml } from './app.js';
-import { t } from './i18n.js';
+import { t, createTranslator, uiTranslator } from './i18n.js';
+import { loadTranslator, isSupportedLocale } from './catalog-loader.js';
 import { renderQuestion, OPTION_TYPES, getQuestionTypes } from './question-renderer.js';
 import { marked } from './marked.esm.js';
 
@@ -30,7 +31,7 @@ const defaultState = {
     votingMode: 'open',
     randomizeOptions: false,
     thankYouMessage: '',
-    locale: 'en',
+    locale: window.POLL_LOCALE || uiTranslator.locale,
     questions: [],
     publicId: null,
     adminToken: null,
@@ -39,6 +40,8 @@ const defaultState = {
 };
 
 const state = { ...defaultState, questions: [] };
+
+let previewTranslator = createTranslator(window.POLL_I18N || window.I18N);
 
 let isEditMode = false;  // True if editing an existing poll (vs creating new)
 let activeQuestionId = null;  // Currently editing question ID
@@ -72,11 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setupClickHandling();
 });
 
-function setBuilderLocale(locale) {
-    const translations = window.BUILDER_TRANSLATIONS?.[locale];
-    if (!translations) return;
-    window.LOCALE = locale;
-    window.TRANSLATIONS = translations;
+async function setBuilderLocale(locale) {
+    if (previewTranslator.locale === locale) return;
+    try {
+        const translator = await loadTranslator(locale);
+        if (state.locale !== locale) return; // A newer selection won the race.
+        previewTranslator = translator;
+        renderQuestions();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 }
 
 function initElements() {
@@ -364,6 +372,9 @@ function renderQuestions() {
                 }))
             };
             wrapper.innerHTML = dragHandle + renderQuestion(displayQuestion, {
+                translate: previewTranslator.t,
+                locale: previewTranslator.locale,
+                direction: previewTranslator.direction,
                 disabled: true,
                 showNumbers: question.type !== 'section_header',
                 questionNumber: questionNumber
@@ -1284,6 +1295,7 @@ function loadFromLocalStorage() {
         try {
             const data = JSON.parse(saved);
             Object.assign(state, data);
+            if (!isSupportedLocale(state.locale)) state.locale = window.POLL_LOCALE || uiTranslator.locale;
             return true;
         } catch (e) {
             console.error('Failed to load draft:', e);
@@ -1302,7 +1314,7 @@ function loadFromServer(voteData, adminToken) {
     state.votingMode = voteData.voting_mode || 'open';
     state.randomizeOptions = voteData.randomize_options || false;
     state.thankYouMessage = voteData.thank_you_message || '';
-    state.locale = voteData.locale || 'en';
+    state.locale = window.POLL_LOCALE || voteData.locale || 'en';
     state.modeLocked = !!voteData.mode_locked_at;
 
     state.questions = (voteData.questions || []).map(q => ({
@@ -1407,7 +1419,7 @@ async function saveDraft() {
         } else {
             // Create mode - show success toast with link, stay on page
             if (saveBtn) clearButtonLoading(saveBtn);
-            showToast(t('saved_view_dashboard', { url: basePath + '/dashboard' }), 'success');
+            showToast(t('saved_view_dashboard'), 'success', { href: basePath + '/dashboard', label: t('view_dashboard') });
             if (saveBtn) saveBtn.textContent = t('update_draft');
         }
     } catch (err) {
