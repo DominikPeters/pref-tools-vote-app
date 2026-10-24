@@ -32,14 +32,17 @@ jobs:
 
       # Only tracked files are uploaded, so config/config.php, data/*.db and
       # lib/PHPMailer (all untracked) are left alone on the server.
+      # Settings mirror the working FTP deploys in tikz-editor (same host, the
+      # FTP user's root is pref.tools/).
       - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          server: w008ef9a.kasserver.com
+          port: 21
+          protocol: ftp
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          server-dir: /vote/
+          server-dir: vote/
           dry-run: ${{ inputs.dry_run == true }}
           exclude: |
             **/.git*
@@ -47,6 +50,7 @@ jobs:
             .claude/**
             .github/**
             .gemini-clipboard/**
+            site/**
             tests/**
             e2e/**
             scripts/**
