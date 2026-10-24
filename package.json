@@ -17,6 +17,7 @@
     "i18n:baseline": "node scripts/check-i18n.mjs --write-baseline",
     "test:i18n": "node --test tests/js/*.test.mjs",
     "deploy:assets": "node scripts/upload-assets.mjs",
+    "screenshots:generate": "node scripts/capture_screenshots.js",
     "test:deploy-assets": "node --test tests/js/upload-assets.test.mjs"
   },
   "engines": {

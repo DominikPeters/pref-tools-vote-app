@@ -33,7 +33,9 @@ Run `npm ci && npm run build` after checkout. Use `npm run watch` while editing 
 
 PHP requires `intl`. Shared ICU catalogs live in `src/i18n/locales/*.json` and language metadata in `src/i18n/languages.json`. Run `npm run check:i18n` and `npm run test:i18n` after i18n changes. UI language and poll language are independent; never change global interface translations to render a poll preview. Keep messages as plain text and escape at the rendering location. Review translation coverage baseline changes explicitly.
 
-All thirteen catalogs currently cover the whole source catalog; new messages need translations in all twelve non-English catalogs. Emails use explicit recipient/poll locale contexts. Report caches store stable facts and identifiers; translate display fields at serialization, and apply public privacy rules independently of the cache's creator. Keep both computation scopes and recipient rendering from leaking into the active interface locale.
+All fourteen catalogs cover the whole source catalog; new messages need translations in all thirteen non-English catalogs. Emails use explicit recipient/poll locale contexts. Report caches store stable facts and identifiers; translate display fields at serialization, and apply public privacy rules independently of the cache's creator. Keep both computation scopes and recipient rendering from leaking into the active interface locale.
+
+Marketing pages use exact `/{locale}/` and `/{locale}/about` routes with reciprocal hreflang and configured-origin canonical URLs. Use `MarketingLocale::path()` for home/about links. Visiting an explicit locale URL changes only that request and the interface cookie, never the saved account preference. Keep language routes ahead of dynamic poll routes; do not prefix poll/admin/API URLs or add a catchall locale route. Public-ID generation reserves registered language codes and literal route names.
 
 **PHP Unit Tests:**
 ```bash

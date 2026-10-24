@@ -101,6 +101,72 @@ test.describe('Internationalization infrastructure', () => {
 test.describe('Internationalization coverage with an English browser', () => {
   test.use({ locale: 'en-US' });
 
+  test('public language URLs keep their language and expose reciprocal search metadata', async ({ freshPage, baseURL }) => {
+    test.setTimeout(90000);
+    const languages = require('../src/i18n/languages.json');
+    await freshPage.context().addCookies([{ name: 'ui_locale', value: 'de', url: baseURL }]);
+
+    for (const locale of Object.keys(languages)) {
+      const response = await freshPage.goto(`/${locale}/`);
+      expect(response.ok()).toBe(true);
+      await expect(freshPage.locator('html')).toHaveAttribute('lang', locale);
+      await expect(freshPage.locator('link[rel="canonical"]')).toHaveAttribute('href', `${baseURL}/${locale}/`);
+      await expect(freshPage.locator('link[rel="alternate"][hreflang]')).toHaveCount(Object.keys(languages).length + 1);
+      for (const alternate of Object.keys(languages)) {
+        await expect(freshPage.locator(`link[rel="alternate"][hreflang="${alternate}"]`))
+          .toHaveAttribute('href', `${baseURL}/${alternate}/`);
+      }
+      await expect(freshPage.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute('href', `${baseURL}/`);
+      await expect(freshPage.locator('.localized-screenshot')).toHaveCount(11);
+      const imageLocales = await freshPage.locator('.localized-screenshot').evaluateAll(pictures => pictures.map(picture => picture.lang));
+      expect(imageLocales).toEqual(Array(11).fill(locale));
+    }
+
+    await freshPage.goto('/hu/about');
+    await expect(freshPage.locator('html')).toHaveAttribute('lang', 'hu');
+    await expect(freshPage.locator('link[rel="canonical"]')).toHaveAttribute('href', `${baseURL}/hu/about`);
+    await expect(freshPage.locator('link[rel="alternate"][hreflang="fr"]')).toHaveAttribute('href', `${baseURL}/fr/about`);
+    await freshPage.locator('.logo').click();
+    await expect(freshPage).toHaveURL(`${baseURL}/hu/`);
+    await freshPage.locator('.hero-actions a[href$="/create"]').click();
+    await expect(freshPage.locator('html')).toHaveAttribute('lang', 'hu');
+    await expect(freshPage.locator('#pollLocale')).toHaveValue('hu');
+  });
+
+  test('localized screenshots and the lightbox follow live theme changes', async ({ freshPage }) => {
+    await freshPage.emulateMedia({ colorScheme: 'dark' });
+    await freshPage.goto('/hu/');
+    const card = freshPage.locator('.gallery-item').first();
+    const image = card.locator('img');
+    await expect(image).toBeVisible();
+    const darkUrl = await card.locator('source').getAttribute('srcset');
+    const lightUrl = await image.getAttribute('src');
+    expect(darkUrl).not.toBe(lightUrl);
+    await expect.poll(() => image.evaluate(element => element.complete && element.naturalWidth > 0 && new URL(element.currentSrc).pathname))
+      .toBe(darkUrl);
+    await card.click();
+    const expanded = freshPage.locator('#lightboxImage');
+    await expect(expanded).toBeVisible();
+    await expect.poll(() => expanded.evaluate(element => new URL(element.currentSrc).pathname)).toBe(darkUrl);
+
+    await freshPage.emulateMedia({ colorScheme: 'light' });
+    await expect.poll(() => expanded.evaluate(element => element.complete && element.naturalWidth > 0 && new URL(element.currentSrc).pathname))
+      .toBe(lightUrl);
+    await expect.poll(() => image.evaluate(element => new URL(element.currentSrc).pathname)).toBe(lightUrl);
+  });
+
+  test('switching language on a marketing page navigates to its equivalent language URL', async ({ freshPage, baseURL }) => {
+    await freshPage.goto('/hu/about');
+    await freshPage.selectOption('#interfaceLocale', 'fr');
+    await Promise.all([
+      freshPage.waitForResponse(response => response.url().endsWith('/language') && response.request().method() === 'POST'),
+      freshPage.locator('.language-picker button[type="submit"]').click(),
+    ]);
+    await expect(freshPage).toHaveURL(`${baseURL}/fr/about`);
+    await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
+    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('fr');
+  });
+
   test('an isolated account keeps its saved interface language after its language cookie is cleared', async ({ userAccount }) => {
     const { page, context } = userAccount;
     expect(await page.evaluate(() => navigator.language)).toBe('en-US');

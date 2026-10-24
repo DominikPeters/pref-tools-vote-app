@@ -199,3 +199,18 @@ test('CLI supports dry_run workflow input with no FTP configuration and never pr
     assert.match(result.stdout, /no FTP connection made/);
     assert.doesNotMatch(result.stdout + result.stderr, /do-not-print-this/);
 });
+
+test('screenshot CLI mode publishes the separate hashed image tree before its manifest', async t => {
+    const { root } = await fixture(t);
+    const directory = join(root, 'screenshots/localized/hu');
+    await mkdir(directory, { recursive: true });
+    await writeFile(join(directory, 'question_single_choice-light-123456abcdef.webp'), 'localized image');
+    await writeFile(join(root, 'screenshots/manifest.json'), 'publish after images');
+    const script = new URL('../../scripts/upload-assets.mjs', import.meta.url);
+    const result = spawnSync(process.execPath, [script.pathname, '--screenshots', '--dry-run'], {
+        cwd: root, encoding: 'utf8', env: {},
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /hu\/question_single_choice-light-123456abcdef\.webp/);
+    assert.doesNotMatch(result.stdout, /app-abcdefgh|manifest\.json/);
+});

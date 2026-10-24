@@ -1,5 +1,14 @@
 <?php
 $title = 'Pref.Tools Vote - ' . __('page_home_heading');
+$screenshot = static function (string $name, string $alt): void {
+    $images = \App\Services\ScreenshotAssets::forLocale($name, \App\i18n\UiLocale::get(), basePath());
+    ?>
+    <picture class="localized-screenshot" lang="<?= e($images['locale']) ?>">
+        <source media="(prefers-color-scheme: dark)" srcset="<?= e($images['dark']['url']) ?>" width="<?= $images['dark']['width'] ?>" height="<?= $images['dark']['height'] ?>">
+        <img src="<?= e($images['light']['url']) ?>" width="<?= $images['light']['width'] ?>" height="<?= $images['light']['height'] ?>" alt="<?= e($alt) ?>" loading="lazy" decoding="async">
+    </picture>
+    <?php
+};
 ob_start();
 ?>
 
@@ -23,39 +32,39 @@ ob_start();
     </div>
     <div class="gallery-grid">
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_single_choice.png" alt="<?= e(__('page_single_choice_question')) ?>">
+            <?php $screenshot('question_single_choice', __('page_single_choice_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_single_choice')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_approval.png" alt="<?= e(__('page_approval_voting_question')) ?>">
+            <?php $screenshot('question_approval', __('page_approval_voting_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_approval_voting_6e0d66')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_ranking.png" alt="<?= e(__('page_ranking_question')) ?>">
+            <?php $screenshot('question_ranking', __('page_ranking_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_rankings')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_ranking_truncated.png" alt="<?= e(__('page_truncated_ranking_question')) ?>">
+            <?php $screenshot('question_ranking_truncated', __('page_truncated_ranking_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_partial_rankings')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_ranking_with_ties.png" alt="<?= e(__('page_ranking_with_ties_question')) ?>">
+            <?php $screenshot('question_ranking_with_ties', __('page_ranking_with_ties_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_rankings_with_ties')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_star.png" alt="<?= e(__('page_star_rating_question')) ?>">
+            <?php $screenshot('question_star', __('page_star_rating_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_star_ratings')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_grade.png" alt="<?= e(__('page_grade_question')) ?>">
+            <?php $screenshot('question_grade', __('page_grade_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_grades_verbal')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_grade_2.png" alt="<?= e(__('page_grade_question_with_symbols')) ?>">
+            <?php $screenshot('question_grade_2', __('page_grade_question_with_symbols')); ?>
             <div class="gallery-item-label"><?= e(__('page_grades_symbols')) ?></div>
         </div>
         <div class="gallery-item" role="button" tabindex="0" onclick="openLightbox(this)" onkeydown="handleGalleryKeydown(event, this)">
-            <img src="<?= basePath() ?>/screenshots/question_yes_no_abstain.png" alt="<?= e(__('page_yes_no_abstain_question')) ?>">
+            <?php $screenshot('question_yes_no_abstain', __('page_yes_no_abstain_question')); ?>
             <div class="gallery-item-label"><?= e(__('page_yes_no_abstain')) ?></div>
         </div>
     </div>
@@ -69,7 +78,10 @@ ob_start();
             <polyline points="15 18 9 12 15 6"/>
         </svg>
     </button>
-    <img id="lightboxImage" src="" alt="<?= e(__('page_enlarged_screenshot')) ?>">
+    <picture>
+        <source id="lightboxDarkSource" media="(prefers-color-scheme: dark)">
+        <img id="lightboxImage" alt="<?= e(__('page_enlarged_screenshot')) ?>">
+    </picture>
     <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)" aria-label="<?= e(__('page_next_image')) ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polyline points="9 6 15 12 9 18"/>
@@ -364,11 +376,11 @@ ob_start();
         <div class="demo-content">
             <div class="demo-preview">
                 <div class="demo-card demo-card-poll">
-                    <img src="<?= basePath() ?>/screenshots/full_poll_container.png" alt="<?= e(__('page_poll_interface')) ?>">
+                    <?php $screenshot('full_poll_container', __('page_poll_interface')); ?>
                     <div class="demo-card-label"><?= e(__('page_poll_interface')) ?></div>
                 </div>
                 <div class="demo-card demo-card-results">
-                    <img src="<?= basePath() ?>/screenshots/full_results_container.png" alt="<?= e(__('page_results_analysis')) ?>">
+                    <?php $screenshot('full_results_container', __('page_results_analysis')); ?>
                     <div class="demo-card-label"><?= e(__('page_results_analysis')) ?></div>
                 </div>
             </div>
@@ -437,6 +449,7 @@ function showCurrentImage() {
     const lightboxLabel = document.getElementById('lightboxLabel');
     const lightboxCounter = document.getElementById('lightboxCounter');
 
+    document.getElementById('lightboxDarkSource').srcset = item.querySelector('source').srcset;
     lightboxImg.src = img.src;
     lightboxImg.alt = img.alt;
     lightboxLabel.textContent = label.textContent;
@@ -484,32 +497,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Dark mode image switching
-function updateImagesForTheme() {
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const screenshots = document.querySelectorAll('img[src*="/screenshots/"]');
-    
-    screenshots.forEach(img => {
-        let src = img.src;
-        // Skip images already in the correct state
-        if (isDarkMode && src.includes('-dark.png')) return;
-        if (!isDarkMode && !src.includes('-dark.png')) return;
-        
-        if (isDarkMode) {
-            img.src = src.replace('.png', '-dark.png');
-        } else {
-            img.src = src.replace('-dark.png', '.png');
-        }
-    });
-}
-
-// Initial check
-updateImagesForTheme();
-
-// Watch for system theme changes
-if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateImagesForTheme);
-}
 </script>
 
 <?php

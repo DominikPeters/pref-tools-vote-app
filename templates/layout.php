@@ -2,9 +2,11 @@
 use App\i18n\Languages;
 use App\i18n\Translator;
 use App\i18n\UiLocale;
+use App\Services\MarketingLocale;
 $uiLocale = UiLocale::get();
 $pageLocale = $pageLocale ?? $uiLocale;
 Translator::setLocale($uiLocale);
+$marketingMetadata = isset($marketingPage) ? MarketingLocale::metadata($marketingPage, $uiLocale) : null;
 $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
 ?>
 <!DOCTYPE html>
@@ -17,6 +19,14 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
     <meta property="og:title" content="<?= e($title ?? 'Pref.Tools Vote') ?>">
     <meta property="og:description" content="<?= e($metaDescription ?? __('page_smarter_polls_with_advanced_voting_methods_go_beyond_simple_polls_with_ranking')) ?>">
     <meta property="og:type" content="website">
+    <?php if ($marketingMetadata !== null): ?>
+    <link rel="canonical" href="<?= e($marketingMetadata['canonical']) ?>">
+    <?php foreach ($marketingMetadata['alternates'] as $code => $alternateUrl): ?>
+    <link rel="alternate" hreflang="<?= e($code) ?>" href="<?= e($alternateUrl) ?>">
+    <?php endforeach; ?>
+    <meta property="og:url" content="<?= e($marketingMetadata['canonical']) ?>">
+    <meta property="og:locale" content="<?= e($marketingMetadata['og_locale']) ?>">
+    <?php endif; ?>
     <title><?= e($title ?? 'Pref.Tools Vote') ?></title>
     <?= csrf_meta() ?>
     <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
@@ -36,10 +46,10 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
     </script>
     <header class="site-header" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
-            <a href="<?= basePath() ?>/" class="logo">Pref.Tools Vote</a>
+            <a href="<?= e(MarketingLocale::path('home')) ?>" class="logo">Pref.Tools Vote</a>
             <nav class="main-nav">
                 <a href="<?= basePath() ?>/create"<?= empty($user) ? ' class="btn btn-primary"' : '' ?>><?= __('create_poll') ?></a>
-                <a href="<?= basePath() ?>/about"><?= __('about') ?></a>
+                <a href="<?= e(MarketingLocale::path('about')) ?>"><?= __('about') ?></a>
                 <?php if (!empty($user)): ?>
                     <a href="<?= basePath() ?>/dashboard"><?= __('dashboard') ?></a>
                     <?php if ($user->isSysadmin()): ?>
@@ -80,6 +90,13 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
     <footer class="site-footer" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
             <p>&copy; <?= date('Y') ?> Pref.Tools Vote. <?= e(__('page_a_social_choice_voting_application')) ?> <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
+            <?php if (isset($marketingPage)): ?>
+            <nav class="marketing-languages" aria-label="<?= e(__('interface_language')) ?>">
+                <?php foreach (Languages::getAll() as $code => $name): ?>
+                <a href="<?= e(MarketingLocale::path($marketingPage, $code)) ?>" hreflang="<?= e($code) ?>" lang="<?= e($code) ?>" dir="<?= e(Languages::getDirection($code)) ?>"<?= $code === $uiLocale ? ' aria-current="page"' : '' ?>><?= e($name) ?></a>
+                <?php endforeach; ?>
+            </nav>
+            <?php endif; ?>
         </div>
     </footer>
 

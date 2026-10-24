@@ -22,11 +22,12 @@ class TokenService
     {
         $length = Config::get('security.public_id_length', 8);
         $chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
-        $result = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $result .= $chars[random_int(0, strlen($chars) - 1)];
-        }
+        do {
+            $result = '';
+            for ($i = 0; $i < $length; $i++) {
+                $result .= $chars[random_int(0, strlen($chars) - 1)];
+            }
+        } while (MarketingLocale::isReservedPublicId($result));
 
         return $result;
     }

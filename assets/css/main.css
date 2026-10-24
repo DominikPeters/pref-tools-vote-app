@@ -414,6 +414,22 @@ img {
     margin: 0;
 }
 
+.marketing-languages {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-sm) var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.marketing-languages [aria-current="page"] {
+    font-weight: 600;
+}
+
+.localized-screenshot {
+    display: block;
+}
+
 /* --------------------------------------------------------------------------
    Buttons
    -------------------------------------------------------------------------- */
@@ -1557,8 +1573,11 @@ input[type="checkbox"] {
 
 .hero-enhanced h1 {
     font-size: 2.75rem;
+    max-inline-size: 30ch;
+    margin-inline: auto;
     margin-bottom: var(--spacing-lg);
     line-height: 1.1;
+    text-wrap: balance;
 }
 
 .hero-enhanced .lead {

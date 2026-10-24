@@ -13,8 +13,13 @@ class PageController
      */
     public function home(array $params): void
     {
+        $context = \App\Services\MarketingLocale::context();
+        if ($context !== null && $context['locale'] !== null) {
+            \App\Services\MarketingLocale::activate($context['locale']);
+        }
         view('home', [
             'user' => Auth::getInstance()->user(),
+            'marketingPage' => 'home',
         ]);
     }
 
@@ -522,8 +527,13 @@ class PageController
      */
     public function about(array $params): void
     {
+        $context = \App\Services\MarketingLocale::context();
+        if ($context !== null && $context['locale'] !== null) {
+            \App\Services\MarketingLocale::activate($context['locale']);
+        }
         view('about', [
             'user' => Auth::getInstance()->user(),
+            'marketingPage' => 'about',
         ]);
     }
 

@@ -27,6 +27,10 @@
     "name": "Hrvatski",
     "direction": "ltr"
   },
+  "hu": {
+    "name": "Magyar",
+    "direction": "ltr"
+  },
   "it": {
     "name": "Italiano",
     "direction": "ltr"

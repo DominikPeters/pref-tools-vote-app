@@ -1,0 +1,2190 @@
+{
+  "version": 1,
+  "locales": {
+    "en": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/en/question_single_choice-light-0746d134b67a.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "0746d134b67a16fbb957cd3926c58fdac229e32d9541379b5747e11af9078023"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_single_choice-dark-e02ac1011b4c.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "e02ac1011b4c59052a1d7e793716ce9e5f85dbc26ce7f46a644fce3ffb6d55f7"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/en/question_approval-light-6eb91a7ca386.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "6eb91a7ca38668d0b574ac0b4df897bb9c5f6feccff23e4c66f918ab9e13a37c"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_approval-dark-44fc237e87c1.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "44fc237e87c10d28bf0a994190a26a600dae705ab159680ecc087239cdd24abc"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/en/question_ranking-light-87e01712cd77.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "87e01712cd774b4a956456c624572984d03abe750baa229c0b9d50565c3525c7"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_ranking-dark-b3111e9e168a.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "b3111e9e168a4e6c8fd51edbd6450afa3dcc4cf7aca17c0abc4a6cf2cfb6c994"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/en/question_ranking_truncated-light-52940b9f4725.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "52940b9f4725f4bf28c2d73a9802cad678d8a985cc36ff755b1682c3ac25004e"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_ranking_truncated-dark-d38fc8eaec3a.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "d38fc8eaec3aa98bc6530280b8381bd364f4accb786c1d39e3b1061e04fae657"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/en/question_ranking_with_ties-light-c989de0d6644.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "c989de0d664486eda3b6954c2ec8fdd4bf9d528423c14605917d758725a70a9c"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_ranking_with_ties-dark-2d168a308376.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "2d168a3083765b246ef24b2b87b5dfb70de00443c807a1f65d42330e091ca1f2"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/en/question_star-light-c34c7ef5e521.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "c34c7ef5e521d769df9825df7de6d0402aec62333a03158b71c71a44368ff5d6"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_star-dark-97def0a8f873.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "97def0a8f873d9d0d7c0a769606fbce2aa3227507c5c7465025deaaac8051d65"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/en/question_grade-light-9526ddd1e119.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "9526ddd1e119d249941fd2dae0c04f35d89ebe764f25286accdd4bb7e333413c"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_grade-dark-15eb452971aa.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "15eb452971aad20f9f0d6d757e5d5bc6606c2bb64aef9c1eb46765d64cf5d856"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/en/question_grade_2-light-49f4d93609be.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "49f4d93609be8ed504a74adb8043132005364abfc1b369afa70c5e5cb021d3cb"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_grade_2-dark-4d6115d6541c.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "4d6115d6541c04b49d89128845f5fce9195ed90ef5cf8263226bad133d04a751"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/en/question_yes_no_abstain-light-7a91c61c435e.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "7a91c61c435e74da0d89570da3f83346f4cc480dad6519c0e72ef04ff9695e4f"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/question_yes_no_abstain-dark-70853562c321.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "70853562c321d1db40df359a2891409bdc5af2f1e390d1695009e9643af90100"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/en/full_poll_container-light-5dcf6fff86f4.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "5dcf6fff86f4704cb869284c9469e48d3f782d2c29fa1894ebb01653a12c5d49"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/full_poll_container-dark-06e2016a43fe.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "06e2016a43feee25ef39223d4e4236350862602c37d4d5dd294a2325c19668fa"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/en/full_results_container-light-94bb1169a7af.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "94bb1169a7af520e955b7ffdb4155f081b3e58bc5bfd71436ddc3f39cdef711e"
+        },
+        "dark": {
+          "path": "screenshots/localized/en/full_results_container-dark-02a6978430a6.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "02a6978430a64a2d0cbbebe28218f625c556386e1c4e55ea999b844a0a022e6a"
+        }
+      }
+    },
+    "bn": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/bn/question_single_choice-light-190164f59760.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "190164f597607ad05b3900d4ea02e9065da03a4b6365ee96782171d975844990"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_single_choice-dark-5573229727ec.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "5573229727eca5b7839afd0b9b2d543366fe6581889a01cca64685f428718bea"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/bn/question_approval-light-f9cb6dcc87f9.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "f9cb6dcc87f94f46aff8312a73c57a213efea5ff94714109382bae2b7bfafaa0"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_approval-dark-3ab6245ae2a6.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "3ab6245ae2a60727487f54c27f09230c102c3a5a5f2cf81f912b3a9b50835f02"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/bn/question_ranking-light-50b8a9b2e555.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "50b8a9b2e555153a38bf78634812a552df6252dbe1337856eb517c2c6997d328"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_ranking-dark-a0ee0af02983.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "a0ee0af02983518b8747c7cc8794d40d3af921f4cdd988e4e677be4cb7bccc6a"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/bn/question_ranking_truncated-light-480630a5835b.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "480630a5835b221b0960cf3bcf39389a4d7d615f184106ef2a88583bd7c3e7bd"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_ranking_truncated-dark-85a3c13e36bd.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "85a3c13e36bd8f135c47dfd8611b6c0e5d982a9b746d52c413abdf40b3b982f6"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/bn/question_ranking_with_ties-light-84e0967a1a0e.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "84e0967a1a0e860afa6f8361844bb5e55617dbc63ca063de248dafaeb8bcb8d2"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_ranking_with_ties-dark-5bdbfe92e2c9.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "5bdbfe92e2c97df738e79cedc630eaadc042696aa5f494e5c27e9be91810ad47"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/bn/question_star-light-d55873959a33.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "d55873959a33c1c7e557b75ca548479df0b205106c3e0ab3454042100b150e10"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_star-dark-ab9b0a2c2a1f.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "ab9b0a2c2a1f8c2b67f6b8e27c4845ef14c1dc74d776024fbea8bb9522bfed74"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/bn/question_grade-light-4b4908caccfd.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "4b4908caccfded325214eceed9df3263d2dd9d83f4f5b7b4967ce4da2cdc3a5e"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_grade-dark-42265bc1d371.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "42265bc1d371d7737f19513b5b98abc32e888ff5762da14a66472a90a120e107"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/bn/question_grade_2-light-a7e225b436f3.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "a7e225b436f3a7c8d5449012a0ecf316edef0f68f37ff3db2da256a1f80548fb"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_grade_2-dark-2775d75559e0.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "2775d75559e091bcaa318ed8111abe718ea04ef56bb28726fe16b2b66c8d0864"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/bn/question_yes_no_abstain-light-b4e6c55dae6a.webp",
+          "width": 1197,
+          "height": 282,
+          "fingerprint": "b4e6c55dae6a12ed5f7fe60ff061570c04eca3f5e2a3b5b82c208e48f29f9bc4"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/question_yes_no_abstain-dark-95e888857414.webp",
+          "width": 1197,
+          "height": 282,
+          "fingerprint": "95e88885741479a089d1fda74fec69d800ae6a94936542a052dce22aea293a23"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/bn/full_poll_container-light-a8f35b8a5ad9.webp",
+          "width": 1200,
+          "height": 3878,
+          "fingerprint": "a8f35b8a5ad93f848919851f9aeffa1b068e37c782a6eb086fa8ec45ed1f0cd9"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/full_poll_container-dark-5112ff8d6fac.webp",
+          "width": 1200,
+          "height": 3878,
+          "fingerprint": "5112ff8d6fac2801848402ae16f4ac0adbf5e274110ffacc8b571f7bffe5367d"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/bn/full_results_container-light-a2008b825d02.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "a2008b825d02f1ce20edf901fbd877aa5b5823c34ba77b08a7371063974c7afb"
+        },
+        "dark": {
+          "path": "screenshots/localized/bn/full_results_container-dark-0e5a54a4224d.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "0e5a54a4224dfdee1d3189d92ab4d00c1e9d199ef06ed485709729899b0848d9"
+        }
+      }
+    },
+    "de": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/de/question_single_choice-light-f2a6e409f0d3.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "f2a6e409f0d33e3def0bcfa80c6a0ec95e668cd53c682a7e6405fdfd10189868"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_single_choice-dark-903aa3a3243e.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "903aa3a3243edd0944ea816bcedae1464d62e2ae7c29d8c1b7545fcbeef7b4f6"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/de/question_approval-light-06374e0ff22f.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "06374e0ff22ff6b4c34979079184f952701ccf972b3da401ca3ad14b03c977b5"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_approval-dark-a2a462e57841.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "a2a462e57841bc9ed5c5d2a0d18bb8a5834c62baa7c3ba700c8d1b51d37402a9"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/de/question_ranking-light-ad30e8fd2fcb.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "ad30e8fd2fcbb27b1a07010ca9418d7d95c0834b5d3e64db2aef3ddb030f6d66"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_ranking-dark-95c5900ebccf.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "95c5900ebccf7aeab1876922cb240b7f49bfc817c39bda3cfe3775b1dfc92ccb"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/de/question_ranking_truncated-light-eb3928b17dc8.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "eb3928b17dc8e01b6e91f711356abf635302ad02dfacbe97daf015f59ba5cab0"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_ranking_truncated-dark-5bd4006f1574.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "5bd4006f1574b5248b1c23ed7e7943bcd4e84f15159513c6d09eb170bdf6ada0"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/de/question_ranking_with_ties-light-20e391f3541b.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "20e391f3541b64f077825a4afeb130dc054e8d05ae4b13e0a9fc667f57fcada0"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_ranking_with_ties-dark-4519e18b718f.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "4519e18b718fe41be37014292a654c5d7d5605df1213d48860778bc6ea0e8d5d"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/de/question_star-light-c7f35da2da1b.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "c7f35da2da1b28b794a11dfaf5d1ca697e5b6966ca8f8e90d3358f670293f182"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_star-dark-694f71104117.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "694f711041177ace7d93e7234126be3bba3f6f7922f243f227bfb6844a53d96c"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/de/question_grade-light-cf1fa78d6c97.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "cf1fa78d6c9734623a2a52e6b6899c8ee122c4965df0c9894d866a69da5f9d24"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_grade-dark-ba9258a1be36.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "ba9258a1be361bbbe0c4bfdf5ce299fb6cb0a296b3af83b0ad6197f6bce9929d"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/de/question_grade_2-light-6ad346075c0d.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "6ad346075c0d5e20db7c812c48df5177535ec8a4cc260180ca573c20002e786f"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_grade_2-dark-f879834e5dbf.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "f879834e5dbfd54c24ea419033ac8ec905f5611d46805c5e8c85b6ef58fd3458"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/de/question_yes_no_abstain-light-a286f56e739f.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "a286f56e739ff23ef1b7ac6de432a9737ac8bfd6ef526e4567be816b9500f564"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/question_yes_no_abstain-dark-3d46403a4672.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "3d46403a4672bf3b2dee89e8facc4cd60dd22b7143e4178b4d1e27ff99971b83"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/de/full_poll_container-light-378bb4b1b34f.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "378bb4b1b34f975d1c3ed047c78789deb9b64e73c0148f540d86147414b02bd7"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/full_poll_container-dark-11eaeb0f3aac.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "11eaeb0f3aac7737103c52552a389538af7ae6d9d46dfc49ff8afe3e8a98ca7f"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/de/full_results_container-light-1192a2ebfde2.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "1192a2ebfde2c7f7e4b1bd300f50f37c7cc16521121a1b59d259be28c6ce36ed"
+        },
+        "dark": {
+          "path": "screenshots/localized/de/full_results_container-dark-96e51828e5d5.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "96e51828e5d548ef6049f7cb586c34f90ac462a574ac50c2f5667e0b366510d0"
+        }
+      }
+    },
+    "es": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/es/question_single_choice-light-8a16654e7137.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "8a16654e71378db32c12e87950394785b8eb36203f7b106c88564768571897b6"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_single_choice-dark-9248b739e979.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "9248b739e979da21706d6d69040e0cdb928cc9e8167e8a60920265653e79e533"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/es/question_approval-light-98b6077f1c76.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "98b6077f1c7641ff3f10f6aa286284a8dc091427cbfe8caf14814fb198ccd00c"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_approval-dark-cfddc0363ef6.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "cfddc0363ef64a1d11051fa5244e23c416de7c58c72d5985b3da3cca5266c86a"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/es/question_ranking-light-2e5160613002.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "2e516061300239067984e19263f537c83e1841e1e43fefe64e352981b47f7905"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_ranking-dark-13f39cfd14eb.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "13f39cfd14eb396d9b8de13a15c4f161a0f165c9b6b07a10aedc6bc295f66f06"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/es/question_ranking_truncated-light-9af9e38c1158.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "9af9e38c1158d6770365c65a2976e8fe1a433c7bd50f2c2adfc52d6a24bd1b74"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_ranking_truncated-dark-fbbc11c2421d.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "fbbc11c2421d0fc9b1538868542c5f7495ae3450e8a64ad3edacbe694e17a2ca"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/es/question_ranking_with_ties-light-078b45ecbf1c.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "078b45ecbf1cd636b1937c1df7c2708ed752d9603cabe1c8194e81cd95cdb07c"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_ranking_with_ties-dark-d433714ac629.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "d433714ac629084e92aff80ee298d4562b78a2ab6d8631b0ea9c63fd057e5b65"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/es/question_star-light-d96776961845.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "d96776961845fcffb417af6a8e2770394d904e2563aa213adbc73f32fe82103b"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_star-dark-be65a1fd57da.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "be65a1fd57daf6e80694902a55a41ba7207090759189d8eb26728a82494d632d"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/es/question_grade-light-70079e143ee0.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "70079e143ee0ff325df4e5df8b68bb8c31db29a183ddacf74aa5cc9f2dd7838d"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_grade-dark-1aeb938559e9.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "1aeb938559e98901e4cf96d655643239f152e12e80855264670a9711bbc8ce00"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/es/question_grade_2-light-501424b3c8a0.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "501424b3c8a03dfe4390694dc881b413d7f6576cb608f5be1277d8d2a3dda400"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_grade_2-dark-983c03ee003d.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "983c03ee003d9a69a279aaccfa6ef98888f7832cf12625985ed26e0d3b0f97ba"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/es/question_yes_no_abstain-light-5df932c12d7d.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "5df932c12d7d96fc4fbf83d3f8037b093fd989eaede8d474f909009e9b966aaf"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/question_yes_no_abstain-dark-012f08bf1b37.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "012f08bf1b37bc06c585a6fe157737a5e9778635714b7b271e255b53c6f907d5"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/es/full_poll_container-light-34dc1f226046.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "34dc1f2260467f4fbc79ca9b8297a19d3fcec3b236fdefc2d0b22ed58ed58bd0"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/full_poll_container-dark-059e14ee584b.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "059e14ee584b26f525b018400f0da5aa3837ee69d70f173e25a179200ddf3ff6"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/es/full_results_container-light-488829f4b9ae.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "488829f4b9aedf180038d0dc4094930e33167f372ae2b31ec3be61b2169a805d"
+        },
+        "dark": {
+          "path": "screenshots/localized/es/full_results_container-dark-1e123a6706d1.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "1e123a6706d1684abbacf0fc3300c1501a02d0a085bed04c66c3a1914f53ab27"
+        }
+      }
+    },
+    "fr": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/fr/question_single_choice-light-00fe3b7589c5.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "00fe3b7589c57dc576b39ead80cbf02806b95bc1647d70cc3e6bc792d2b8aef3"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_single_choice-dark-e25e3492ad9f.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "e25e3492ad9fa985f678e284d94a24b53c94eae95ad76e22945fe2afab30a122"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/fr/question_approval-light-73be9ecd7080.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "73be9ecd7080410651d0806a11e20367f410c449998ed2da3cea0a6a81740786"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_approval-dark-16c67e6d4397.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "16c67e6d43970b729d16f5f14037d1594fa6c5f17b48a25ec18b83afeca65351"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/fr/question_ranking-light-da4328c470a6.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "da4328c470a6c23b16a0c8895047509e1d98d8e8e16d2f1d40f1e8ea1289597a"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_ranking-dark-d6fa3d6d9a91.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "d6fa3d6d9a91bd82ff4052a2cd60a679714d84d592e08abe0adb64aab6d895f4"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/fr/question_ranking_truncated-light-2b0194f544bd.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "2b0194f544bd173d5de286b21a7bad3cd0163267a42f33bd73350f8a77085e33"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_ranking_truncated-dark-6e5b2e471637.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "6e5b2e4716378c4c45cb78ac095493df24b6745b36675b2045fcfcde5e716dfc"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/fr/question_ranking_with_ties-light-eaec35bd9f65.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "eaec35bd9f651572c0371fe4ab7901ff8c02d900dc35e0cf682ab52fbb1f5314"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_ranking_with_ties-dark-3398b0267dcc.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "3398b0267dcc80952e83d0bb652212e0681e23bf1125c08cc677aaae9fae7173"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/fr/question_star-light-53453244f9ee.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "53453244f9ee3110bf6268ab272ba3a85fc3b082216c2edbc0ac9451f3500c33"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_star-dark-69c3ccd7cec2.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "69c3ccd7cec22e550cda0c645ebb785fdc880edbef910c414927113fcd46868e"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/fr/question_grade-light-f240482276fc.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "f240482276fcc970173f351ae2f85de0ede88fbe240e243861f0da7b68ec0c96"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_grade-dark-c164a0681a0a.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "c164a0681a0aef2c2251af4a74850550b080846068f9744e086881c1900d927d"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/fr/question_grade_2-light-01dac0f96579.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "01dac0f96579f2ae7bbd898728c7e121df8cb4ae62cea797ea4ee511ba85276d"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_grade_2-dark-38de96b0b6af.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "38de96b0b6afb5b888993d7572e491c2115c924cfcdeb9b9d75c6ee9d131ebf5"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/fr/question_yes_no_abstain-light-aa7909f2fb01.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "aa7909f2fb01abcfbda55d4e99e8b72535143182e35232220794c8e99875491c"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/question_yes_no_abstain-dark-fa0708a0081a.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "fa0708a0081a9009b7767a7564acec5928faf15c6f26f3027727133261354d22"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/fr/full_poll_container-light-732b9d58d0fa.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "732b9d58d0fa44476587e1fb5f6283c16816f3bf7c9769f048e0c8cd755ccd20"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/full_poll_container-dark-d5d866948bf3.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "d5d866948bf374fcdea449ba4bafd0d7220b108aea5ffbb477c7753d64dbab79"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/fr/full_results_container-light-ac90bd390940.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "ac90bd390940481f55d6a3f4760d33d85096014631f7a6c36707d08f63f18cb3"
+        },
+        "dark": {
+          "path": "screenshots/localized/fr/full_results_container-dark-49aa719f8bed.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "49aa719f8bedd949bb47ac4c21c4da4307965f9d57a14b9b79ecf5c8cda8f2ef"
+        }
+      }
+    },
+    "hi": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/hi/question_single_choice-light-d6bb0ae60ec7.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "d6bb0ae60ec7ac93c3194fa39d0f8ad6b53b4ebfbda1a16a87dd6031a4727b21"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_single_choice-dark-57f1b172b7f6.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "57f1b172b7f6cdefa425cbeab0b7ca8bf8160358a08711a9b30c43ff5fd8a1a0"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/hi/question_approval-light-916c6f640805.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "916c6f6408057180897fe7da55c56043daec73cb779b9f4c6a84fcd45f264a6f"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_approval-dark-e12ea30030d5.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "e12ea30030d5312a364fff712379a4c7ca05728700c407654a3a70287d202ea9"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/hi/question_ranking-light-66ef78a1f341.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "66ef78a1f3413f7bf2e659863db211d17ded437ff0e35665b14cc370d94204e6"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_ranking-dark-0ddd4603d828.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "0ddd4603d82873403530ffbc1416fd4aeec4159da1744ff7fa466832a79f9763"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/hi/question_ranking_truncated-light-79efef3936e1.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "79efef3936e19821b230dcf99789500014c9796f1c9919b55e3a399f68ea1947"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_ranking_truncated-dark-8db7ace1535d.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "8db7ace1535d7a7be671c2f012d85476547c942a9fe435cbcb245918ef9ee3ad"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/hi/question_ranking_with_ties-light-48c081f5859e.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "48c081f5859e96192d1d380a73961b042be67ae85772117afaeba02090b82fd7"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_ranking_with_ties-dark-af7649d475f2.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "af7649d475f2d298a372b4dc460356f5ea28494e55377e79b40fd61b9b7a89ce"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/hi/question_star-light-6d68e37dc8d9.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "6d68e37dc8d9cb7be3f215791f16d01fe6b99c541d618f01f77b58ecb831c52c"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_star-dark-ef91f31f49cd.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "ef91f31f49cdc8b97723859243ff3e4fc702fd8064c43dc224895584e368e733"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/hi/question_grade-light-8cf84204645c.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "8cf84204645c7e5e99a986fecce98b30f69559a858f5fd5447a39d6361790fa7"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_grade-dark-0ef552d94b05.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "0ef552d94b05aa0516c5e0b88880243409a3b504ce76a01c9980dadd16ffb8a7"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/hi/question_grade_2-light-4ba914ef8b5f.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "4ba914ef8b5fbbbd491b7ef209383e2b9068f2ac82c3a0620433a909978f5e23"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_grade_2-dark-e9cc081e7e65.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "e9cc081e7e65c5bf6d1dbbbfb08ebc35ede99a4722376a0e0f5b4c575cebf73d"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/hi/question_yes_no_abstain-light-057ec5d74b60.webp",
+          "width": 1197,
+          "height": 282,
+          "fingerprint": "057ec5d74b603be6c6bbeba9559d86c3d34e15936dd08ebf33a5f9ffb1ab4ebb"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/question_yes_no_abstain-dark-87a55e629063.webp",
+          "width": 1197,
+          "height": 282,
+          "fingerprint": "87a55e629063f86c86587faad2dca327f934088b5327001552e9afd47b06c829"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/hi/full_poll_container-light-8532585cbf77.webp",
+          "width": 1200,
+          "height": 3878,
+          "fingerprint": "8532585cbf773ef373b56dfc00fdcf70866c529c2ad4147f50c785495a6bde2b"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/full_poll_container-dark-ff3227eb15cd.webp",
+          "width": 1200,
+          "height": 3878,
+          "fingerprint": "ff3227eb15cdf5aa48ecd86ed5c8e1b003e6604f77acb0164f37636c55d1888e"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/hi/full_results_container-light-f6d403b4a3da.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "f6d403b4a3daa8eac8f830fca88bba17fa2cd8bf44a738a82e28fbeb69644d2f"
+        },
+        "dark": {
+          "path": "screenshots/localized/hi/full_results_container-dark-2ff325a0dd00.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "2ff325a0dd009e50fa1df53e4436a967dc47f3c06c3eefb3e1ac941a08968657"
+        }
+      }
+    },
+    "hr": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/hr/question_single_choice-light-d2af74a2ebaf.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "d2af74a2ebaf12ed614e104b6cb92dbeb15bb8b4e791c3dadbaa2c0301a910ed"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_single_choice-dark-08fe310c70d7.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "08fe310c70d78a9da369e7c05dced3daec5c28a089eb1370cae5ec72e662ea75"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/hr/question_approval-light-b07d563e7978.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "b07d563e7978be6f2a1095adb5a85c8fe16970e57e6f84ee251a7873c8aed83c"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_approval-dark-b16f8c78a4b6.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "b16f8c78a4b641f876a8987a7ad5f0f26bc2e299203f7056fc1621acae8b8078"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/hr/question_ranking-light-88a61ed48758.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "88a61ed4875867ef31e667a5e9a731f29eb7dc7983ad64e2957489a887b8e9b3"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_ranking-dark-172847db62ac.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "172847db62ac36ff96be784a29c044cece613bcfad11561af0803201f02369ba"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/hr/question_ranking_truncated-light-2e8e44f2af99.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "2e8e44f2af9926c066db47d5c25a570df2584e8146486de95deed98c69736d12"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_ranking_truncated-dark-23763dd16bb2.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "23763dd16bb2f0058924f9c8608896a57463210b67f20c1e10d00243ad6b7789"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/hr/question_ranking_with_ties-light-c93a4acfbe71.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "c93a4acfbe71622eccf1dcbac44f322c6965c33dd48869a74ec6ab0e6adb498e"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_ranking_with_ties-dark-3577f82da8a8.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "3577f82da8a8bdaee5649b1ef2729272b78b712ca64a8d6c52d2592d160dd178"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/hr/question_star-light-3c66647bce23.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "3c66647bce23220f5a1d1e163b104f7fb2b69f3ccadb03496ecaa71d9ca838f9"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_star-dark-2718bcea04cd.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "2718bcea04cd54a4c1d64c29ab4c24f9521ddeb871fcc3d8c0819bf4d5de25cf"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/hr/question_grade-light-f12b4186fdf8.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "f12b4186fdf87d959b0bed28598922e8ce80b454b61b38ddb00c80fa5bbe20f1"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_grade-dark-26f55963502b.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "26f55963502b23dea67f0994c178c2dabba7e696d8baaab527e09b70b00248f4"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/hr/question_grade_2-light-ec3d02efa57e.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "ec3d02efa57e1dcb806b519722d764058c40e5c5cca38b45700eccf6c6941d0a"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_grade_2-dark-5c3eb1753a56.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "5c3eb1753a567732ab73f66a8b11af4b91dcb2bce1b7832b76d0ffa31edef7bd"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/hr/question_yes_no_abstain-light-7286ee91e217.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "7286ee91e217b33714286959b462d053260786e0f2c153ad7ef2cee2a96979b8"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/question_yes_no_abstain-dark-86d7935e6efa.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "86d7935e6efab3176671f6babecb039c7a8debbcac54e65ca07e62c85950d6bd"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/hr/full_poll_container-light-c8d71eb0fad6.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "c8d71eb0fad6bdf00edb6e28477d1cce1afac2c0ef2997a7c47986655e209f2a"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/full_poll_container-dark-71e27903c6da.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "71e27903c6dab4306421d5e337da38c83bf85a668ecbdbed8d70029e18efa9a0"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/hr/full_results_container-light-3677dca6806e.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "3677dca6806e423a1b6d7157708fe082b284c9b914f22bfe4f97edd74529c6d0"
+        },
+        "dark": {
+          "path": "screenshots/localized/hr/full_results_container-dark-894aa2803455.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "894aa28034551a356845dda1d3d0dd9e44c8985eaaa1bac80a45106cf5de93f3"
+        }
+      }
+    },
+    "hu": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/hu/question_single_choice-light-3a3536493aa8.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "3a3536493aa8c78bc482807de9b8781a704be95e814fc74352ff68eb2751f868"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_single_choice-dark-c58fc110e107.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "c58fc110e107732c00a82b464a06209ab26c3a7a53da0e2688ea8957a6c7c95d"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/hu/question_approval-light-b46dc3fc15c0.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "b46dc3fc15c09fe385d1fa0e8deb121c2cbd963fad9e767e5cbf64d90737cd80"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_approval-dark-ce1a9a3ac7ba.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "ce1a9a3ac7baa329956e657c0221afa05a2098569eed02401d5fd0cf93c79dcc"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/hu/question_ranking-light-68ec5f66107d.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "68ec5f66107df24d3662446790a3872292ebfd07925c1ee0bbe47504e80e1b41"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_ranking-dark-a3cbfd268a0a.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "a3cbfd268a0a08c862c8911e91b4ac0658256e480ca098bdf48679dbc57f9ee2"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/hu/question_ranking_truncated-light-3bc5f359a55e.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "3bc5f359a55ea26e6ed179ce4b8c774177bda5564ad8e0e7dacd79a9938ca058"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_ranking_truncated-dark-b7af05835f91.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "b7af05835f91968faff1d8478340e31aac058364ce1efb39a63259eb6e3d9303"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/hu/question_ranking_with_ties-light-773aa55a21fd.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "773aa55a21fd0f501967fd69da40c3ebe6d2ff6717c0dd74d56a853d62821c03"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_ranking_with_ties-dark-113417e3897e.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "113417e3897ea3e714cf636fb1d6afea8b1c1f8842014d38b30a635054b5965c"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/hu/question_star-light-d28ca2d3e0fe.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "d28ca2d3e0fef8fe4fb59ff2d9bfada06dfcaad17bf2ab5baf490f348a73daa0"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_star-dark-ee5ae658542c.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "ee5ae658542c9f0c37357ed2c17e1baf06ef7a4fd08422803bdd66e29ccad774"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/hu/question_grade-light-966e1b6c49aa.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "966e1b6c49aa833c35cf33e0d5363af40a1ad975c970caf5b6e87f29742089e2"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_grade-dark-a91cf360726b.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "a91cf360726bade59b068f6babbad5a4cb1580162a4090f90752ac3dde170126"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/hu/question_grade_2-light-48520019794e.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "48520019794e4873ca9b6a5825c669564a610cd7207dab0daa8c20af112b477d"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_grade_2-dark-1cbaaeddc972.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "1cbaaeddc97200e451f05261d66ca5927ed266b8cfd52c65888eafe959729963"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/hu/question_yes_no_abstain-light-459907c64921.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "459907c649216d5f8a2e0c84ba8069c2868ffeb4395ed1edf74c94277733e6e5"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/question_yes_no_abstain-dark-e0f28881b87d.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "e0f28881b87d7788385374a90c5a14e55515fb6e9bc5b976ed8c3a7bf0dfe28a"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/hu/full_poll_container-light-fc5c488c9002.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "fc5c488c9002a1c7d123b7b931379305e690c4c00fb7c6965b3cac8a4c26c2d5"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/full_poll_container-dark-e4446ffd0a1d.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "e4446ffd0a1ddbae05019d354b046d87164cc0456b01f1d14d37f6d507565b1f"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/hu/full_results_container-light-c4b5e3ad4734.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "c4b5e3ad4734a855d6655260391c23b2c89e03ab03c67584be117ba696308a86"
+        },
+        "dark": {
+          "path": "screenshots/localized/hu/full_results_container-dark-8d4f92e33f42.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "8d4f92e33f42fb7a2cfb5a7ff1475bed38e067f81232558c144390fd44600b99"
+        }
+      }
+    },
+    "it": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/it/question_single_choice-light-4d23225f7487.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "4d23225f7487d517344a0cd63b3d035e9cc5a66f56b8cee2cc76e81037072c7c"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_single_choice-dark-c49329eef857.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "c49329eef857db5387fe4c143e575244207132f685db9faddcbd955da47df4d8"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/it/question_approval-light-9bc154ef71cf.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "9bc154ef71cfdefbd53178bd2887b61a2e38d52e5158e8ed9d5765a21b38b873"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_approval-dark-d99bc4c82d6a.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "d99bc4c82d6aae0b2cbd7a5860ad89cb662eb9821f7d0a0dd8460b4fcd05e049"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/it/question_ranking-light-0544c33bf790.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "0544c33bf7908b006957e7b20122bc4da1531fabc582584fcfcc51d7729cfcf0"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_ranking-dark-19abdea7fcba.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "19abdea7fcba33955777d3453b59ffd8e379cf6d80c546806e76ea5e6ae68997"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/it/question_ranking_truncated-light-972b657b91ad.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "972b657b91ad709b001575da64998bd6c0b334365dca56944454563e21826159"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_ranking_truncated-dark-041785115b40.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "041785115b40dd47617748aaf9e7e15ed38d819c962de705398e1e6b45c6c1b0"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/it/question_ranking_with_ties-light-447e9f4427b4.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "447e9f4427b447f4859023ade700835c183c039f1cdc9f36c7d3de680d0cf7d6"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_ranking_with_ties-dark-db095ac41364.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "db095ac41364418e9636cf4d81f41e15803e109b6c70fa28a481bf697b5322ca"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/it/question_star-light-58b90c364652.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "58b90c36465238ba4487c3b6b7b276be770eda76982c867ca2ff447f18a7b5da"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_star-dark-3796feb5ad25.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "3796feb5ad25be1521aa2daa4c40d6acd3040731f43d63c26f8352da46bda184"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/it/question_grade-light-d3ca712c791f.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "d3ca712c791fa8a39c381dfe8b789bf41b42c1d128c5aa0ec34e49ec9bd69997"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_grade-dark-cab04127fc8d.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "cab04127fc8d42fe7f149cba81434802f2ecf06ff0abbfb21fdb7e5482120a60"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/it/question_grade_2-light-fdfa695f8482.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "fdfa695f84824f3d61510da89b4c250f4477d996eb553fa467a6f06b40224725"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_grade_2-dark-91855dd9f2ff.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "91855dd9f2ffd585fc864592b79485cd5e188f4804f8d160004478500e3795ff"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/it/question_yes_no_abstain-light-67a87df17123.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "67a87df1712382c5936b99fa081e2ae6711af16f29ccbaeba6772e917b987488"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/question_yes_no_abstain-dark-c0757fe6348a.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "c0757fe6348ab9e15bafa20ed4daa2aee119735e520e676d173b3235a2a66a62"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/it/full_poll_container-light-613b459d452a.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "613b459d452a6ac6eaa117ce724a7679a9f326e9f59a929bd5ed404ba74aaee5"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/full_poll_container-dark-b58fa4b8a79a.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "b58fa4b8a79a2cc52c9cedf8884ef08bd89776b16ac195155084fab29c34df24"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/it/full_results_container-light-39e599874482.webp",
+          "width": 1200,
+          "height": 5810,
+          "fingerprint": "39e599874482c2783021ab1f5df604b12d9da7cec74036727d4e623750028b42"
+        },
+        "dark": {
+          "path": "screenshots/localized/it/full_results_container-dark-b98490bfe846.webp",
+          "width": 1200,
+          "height": 5810,
+          "fingerprint": "b98490bfe84605b6df27bdc390cfa116376d701fe9e2426ff3243606284257d8"
+        }
+      }
+    },
+    "nl": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/nl/question_single_choice-light-788dc6408be0.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "788dc6408be0310013d3872f82f8b184b6f881cd53c015400264ee554c1d51b0"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_single_choice-dark-ed6bda29da9f.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "ed6bda29da9f86f6763f1e063d8f9a706796624e391a8ad94bbbfc65f66aaf32"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/nl/question_approval-light-9e67037121d3.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "9e67037121d3eb3e7e7765dc520515247b06334155be0da072d2cf8f9ddd3b70"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_approval-dark-7480afdcadfa.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "7480afdcadfa7a0e4f86aaf81d783623bea6a4ff903b57222f3c04fbeaf54820"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/nl/question_ranking-light-b4f96ce66544.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "b4f96ce66544218d5def8f4ec8858a7633b67e07004083b95d0f7283fe979d2c"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_ranking-dark-bac5ba781731.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "bac5ba7817315c1007a7c2b7bcbdb15761f2880a0f4f1de57d56960d7ab4acda"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/nl/question_ranking_truncated-light-053bed80a855.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "053bed80a85596ef99eb1965b330003ba038a6a6dcf8b7076a1923ec129aac90"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_ranking_truncated-dark-732c3f4906a6.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "732c3f4906a64688e790ac8d2245dc5d999ad398d88df6b867384c6b6f6f2d2d"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/nl/question_ranking_with_ties-light-cada231b9468.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "cada231b946841b2d017882c20e967dcb7523b6895368d9a5f6d2a2ab84a2784"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_ranking_with_ties-dark-00aea372494b.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "00aea372494b4767040e246d9018d301624bc5fdabe60566830c65f11164a7c7"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/nl/question_star-light-c6223835bb87.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "c6223835bb87b7f2a9038d81b0827a900ec99644b3614bc27cd4a6f8eb918a18"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_star-dark-806ce7d250b1.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "806ce7d250b1679f6bbce91a802ccf31360a2fb88105904d603ae444e41f67ca"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/nl/question_grade-light-28e0b57c3098.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "28e0b57c30989a2e1cec3eb69d3ab45d63022338e11508ff9aa12aee9ead03b9"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_grade-dark-d02ccd9154b5.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "d02ccd9154b5d6215c06dd14a9bdc8114afb7331a0244c7f83d8022299b3ca68"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/nl/question_grade_2-light-e67d8cbb4651.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "e67d8cbb4651c8265df9e54af169f391b482537c7a94ef2f0a34b7ef79d04705"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_grade_2-dark-4204c62b166e.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "4204c62b166e0559e05ad8ac5a777fc7ce5aeb80033f0b671036e5b79b55f002"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/nl/question_yes_no_abstain-light-0de293494442.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "0de293494442eedc1fc6b5b2029c9b5543e29d6174eaf7569f1c97e57353a937"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/question_yes_no_abstain-dark-7c8836cbe07f.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "7c8836cbe07f85e6ac624d548175ae6424ca8de76b91b69ec9be29bfe4a88295"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/nl/full_poll_container-light-dccea99a8a89.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "dccea99a8a89339c7f47e6f32ec0dba92038fe1934bd30d7bd6cfa9dafe5c753"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/full_poll_container-dark-e4855d9c92ac.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "e4855d9c92aca8373cc99a4ccd1e3cadb72d5914b9ec842f76c2271da6bd821e"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/nl/full_results_container-light-e505241df4cb.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "e505241df4cb984a723ef15e40040a80ffb140d1fa3c3c94730e0e64689d3fdb"
+        },
+        "dark": {
+          "path": "screenshots/localized/nl/full_results_container-dark-e0a25c6249d3.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "e0a25c6249d32404bb5dc204a2948854bde26b7c683f944b1880708c20aad78c"
+        }
+      }
+    },
+    "pl": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/pl/question_single_choice-light-2f62f2855688.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "2f62f2855688d5394290c4ed41d74f248db4df08c3d1714647cb858aa9807960"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_single_choice-dark-857521b45909.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "857521b459092cc14d711896a13283b0f88c22c0945c9bc979afb6960666d451"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/pl/question_approval-light-f848ca2c7876.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "f848ca2c787602f637f01be4c7716b759cb26dc4b56aec393de9255d7d3a77ba"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_approval-dark-1c32db71bb84.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "1c32db71bb84e57706d4d64a555186f91765583ce36c08f7b7b14d51aa105274"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/pl/question_ranking-light-6d6f8f6149de.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "6d6f8f6149de26c0d946a6ea8396c4eef34d64dfd118381dad2a403628d1bfe6"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_ranking-dark-3d061aaf47cc.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "3d061aaf47ccde8a0059d5ffb8d8e046f0dd59e4bc2f037ed48f1ec89b30aa0d"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/pl/question_ranking_truncated-light-ae2df7cae65e.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "ae2df7cae65e6f3a1070aebd0942e619746fda924a1d4bfcab4173f0c9a17bfe"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_ranking_truncated-dark-ec7716a51ffb.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "ec7716a51ffbc2bae1038a0423b90fc41652f7811ef16e237c2c08aea03695ea"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/pl/question_ranking_with_ties-light-722c7b3059d6.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "722c7b3059d61729f61d463b41816eb1ee2fc3753beaeb13b51cb94959605327"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_ranking_with_ties-dark-586ad283d57b.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "586ad283d57bcb561d9ebce3381d4227d9688ae7c4fa139ccea267c46dc11ff0"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/pl/question_star-light-8c26b99c8ab2.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "8c26b99c8ab249155db63f9c14d72b8b72a0f83e1189668da7312efe226183f9"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_star-dark-2e58a8d5aa33.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "2e58a8d5aa33971aa5e95515054c6802cabf3576a6e9ae83ec5882926b28a7da"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/pl/question_grade-light-eb2d76b1c1b2.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "eb2d76b1c1b2760eeb60b9703563f1164b280a4b681c33cc26c713815d3b740b"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_grade-dark-f4d4177ef3f5.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "f4d4177ef3f56e35ae4c84f359238e6ea6f8f921b1c811af5c04898f4d4aec64"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/pl/question_grade_2-light-03ea0b0dbecd.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "03ea0b0dbecd1f4649415644b55a28236612dc6ca126d842ed1718bd4cd95bbf"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_grade_2-dark-41ef4ba85864.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "41ef4ba85864ac761631279ecf44d6cc2e7161206b9568b2581d4e8b17d12eb8"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/pl/question_yes_no_abstain-light-672d576e0130.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "672d576e0130feeac3e227b43e7d872cf11d0cda4b253bddb3b80823fe141af6"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/question_yes_no_abstain-dark-3ee1d7a222a8.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "3ee1d7a222a80f555f217df4945b557dc7eb6894ecbede2177fddf52b3a3d47a"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/pl/full_poll_container-light-3f606d1196ec.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "3f606d1196eccb31db3148f927bc2cd3015f1be9803e5dc9919e6e684e8cd6a6"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/full_poll_container-dark-7392b5a75f9c.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "7392b5a75f9c527e03f37b36defbb8d9507b483b35c0853fa3592ef2d4ad4234"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/pl/full_results_container-light-27d07b46f002.webp",
+          "width": 1200,
+          "height": 5841,
+          "fingerprint": "27d07b46f002a9606c88888ca0ab9b3e8370057a539f695986b1791972d899a9"
+        },
+        "dark": {
+          "path": "screenshots/localized/pl/full_results_container-dark-bd65ec6311ab.webp",
+          "width": 1200,
+          "height": 5841,
+          "fingerprint": "bd65ec6311abe9e5406741e2f533bee93f47000c3a31d3cfb40a2b1aaf9b9f14"
+        }
+      }
+    },
+    "pt": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/pt/question_single_choice-light-902a51d354e5.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "902a51d354e55fce82a49c078f0ac018e0f89bc1f84a07893e12259ad3391711"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_single_choice-dark-1ddf5da6a411.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "1ddf5da6a4110619445d508a7778e948b9bd64316a541ab279d3fead8c154fe9"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/pt/question_approval-light-91d21ffafeb5.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "91d21ffafeb5a71c9da7014ca087c434abb4bbf86d30ebb998dbb35dd53849aa"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_approval-dark-6841dde39a59.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "6841dde39a59bd99614572dda5303d41bb6709d095b91613c17490b8d9457c4e"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/pt/question_ranking-light-6dd9413ee66e.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "6dd9413ee66e30132cc45683c1ddd892cc93a4b2f4a20f831bddde2eb03e987c"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_ranking-dark-5aa88c7e925d.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "5aa88c7e925dbe8fc6ab412e5634b6a38b15ed71e12925706e2fc70def416a6c"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/pt/question_ranking_truncated-light-b6c03055d35e.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "b6c03055d35e8f2e090ebbe7fc3d0b0494317cd3fe1a9a3eae151672482a47d0"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_ranking_truncated-dark-3986736c5f91.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "3986736c5f91a2f2722154fa3e97e83035f22377f1e26a75c170d88a1b7105d7"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/pt/question_ranking_with_ties-light-0fef6672567b.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "0fef6672567b38de9bd48c1647379b120d35ab14618a6518926f4e4476a2195d"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_ranking_with_ties-dark-d62ba2686653.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "d62ba26866530267ecc259da0e2604c1190ac3bc3e418d42b157b86a47b8cf23"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/pt/question_star-light-d9762d133643.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "d9762d1336439f2fdd1b85181e38c420fc586b5d08b38179fd9e1c91236559b7"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_star-dark-b2939c9690f5.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "b2939c9690f559af84b9fac68f3ff9c35fa3585a4618b7569f35fe88047fb4e5"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/pt/question_grade-light-d4835912cc05.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "d4835912cc058292c4f5841901f69ca3e119826d2f4c13ef4e150e541eeaa198"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_grade-dark-fc80c180ae5f.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "fc80c180ae5f9f5f09b33237ae26bd08d70ba16e07b06ba873a84c0bd53d29ea"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/pt/question_grade_2-light-7f71f4668c2f.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "7f71f4668c2fe8cf96b9d7df11de28693ef497610c78943bf419b2ba8b890e3b"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_grade_2-dark-56e78e68b8aa.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "56e78e68b8aabf38c08f8e2f6ac096640d05f5799cae1c717dde085523c62f90"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/pt/question_yes_no_abstain-light-480c10dcb1a6.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "480c10dcb1a66fcf1e1b2b372ebb721648fa82aed242fab58284d8cdfa802b2b"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/question_yes_no_abstain-dark-1b85f97eb08a.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "1b85f97eb08ab0c7d56660a753e0494843cadd48f0a9c2d6a72ddf381d479818"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/pt/full_poll_container-light-8fd4f87a71a7.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "8fd4f87a71a79d2016c4864af5a5e00d0d1c22145de679ae5ca4d1f875c73afa"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/full_poll_container-dark-54bbe482c703.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "54bbe482c7037d4c0b93d0d63c05b6f394eea5f4e103ce2c8e836cea7074f9a4"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/pt/full_results_container-light-310824cd6c37.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "310824cd6c371b4abbf0f7183731371d8552483e530d9618306609ae70a990e4"
+        },
+        "dark": {
+          "path": "screenshots/localized/pt/full_results_container-dark-fd91862429dd.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "fd91862429dd254973a72ab52a696182f69074b96f37882472793f95f3ca32f8"
+        }
+      }
+    },
+    "ro": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/ro/question_single_choice-light-702712cc2946.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "702712cc29469bd048713ce116e7e8c64d08e94aa9cc25fd702e9dfb839d43f1"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_single_choice-dark-4631c507a2cc.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "4631c507a2ccc935b8a113c17321ffc090116acf8d150241a86c0d78b2388f4e"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/ro/question_approval-light-5d232525eed7.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "5d232525eed7cfd7d36587af12a2ff106d88ec9961258ed7c11c1f11e90a2f48"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_approval-dark-82516ebb5ea2.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "82516ebb5ea2c198834c73890ba7fad8d66b8983758f1180ca24694b55afc231"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/ro/question_ranking-light-4ef42b777593.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "4ef42b7775930ee31e9c62e9fbb288b91759816534a6ef7c3e249a5e2ba28221"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_ranking-dark-ce73cf07a613.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "ce73cf07a613beea148b7a3af900d2cb3daec4e958fd143fca1da63e658dafb2"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/ro/question_ranking_truncated-light-481910d20bf1.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "481910d20bf1d09f13f42053de542c35a83b0632c5d59b60c9d2bd1b8f04c699"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_ranking_truncated-dark-07f769208ff7.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "07f769208ff7242365258b1f762030d74c73d4fb48501a43323351ee5c211289"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/ro/question_ranking_with_ties-light-6bab755451a5.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "6bab755451a5d3d7e6977244994521ef350c5b080411d3fd2ccf0eb8cce0cede"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_ranking_with_ties-dark-9c7c63768035.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "9c7c63768035644235dcd4156060909bf9e3ffa6644c99d452bbbe4d6345258a"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/ro/question_star-light-9300597dcf5a.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "9300597dcf5a5ae27c26cc9139cbf924e245838b70588be7484506c3376134f3"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_star-dark-62933bad4814.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "62933bad4814b25d21dc077234a4102349a125b04bc07b839f9ba0f93f173a1f"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/ro/question_grade-light-cdfc743fed1b.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "cdfc743fed1b07a6703728cd75af20d16ffca80292a86cd01a2f25e9e61592af"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_grade-dark-5f905c799e2f.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "5f905c799e2f2a3599b411338bbca1522dd6bb5dfcd5dc0c66b84cd025fc21e6"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/ro/question_grade_2-light-dbbbe3270015.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "dbbbe32700155f414243420c89b3bd12a9cf81bfc320eaeddb502ea5ecec6dec"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_grade_2-dark-ff624d012b16.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "ff624d012b1670a872305a7d7dd7dfd6f3929ddbf8372f4d011c29a05ccdb4d5"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/ro/question_yes_no_abstain-light-b707e48e8910.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "b707e48e891031a36b00719b9a9ffc9f1d5066f1c9db28c892c166cbe0ea34a4"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/question_yes_no_abstain-dark-4ac9b7721907.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "4ac9b7721907376e81026f19700c4b507e4f60ad875ac87891791cd5018e2675"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/ro/full_poll_container-light-fa2a777e9d5c.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "fa2a777e9d5c035cf749f8b870ac53a62961f9e1b20f2b715f7c94ce84c33eb0"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/full_poll_container-dark-63f49cf73927.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "63f49cf739279026f68fa7091ee9abe71c420777d65a0dca4a859354bf34b63e"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/ro/full_results_container-light-3118a60c37b0.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "3118a60c37b07f1dc4a7d6160ae224757cad1162b7f719384c934cad900677c1"
+        },
+        "dark": {
+          "path": "screenshots/localized/ro/full_results_container-dark-a7d63f84a721.webp",
+          "width": 1200,
+          "height": 5789,
+          "fingerprint": "a7d63f84a7219ce1f74ca0c491bbecb70532c83f2a7aa59504d6acff181c0668"
+        }
+      }
+    },
+    "ru": {
+      "question_single_choice": {
+        "light": {
+          "path": "screenshots/localized/ru/question_single_choice-light-cbb43c6c90ed.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "cbb43c6c90edb280658310842fe5ac23c802eb76da0948916d9c468927506a55"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_single_choice-dark-44f510feecf5.webp",
+          "width": 1197,
+          "height": 386,
+          "fingerprint": "44f510feecf51aacafb79daee114fefb6da6773ac79f36d59bb6c3e85ed87e59"
+        }
+      },
+      "question_approval": {
+        "light": {
+          "path": "screenshots/localized/ru/question_approval-light-60de49fc0300.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "60de49fc03003bd88cd992f55cd256205b5a9be8a0b6720710952715ded52a7d"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_approval-dark-3e5efd776a61.webp",
+          "width": 1197,
+          "height": 428,
+          "fingerprint": "3e5efd776a610fb3d567ae0e9a3263f55ab38e4a7bd85f6fd6abdd8a860bbefe"
+        }
+      },
+      "question_ranking": {
+        "light": {
+          "path": "screenshots/localized/ru/question_ranking-light-2697a41fc2fa.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "2697a41fc2fa0f49c2e0730581f6abbb7f6043b82af49e1df03aabfeb04d1049"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_ranking-dark-c7d5a4632951.webp",
+          "width": 1197,
+          "height": 441,
+          "fingerprint": "c7d5a46329514fdac826c29abb358c5193dc5e3bc46c8ae5f401227b78a0edc7"
+        }
+      },
+      "question_ranking_truncated": {
+        "light": {
+          "path": "screenshots/localized/ru/question_ranking_truncated-light-db858597c559.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "db858597c559711189e15bfb1ed2c80390f80766c9c756d2b0bfc373e65216b9"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_ranking_truncated-dark-fc7d378e7874.webp",
+          "width": 1197,
+          "height": 546,
+          "fingerprint": "fc7d378e78740a3c526e7b9c564e6c93df6a47588fe49c066603d56a75d8c696"
+        }
+      },
+      "question_ranking_with_ties": {
+        "light": {
+          "path": "screenshots/localized/ru/question_ranking_with_ties-light-e8b1dc1c8be7.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "e8b1dc1c8be7ec11b5c240bd91986f268ef5e0db05c44b33149deaeee03036b2"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_ranking_with_ties-dark-b16507655de5.webp",
+          "width": 1197,
+          "height": 579,
+          "fingerprint": "b16507655de560f4dd313707bc7f2989bd5690e697d42a1f98db9549f75f2111"
+        }
+      },
+      "question_star": {
+        "light": {
+          "path": "screenshots/localized/ru/question_star-light-d6b721813811.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "d6b7218138111e931706f5a068fb11af6006d71140ed0f613edddf43b6dd6417"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_star-dark-47e0c12a0e09.webp",
+          "width": 1197,
+          "height": 323,
+          "fingerprint": "47e0c12a0e097c95e022cfe2ad8284f24748aeac1c7c80065519914dd14ba568"
+        }
+      },
+      "question_grade": {
+        "light": {
+          "path": "screenshots/localized/ru/question_grade-light-7189ccdb7b1e.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "7189ccdb7b1e24438bf1f9d67327529a0f86b2594f81bdf102a28766ac447ef0"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_grade-dark-afc8cf00aca5.webp",
+          "width": 1197,
+          "height": 302,
+          "fingerprint": "afc8cf00aca5ec1200fcae6ec4594f2c1d9423328f9560c34585e3c9652d9daa"
+        }
+      },
+      "question_grade_2": {
+        "light": {
+          "path": "screenshots/localized/ru/question_grade_2-light-c71ec0587ed9.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "c71ec0587ed9615d4d6e41317239eab03de5987dad7693adcef83288477be85e"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_grade_2-dark-8dfe1f4d7b2d.webp",
+          "width": 1197,
+          "height": 266,
+          "fingerprint": "8dfe1f4d7b2d1c50fb437b4aaf8a645b4c3c0163ad24644b0f43eaac062bacd8"
+        }
+      },
+      "question_yes_no_abstain": {
+        "light": {
+          "path": "screenshots/localized/ru/question_yes_no_abstain-light-d1582b2992a6.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "d1582b2992a6240bcbea39fcd48396390559db528c98f604034f7ecee9f42049"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/question_yes_no_abstain-dark-293fe97196e3.webp",
+          "width": 1197,
+          "height": 267,
+          "fingerprint": "293fe97196e39e6a46c3fbb5f5dc7b9dae33b6aa0bd443fd1e911168c7caee37"
+        }
+      },
+      "full_poll_container": {
+        "light": {
+          "path": "screenshots/localized/ru/full_poll_container-light-7459ea63cf6c.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "7459ea63cf6cb2f54f28ecfc62ab73790d0abf3e6b7eb6dd4d21a3b95fc7334e"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/full_poll_container-dark-6ceb91c3808b.webp",
+          "width": 1200,
+          "height": 3863,
+          "fingerprint": "6ceb91c3808b97d3e793e34168d319de7a60e8d70f20ac13338dfcbe6590f96a"
+        }
+      },
+      "full_results_container": {
+        "light": {
+          "path": "screenshots/localized/ru/full_results_container-light-745249dd0f74.webp",
+          "width": 1200,
+          "height": 5810,
+          "fingerprint": "745249dd0f74df0293b0bc9080d49b9ef4d351ceec71bee279d7eb560830e75c"
+        },
+        "dark": {
+          "path": "screenshots/localized/ru/full_results_container-dark-7bb7ced4330e.webp",
+          "width": 1200,
+          "height": 5810,
+          "fingerprint": "7bb7ced4330e0dece318e4c32b39028c40c491f92a11b5dcc7cfed6ecee7197e"
+        }
+      }
+    }
+  },
+  "generatorFingerprint": "fcac77f7a4b47324e386a9c7fe218150fe66832fc874bc2f74cb38c38de9dbdb"
+}

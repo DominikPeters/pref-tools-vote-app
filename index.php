@@ -97,6 +97,11 @@ $router->post('/language', [\App\Controllers\LanguageController::class, 'update'
 $router->get('/privacy', [PageController::class, 'privacy']);
 $router->get('/about', [PageController::class, 'about']);
 
+// Register exact language codes before dynamic poll IDs; never use a catchall locale.
+foreach (\App\Services\MarketingLocale::routes() as $path => $page) {
+    $router->get($path, [PageController::class, $page]);
+}
+
 // Sysadmin pages
 $router->get('/sysadmin', [SysadminController::class, 'dashboard']);
 $router->get('/sysadmin/users', [SysadminController::class, 'users']);

@@ -9,7 +9,7 @@ const TRANSIENT_CODES = new Set([
     'ENETUNREACH', 'EHOSTUNREACH', 'EAI_AGAIN', 'ERR_SOCKET_CLOSED',
     'ERR_STREAM_PREMATURE_CLOSE', 'UPLOAD_SIZE_MISMATCH',
 ]);
-// Vite's versioned outputs contain a content hash before the extension.
+// Vite outputs and generated screenshots contain a content hash before the extension.
 const VERSIONED_FILE = /-[A-Za-z0-9_-]{8,}\.[A-Za-z0-9.]+$/;
 
 /** Only hashed assets, never the sibling .vite manifest or other deployment files. */
@@ -148,8 +148,13 @@ export async function uploadAssets({
 }
 
 export async function main(args = process.argv.slice(2)) {
-    if (args.some(argument => argument !== '--dry-run')) throw new Error('Usage: node scripts/upload-assets.mjs [--dry-run]');
-    return uploadAssets({ dryRun: args.includes('--dry-run') || process.env.DRY_RUN === 'true' });
+    if (args.some(argument => !['--dry-run', '--screenshots'].includes(argument))) {
+        throw new Error('Usage: node scripts/upload-assets.mjs [--dry-run] [--screenshots]');
+    }
+    return uploadAssets({
+        localDir: resolve(args.includes('--screenshots') ? 'screenshots/localized' : 'assets/build/assets'),
+        dryRun: args.includes('--dry-run') || process.env.DRY_RUN === 'true',
+    });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

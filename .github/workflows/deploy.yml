@@ -50,6 +50,15 @@ jobs:
           FTP_ROOTDIR: vote/assets/build/assets
           DRY_RUN: ${{ inputs.dry_run == true }}
 
+      - name: Upload localized screenshots via FTP
+        run: npm run deploy:assets -- --screenshots
+        env:
+          FTP_SERVER: w008ef9a.kasserver.com
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_ROOTDIR: vote/screenshots/localized
+          DRY_RUN: ${{ inputs.dry_run == true }}
+
       # Upload PHP and the new manifest after its assets are present. Runtime
       # config, databases and server-installed libraries are excluded.
       # Settings mirror the working FTP deploys in tikz-editor (same host, the
@@ -79,6 +88,7 @@ jobs:
             config/config.test.php
             node_modules/**
             assets/build/assets/**
+            screenshots/localized/**
             lib/PHPMailer/**
             package.json
             package-lock.json

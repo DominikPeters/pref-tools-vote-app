@@ -25,6 +25,9 @@ checks remote file sizes, uploads missing or incomplete files to temporary names
 and publishes them with a rename. Transient FTP failures get up to three attempts,
 each retry using a fresh connection. It never deletes old assets or downloads a
 deployment state file.
+Localized homepage screenshots are also uploaded before the PHP/manifest update,
+retaining earlier hashed images. Use `npm run deploy:assets -- --screenshots --dry-run`
+to list those image uploads without credentials or network access.
 
 After building, use `npm run deploy:assets -- --dry-run` to list the versioned
 files without credentials or network access. GitHub's `dry_run` deployment input
@@ -43,6 +46,21 @@ selector saves the preference with a CSRF-protected POST, a same-site HTTP-only
 cookie, and the signed-in account's `preferred_locale`. A new poll starts in the
 interface language; existing polls keep their own language. The builder loads a
 preview catalog on demand without switching the editor's language.
+
+Public marketing pages have stable language URLs: `/{locale}/` and
+`/{locale}/about` (for example, `/vote/hu/` and `/vote/hu/about` in a subfolder
+installation). Exact registered codes, including `en`, are routed before poll
+IDs. The URL language overrides cookies, account preferences, and browser
+negotiation for that request, and sets the interface cookie for onward navigation.
+Visiting a language URL does not change the account's saved preference. The
+unprefixed `/` and `/about` keep their negotiated-language behavior without
+redirects. All marketing pages canonicalize to their explicit language URL,
+publish reciprocal `hreflang` links including `x-default`, and expose visible
+language links. SEO URLs use the configured `app.url`, not request Host headers.
+The language picker keeps the equivalent marketing page when switching languages;
+poll, admin, and API paths remain unchanged. New poll IDs exclude registered
+language codes and other literal route names, including when a custom short ID
+length is configured. The standard eight-character IDs are unaffected.
 
 `src/i18n/languages.json` registers native names and text direction.
 `src/i18n/locales/{locale}.json` contains plain-text ICU MessageFormat messages
@@ -85,10 +103,10 @@ list for deliberate, reviewed scope changes. Do not use it to silently waive new
 missing translations. The PHP and JS tests share one message corpus, including
 plural categories beyond the currently available languages.
 
-The English source and all twelve translated catalogs cover the creator,
+The English source and all thirteen translated catalogs cover the creator,
 administration, authentication, voter, validation, email and analysis flows.
 Available languages are Bengali, Croatian, Dutch, English, French, German,
-Hindi, Italian, Polish, Portuguese, Romanian, Russian and Spanish. Voting-rule
+Hindi, Hungarian, Italian, Polish, Portuguese, Romanian, Russian and Spanish. Voting-rule
 names follow established terminology; machine identifiers, participant-authored
 poll text and the privacy-policy document remain in their original language.
 The policy's English content is explicitly marked `lang="en"`.

@@ -1,0 +1,33 @@
+{
+  "locale": "hu",
+  "terminology_sources": [
+    "https://www.szavaz.at/",
+    "https://www.szavaz.at/rendszerek/egy/kardinalis",
+    "https://www.szavaz.at/rendszerek/egy/fordulo/azonnali_tobb",
+    "https://www.szavaz.at/rendszerek/koltsegvetes/egyenlo_reszvetel"
+  ],
+  "method_names": {
+    "score_voting": "pontozós szavazás",
+    "approval_voting": "több X-es szavazás",
+    "borda_count": "Borda-féle szavazás",
+    "majority_judgment": "többségi ítélet",
+    "instant_runoff": "azonnali többfordulós szavazás",
+    "participatory_budgeting": "közösségi költségvetés",
+    "method_of_equal_shares": "egyenlő részvétel módszere"
+  },
+  "interface_terms": {
+    "poll": "szavazás",
+    "vote": "szavazat",
+    "response": "válasz",
+    "ranking": "rangsor",
+    "grade": "minősítés",
+    "committee": "bizottság",
+    "seat": "mandátum",
+    "quota": "kvóta"
+  },
+  "notes": [
+    "Method names follow the supplied Hungarian terminology reference. UI text, rule descriptions and calculation explanations are independently translated from the English catalog; no source paragraphs are reproduced.",
+    "Use informal singular address consistently. Counts take a singular Hungarian noun; ICU one/other branches can therefore have identical wording.",
+    "Use neutral phrasing around named parameters rather than attaching vowel-harmonized suffixes to unknown user text. Floor and ceiling explanations include equality so exact integer quotas stay unchanged."
+  ]
+}
