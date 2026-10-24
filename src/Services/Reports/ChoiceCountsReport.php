@@ -14,12 +14,12 @@ class ChoiceCountsReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Vote Counts';
+        return __('report_type_choice_counts');
     }
 
     public function getDescription(): string
     {
-        return 'Bar chart showing the number of votes for each option';
+        return __('report_bar_chart_showing_the_number_of_votes_for_each_option');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -44,7 +44,7 @@ class ChoiceCountsReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],

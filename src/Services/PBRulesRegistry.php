@@ -30,7 +30,7 @@ class PBRulesRegistry
         $params['rule'] = $rule;
         return match ($rule) {
             'mes', 'greedy' => ParticipatoryBudgetingRules::compute($instance, $params),
-            default => throw new \InvalidArgumentException("Unknown PB rule: $rule"),
+            default => throw new \InvalidArgumentException(__('error_unknown_pb_rule_rule', ['rule' => $rule])),
         };
     }
 
@@ -40,7 +40,7 @@ class PBRulesRegistry
     public static function getRulesAsOptions(): array
     {
         $options = [];
-        foreach (self::RULES as $key => $rule) {
+        foreach (self::localizeMetadata(self::RULES) as $key => $rule) {
             $options[] = [
                 'value' => $key,
                 'label' => $rule['name'],
@@ -49,5 +49,23 @@ class PBRulesRegistry
             ];
         }
         return $options;
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'mes' => ['name' => __('rule_method_of_equal_shares'), 'description' => __('rule_a_proportional_rule_for_participatory_budgeting_based_on_voter_budgets')],
+            'greedy' => ['name' => __('rule_greedy_utilitarian'), 'description' => __('rule_selects_projects_with_the_most_approvals_until_the_budget_is_exhausted')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
+    }
+
+    public static function getRules(): array
+    {
+        return self::localizeMetadata(self::RULES);
     }
 }

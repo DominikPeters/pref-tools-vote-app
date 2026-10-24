@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 /**
  * Get a color for a grade based on its position in the scale
@@ -25,7 +25,7 @@ export function renderMajorityJudgment(container, data, config) {
     const { winners, is_tie, grades, distributions, total_responses } = data;
 
     if (!distributions || distributions.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_responses')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 
@@ -34,7 +34,7 @@ export function renderMajorityJudgment(container, data, config) {
     const winnerNames = winners.map(w => escapeHtml(w.option)).join(', ');
     const winnerHtml = `
         <div class="report-winner-card mj-winner">
-            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${t('result_winner_by_rule', { rule: ruleName })}</p>`}
+            ${is_tie ? `<p class="tie-notice">${tHtml('result_tied')}:</p>` : `<p class="winner-label">${tHtml('result_winner_by_rule', { rule: ruleName })}</p>`}
             <div class="winner-name">${winnerNames}</div>
         </div>
     `;

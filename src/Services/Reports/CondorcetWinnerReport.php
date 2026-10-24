@@ -14,12 +14,12 @@ class CondorcetWinnerReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Condorcet Winner';
+        return __('condorcet_winner');
     }
 
     public function getDescription(): string
     {
-        return 'The option that beats every other option in head-to-head comparisons, if one exists';
+        return __('report_the_option_that_beats_every_other_option_in_head_to_head_comparisons_if_one_exists');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -75,7 +75,8 @@ class CondorcetWinnerReport extends BaseReport
         return [
             'exists' => false,
             'winner' => null,
-            'message' => 'No Condorcet winner exists (there is a cycle in pairwise preferences)',
+            'message' => __('report_no_condorcet_winner_exists_there_is_a_cycle_in_pairwise_preferences'),
+            'message_key' => 'report_no_condorcet_winner_exists_there_is_a_cycle_in_pairwise_preferences',
             'total_responses' => count($responses),
         ];
     }

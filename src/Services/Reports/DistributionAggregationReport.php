@@ -15,12 +15,12 @@ class DistributionAggregationReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Distribution Aggregation';
+        return __('report_type_distribution_aggregation');
     }
 
     public function getDescription(): string
     {
-        return 'Combines everyone\'s allocations into a single collective distribution';
+        return __('report_combines_everyone_s_allocations_into_a_single_collective_distribution');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class DistributionAggregationReport extends BaseReport
                 [
                     'name' => 'rule',
                     'type' => 'select',
-                    'label' => 'Aggregation Rule',
+                    'label' => __('report_aggregation_rule'),
                     'required' => true,
                     'options' => [],
                     'dynamicOptions' => 'distributionRules',
@@ -68,7 +68,7 @@ class DistributionAggregationReport extends BaseReport
         $distributions = DistributionProfileBuilder::fromDistributionResponses($question, $responses);
 
         if (empty($distributions)) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         // Get option metadata
@@ -79,7 +79,7 @@ class DistributionAggregationReport extends BaseReport
         try {
             $aggregatedDist = DistributionRulesRegistry::compute($rule, $distributions);
         } catch (\Exception $e) {
-            return ['error' => 'Error computing result: ' . $e->getMessage()];
+            return $this->errorResult('error_error_computing_result_detail', ['detail' => $e->getMessage()]);
         }
 
         // Format the distribution for output
@@ -102,7 +102,7 @@ class DistributionAggregationReport extends BaseReport
 
         return [
             'rule' => $rule,
-            'rule_name' => DistributionRulesRegistry::RULES[$rule]['name'] ?? $rule,
+            'rule_name' => DistributionRulesRegistry::getRules()[$rule]['name'] ?? $rule,
             'distribution' => $distribution,
             'total_responses' => count($distributions),
         ];

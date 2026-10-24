@@ -21,7 +21,7 @@ class AuthApiController extends ApiController
     {
         // Check if registration is enabled
         if (!SiteSetting::getBool('site.registration_enabled', true)) {
-            return $this->error('User registration is currently disabled', 'REGISTRATION_DISABLED', 403);
+            return $this->error(__('error_user_registration_is_currently_disabled'), 'REGISTRATION_DISABLED', 403);
         }
 
         $data = $this->getBody();
@@ -40,7 +40,7 @@ class AuthApiController extends ApiController
         if (TurnstileService::isConfigured()) {
             $turnstileToken = $data['turnstile_token'] ?? '';
             if (!TurnstileService::verify($turnstileToken)) {
-                return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
+                return $this->error(__('error_security_verification_failed_please_try_again'), 'TURNSTILE_FAILED', 400);
             }
         }
 
@@ -80,7 +80,7 @@ class AuthApiController extends ApiController
         $user = $auth->attempt($data['email'], $data['password']);
 
         if (!$user) {
-            return $this->error('Invalid credentials', 'INVALID_CREDENTIALS', 401);
+            return $this->error(__('error_invalid_credentials'), 'INVALID_CREDENTIALS', 401);
         }
 
         LogService::getInstance()->log('user.login', null, $user->id);
@@ -113,7 +113,7 @@ class AuthApiController extends ApiController
         $user = $this->user();
 
         if (!$user) {
-            return $this->error('Not authenticated', 'NOT_AUTHENTICATED', 401);
+            return $this->error(__('error_not_authenticated'), 'NOT_AUTHENTICATED', 401);
         }
 
         return $this->success(['user' => $user->toArray()]);
@@ -182,21 +182,21 @@ class AuthApiController extends ApiController
         $data = $this->getBody();
 
         if (empty($data['public_id']) || empty($data['admin_token'])) {
-            return $this->error('public_id and admin_token are required', 'MISSING_FIELDS', 400);
+            return $this->error(__('error_public_id_and_admin_token_are_required'), 'MISSING_FIELDS', 400);
         }
 
         $poll = Poll::findByPublicId($data['public_id']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($data['admin_token'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         if ($poll->userId !== null) {
-            return $this->error('Poll already claimed', 'ALREADY_CLAIMED', 400);
+            return $this->error(__('error_poll_already_claimed'), 'ALREADY_CLAIMED', 400);
         }
 
         $poll = $poll->update(['user_id' => $this->user()->id]);
@@ -212,13 +212,13 @@ class AuthApiController extends ApiController
         $data = $this->getBody();
 
         if (empty($data['token'])) {
-            return $this->error('Verification token is required', 'MISSING_TOKEN', 400);
+            return $this->error(__('error_verification_token_is_required'), 'MISSING_TOKEN', 400);
         }
 
         $user = User::findByVerificationToken($data['token']);
 
         if (!$user) {
-            return $this->error('Invalid or expired verification token', 'INVALID_TOKEN', 400);
+            return $this->error(__('error_invalid_or_expired_verification_token'), 'INVALID_TOKEN', 400);
         }
 
         $user->markEmailVerified();
@@ -233,7 +233,7 @@ class AuthApiController extends ApiController
 
         return $this->success([
             'user' => $user->toArray(),
-            'message' => 'Email verified successfully',
+            'message' => __('backend_email_verified_successfully'),
         ]);
     }
 
@@ -250,19 +250,19 @@ class AuthApiController extends ApiController
         $user = $this->user();
 
         if ($user->isEmailVerified()) {
-            return $this->error('Email is already verified', 'ALREADY_VERIFIED', 400);
+            return $this->error(__('error_email_is_already_verified'), 'ALREADY_VERIFIED', 400);
         }
 
         $mailService = new MailService();
         if (!$mailService->isConfigured()) {
-            return $this->error('Email service is not configured', 'MAIL_NOT_CONFIGURED', 500);
+            return $this->error(__('error_email_service_is_not_configured'), 'MAIL_NOT_CONFIGURED', 500);
         }
 
         $this->sendVerificationEmail($user);
 
         LogService::getInstance()->log('user.verification_resent', null, $user->id);
 
-        return $this->success(['message' => 'Verification email sent']);
+        return $this->success(['message' => __('backend_verification_email_sent')]);
     }
 
     /**
@@ -284,7 +284,7 @@ class AuthApiController extends ApiController
         if (TurnstileService::isConfigured()) {
             $turnstileToken = $data['turnstile_token'] ?? '';
             if (!TurnstileService::verify($turnstileToken)) {
-                return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
+                return $this->error(__('error_security_verification_failed_please_try_again'), 'TURNSTILE_FAILED', 400);
             }
         }
 
@@ -292,12 +292,12 @@ class AuthApiController extends ApiController
 
         // Always return success to prevent email enumeration
         if (!$user) {
-            return $this->success(['message' => 'If an account exists with this email, a password reset link will be sent']);
+            return $this->success(['message' => __('backend_if_an_account_exists_with_this_email_a_password_reset_link_will_be_sent')]);
         }
 
         $mailService = new MailService();
         if (!$mailService->isConfigured()) {
-            return $this->error('Email service is not configured', 'MAIL_NOT_CONFIGURED', 500);
+            return $this->error(__('error_email_service_is_not_configured'), 'MAIL_NOT_CONFIGURED', 500);
         }
 
         // Generate reset token
@@ -307,15 +307,15 @@ class AuthApiController extends ApiController
         // Send reset email
         $resetUrl = url('login?reset_token=' . $token);
 
-        ob_start();
-        $userName = $user->name;
-        include __DIR__ . '/../../templates/emails/password-reset.php';
-        $emailBody = ob_get_clean();
+        $emailLocale = $user->getPreferredLocale();
+        $emailBody = \App\Services\EmailTemplate::render('password-reset', $emailLocale, [
+            'userName' => $user->name, 'resetUrl' => $resetUrl,
+        ]);
 
         try {
             $mailService->send(
                 $user->email,
-                'Reset your password',
+                \App\i18n\Translator::translateForLocale($emailLocale, 'email_reset_your_password'),
                 $emailBody,
                 true
             );
@@ -326,7 +326,7 @@ class AuthApiController extends ApiController
             error_log('Failed to send password reset email: ' . $e->getMessage());
         }
 
-        return $this->success(['message' => 'If an account exists with this email, a password reset link will be sent']);
+        return $this->success(['message' => __('backend_if_an_account_exists_with_this_email_a_password_reset_link_will_be_sent')]);
     }
 
     /**
@@ -348,7 +348,7 @@ class AuthApiController extends ApiController
         $user = User::findByPasswordResetToken($data['token']);
 
         if (!$user) {
-            return $this->error('Invalid or expired reset token', 'INVALID_TOKEN', 400);
+            return $this->error(__('error_invalid_or_expired_reset_token'), 'INVALID_TOKEN', 400);
         }
 
         // Update password
@@ -363,7 +363,7 @@ class AuthApiController extends ApiController
 
         return $this->success([
             'user' => $user->toArray(),
-            'message' => 'Password reset successfully',
+            'message' => __('backend_password_reset_successfully'),
         ]);
     }
 
@@ -393,13 +393,13 @@ class AuthApiController extends ApiController
 
         // Verify password
         if (!Auth::verifyPassword($data['password'], $user->passwordHash)) {
-            return $this->error('Incorrect password', 'INVALID_PASSWORD', 403);
+            return $this->error(__('error_incorrect_password'), 'INVALID_PASSWORD', 403);
         }
 
         // Prevent sysadmin self-deletion (they should be demoted first)
         if ($user->isSysadmin()) {
             return $this->error(
-                'Sysadmins cannot delete their own account. Please have another sysadmin remove your role first.',
+                __('error_sysadmins_cannot_delete_their_own_account_please_have_another_sysadmin_remove_your_role_first'),
                 'SYSADMIN_CANNOT_SELF_DELETE',
                 403
             );
@@ -444,7 +444,7 @@ class AuthApiController extends ApiController
         $auth->logout();
 
         return $this->success([
-            'message' => 'Account deleted successfully',
+            'message' => __('backend_account_deleted_successfully'),
             'polls_affected' => $pollCount,
         ]);
     }
@@ -523,15 +523,16 @@ class AuthApiController extends ApiController
                 'name' => $user->name,
                 'role' => $user->role,
                 'email_verified_at' => $user->emailVerifiedAt?->format('c'),
+                'preferred_locale' => $user->preferredLocale,
                 'created_at' => $user->createdAt?->format('c'),
                 'updated_at' => $user->updatedAt?->format('c'),
             ],
             'responses' => $responseData,
             'activity_logs' => $logData,
             'data_collected' => [
-                'description' => 'This data shows all information we have stored about you.',
-                'ip_addresses' => 'Stored temporarily for security. Anonymized after 90 days.',
-                'responses' => 'Your poll responses. You can withdraw individual responses.',
+                'description' => __('backend_this_data_shows_all_information_we_have_stored_about_you'),
+                'ip_addresses' => __('backend_stored_temporarily_for_security_anonymized_after_90_days'),
+                'responses' => __('backend_your_poll_responses_you_can_withdraw_individual_responses'),
             ],
         ]);
     }
@@ -669,12 +670,12 @@ class AuthApiController extends ApiController
 
         // Verify current password
         if (!Auth::verifyPassword($data['current_password'], $user->passwordHash)) {
-            return $this->error('Current password is incorrect', 'INVALID_PASSWORD', 403);
+            return $this->error(__('error_current_password_is_incorrect'), 'INVALID_PASSWORD', 403);
         }
 
         // Check that new password is different
         if (Auth::verifyPassword($data['new_password'], $user->passwordHash)) {
-            return $this->error('New password must be different from current password', 'SAME_PASSWORD', 400);
+            return $this->error(__('error_new_password_must_be_different_from_current_password'), 'SAME_PASSWORD', 400);
         }
 
         // Update password
@@ -687,7 +688,7 @@ class AuthApiController extends ApiController
 
         LogService::getInstance()->log('user.password_changed', null, $user->id);
 
-        return $this->success(['message' => 'Password changed successfully']);
+        return $this->success(['message' => __('backend_password_changed_successfully')]);
     }
 
     /**
@@ -715,7 +716,7 @@ class AuthApiController extends ApiController
 
         // Check that name is not empty after trimming
         if (empty($newName)) {
-            return $this->error('Name cannot be empty', 'EMPTY_NAME', 400);
+            return $this->error(__('error_name_cannot_be_empty'), 'EMPTY_NAME', 400);
         }
 
         // Update name
@@ -724,7 +725,7 @@ class AuthApiController extends ApiController
         LogService::getInstance()->log('user.name_changed', null, $user->id);
 
         return $this->success([
-            'message' => 'Name changed successfully',
+            'message' => __('backend_name_changed_successfully'),
             'user' => $user->toArray(),
         ]);
     }
@@ -747,15 +748,15 @@ class AuthApiController extends ApiController
         $verifyUrl = url('login?verify_token=' . $token);
 
         // Render email template
-        ob_start();
-        $userName = $user->name;
-        include __DIR__ . '/../../templates/emails/verification.php';
-        $emailBody = ob_get_clean();
+        $emailLocale = $user->getPreferredLocale();
+        $emailBody = \App\Services\EmailTemplate::render('verification', $emailLocale, [
+            'userName' => $user->name, 'verifyUrl' => $verifyUrl,
+        ]);
 
         try {
             $mailService->send(
                 $user->email,
-                'Verify your email address',
+                \App\i18n\Translator::translateForLocale($emailLocale, 'email_verify_your_email_address'),
                 $emailBody,
                 true
             );

@@ -15,12 +15,12 @@ class PBWinnerReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Participatory Budgeting Rule Winner';
+        return __('report_participatory_budgeting_rule_winner');
     }
 
     public function getDescription(): string
     {
-        return 'Shows which projects are funded within the budget under a participatory budgeting rule (e.g., Method of Equal Shares)';
+        return __('report_shows_which_projects_are_funded_within_the_budget_under_a_participatory_budgeting_rule_e_g_method_of');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class PBWinnerReport extends BaseReport
                 [
                     'name' => 'total_budget',
                     'type' => 'number',
-                    'label' => 'Total Budget',
+                    'label' => __('total_budget'),
                     'required' => true,
                     'default' => 1000,
                     'min' => 0,
@@ -58,7 +58,7 @@ class PBWinnerReport extends BaseReport
                 [
                     'name' => 'rule',
                     'type' => 'select',
-                    'label' => 'Voting Rule',
+                    'label' => __('voting_rule'),
                     'required' => true,
                     'options' => PBRulesRegistry::getRulesAsOptions(),
                     'default' => 'mes',
@@ -66,39 +66,39 @@ class PBWinnerReport extends BaseReport
                 [
                     'name' => 'completion',
                     'type' => 'select',
-                    'label' => 'Completion Method',
+                    'label' => __('report_completion_method'),
                     'required' => true,
                     'dependsOn' => ['field' => 'rule', 'value' => 'mes'],
                     'options' => [
-                        ['value' => 'none', 'label' => 'None (just MES)'],
-                        ['value' => 'utilitarian', 'label' => 'Utilitarian'],
-                        ['value' => 'add1', 'label' => 'Add1 (Budget Increment)'],
-                        ['value' => 'add1u', 'label' => 'Add1 + Utilitarian'],
+                        ['value' => 'none', 'label' => __('report_none_just_mes')],
+                        ['value' => 'utilitarian', 'label' => __('report_utilitarian')],
+                        ['value' => 'add1', 'label' => __('report_add1_budget_increment')],
+                        ['value' => 'add1u', 'label' => __('report_add1_utilitarian')],
                     ],
                     'default' => 'utilitarian',
                 ],
                 [
                     'name' => 'tie_breaking',
                     'type' => 'select',
-                    'label' => 'Tie-breaking',
+                    'label' => __('report_tie_breaking'),
                     'required' => true,
                     'options' => [
-                        ['value' => 'maxVotes', 'label' => 'Higher vote count'],
-                        ['value' => 'minCost', 'label' => 'Lower cost'],
-                        ['value' => 'maxCost', 'label' => 'Higher cost'],
+                        ['value' => 'maxVotes', 'label' => __('report_higher_vote_count')],
+                        ['value' => 'minCost', 'label' => __('report_lower_cost')],
+                        ['value' => 'maxCost', 'label' => __('report_higher_cost')],
                     ],
                     'default' => 'maxVotes',
                 ],
                 [
                     'name' => 'comparison',
                     'type' => 'select',
-                    'label' => 'Comparison Step',
+                    'label' => __('report_comparison_step'),
                     'required' => true,
                     'dependsOn' => ['field' => 'rule', 'value' => 'mes'],
                     'options' => [
-                        ['value' => 'none', 'label' => 'None'],
-                        ['value' => 'satisfaction', 'label' => 'Voter Satisfaction'],
-                        ['value' => 'exclusionRatio', 'label' => 'Exclusion Ratio'],
+                        ['value' => 'none', 'label' => __('report_none')],
+                        ['value' => 'satisfaction', 'label' => __('report_voter_satisfaction')],
+                        ['value' => 'exclusionRatio', 'label' => __('report_exclusion_ratio')],
                     ],
                     'default' => 'none',
                 ],
@@ -124,17 +124,24 @@ class PBWinnerReport extends BaseReport
         $instance = ParticipatoryBudgetingProfileBuilder::buildInstance($question, $responses, $totalBudget);
         
         if (empty($instance['voterIds'])) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         try {
             $result = PBRulesRegistry::compute($rule, $instance, $params);
         } catch (\Exception $e) {
-            return ['error' => 'Error computing result: ' . $e->getMessage()];
+            return $this->errorResult('error_error_computing_result_detail', ['detail' => $e->getMessage()]);
         }
 
         $winners = $result['winners'];
         $notes = $result['notes'];
+        if (isset($notes['comparison_counts'])) {
+            $notes['comparison_key'] = 'explanation_pb_comparison';
+            $notes['comparison_params'] = [
+                'greedy' => (int) $notes['comparison_counts']['prefers_greedy'],
+                'mes' => (int) $notes['comparison_counts']['prefers_mes'],
+            ];
+        }
 
         $optionLabels = ParticipatoryBudgetingProfileBuilder::getOptionLabels($question);
         $question->loadOptions();
@@ -155,7 +162,7 @@ class PBWinnerReport extends BaseReport
 
         return [
             'rule' => $rule,
-            'rule_name' => PBRulesRegistry::RULES[$rule]['name'] ?? $rule,
+            'rule_name' => PBRulesRegistry::getRules()[$rule]['name'] ?? $rule,
             'total_budget' => $totalBudget,
             'winners' => $formattedWinners,
             'notes' => $notes,

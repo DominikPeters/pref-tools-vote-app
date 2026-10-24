@@ -14,12 +14,12 @@ class MedianReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Median Choice';
+        return __('report_type_median');
     }
 
     public function getDescription(): string
     {
-        return 'Finds the median option, assuming options are ordered (e.g., price limits, Likert scales). With single-peaked preferences, the median is the Condorcet winner.';
+        return __('report_finds_the_median_option_assuming_options_are_ordered_e_g_price_limits_likert_scales_with_single_peak');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -49,7 +49,7 @@ class MedianReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],

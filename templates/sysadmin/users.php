@@ -1,5 +1,5 @@
 <?php
-$title = 'User Administration - Pref.Tools Vote';
+$title = __('page_user_administration') . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/sysadmin.css'];
 $extraJs = ['/assets/js/sysadmin.js'];
 ob_start();
@@ -8,37 +8,37 @@ ob_start();
 <div class="sysadmin-container">
     <div class="container">
         <header class="sysadmin-header">
-            <h1>User Administration</h1>
+            <h1><?= e(__('page_user_administration')) ?></h1>
             <nav class="sysadmin-nav">
-                <a href="<?= basePath() ?>/sysadmin">Overview</a>
-                <a href="<?= basePath() ?>/sysadmin/users" class="active">Users</a>
-                <a href="<?= basePath() ?>/sysadmin/polls">Polls</a>
-                <a href="<?= basePath() ?>/sysadmin/logs">Logs</a>
-                <a href="<?= basePath() ?>/sysadmin/stats">Stats</a>
-                <a href="<?= basePath() ?>/sysadmin/config">Config</a>
+                <a href="<?= basePath() ?>/sysadmin"><?= e(__('page_overview')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/users" class="active"><?= e(__('page_users')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/polls"><?= e(__('page_polls')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/logs"><?= e(__('page_logs')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/stats"><?= e(__('page_stats')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/config"><?= e(__('page_config')) ?></a>
             </nav>
         </header>
 
         <section class="card">
             <div class="section-header">
-                <h2>All Users</h2>
-                <span class="total-count" id="userCount">Loading...</span>
+                <h2><?= e(__('page_all_users')) ?></h2>
+                <span class="total-count" id="userCount"><?= e(__('page_loading')) ?></span>
             </div>
             <div class="table-container">
                 <table class="data-table" id="usersTable">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Created</th>
-                            <th>Actions</th>
+                            <th><?= e(__('page_name')) ?></th>
+                            <th><?= e(__('page_email')) ?></th>
+                            <th><?= e(__('page_role')) ?></th>
+                            <th><?= e(__('page_created')) ?></th>
+                            <th><?= e(__('page_actions')) ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="6" class="loading">Loading users...</td>
+                            <td colspan="6" class="loading"><?= e(__('page_loading_users')) ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -55,13 +55,13 @@ ob_start();
         <td class="user-email"></td>
         <td class="user-role">
             <select class="role-select">
-                <option value="user">User</option>
-                <option value="sysadmin">Sysadmin</option>
+                <option value="user"><?= e(__('page_user')) ?></option>
+                <option value="sysadmin"><?= e(__('sysadmin')) ?></option>
             </select>
         </td>
         <td class="user-created"></td>
         <td class="user-actions">
-            <button class="btn btn-small btn-danger delete-user-btn">Delete</button>
+            <button class="btn btn-small btn-danger delete-user-btn"><?= e(__('delete')) ?></button>
         </td>
     </tr>
 </template>

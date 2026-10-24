@@ -38,7 +38,7 @@ class AccessControlService
                     return [
                         'allowed' => false,
                         'identity' => null,
-                        'error' => 'This access link has already been used',
+                        'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_this_access_link_has_already_been_used'),
                     ];
                 }
                 return [
@@ -60,7 +60,7 @@ class AccessControlService
                     return [
                         'allowed' => false,
                         'identity' => null,
-                        'error' => 'This invitation link has already been used',
+                        'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_this_invitation_link_has_already_been_used'),
                     ];
                 }
                 // Track that the link was clicked (for deliverability tracking)
@@ -81,7 +81,7 @@ class AccessControlService
             return [
                 'allowed' => false,
                 'identity' => null,
-                'error' => 'Invalid access token',
+                'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_invalid_access_token'),
             ];
         }
 
@@ -95,7 +95,7 @@ class AccessControlService
                     return [
                         'allowed' => false,
                         'identity' => null,
-                        'error' => 'You have already voted in this poll',
+                        'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_you_have_already_voted_in_this_poll'),
                     ];
                 }
                 // For identified mode, allow returning to edit
@@ -123,7 +123,7 @@ class AccessControlService
         return [
             'allowed' => false,
             'identity' => null,
-            'error' => 'Valid access token required to vote in this poll',
+            'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_valid_access_token_required_to_vote_in_this_poll'),
         ];
     }
 
@@ -140,7 +140,7 @@ class AccessControlService
         return [
             'allowed' => false,
             'identity' => null,
-            'error' => 'Password required to access this poll',
+            'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_password_required_to_access_this_poll'),
         ];
     }
 

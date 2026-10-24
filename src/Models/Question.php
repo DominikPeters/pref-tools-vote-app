@@ -236,7 +236,7 @@ class Question
 
         // Validate type is known
         if (!in_array($type, self::TYPES)) {
-            $errors[] = "Unknown question type: {$type}";
+            $errors[] = __('unknown_question_type', ['type' => $type]);
             return $errors;
         }
 
@@ -248,7 +248,7 @@ class Question
             case 'single_choice':
                 // allowOther is optional boolean
                 if (isset($settings['allowOther']) && !is_bool($settings['allowOther'])) {
-                    $errors[] = "allowOther must be a boolean";
+                    $errors[] = __('validation_allowother_must_be_a_boolean');
                 }
                 break;
 
@@ -257,37 +257,37 @@ class Question
                 $max = $settings['max'] ?? null;
 
                 if (!is_int($min) && !is_numeric($min)) {
-                    $errors[] = "Approval min must be a number";
+                    $errors[] = __('validation_approval_min_must_be_a_number');
                 } else {
                     $min = (int) $min;
                     if ($min < 0) {
-                        $errors[] = "Approval min cannot be negative";
+                        $errors[] = __('validation_approval_min_cannot_be_negative');
                     }
                     if ($optionCount > 0 && $min > $optionCount) {
-                        $errors[] = "Approval min ({$min}) cannot exceed number of options ({$optionCount})";
+                        $errors[] = __('validation_approval_min_min_cannot_exceed_number_of_options_optioncount', ['min' => $min, 'optionCount' => $optionCount]);
                     }
                 }
 
                 if ($max !== null) {
                     if (!is_int($max) && !is_numeric($max)) {
-                        $errors[] = "Approval max must be a number";
+                        $errors[] = __('validation_approval_max_must_be_a_number');
                     } else {
                         $max = (int) $max;
                         if ($max < 1) {
-                            $errors[] = "Approval max must be at least 1";
+                            $errors[] = __('validation_approval_max_must_be_at_least_1');
                         }
                         if ($optionCount > 0 && $max > $optionCount) {
                             // This is okay - we treat it as "all"
                         }
                         if (is_numeric($settings['min'] ?? 0) && $max < (int)($settings['min'] ?? 0)) {
-                            $errors[] = "Approval max ({$max}) cannot be less than min ({$min})";
+                            $errors[] = __('validation_approval_max_max_cannot_be_less_than_min_min', ['max' => $max, 'min' => $min]);
                         }
                     }
                 }
 
                 // allowOther is optional boolean
                 if (isset($settings['allowOther']) && !is_bool($settings['allowOther'])) {
-                    $errors[] = "allowOther must be a boolean";
+                    $errors[] = __('validation_allowother_must_be_a_boolean');
                 }
                 break;
 
@@ -296,30 +296,30 @@ class Question
                 $max = $settings['max'] ?? null;
 
                 if (!is_int($min) && !is_numeric($min)) {
-                    $errors[] = "Participatory budgeting min must be a number";
+                    $errors[] = __('validation_participatory_budgeting_min_must_be_a_number');
                 } else {
                     $min = (int) $min;
                     if ($min < 0) {
-                        $errors[] = "Participatory budgeting min cannot be negative";
+                        $errors[] = __('validation_participatory_budgeting_min_cannot_be_negative');
                     }
                     if ($optionCount > 0 && $min > $optionCount) {
-                        $errors[] = "Participatory budgeting min ({$min}) cannot exceed number of options ({$optionCount})";
+                        $errors[] = __('validation_participatory_budgeting_min_min_cannot_exceed_number_of_options_optioncount', ['min' => $min, 'optionCount' => $optionCount]);
                     }
                 }
 
                 if ($max !== null) {
                     if (!is_int($max) && !is_numeric($max)) {
-                        $errors[] = "Participatory budgeting max must be a number";
+                        $errors[] = __('validation_participatory_budgeting_max_must_be_a_number');
                     } else {
                         $max = (int) $max;
                         if ($max < 1) {
-                            $errors[] = "Participatory budgeting max must be at least 1";
+                            $errors[] = __('validation_participatory_budgeting_max_must_be_at_least_1');
                         }
                         if ($optionCount > 0 && $max > $optionCount) {
                             // This is okay - we treat it as "all"
                         }
                         if (is_numeric($settings['min'] ?? 0) && $max < (int)($settings['min'] ?? 0)) {
-                            $errors[] = "Participatory budgeting max ({$max}) cannot be less than min ({$min})";
+                            $errors[] = __('validation_participatory_budgeting_max_max_cannot_be_less_than_min_min', ['max' => $max, 'min' => $min]);
                         }
                     }
                 }
@@ -329,11 +329,11 @@ class Question
             case 'star':
                 $starCount = $settings['starCount'] ?? 5;
                 if (!is_int($starCount) && !is_numeric($starCount)) {
-                    $errors[] = "Star count must be a number";
+                    $errors[] = __('validation_star_count_must_be_a_number');
                 } else {
                     $starCount = (int) $starCount;
                     if ($starCount < 2 || $starCount > 10) {
-                        $errors[] = "Star count must be between 2 and 10";
+                        $errors[] = __('validation_star_count_must_be_between_2_and_10');
                     }
                 }
                 break;
@@ -341,13 +341,13 @@ class Question
             case 'grade':
                 if (isset($settings['grades'])) {
                     if (!is_array($settings['grades'])) {
-                        $errors[] = "Grades must be an array";
+                        $errors[] = __('validation_grades_must_be_an_array');
                     } elseif (count($settings['grades']) < 1) {
-                        $errors[] = "At least one grade is required";
+                        $errors[] = __('validation_at_least_one_grade_is_required');
                     } else {
                         foreach ($settings['grades'] as $grade) {
                             if (!is_string($grade) || trim($grade) === '') {
-                                $errors[] = "Each grade must be a non-empty string";
+                                $errors[] = __('validation_each_grade_must_be_a_non_empty_string');
                                 break;
                             }
                         }
@@ -357,29 +357,29 @@ class Question
 
             case 'yes_no_abstain':
                 if (isset($settings['allowAbstain']) && !is_bool($settings['allowAbstain'])) {
-                    $errors[] = "allowAbstain must be a boolean";
+                    $errors[] = __('validation_allowabstain_must_be_a_boolean');
                 }
                 break;
 
             case 'distribution':
                 $budget = $settings['budget'] ?? 100;
                 if (!is_int($budget) && !is_numeric($budget)) {
-                    $errors[] = "Distribution budget must be a number";
+                    $errors[] = __('validation_distribution_budget_must_be_a_number');
                 } else {
                     $budget = (int) $budget;
                     if ($budget < 1) {
-                        $errors[] = "Distribution budget must be at least 1";
+                        $errors[] = __('validation_distribution_budget_must_be_at_least_1');
                     }
                 }
 
                 $maxPerOption = $settings['maxPerOption'] ?? null;
                 if ($maxPerOption !== null) {
                     if (!is_int($maxPerOption) && !is_numeric($maxPerOption)) {
-                        $errors[] = "Distribution maxPerOption must be a number";
+                        $errors[] = __('validation_distribution_maxperoption_must_be_a_number');
                     } else {
                         $maxPerOption = (int) $maxPerOption;
                         if ($maxPerOption < 1) {
-                            $errors[] = "Distribution maxPerOption must be at least 1";
+                            $errors[] = __('validation_distribution_maxperoption_must_be_at_least_1');
                         }
                         if (is_numeric($settings['budget'] ?? 100) && $maxPerOption > (int)($settings['budget'] ?? 100)) {
                             // This is okay - we treat it as "all" (no limit)
@@ -389,19 +389,19 @@ class Question
 
                 $minOptions = $settings['minOptions'] ?? 1;
                 if (!is_int($minOptions) && !is_numeric($minOptions)) {
-                    $errors[] = "Distribution minOptions must be a number";
+                    $errors[] = __('validation_distribution_minoptions_must_be_a_number');
                 } else {
                     $minOptions = (int) $minOptions;
                     if ($minOptions < 1) {
-                        $errors[] = "Distribution minOptions must be at least 1";
+                        $errors[] = __('validation_distribution_minoptions_must_be_at_least_1');
                     }
                     if ($optionCount > 0 && $minOptions > $optionCount) {
-                        $errors[] = "Distribution minOptions ({$minOptions}) cannot exceed number of options ({$optionCount})";
+                        $errors[] = __('validation_distribution_minoptions_minoptions_cannot_exceed_number_of_options_optioncount', ['minOptions' => $minOptions, 'optionCount' => $optionCount]);
                     }
                 }
 
                 if (isset($settings['requireAll']) && !is_bool($settings['requireAll'])) {
-                    $errors[] = "Distribution requireAll must be a boolean";
+                    $errors[] = __('validation_distribution_requireall_must_be_a_boolean');
                 }
                 break;
         }

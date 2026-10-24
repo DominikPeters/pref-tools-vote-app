@@ -1,3 +1,4 @@
+import { t, tHtml } from '../i18n.js';
 /**
  * Raw Data Export Report Renderer
  * Provides preview, copy, and download functionality for PrefLib format exports
@@ -19,18 +20,18 @@ const spinnerIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
  */
 function getFormatDescription(dataType) {
     const descriptions = {
-        'SOC': 'Strict Orders - Complete (full rankings, no ties)',
-        'SOI': 'Strict Orders - Incomplete (partial rankings, no ties)',
-        'TOI': 'Tie Orders - Incomplete (partial rankings with ties)',
-        'CAT': 'Categorical Preferences (approval/ratings)',
-        'PB': 'Pabulib Format (Participatory Budgeting)',
+        'SOC': t('js_strict_orders_complete_full_rankings_no_ties'),
+        'SOI': t('js_strict_orders_incomplete_partial_rankings_no_ties'),
+        'TOI': t('js_tie_orders_incomplete_partial_rankings_with_ties'),
+        'CAT': t('js_categorical_preferences_approval_ratings'),
+        'PB': t('js_pabulib_format_participatory_budgeting'),
     };
     return descriptions[dataType] || dataType;
 }
 
 export function renderRawDataExport(container, data, config, context = {}) {
     if (!data.supported) {
-        container.innerHTML = `<p class="report-error">${escapeHtml(data.error || 'Export not supported for this question type.')}</p>`;
+        container.innerHTML = `<p class="report-error">${escapeHtml(data.error || t('js_export_not_supported_for_this_question_type'))}</p>`;
         return;
     }
 
@@ -43,22 +44,22 @@ export function renderRawDataExport(container, data, config, context = {}) {
     const html = `
         <div class="report-raw-export">
             <div class="export-info">
-                <span class="export-badge" data-tooltip="Preflib Format: ${getFormatDescription(data_type)}">${escapeHtml(data_type)} format</span>
-                <span class="export-stats">${total_responses} response${total_responses !== 1 ? 's' : ''}</span>
+                <span class="export-badge" data-tooltip="${tHtml('js_preflib_format_format', { format: getFormatDescription(data_type) })}">${tHtml('js_format_format', { format: data_type })}</span>
+                <span class="export-stats">${tHtml('response_count', { count: total_responses })}</span>
             </div>
 
             <div class="export-actions">
                 <button type="button" class="btn btn-primary btn-small" id="${instanceId}-download-btn">
                     ${downloadIcon}
-                    Download
+                    ${tHtml('js_download')}
                 </button>
                 <button type="button" class="btn btn-secondary btn-small" id="${instanceId}-copy-btn">
                     ${copyIcon}
-                    Copy
+                    ${tHtml('js_copy')}
                 </button>
                 <button type="button" class="btn btn-secondary btn-small" id="${instanceId}-preview-btn">
                     ${eyeIcon}
-                    Preview
+                    ${tHtml('preview')}
                 </button>
             </div>
 
@@ -110,7 +111,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
     function setLoading(btn, loading, originalHtml) {
         if (loading) {
             btn.disabled = true;
-            btn.innerHTML = spinnerIcon + ' Loading...';
+            btn.innerHTML = spinnerIcon + ' ' + tHtml('js_loading');
         } else {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
@@ -129,7 +130,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
                 previewPre.textContent = exportData;
                 previewDiv.style.display = 'block';
                 previewVisible = true;
-                previewBtn.innerHTML = eyeOffIcon + ' Hide';
+                previewBtn.innerHTML = eyeOffIcon + ' ' + tHtml('js_hide');
             } catch (err) {
                 console.error('Failed to fetch export:', err);
                 previewBtn.innerHTML = originalHtml;
@@ -139,7 +140,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
             // Hide preview
             previewDiv.style.display = 'none';
             previewVisible = false;
-            previewBtn.innerHTML = eyeIcon + ' Preview';
+            previewBtn.innerHTML = eyeIcon + ' ' + tHtml('preview');
         }
     });
 
@@ -150,7 +151,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
         try {
             const exportData = await getExportData();
             await navigator.clipboard.writeText(exportData);
-            copyBtn.innerHTML = checkIcon + ' Copied!';
+            copyBtn.innerHTML = checkIcon + ' ' + tHtml('copied');
             copyBtn.classList.add('btn-success');
             copyBtn.disabled = false;
             setTimeout(() => {
@@ -159,7 +160,7 @@ export function renderRawDataExport(container, data, config, context = {}) {
             }, 2000);
         } catch (err) {
             console.error('Failed to copy:', err);
-            copyBtn.textContent = 'Failed';
+            copyBtn.textContent = t('js_failed');
             copyBtn.disabled = false;
             setTimeout(() => {
                 copyBtn.innerHTML = originalHtml;

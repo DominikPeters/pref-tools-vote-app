@@ -1,3 +1,4 @@
+import { t, tHtml } from '../i18n.js';
 /**
  * Pairwise Margins Report Renderer
  * SVG graph showing head-to-head margins between candidates
@@ -9,7 +10,7 @@ export function renderPairwiseMargins(container, data, config) {
     const { candidates, edges, condorcet_winner, total_responses } = data;
 
     if (!candidates || candidates.length === 0) {
-        container.innerHTML = '<p class="no-data">No candidates.</p>';
+        container.innerHTML = `<p class="no-data">${tHtml('js_no_candidates')}</p>`;
         return;
     }
 
@@ -89,7 +90,7 @@ export function renderPairwiseMargins(container, data, config) {
 
     if (condorcet_winner) {
         const winnerName = candidates.find(c => c.id === condorcet_winner)?.label || 'Unknown';
-        html += `<p class="condorcet-notice">Condorcet winner: <strong>${escapeHtml(winnerName)}</strong></p>`;
+        html += `<p class="condorcet-notice">${tHtml('js_condorcet_winner_name', { name: winnerName })}</p>`;
     }
 
     html += svg;

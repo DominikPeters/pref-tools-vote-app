@@ -47,7 +47,7 @@ class DistributionRulesRegistry
     public static function getRulesAsOptions(): array
     {
         $options = [];
-        foreach (self::RULES as $key => $rule) {
+        foreach (self::localizeMetadata(self::RULES) as $key => $rule) {
             $options[] = [
                 'value' => $key,
                 'label' => $rule['name'],
@@ -64,11 +64,31 @@ class DistributionRulesRegistry
     public static function getDefaultRules(): array
     {
         $defaults = [];
-        foreach (self::RULES as $key => $rule) {
+        foreach (self::localizeMetadata(self::RULES) as $key => $rule) {
             if ($rule['default'] ?? false) {
                 $defaults[] = $key;
             }
         }
         return $defaults;
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'mean' => ['name' => __('dist_rule_mean'), 'description' => __('rule_simple_average_of_input_distributions_easy_to_understand_but_not_strategyproof')],
+            'median' => ['name' => __('dist_rule_median'), 'description' => __('rule_moving_phantom_mechanism_with_uniform_phantom_progression_strategyproof_and_pareto_efficient')],
+            'independent_markets' => ['name' => __('dist_rule_independent_markets'), 'description' => __('rule_models_each_alternative_as_an_independent_market_share_strategyproof')],
+            'ladder' => ['name' => __('dist_rule_ladder'), 'description' => __('rule_moving_phantom_mechanism_with_ladder_shaped_progression_strategyproof_and_project_fair')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
+    }
+
+    public static function getRules(): array
+    {
+        return self::localizeMetadata(self::RULES);
     }
 }

@@ -7,6 +7,16 @@ use App\Auth;
 
 abstract class ApiController
 {
+    /** Voter endpoints may select the poll locale without changing the UI renderer. */
+    protected ?string $messageLocale = null;
+
+    protected function t(string $key, array $params = []): string
+    {
+        return \App\i18n\Translator::translateForLocale(
+            $this->messageLocale ?? \App\i18n\Translator::getLocale(), $key, $params
+        );
+    }
+
     /**
      * Get JSON body from request
      */
@@ -63,7 +73,7 @@ abstract class ApiController
     protected function requireAuth(): ?array
     {
         if (!$this->isAuthenticated()) {
-            return $this->error('Authentication required', 'AUTH_REQUIRED', 401);
+            return $this->error($this->t('error_authentication_required'), 'AUTH_REQUIRED', 401);
         }
         return null;
     }
@@ -77,9 +87,10 @@ abstract class ApiController
 
         foreach ($rules as $field => $rule) {
             $value = $data[$field] ?? null;
+            $label = \App\Validation\Validator::fieldLabel($field, $this->messageLocale);
 
             if (str_contains($rule, 'required') && ($value === null || $value === '')) {
-                $errors[$field] = "The {$field} field is required";
+                $errors[$field] = $this->t('validation_the_field_field_is_required', ['field' => $label]);
                 continue;
             }
 
@@ -88,28 +99,28 @@ abstract class ApiController
             }
 
             if (str_contains($rule, 'email') && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                $errors[$field] = "The {$field} field must be a valid email";
+                $errors[$field] = $this->t('validation_the_field_field_must_be_a_valid_email', ['field' => $label]);
             }
 
             if (str_contains($rule, 'min:')) {
                 preg_match('/min:(\d+)/', $rule, $matches);
                 $min = (int) $matches[1];
-                if (strlen($value) < $min) {
-                    $errors[$field] = "The {$field} field must be at least {$min} characters";
+                if (mb_strlen($value, 'UTF-8') < $min) {
+                    $errors[$field] = $this->t('validation_the_field_field_must_be_at_least_count_plural_one_character_other_characters', ['field' => $label, 'count' => $min]);
                 }
             }
 
             if (str_contains($rule, 'max:')) {
                 preg_match('/max:(\d+)/', $rule, $matches);
                 $max = (int) $matches[1];
-                if (strlen($value) > $max) {
-                    $errors[$field] = "The {$field} field must be at most {$max} characters";
+                if (mb_strlen($value, 'UTF-8') > $max) {
+                    $errors[$field] = $this->t('validation_the_field_field_must_be_at_most_count_plural_one_character_other_characters', ['field' => $label, 'count' => $max]);
                 }
             }
         }
 
         if (!empty($errors)) {
-            return $this->error('Validation failed', 'VALIDATION_ERROR', 422) + ['errors' => $errors];
+            return $this->error($this->t('error_validation_failed'), 'VALIDATION_ERROR', 422) + ['errors' => $errors];
         }
 
         return null;

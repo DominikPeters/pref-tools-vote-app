@@ -97,3 +97,120 @@ test.describe('Internationalization infrastructure', () => {
     expect(await page.evaluate(() => window.toastInjected)).toBeUndefined();
   });
 });
+
+test.describe('Internationalization coverage with an English browser', () => {
+  test.use({ locale: 'en-US' });
+
+  test('an isolated account keeps its saved interface language after its language cookie is cleared', async ({ userAccount }) => {
+    const { page, context } = userAccount;
+    expect(await page.evaluate(() => navigator.language)).toBe('en-US');
+    await expect(page.locator('#interfaceLocale')).toHaveValue('en');
+
+    await page.selectOption('#interfaceLocale', 'fr');
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith('/language') && response.request().method() === 'POST'),
+      page.click('.language-picker button[type="submit"]'),
+    ]);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+
+    await context.clearCookies({ name: 'ui_locale' });
+    expect((await context.cookies()).some(cookie => cookie.name === 'ui_locale')).toBe(false);
+    await page.goto('/create');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('#interfaceLocale')).toHaveValue('fr');
+    await expect(page.locator('#pollLocale')).toHaveValue('fr');
+    expect(await page.evaluate(() => navigator.language)).toBe('en-US');
+  });
+
+  test('all registered languages render the creator, login and poll admin without leaked message keys', async ({ freshPage, api, baseURL }) => {
+    test.setTimeout(90000);
+    const languages = require('../src/i18n/languages.json');
+    const pageErrors = [];
+    freshPage.on('pageerror', error => pageErrors.push(error.message));
+
+    const created = await api.post('/api/polls', { data: {
+      title: 'Language coverage poll', locale: 'en', status: 'open',
+      questions: [{ type: 'text_single', text: 'A participant-authored question' }],
+    } });
+    expect(created.ok()).toBe(true);
+    const { poll } = await created.json();
+    const adminPath = `/${poll.public_id}/admin/${poll.admin_token}`;
+    const leakedMessageKey = /\b(?:page|js|error|validation)_[a-z][a-z0-9_]*\b/;
+
+    for (const [locale, metadata] of Object.entries(languages)) {
+      await freshPage.context().addCookies([{ name: 'ui_locale', value: locale, url: baseURL }]);
+      for (const path of ['/create', '/login', adminPath]) {
+        await test.step(`${locale}: ${path === adminPath ? 'poll admin' : path}`, async () => {
+          const response = await freshPage.goto(path);
+          expect(response.ok()).toBe(true);
+          await expect(freshPage.locator('html')).toHaveAttribute('lang', locale);
+          await expect(freshPage.locator('html')).toHaveAttribute('dir', metadata.direction);
+          await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', locale);
+          await expect(freshPage.locator('#interfaceLocale')).toHaveValue(locale);
+          await expect(freshPage.locator(`#interfaceLocale option[value="${locale}"]`)).toHaveText(metadata.name);
+          if (path === '/create') await expect(freshPage.locator('#pollLocale')).toHaveValue(locale);
+          if (path === adminPath) await expect(freshPage.locator('#responsesList .empty-message')).toBeVisible();
+          if (path === '/login' && locale === 'fr') {
+            await expect(freshPage.getByRole('heading', { name: 'Bon retour', exact: true })).toBeVisible();
+          }
+          if (path === '/login' && locale === 'en') {
+            await expect(freshPage.getByRole('heading', { name: 'Welcome Back', exact: true })).toBeVisible();
+          }
+          const attributeText = await freshPage.locator('[placeholder], [title], [aria-label]').evaluateAll(elements =>
+            elements.flatMap(element => ['placeholder', 'title', 'aria-label'].map(name => element.getAttribute(name) || '')).join('\n')
+          );
+          expect(await freshPage.locator('body').innerText()).not.toMatch(leakedMessageKey);
+          expect(attributeText).not.toMatch(leakedMessageKey);
+          expect(pageErrors, `JavaScript errors while rendering ${locale} ${path}`).toEqual([]);
+        });
+      }
+    }
+  });
+
+  test('password errors, plural voting validation and API errors use the poll language independently of navigation', async ({ freshPage, api, baseURL }) => {
+    const created = await api.post('/api/polls', { data: {
+      title: 'French access and validation', locale: 'fr', status: 'open',
+      access_mode: 'password', access_password: 'poll-language-password',
+      questions: [
+        { type: 'approval', text: 'Vos choix ?', required: false, settings: { min: 2 }, options: [{ label: 'Alpha' }, { label: 'Beta' }, { label: 'Gamma' }] },
+        { type: 'approval', text: 'Un choix ?', required: false, settings: { min: 1 }, options: [{ label: 'Delta' }, { label: 'Epsilon' }] },
+      ],
+    } });
+    expect(created.ok()).toBe(true);
+    const { poll } = await created.json();
+    await freshPage.context().addCookies([{ name: 'ui_locale', value: 'de', url: baseURL }]);
+    await freshPage.goto(`/${poll.public_id}`);
+    await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
+    await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', 'de');
+    await expect(freshPage.locator('#interfaceLocale')).toHaveValue('de');
+    await expect(freshPage.getByRole('heading', { name: 'Mot de passe requis', exact: true })).toBeVisible();
+
+    await freshPage.fill('#access_password', 'incorrect-password');
+    await freshPage.locator('.password-card button[type="submit"]').click();
+    await expect(freshPage.locator('.password-card .error-message')).toHaveText('Mot de passe incorrect. Veuillez réessayer.');
+    await expect(freshPage.locator('html')).toHaveAttribute('lang', 'fr');
+    await expect(freshPage.locator('.site-header')).toHaveAttribute('lang', 'de');
+
+    await freshPage.fill('#access_password', 'poll-language-password');
+    await freshPage.locator('.password-card button[type="submit"]').click();
+    const questions = freshPage.locator('.question-display[data-type="approval"]');
+    await expect(questions).toHaveCount(2);
+    await questions.nth(0).getByRole('checkbox', { name: 'Alpha', exact: true }).check();
+    await freshPage.getByRole('button', { name: 'Soumettre le vote', exact: true }).click();
+    await expect(freshPage.locator('.toast-error').last()).toHaveText('Veuillez sélectionner au moins 2 options pour « Vos choix ? »');
+    await questions.nth(0).getByRole('checkbox', { name: 'Beta', exact: true }).check();
+    await freshPage.getByRole('button', { name: 'Soumettre le vote', exact: true }).click();
+    await expect(freshPage.locator('.toast-error').last()).toHaveText('Veuillez sélectionner au moins 1 option pour « Un choix ? »');
+
+    const closed = await api.put(`/api/polls/${poll.public_id}/admin/${poll.admin_token}`, { data: { status: 'closed' } });
+    expect(closed.ok()).toBe(true);
+    const csrf = await freshPage.locator('meta[name="csrf-token"]').getAttribute('content');
+    const denied = await freshPage.request.post(`/api/polls/${poll.public_id}/responses`, {
+      headers: { 'X-CSRF-TOKEN': csrf }, data: { answers: {} },
+    });
+    expect(denied.status()).toBe(400);
+    expect((await denied.json()).error).toBe('Ce vote n’est pas ouvert aux réponses');
+    expect(await freshPage.evaluate(() => window.I18N.locale)).toBe('fr');
+    expect(await freshPage.evaluate(() => window.UI_I18N.locale)).toBe('de');
+  });
+});

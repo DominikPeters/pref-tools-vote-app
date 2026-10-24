@@ -64,3 +64,18 @@ test('translation contexts cannot refer to nonexistent messages', () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /invalid translation context/);
 });
+test('escaped UI HTML helpers and explicit PHP contexts check their source keys', () => {
+    const result = check((write, root) => {
+        writeFileSync(join(root, 'assets/js/example.js'), "tUiHtml('unknown_client');");
+        writeFileSync(join(root, 'src/example.php'), "<?php $emailT('unknown_email'); $this->t('unknown_error'); Translator::translateForLocale($locale, 'unknown_locale');");
+    });
+    assert.equal(result.status, 1);
+    for (const key of ['unknown_client', 'unknown_email', 'unknown_error', 'unknown_locale']) assert.match(result.stderr, new RegExp(`unknown message key ${key}`));
+});
+test('literal separators are plain text, while legacy argument syntax fails', () => {
+    assert.equal(check(write => {
+        write('src/i18n/locales/en.json', { greeting: 'Hello {name} | Welcome' });
+        write('src/i18n/locales/fr.json', { greeting: 'Bonjour {name} | Bienvenue' });
+    }).status, 0);
+    assert.match(check(write => write('src/i18n/locales/fr.json', { greeting: 'Bonjour :name' })).stderr, /legacy syntax/);
+});

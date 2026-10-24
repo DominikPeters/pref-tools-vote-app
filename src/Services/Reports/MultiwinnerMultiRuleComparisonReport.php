@@ -16,12 +16,12 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Multi-Winner Multi-Rule Comparison';
+        return __('report_type_multiwinner_multi_rule_comparison');
     }
 
     public function getDescription(): string
     {
-        return 'Compares the elected committee under different multi-winner voting rules';
+        return __('report_compares_the_elected_committee_under_different_multi_winner_voting_rules');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -51,7 +51,7 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'rules',
                     'type' => 'checkboxes',
-                    'label' => 'Voting Rules to Compare',
+                    'label' => __('report_voting_rules_to_compare'),
                     'required' => true,
                     'options' => [],
                     'dynamicOptions' => 'multiwinnerRules',
@@ -59,7 +59,7 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'committee_size',
                     'type' => 'number',
-                    'label' => 'Committee Size',
+                    'label' => __('committee_size'),
                     'required' => true,
                     'default' => 2,
                     'min' => 1,
@@ -68,14 +68,14 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'show_summary',
                     'type' => 'checkbox',
-                    'label' => 'Show frequency summary',
+                    'label' => __('report_show_frequency_summary'),
                     'required' => true,
                     'default' => true,
                 ],
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
@@ -104,9 +104,7 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
 
         $committeeSize = (int) ($config['committee_size'] ?? 1);
         if ($committeeSize < 1 || $committeeSize > $numOptions) {
-            return [
-                'error' => "Invalid committee size: {$committeeSize}. Must be between 1 and {$numOptions}.",
-            ];
+            return $this->errorResult('error_invalid_committee_size_committeesize_must_be_between_1_and_numoptions', ['committeeSize' => $committeeSize, 'numOptions' => $numOptions]);
         }
 
         $selectedRules = $config['rules'] ?? [];
@@ -132,7 +130,7 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
 
         $numVoters = ($profile instanceof \AbcVoting\Profile) ? $profile->count() : $profile->numVoters;
         if ($numVoters === 0) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         $results = [];
@@ -160,11 +158,13 @@ class MultiwinnerMultiRuleComparisonReport extends BaseReport
                             'option' => $optionLabels[$optionId] ?? "Option {$candIdx}",
                             'count' => 0,
                             'rules' => [],
+                            'rule_ids' => [],
                         ];
                     }
                     $optionWinCounts[$optionId]['count']++;
                     $ruleName = $allRulesMetadata[$ruleKey]['name'] ?? $ruleKey;
                     $optionWinCounts[$optionId]['rules'][] = $ruleName;
+                    $optionWinCounts[$optionId]['rule_ids'][] = $ruleKey;
                 }
 
                 $results[] = [

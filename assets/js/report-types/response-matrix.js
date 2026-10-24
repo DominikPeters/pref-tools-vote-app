@@ -1,3 +1,4 @@
+import { t, tHtml } from '../i18n.js';
 /**
  * Response Matrix Report Renderer
  * Doodle-style table showing each voter's choices
@@ -38,7 +39,7 @@ export function renderResponseMatrix(container, data, config) {
     const { question_type, options, rows, grades, total_responses, show_names } = data;
 
     if (!rows || rows.length === 0) {
-        container.innerHTML = '<p class="no-data">No responses yet.</p>';
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 
@@ -65,7 +66,7 @@ export function renderResponseMatrix(container, data, config) {
                 <table class="matrix-table">
                     <thead>
                         <tr>
-                            <th class="matrix-voter-header">Voter</th>
+                            <th class="matrix-voter-header">${tHtml('js_voter')}</th>
                             ${headerCells}
                         </tr>
                     </thead>
@@ -133,7 +134,7 @@ function renderCell(cell, questionType, grades, totalOptions) {
 
         case 'star': {
             const color = getStarColor(cell.value, cell.max);
-            return `<td class="matrix-cell ${cell.class}" style="color: ${color};" title="${cell.value}/${cell.max} stars">${cell.display}</td>`;
+            return `<td class="matrix-cell ${cell.class}" style="color: ${color};" title="${tHtml('js_count_max_stars', { count: cell.value, max: cell.max })}">${cell.display}</td>`;
         }
 
         case 'grade': {

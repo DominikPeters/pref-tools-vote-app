@@ -1,7 +1,7 @@
 <?php
 use App\i18n\Translator;
 
-$title = e($poll->title) . ' - Pref.Tools Vote';
+$title = $poll->title . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/question.css', '/assets/css/poll.css', '/assets/css/report.css'];
 $extraJs = ['/assets/js/poll.js'];
 $isEditing = isset($existingResponse) && $existingResponse !== null;

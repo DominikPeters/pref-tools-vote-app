@@ -1,14 +1,14 @@
 <?php
-$title = 'Maintenance - Pref.Tools Vote';
+$title = __('page_maintenance') . ' - Pref.Tools Vote';
 ob_start();
 ?>
 
 <div class="error-container">
     <div class="container">
         <div class="error-card card">
-            <h1>Site Under Maintenance</h1>
-            <p>We're currently performing scheduled maintenance. Please check back soon.</p>
-            <p class="text-muted maintenance-admin-note">If you're an administrator, <a href="<?= basePath() ?>/login">log in</a> to access the site.</p>
+            <h1><?= e(__('page_site_under_maintenance')) ?></h1>
+            <p><?= e(__('page_we_re_currently_performing_scheduled_maintenance_please_check_back_soon')) ?></p>
+            <p class="text-muted maintenance-admin-note"><?= e(__('page_administrators_can_log_in_to_access_the_site')) ?> <a href="<?= basePath() ?>/login"><?= e(__('page_log_in_c18984')) ?></a></p>
         </div>
     </div>
 </div>

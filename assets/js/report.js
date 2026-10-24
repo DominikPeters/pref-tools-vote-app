@@ -4,7 +4,7 @@
  */
 
 import { api, escapeHtml, showToast, setButtonLoading, clearButtonLoading } from './app.js';
-import { t } from './i18n.js';
+import { t, tHtml } from './i18n.js';
 
 // Report reasons
 const getReportReasons = () => [
@@ -49,21 +49,21 @@ async function showReportModal(publicId) {
     overlay.innerHTML = `
         <div class="report-modal">
             <div class="report-modal-header">
-                <h3>${t('report_this_poll')}</h3>
+                <h3>${tHtml('report_this_poll')}</h3>
             </div>
             <div class="report-modal-body">
-                <p>${t('report_guidelines')}</p>
+                <p>${tHtml('report_guidelines')}</p>
                 <div class="report-reasons">
                     ${reasonsHtml}
                 </div>
                 <div class="report-note-group">
-                    <label>${t('report_details')} <span class="optional">${t('report_optional')}</span></label>
-                    <textarea id="reportNote" placeholder="${t('report_placeholder')}"></textarea>
+                    <label>${tHtml('report_details')} <span class="optional">${tHtml('report_optional')}</span></label>
+                    <textarea id="reportNote" placeholder="${tHtml('report_placeholder')}"></textarea>
                 </div>
             </div>
             <div class="report-modal-actions">
-                <button type="button" class="btn btn-secondary btn-cancel">${t('cancel')}</button>
-                <button type="button" class="btn btn-primary btn-submit">${t('submit_report')}</button>
+                <button type="button" class="btn btn-secondary btn-cancel">${tHtml('cancel')}</button>
+                <button type="button" class="btn btn-primary btn-submit">${tHtml('submit_report')}</button>
             </div>
         </div>
     `;

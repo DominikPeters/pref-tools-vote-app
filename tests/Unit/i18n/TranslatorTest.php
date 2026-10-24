@@ -118,12 +118,19 @@ class TranslatorTest extends TestCase
     public function test_locale_falls_back_to_english_for_missing_key(): void
     {
         Translator::setLocale('fr');
-
-        $this->assertEquals('Clear Poll', Translator::translate('clear_poll'));
-
-        $translations = Translator::getAllTranslations();
-        $this->assertArrayHasKey('clear_poll', $translations);
-        $this->assertEquals('Clear Poll', $translations['clear_poll']);
+        // Keep testing fallback even when every shipping catalog is complete.
+        $french = Translator::getCatalog('fr');
+        $cache = new \ReflectionProperty(Translator::class, 'catalogs');
+        $original = $cache->getValue();
+        unset($french['clear_poll']);
+        $cache->setValue(null, array_replace($original, ['fr' => $french]));
+        try {
+            $this->assertEquals('Clear Poll', Translator::translate('clear_poll'));
+            $this->assertArrayHasKey('clear_poll', Translator::getAllTranslations());
+            $this->assertEquals('Clear Poll', Translator::getAllTranslations()['clear_poll']);
+        } finally {
+            $cache->setValue(null, $original);
+        }
     }
 
     public function test_locale_cannot_load_php_files_outside_the_translation_catalog(): void

@@ -14,12 +14,12 @@ class ScoreDistributionReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Score Distribution';
+        return __('report_type_score_distribution');
     }
 
     public function getDescription(): string
     {
-        return 'Shows how many voters gave each score to every option, with averages';
+        return __('report_shows_how_many_voters_gave_each_score_to_every_option_with_averages');
     }
 
     public function getSupportedQuestionTypes(): array

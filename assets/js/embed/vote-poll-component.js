@@ -18,6 +18,7 @@
  */
 
 import { createTranslator } from '../message-format.mjs';
+import { js_invalid_embed_url_format, js_failed_to_load_poll, js_loading_poll } from '../../../src/i18n/locales/en.json';
 
 class VotePoll extends HTMLElement {
     constructor() {
@@ -25,7 +26,7 @@ class VotePoll extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         this.pollData = null;
         this.translations = {};
-        this.translator = createTranslator();
+        this.translator = createTranslator({ locale: 'en', messages: { js_invalid_embed_url_format, js_failed_to_load_poll, js_loading_poll } });
         this.siteUrl = '';
         this.resultsUrl = null;
         this.apiBase = '';
@@ -60,7 +61,7 @@ class VotePoll extends HTMLElement {
             const url = new URL(src, window.location.origin);
             const pathMatch = url.pathname.match(/\/([^\/]+)\/embed\/([^\/]+)/);
             if (!pathMatch) {
-                throw new Error('Invalid embed URL format');
+                throw new Error(this.t('js_invalid_embed_url_format'));
             }
             const [, publicId, embedToken] = pathMatch;
             this.apiBase = url.origin + url.pathname.replace(`/${publicId}/embed/${embedToken}`, '');
@@ -70,7 +71,7 @@ class VotePoll extends HTMLElement {
             const response = await fetch(apiUrl);
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Failed to load poll');
+                throw new Error(data.error || this.t('js_failed_to_load_poll'));
             }
             const data = await response.json();
 
@@ -93,7 +94,7 @@ class VotePoll extends HTMLElement {
     showLoading() {
         this.shadowRoot.innerHTML = `
             <style>${this.getStyles()}</style>
-            <div class="loading">Loading poll...</div>
+            <div class="loading">${this.tHtml('js_loading_poll')}</div>
         `;
     }
 
@@ -117,7 +118,7 @@ class VotePoll extends HTMLElement {
                 <form id="pollForm" class="poll-form">
                     ${this.pollData.collect_name ? `
                         <div class="form-group name-field">
-                            <label for="voterName">${this.t('your_name')}</label>
+                            <label for="voterName">${this.tHtml('your_name')}</label>
                             <input type="text" id="voterName" name="voter_name" required>
                         </div>
                     ` : ''}
@@ -125,12 +126,12 @@ class VotePoll extends HTMLElement {
                         ${questionsHtml}
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn-submit">${this.t('submit_vote')}</button>
+                        <button type="submit" class="btn-submit">${this.tHtml('submit_vote')}</button>
                     </div>
                 </form>
                 <footer class="poll-footer">
                     <a href="${this.siteUrl}" target="_blank" rel="noopener">
-                        Powered by Pref.Tools Vote
+                        ${this.tHtml('js_powered_by_pref_tools_vote')}
                     </a>
                 </footer>
             </div>
@@ -196,7 +197,7 @@ class VotePoll extends HTMLElement {
                 return this.renderRanking(question);
 
             default:
-                return `<p class="unsupported">This question type (${question.type}) requires the full voting page. <a href="${this.siteUrl}" target="_blank">Vote here</a></p>`;
+                return `<p class="unsupported">${this.tHtml('js_embed_unsupported_question', { type: question.type })} <a href="${this.siteUrl}" target="_blank">${this.tHtml('js_vote_here')}</a></p>`;
         }
     }
 
@@ -220,7 +221,7 @@ class VotePoll extends HTMLElement {
         const max = question.settings?.max;
         let html = '<div class="checkbox-options">';
         if (max) {
-            html = `<p class="constraint-hint">Select up to ${max}</p>` + html;
+            html = `<p class="constraint-hint">${this.tHtml('js_select_up_to_count', { count: max })}</p>` + html;
         }
         options.forEach(opt => {
             html += `
@@ -264,7 +265,7 @@ class VotePoll extends HTMLElement {
                 <div class="grade-row" data-option-id="${opt.id}">
                     <span class="option-label">${this.escapeHtml(opt.label)}</span>
                     <div class="grade-buttons">
-                        ${grades.map(g => `<button type="button" class="grade-btn" data-value="${g}">${g}</button>`).join('')}
+                        ${grades.map(g => `<button type="button" class="grade-btn" data-value="${this.escapeHtml(g)}">${this.escapeHtml(g)}</button>`).join('')}
                     </div>
                 </div>
             `;
@@ -282,9 +283,9 @@ class VotePoll extends HTMLElement {
                 <div class="yna-row" data-option-id="${opt.id}">
                     <span class="option-label">${this.escapeHtml(opt.label)}</span>
                     <div class="yna-buttons">
-                        <button type="button" class="yna-btn yes" data-value="yes">Yes</button>
-                        <button type="button" class="yna-btn no" data-value="no">No</button>
-                        <button type="button" class="yna-btn abstain" data-value="abstain">Abstain</button>
+                        <button type="button" class="yna-btn yes" data-value="yes">${this.tHtml('yes')}</button>
+                        <button type="button" class="yna-btn no" data-value="no">${this.tHtml('no')}</button>
+                        <button type="button" class="yna-btn abstain" data-value="abstain">${this.tHtml('abstain')}</button>
                     </div>
                 </div>
             `;
@@ -297,7 +298,7 @@ class VotePoll extends HTMLElement {
     renderRanking(question) {
         const options = question.options || [];
         let html = '<div class="ranking-options">';
-        html += '<p class="ranking-hint">Drag to reorder (top = best)</p>';
+        html += `<p class="ranking-hint">${this.tHtml('ranking_hint')}</p>`;
         html += '<div class="ranking-list">';
         options.forEach((opt, i) => {
             html += `
@@ -563,7 +564,7 @@ class VotePoll extends HTMLElement {
         try {
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                submitBtn.textContent = this.t('js_submitting');
             }
 
             const apiUrl = `${this.apiBase}/api/embed/${this.publicId}/${this.embedToken}/responses`;
@@ -576,7 +577,7 @@ class VotePoll extends HTMLElement {
 
             const result = await response.json();
             if (!response.ok) {
-                throw new Error(result.error || 'Submission failed');
+                throw new Error(result.error || this.t('js_submission_failed'));
             }
 
             this.showThankYou(result);
@@ -597,11 +598,11 @@ class VotePoll extends HTMLElement {
         this.shadowRoot.innerHTML = `
             <style>${this.getStyles()}</style>
             <div class="thank-you">
-                ${customMessage || `<h2>${this.t('thank_you')}</h2><p>${this.t('response_recorded')}</p>`}
+                ${customMessage || `<h2>${this.tHtml('thank_you')}</h2><p>${this.tHtml('response_recorded')}</p>`}
                 <div class="thank-you-actions">
-                    ${resultsUrl ? `<a href="${resultsUrl}" target="_blank" class="btn-link">${this.t('view_results')}</a>` : ''}
+                    ${resultsUrl ? `<a href="${resultsUrl}" target="_blank" class="btn-link">${this.tHtml('view_results')}</a>` : ''}
                     <a href="${siteUrl}" target="_blank" class="site-link">
-                        Visit Pref.Tools Vote
+                        ${this.tHtml('js_visit_pref_tools_vote')}
                     </a>
                 </div>
             </div>
@@ -618,6 +619,10 @@ class VotePoll extends HTMLElement {
 
     t(key, params = {}) {
         return this.translator.t(key, params);
+    }
+
+    tHtml(key, params = {}) {
+        return this.translator.html(key, params);
     }
 
     escapeHtml(text) {

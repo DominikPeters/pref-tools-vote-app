@@ -13,12 +13,12 @@ class TextBlockReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Text Block';
+        return __('report_type_text_block');
     }
 
     public function getDescription(): string
     {
-        return 'Add custom text or notes to narrate results (supports Markdown)';
+        return __('report_add_custom_text_or_notes_to_narrate_results_supports_markdown');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -53,9 +53,9 @@ class TextBlockReport extends BaseReport
                 [
                     'name' => 'content',
                     'type' => 'textarea',
-                    'label' => 'Content (Markdown supported)',
+                    'label' => __('report_content_markdown_supported'),
                     'required' => true,
-                    'placeholder' => 'Enter your text here...\n\nYou can use **bold**, *italic*, and other Markdown formatting.',
+                    'placeholder' => __('report_enter_your_text_here_n_nyou_can_use_bold_italic_and_other_markdown_formatting'),
                 ],
             ],
         ];

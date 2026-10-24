@@ -16,12 +16,12 @@ class MultiwinnerReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Multi-Winner Voting Rule Winner';
+        return __('report_type_multiwinner');
     }
 
     public function getDescription(): string
     {
-        return 'Elects a committee of several winners using a multi-winner voting rule';
+        return __('report_elects_a_committee_of_several_winners_using_a_multi_winner_voting_rule');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -51,7 +51,7 @@ class MultiwinnerReport extends BaseReport
                 [
                     'name' => 'rule',
                     'type' => 'select',
-                    'label' => 'Voting Rule',
+                    'label' => __('voting_rule'),
                     'required' => true,
                     'options' => [],
                     'dynamicOptions' => 'multiwinnerRules',
@@ -60,7 +60,7 @@ class MultiwinnerReport extends BaseReport
                 [
                     'name' => 'committee_size',
                     'type' => 'number',
-                    'label' => 'Committee Size',
+                    'label' => __('committee_size'),
                     'required' => true,
                     'default' => 2,
                     'min' => 1,
@@ -69,7 +69,7 @@ class MultiwinnerReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
@@ -94,9 +94,7 @@ class MultiwinnerReport extends BaseReport
 
         $committeeSize = (int) ($config['committee_size'] ?? 1);
         if ($committeeSize < 1 || $committeeSize > $numOptions) {
-            return [
-                'error' => "Invalid committee size: {$committeeSize}. Must be between 1 and {$numOptions}.",
-            ];
+            return $this->errorResult('error_invalid_committee_size_committeesize_must_be_between_1_and_numoptions', ['committeeSize' => $committeeSize, 'numOptions' => $numOptions]);
         }
 
         $rule = $config['rule'] ?? ($question->type === 'approval' ? 'equal-shares' : 'stv_meek');
@@ -112,23 +110,23 @@ class MultiwinnerReport extends BaseReport
 
         $numVoters = ($profile instanceof \AbcVoting\Profile) ? $profile->count() : $profile->numVoters;
         if ($numVoters === 0) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         // Compute committees
         try {
             $hasExplanation = MultiwinnerRulesRegistry::hasExplanation($rule);
-            
+
             if ($hasExplanation) {
                 // To get both ties AND an explanation, we need two calls because the library
                 // only provides detailed_info for resolute (single-path) executions.
-                
+
                 // 1. Get all winners (irresolute)
                 $committees = MultiwinnerRulesRegistry::compute($rule, $profile, $committeeSize, false);
-                
+
                 // 2. Get a detailed path for the explanation (resolute)
                 $detailedResults = MultiwinnerRulesRegistry::compute($rule, $profile, $committeeSize, true, true);
-                
+
                 $explanationHtml = '';
                 if (!empty($detailedResults)) {
                     // Generate explanation based on one winning committee's path
@@ -139,11 +137,11 @@ class MultiwinnerReport extends BaseReport
                 $explanationHtml = null;
             }
         } catch (\Exception $e) {
-            return ['error' => 'Error computing result: ' . $e->getMessage()];
+            return $this->errorResult('error_error_computing_result_detail', ['detail' => $e->getMessage()]);
         }
 
         if (empty($committees)) {
-            return ['error' => 'No winning committee found.'];
+            return $this->errorResult('error_no_winning_committee_found');
         }
 
         // Map indices back to option labels
@@ -166,8 +164,8 @@ class MultiwinnerReport extends BaseReport
             $formattedCommittees[] = $members;
         }
 
-        $ruleName = MultiwinnerRulesRegistry::ABC_RULES[$rule]['name'] 
-            ?? MultiwinnerRulesRegistry::PREF_MULTIWINNER_RULES[$rule]['name'] 
+        $ruleName = MultiwinnerRulesRegistry::getRules('approval')[$rule]['name']
+            ?? MultiwinnerRulesRegistry::getRules('ranking')[$rule]['name']
             ?? $rule;
 
         return [

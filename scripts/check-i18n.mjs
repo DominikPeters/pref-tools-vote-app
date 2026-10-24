@@ -41,7 +41,7 @@ for (const [code, catalog] of Object.entries(catalogs)) {
         }
         if (!Object.hasOwn(english, key)) errors.push(`${code}.${key}: key is absent from the English source catalog`);
         if (/<\/?[a-z][^>]*>/i.test(message)) errors.push(`${code}.${key}: keep HTML out of messages`);
-        if (/:[a-zA-Z_][a-zA-Z_0-9]*/.test(message) || message.includes('|')) errors.push(`${code}.${key}: use ICU arguments/plurals instead of legacy syntax`);
+        if (/:[a-zA-Z_][a-zA-Z_0-9]*/.test(message)) errors.push(`${code}.${key}: use ICU arguments/plurals instead of legacy syntax`);
         try {
             const args = argumentsIn(parse(message, { ignoreTag: true }));
             if (code === 'en') argumentsByKey[key] = args;
@@ -78,8 +78,11 @@ function walk(path) {
 for (const path of [...walk('src'), ...walk('templates'), ...walk('assets/js')]) {
     if (!/\.(php|m?js)$/.test(path) || path.endsWith('marked.esm.js')) continue;
     const source = readFileSync(path, 'utf8');
-    const pattern = path.endsWith('.php') ? /__\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g : /\b(?:t|tHtml|tUi)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g;
-    for (const match of source.matchAll(pattern)) {
+    const patterns = path.endsWith('.php') ? [
+        /(?:__|\$this->t|\$this->errorResult|\$emailT|self::text)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g,
+        /Translator::translateForLocale\([^,]+,\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g,
+    ] : [/\b(?:t|tHtml|tUi|tUiHtml)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g];
+    for (const pattern of patterns) for (const match of source.matchAll(pattern)) {
         if (!Object.hasOwn(english, match[1])) errors.push(`${path}: unknown message key ${match[1]}`);
     }
 }

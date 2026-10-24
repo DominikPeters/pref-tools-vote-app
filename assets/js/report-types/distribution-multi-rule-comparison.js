@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 /**
  * Render distribution multi-rule comparison report
@@ -21,7 +21,7 @@ export function renderDistributionMultiRuleComparison(container, data, config) {
     }
 
     if (!results || results.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_responses')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 
@@ -64,7 +64,7 @@ export function renderDistributionMultiRuleComparison(container, data, config) {
     // Build comparison table
     const tableHeader = `
         <tr>
-            <th>${t('rule')}</th>
+            <th>${tHtml('rule')}</th>
             ${options.map(opt => `<th title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</th>`).join('')}
         </tr>
     `;
@@ -89,7 +89,7 @@ export function renderDistributionMultiRuleComparison(container, data, config) {
     const html = `
         <div class="report-distribution-multi-rule-comparison">
             <div class="da-header">
-                <p class="da-response-count">${total_responses} ${t('responses')}</p>
+                <p class="da-response-count">${tHtml('response_count', { count: total_responses })}</p>
             </div>
 
             <div class="da-comparison-bars">

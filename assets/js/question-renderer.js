@@ -247,6 +247,7 @@ export function renderQuestionInput(question, disabled = false, t = defaultTrans
             // Fallback grades if question.settings.grades is missing (rare edge case)
             const defaultGrades = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Reject'];
             const grades = question.settings?.grades || defaultGrades;
+            const gradeLabel = grade => question.settings?.grades ? grade : t('grade_' + grade.toLowerCase().replaceAll(' ', '_'));
             // Estimate button row width to decide between buttons vs dropdown
             const estimateButtonRowWidth = (gradeList) => {
                 const BUTTON_FIXED = 33; // padding (16*2) + border (~1)
@@ -266,7 +267,7 @@ export function renderQuestionInput(question, disabled = false, t = defaultTrans
                                 <span class="option-label">${escapeHtml(o.label)}</span>
                                 <div class="grade-buttons" data-option-id="${o.id || o._id}">
                                     ${grades.map(g => `
-                                        <button type="button" class="grade-btn" data-value="${g.toLowerCase()}" ${disabledAttr}>${escapeHtml(g)}</button>
+                                        <button type="button" class="grade-btn" data-value="${escapeHtml(g.toLowerCase())}" ${disabledAttr}>${escapeHtml(gradeLabel(g))}</button>
                                     `).join('')}
                                 </div>
                             </div>
@@ -283,7 +284,7 @@ export function renderQuestionInput(question, disabled = false, t = defaultTrans
                             <span class="option-label">${escapeHtml(o.label)}</span>
                             <select class="grade-select" name="q_${question.id || question._id}[${o.id || o._id}]" ${disabledAttr}>
                                 <option value="">${escapeHtml(t('select_placeholder'))}</option>
-                                ${grades.map(g => `<option value="${g.toLowerCase()}">${escapeHtml(g)}</option>`).join('')}
+                                ${grades.map(g => `<option value="${escapeHtml(g.toLowerCase())}">${escapeHtml(gradeLabel(g))}</option>`).join('')}
                             </select>
                         </div>
                     `).join('')}

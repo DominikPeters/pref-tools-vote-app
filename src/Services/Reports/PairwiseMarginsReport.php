@@ -14,12 +14,12 @@ class PairwiseMarginsReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Pairwise Margins';
+        return __('report_type_pairwise_margins');
     }
 
     public function getDescription(): string
     {
-        return 'Graph showing, for each pair of options, the margin by which one beats the other';
+        return __('report_graph_showing_for_each_pair_of_options_the_margin_by_which_one_beats_the_other');
     }
 
     public function getSupportedQuestionTypes(): array

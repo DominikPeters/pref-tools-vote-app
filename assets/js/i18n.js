@@ -9,6 +9,7 @@ export const uiTranslator = createTranslator(window.UI_I18N || window.I18N);
 export const t = pageTranslator.t;
 export const tHtml = pageTranslator.html;
 export const tUi = uiTranslator.t;
+export const tUiHtml = uiTranslator.html;
 export const getLocale = () => pageTranslator.locale;
 
 export function tFallback(key, fallback, params = {}) {

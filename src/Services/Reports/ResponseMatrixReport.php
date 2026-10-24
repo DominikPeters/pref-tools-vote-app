@@ -15,12 +15,12 @@ class ResponseMatrixReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Response Matrix';
+        return __('report_type_response_matrix');
     }
 
     public function getDescription(): string
     {
-        return 'Doodle-style table showing each voter\'s choices';
+        return __('report_doodle_style_table_showing_each_voter_s_choices');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -40,7 +40,7 @@ class ResponseMatrixReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
@@ -92,6 +92,8 @@ class ResponseMatrixReport extends BaseReport
             $row = [
                 'voter' => $voterLabel,
                 'voter_id' => $response->id,
+                'voter_number' => $voterNumber,
+                'has_voter_name' => $showNames && !empty($response->voterName),
                 'cells' => [],
             ];
 

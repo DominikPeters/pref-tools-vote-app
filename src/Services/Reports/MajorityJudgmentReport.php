@@ -15,12 +15,12 @@ class MajorityJudgmentReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Majority Judgment';
+        return __('report_type_majority_judgment');
     }
 
     public function getDescription(): string
     {
-        return 'The option with the best median grade wins; shows each option\'s grade distribution';
+        return __('report_the_option_with_the_best_median_grade_wins_shows_each_option_s_grade_distribution');
     }
 
     public function getSupportedQuestionTypes(): array

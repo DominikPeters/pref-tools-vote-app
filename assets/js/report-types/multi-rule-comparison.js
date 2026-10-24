@@ -4,13 +4,13 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderMultiRuleComparison(container, data, config) {
     const { results, summary, total_rules, total_responses } = data;
 
     if (!results || results.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_rules_selected')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_rules_selected')}</p>`;
         return;
     }
 
@@ -22,7 +22,7 @@ export function renderMultiRuleComparison(container, data, config) {
         return `
             <tr class="${tieClass}">
                 <td class="rule-name">${escapeHtml(translatedRuleName)}</td>
-                <td class="rule-winners">${winnerNames}${r.is_tie ? ` <span class="tie-badge">(${t('result_tied').toLowerCase()})</span>` : ''}</td>
+                <td class="rule-winners">${winnerNames}${r.is_tie ? ` <span class="tie-badge">(${tHtml('result_tied').toLowerCase()})</span>` : ''}</td>
             </tr>
         `;
     }).join('');
@@ -36,7 +36,7 @@ export function renderMultiRuleComparison(container, data, config) {
                 <div class="summary-option">${escapeHtml(s.option)}</div>
                 <div class="summary-bar-container">
                     <div class="summary-bar" style="width: ${barWidth}%"></div>
-                    <span class="summary-count">${t('rules_count', { count: s.count, total: total_rules })}</span>
+                    <span class="summary-count">${tHtml('js_rules_count', { count: s.count, total: total_rules })}</span>
                 </div>
             </div>
         `;
@@ -47,8 +47,8 @@ export function renderMultiRuleComparison(container, data, config) {
             <table class="multi-rule-table">
                 <thead>
                     <tr>
-                        <th>${t('voting_rule')}</th>
-                        <th>${t('winners')}</th>
+                        <th>${tHtml('voting_rule')}</th>
+                        <th>${tHtml('winners')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +57,7 @@ export function renderMultiRuleComparison(container, data, config) {
             </table>
             ${config.show_summary !== false ? `
                 <div class="multi-rule-summary">
-                    <h4>${t('winners_by_rule_count')}</h4>
+                    <h4>${tHtml('winners_by_rule_count')}</h4>
                     ${summaryRows}
                 </div>
             ` : ''}

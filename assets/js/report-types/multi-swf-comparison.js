@@ -1,3 +1,4 @@
+import { t, tHtml } from '../i18n.js';
 /**
  * Multi-SWF Comparison Report Renderer
  * Compares rankings from multiple Social Welfare Functions
@@ -14,7 +15,7 @@ export function renderMultiSWFComparison(container, data, config) {
     }
 
     if (!results || results.length === 0) {
-        container.innerHTML = '<p class="no-data">No results determined yet.</p>';
+        container.innerHTML = `<p class="no-data">${tHtml('js_no_results_determined_yet')}</p>`;
         return;
     }
 
@@ -28,7 +29,7 @@ export function renderMultiSWFComparison(container, data, config) {
             <div class="swf-comparison-item">
                 <h4 class="swf-title">
                     ${escapeHtml(swf_name)}
-                    ${is_tie ? `<span class="tie-badge" title="This method resulted in ${rankings.length} tied rankings. Only the first one is shown here.">(tie)</span>` : ''}
+                    ${is_tie ? `<span class="tie-badge" title="${tHtml('js_report_tied_rankings_tooltip', { count: rankings.length })}">${tHtml('js_tie')}</span>` : ''}
                 </h4>
                 <div class="swf-ranking-preview">
         `;

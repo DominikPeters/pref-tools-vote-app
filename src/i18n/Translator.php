@@ -17,6 +17,18 @@ final class Translator
         return self::$locale;
     }
 
+    /** Synchronous display/calculation scope; always restores its caller's locale. */
+    public static function withLocale(string $locale, callable $render): mixed
+    {
+        $previous = self::$locale;
+        self::setLocale($locale);
+        try {
+            return $render();
+        } finally {
+            self::$locale = $previous;
+        }
+    }
+
     public static function translate(string $key, array $params = []): string
     {
         return self::translateForLocale(self::$locale, $key, $params);
@@ -56,14 +68,11 @@ final class Translator
     /** Plain labels for older, cached embed components that predate ICU. */
     public static function getLegacyLabelsForLocale(string $locale): array
     {
-        $messages = self::getAllTranslationsForLocale($locale);
-        foreach ($messages as $key => $pattern) {
-            try {
-                $messages[$key] = MessageFormat::format($pattern, [], $locale);
-            } catch (\Throwable $error) {
-                // Old components only consume labels without arguments.
-                $messages[$key] = $pattern;
-            }
+        $messages = [];
+        // These are the only labels consumed by pre-ICU cached web components.
+        // Current components use configuration(), including named arguments.
+        foreach (['your_name', 'submit_vote', 'thank_you', 'response_recorded', 'view_results'] as $key) {
+            $messages[$key] = self::translateForLocale($locale, $key);
         }
         return $messages;
     }
@@ -72,11 +81,14 @@ final class Translator
     public static function configuration(string $locale): array
     {
         $locale = Languages::resolve($locale) ?? Languages::getDefault();
+        $messages = self::getCatalog($locale);
+        $english = self::getCatalog(Languages::getDefault());
         return [
             'locale' => $locale,
             'direction' => Languages::getDirection($locale),
-            'messages' => self::getCatalog($locale),
-            'fallback' => $locale === Languages::getDefault() ? [] : self::getCatalog(Languages::getDefault()),
+            'messages' => $messages,
+            'fallback' => array_diff_key($english, $messages),
+            'sourceMessageCount' => count($english),
         ];
     }
 }

@@ -27,8 +27,8 @@ class PageController
 
         if (empty($demoPollId)) {
             view('error', [
-                'title' => 'Demo Not Configured',
-                'message' => 'No demo poll has been configured. Please check back later or contact the site administrator.',
+                'title' => __('page_demo_not_configured'),
+                'message' => __('page_no_demo_poll_has_been_configured_please_check_back_later_or_contact_the_site_a'),
             ]);
             return;
         }
@@ -37,8 +37,8 @@ class PageController
 
         if (!$poll) {
             view('error', [
-                'title' => 'Demo Not Available',
-                'message' => 'The demo poll could not be found. It may have been removed.',
+                'title' => __('page_demo_not_available'),
+                'message' => __('page_the_demo_poll_could_not_be_found_it_may_have_been_removed'),
             ]);
             return;
         }
@@ -57,8 +57,8 @@ class PageController
 
         if (empty($demoPollId)) {
             view('error', [
-                'title' => 'Demo Not Configured',
-                'message' => 'No demo poll has been configured. Please check back later or contact the site administrator.',
+                'title' => __('page_demo_not_configured'),
+                'message' => __('page_no_demo_poll_has_been_configured_please_check_back_later_or_contact_the_site_a'),
             ]);
             return;
         }
@@ -67,8 +67,8 @@ class PageController
 
         if (!$poll) {
             view('error', [
-                'title' => 'Demo Not Available',
-                'message' => 'The demo poll could not be found. It may have been removed.',
+                'title' => __('page_demo_not_available'),
+                'message' => __('page_the_demo_poll_could_not_be_found_it_may_have_been_removed'),
             ]);
             return;
         }
@@ -94,8 +94,8 @@ class PageController
             if (!$poll) {
                 http_response_code(404);
                 view('error', [
-                    'title' => 'Poll Not Found',
-                    'message' => 'The poll you are looking for does not exist.',
+                    'title' => __('page_poll_not_found'),
+                    'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
                 ]);
                 return;
             }
@@ -103,8 +103,8 @@ class PageController
             if (!$poll->verifyAdminToken($params['adminToken'])) {
                 http_response_code(403);
                 view('error', [
-                    'title' => 'Access Denied',
-                    'message' => 'Invalid admin token.',
+                    'title' => __('page_access_denied'),
+                    'message' => __('page_invalid_admin_token'),
                 ]);
                 return;
             }
@@ -138,8 +138,8 @@ class PageController
         if (!$data) {
             http_response_code(400);
             view('error', [
-                'title' => 'Invalid Request',
-                'message' => 'Invalid JSON data provided.',
+                'title' => __('page_invalid_request'),
+                'message' => __('page_invalid_json_data_provided'),
             ]);
             return;
         }
@@ -147,7 +147,7 @@ class PageController
         // Build Poll object without saving
         $poll = new Poll();
         $poll->publicId = 'preview';
-        $poll->title = $data['title'] ?? 'Untitled Poll';
+        $poll->title = $data['title'] ?? __('untitled_poll');
         $poll->description = $data['description'] ?? null;
         $poll->status = 'open';
         $poll->visibility = 'private';
@@ -261,11 +261,13 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
             ]);
             return;
         }
+
+        \App\i18n\Translator::setLocale($poll->locale);
 
         // If vote is closed and results are public, redirect to results
         if ($poll->status === 'closed' && $poll->visibility !== 'private') {
@@ -292,7 +294,7 @@ class PageController
                 } else {
                     view('password', [
                         'poll' => $poll,
-                        'error' => 'Incorrect password. Please try again.',
+                        'error' => __('page_incorrect_password_please_try_again'),
                     ]);
                     return;
                 }
@@ -318,8 +320,8 @@ class PageController
                 // If token is already used, we can show an error immediately
                 http_response_code(403);
                 view('error', [
-                    'title' => 'Access Link Used',
-                    'message' => 'This access link has already been used.',
+                    'title' => __('page_access_link_used'),
+                    'message' => __('page_this_access_link_has_already_been_used'),
                 ]);
                 return;
             }
@@ -330,8 +332,8 @@ class PageController
             } elseif ($emailInvite && $emailInvite->usedAt) {
                 http_response_code(403);
                 view('error', [
-                    'title' => 'Invitation Used',
-                    'message' => 'This invitation link has already been used.',
+                    'title' => __('page_invitation_used'),
+                    'message' => __('page_this_invitation_link_has_already_been_used'),
                 ]);
                 return;
             }
@@ -344,8 +346,8 @@ class PageController
             if (empty($_SESSION['poll_token_' . $poll->publicId])) {
                 http_response_code(403);
                 view('error', [
-                    'title' => 'Access Required',
-                    'message' => 'This poll requires an access link. Please use the unique link provided to you.',
+                    'title' => __('page_access_required'),
+                    'message' => __('page_this_poll_requires_an_access_link_please_use_the_unique_link_provided_to_you'),
                 ]);
                 return;
             }
@@ -388,18 +390,19 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
             ]);
             return;
         }
 
         // Check if results are visible
+        \App\i18n\Translator::setLocale($poll->locale);
         if ($poll->visibility === 'private') {
             http_response_code(403);
             view('error', [
-                'title' => 'Results Not Available',
-                'message' => 'The results for this poll are not yet available.',
+                'title' => __('page_results_not_available'),
+                'message' => __('page_the_results_for_this_poll_are_not_yet_available'),
             ]);
             return;
         }
@@ -422,8 +425,8 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
             ]);
             return;
         }
@@ -431,8 +434,8 @@ class PageController
         if (!$poll->verifyAdminToken($params['adminToken'])) {
             http_response_code(403);
             view('error', [
-                'title' => 'Access Denied',
-                'message' => 'Invalid admin token.',
+                'title' => __('page_access_denied'),
+                'message' => __('page_invalid_admin_token'),
             ]);
             return;
         }
@@ -456,8 +459,8 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
             ]);
             return;
         }
@@ -465,8 +468,8 @@ class PageController
         if (!$poll->verifyAdminToken($params['adminToken'])) {
             http_response_code(403);
             view('error', [
-                'title' => 'Access Denied',
-                'message' => 'Invalid admin token.',
+                'title' => __('page_access_denied'),
+                'message' => __('page_invalid_admin_token'),
             ]);
             return;
         }
@@ -490,8 +493,8 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist'),
             ]);
             return;
         }
@@ -499,8 +502,8 @@ class PageController
         if (!$poll->verifyAdminToken($params['adminToken'])) {
             http_response_code(403);
             view('error', [
-                'title' => 'Access Denied',
-                'message' => 'Invalid admin token.',
+                'title' => __('page_access_denied'),
+                'message' => __('page_invalid_admin_token'),
             ]);
             return;
         }
@@ -534,8 +537,8 @@ class PageController
         if (!file_exists($filePath)) {
             http_response_code(404);
             view('error', [
-                'title' => 'Privacy Policy Not Found',
-                'message' => 'The privacy policy document is not available.',
+                'title' => __('page_privacy_policy_not_found'),
+                'message' => __('page_the_privacy_policy_document_is_not_available'),
             ]);
             return;
         }
@@ -564,24 +567,25 @@ class PageController
         if (!$poll) {
             http_response_code(404);
             view('error', [
-                'title' => 'Poll Not Found',
-                'message' => 'The poll you are looking for does not exist or the embed link is invalid.',
+                'title' => __('page_poll_not_found'),
+                'message' => __('page_the_poll_you_are_looking_for_does_not_exist_or_the_embed_link_is_invalid'),
             ]);
             return;
         }
 
+        \App\i18n\Translator::setLocale($poll->locale);
         if (!$poll->canBeEmbedded()) {
             http_response_code(403);
-            $message = 'This poll cannot be embedded.';
+            $message = __('page_this_poll_cannot_be_embedded');
             if ($poll->votingMode !== 'open') {
-                $message = 'Only polls with open voting mode can be embedded.';
+                $message = __('page_only_polls_with_open_voting_mode_can_be_embedded');
             } elseif ($poll->status !== 'open') {
-                $message = 'This poll is not currently open for voting.';
+                $message = __('page_this_poll_is_not_currently_open_for_voting');
             } elseif (!$poll->allowEmbedding) {
-                $message = 'Embedding is not enabled for this poll.';
+                $message = __('page_embedding_is_not_enabled_for_this_poll');
             }
             view('error', [
-                'title' => 'Embedding Not Available',
+                'title' => __('page_embedding_not_available'),
                 'message' => $message,
             ]);
             return;

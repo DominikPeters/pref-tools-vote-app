@@ -14,12 +14,12 @@ class YNACountsReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Yes/No/Abstain Tallies';
+        return __('report_type_yna_counts');
     }
 
     public function getDescription(): string
     {
-        return 'Shows Yes, No, and Abstain vote counts for each option';
+        return __('report_shows_yes_no_and_abstain_vote_counts_for_each_option');
     }
 
     public function getSupportedQuestionTypes(): array

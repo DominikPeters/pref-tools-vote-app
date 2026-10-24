@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($emailLocale) ?>" dir="<?= e($emailDirection) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset your password</title>
+    <title><?= e($emailT('email_reset_your_password')) ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -41,7 +41,8 @@
             background-color: #1d4ed8;
         }
         .reset-link {
-            word-break: break-all;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
             color: #6b7280;
             font-size: 14px;
             margin-top: 16px;
@@ -75,31 +76,31 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>Reset Your Password</h1>
+        <h1><?= e($emailT('email_reset_your_password_2')) ?></h1>
 
-        <p>Hi <?= htmlspecialchars($userName) ?>,</p>
+        <p><?= e($emailT('email_hi_name', ['name' => $userName])) ?></p>
 
-        <p>We received a request to reset your password. Click the button below to choose a new password:</p>
+        <p><?= e($emailT('email_we_received_a_request_to_reset_your_password_click_the_button_below_to_choose_a_new_password')) ?></p>
 
         <p style="text-align: center;">
-            <a href="<?= htmlspecialchars($resetUrl) ?>" class="reset-button">Reset Password</a>
+            <a href="<?= htmlspecialchars($resetUrl) ?>" class="reset-button"><?= e($emailT('email_reset_password')) ?></a>
         </p>
 
         <p class="reset-link">
-            Or copy and paste this link into your browser:<br>
+            <?= e($emailT('email_or_copy_and_paste_this_link_into_your_browser')) ?><br>
             <?= htmlspecialchars($resetUrl) ?>
         </p>
 
         <div class="expiry-notice">
-            This password reset link will expire in 1 hour.
+            <?= e($emailT('email_this_password_reset_link_will_expire_in_1_hour')) ?>
         </div>
 
         <div class="security-notice">
-            If you did not request a password reset, please ignore this email. Your password will remain unchanged.
+            <?= e($emailT('email_if_you_did_not_request_a_password_reset_please_ignore_this_email_your_password_will_remain_unchanged')) ?>
         </div>
 
         <div class="footer">
-            <p>Sent by <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
+            <p><?= e($emailT('email_sent_by')) ?> <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
         </div>
     </div>
 </body>

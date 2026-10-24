@@ -25,9 +25,10 @@ uploads the application and its new manifest.
 ## Internationalization
 
 The interface language is independent of a poll's voter-facing language. A saved
-`ui_locale` preference takes priority over the browser's weighted Accept-Language
-header, then falls back to English. The header selector saves the preference with
-a CSRF-protected POST and a same-site, HTTP-only cookie. A new poll starts in the
+`ui_locale` cookie takes priority over the signed-in account's saved preference,
+then the browser's weighted Accept-Language header, then English. The header
+selector saves the preference with a CSRF-protected POST, a same-site HTTP-only
+cookie, and the signed-in account's `preferred_locale`. A new poll starts in the
 interface language; existing polls keep their own language. The builder loads a
 preview catalog on demand without switching the editor's language.
 
@@ -51,7 +52,7 @@ ICU literal apostrophes are doubled (`l''ordre`); named parameters use braces.
 Provide every argument declared by a message. Missing keys fall back to English,
 using English formatting rules; unsupported locales never become file paths.
 
-For an explicit backend language, including future recipient-specific emails,
+For an explicit backend language, including recipient-specific emails,
 use `Translator::translateForLocale($locale, $key, $params)`; this does not change
 the current renderer's locale. Public polls use the poll's locale for content
 and the preferred interface locale for site navigation. HTML and embedded
@@ -72,6 +73,23 @@ list for deliberate, reviewed scope changes. Do not use it to silently waive new
 missing translations. The PHP and JS tests share one message corpus, including
 plural categories beyond the currently available languages.
 
-This infrastructure does not add new languages or fill the existing translation
-gaps. Many creator, administration and email strings still need to be cataloged
-and translated in a subsequent pass.
+The English source and all twelve translated catalogs cover the creator,
+administration, authentication, voter, validation, email and analysis flows.
+Available languages are Bengali, Croatian, Dutch, English, French, German,
+Hindi, Italian, Polish, Portuguese, Romanian, Russian and Spanish. Voting-rule
+names follow established terminology; machine identifiers, participant-authored
+poll text and the privacy-policy document remain in their original language.
+The policy's English content is explicitly marked `lang="en"`.
+
+Verification/reset emails and response notifications use the recipient's saved
+language; invitations use the poll language. New accounts save the effective UI
+language. Existing accounts keep a nullable preference until they choose one.
+The portable `003_user_locale.sql` migration runs through the normal migration
+service on existing installations.
+
+Shared report caches contain locale-neutral facts and stable rule identifiers.
+Labels, errors, anonymous voter numbers and calculation explanations are
+localized when serializing each response. Old caches are regenerated once.
+Public response matrices redact voter names independently of who warmed the
+cache; admin views retain authorized names. Complete preview catalogs skip the
+English catalog request, and PHP sends only genuinely missing fallback messages.

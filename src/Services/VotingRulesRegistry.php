@@ -247,10 +247,10 @@ class VotingRulesRegistry
     public static function getRulesForQuestionType(string $questionType): array
     {
         return match ($questionType) {
-            'ranking' => self::RANKING_RULES,
-            'ranking_truncated' => self::TRUNCATED_RANKING_RULES,
-            'ranking_with_ties' => self::RANKING_WITH_TIES_RULES,
-            'grade', 'star' => self::GRADE_RULES,
+            'ranking' => self::localizeMetadata(self::RANKING_RULES),
+            'ranking_truncated' => self::localizeMetadata(self::TRUNCATED_RANKING_RULES),
+            'ranking_with_ties' => self::localizeMetadata(self::RANKING_WITH_TIES_RULES),
+            'grade', 'star' => self::localizeMetadata(self::GRADE_RULES),
             default => [],
         };
     }
@@ -336,5 +336,30 @@ class VotingRulesRegistry
             'grade', 'star' => 'grade',
             default => 'unknown',
         };
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'schulze' => ['name' => __('rule_schulze_beat_path'), 'description' => __('rule_finds_the_candidate_with_the_strongest_path_of_pairwise_victories')],
+            'ranked_pairs' => ['name' => __('rule_ranked_pairs'), 'description' => __('rule_tideman_s_method_locks_in_pairwise_victories_from_strongest_to_weakest')],
+            'irv' => ['name' => __('rule_instant_runoff_irv'), 'description' => __('rule_eliminates_lowest_candidates_and_redistributes_votes_until_majority')],
+            'borda' => ['name' => __('rule_borda_count'), 'description' => __('rule_awards_points_based_on_position_in_each_ranking')],
+            'plurality' => ['name' => __('rule_plurality'), 'description' => __('rule_counts_only_first_place_votes')],
+            'copeland' => ['name' => __('rule_copeland'), 'description' => __('rule_counts_pairwise_wins_minus_losses')],
+            'minimax' => ['name' => __('rule_minimax'), 'description' => __('rule_minimizes_the_worst_pairwise_defeat')],
+            'split_cycle' => ['name' => __('rule_split_cycle'), 'description' => __('rule_defeats_only_count_if_not_part_of_a_cycle')],
+            'stable_voting' => ['name' => __('rule_stable_voting'), 'description' => __('rule_resistant_to_strategic_voting_through_stability_criterion')],
+            'top_cycle' => ['name' => __('rule_top_cycle_smith_set'), 'description' => __('rule_returns_the_smallest_set_that_beats_all_others')],
+            'majority_judgment' => ['name' => __('report_type_majority_judgment'), 'description' => __('rule_winner_has_the_highest_median_grade_with_tiebreaker')],
+            'score_sum' => ['name' => __('rule_score_voting_sum'), 'description' => __('rule_highest_total_score_wins')],
+            'score_mean' => ['name' => __('rule_score_voting_mean'), 'description' => __('rule_highest_average_score_wins')],
+            'star' => ['name' => __('rule_star_voting'), 'description' => __('rule_top_two_by_score_then_pairwise_runoff')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
     }
 }

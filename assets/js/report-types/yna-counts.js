@@ -1,3 +1,4 @@
+import { tHtml } from '../i18n.js';
 /**
  * Yes/No/Abstain Counts Report Renderer
  * Shows vote tallies for each option
@@ -9,7 +10,7 @@ export function renderYNACounts(container, data, config) {
     const { results, total_responses } = data;
 
     if (!results || results.length === 0) {
-        container.innerHTML = '<p class="no-data">No responses yet.</p>';
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 
@@ -42,10 +43,10 @@ export function renderYNACounts(container, data, config) {
             <table class="yna-table">
                 <thead>
                     <tr>
-                        <th>Option</th>
-                        <th class="yna-header yes-header">Yes</th>
-                        <th class="yna-header no-header">No</th>
-                        <th class="yna-header abstain-header">Abstain</th>
+                        <th>${tHtml('option')}</th>
+                        <th class="yna-header yes-header">${tHtml('yes')}</th>
+                        <th class="yna-header no-header">${tHtml('no')}</th>
+                        <th class="yna-header abstain-header">${tHtml('abstain')}</th>
                     </tr>
                 </thead>
                 <tbody>

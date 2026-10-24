@@ -3,7 +3,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderApportionmentWinner(container, data, config) {
     const { rule, rule_name, seats, allocation, explanation, ties, total_votes, error } = data;
@@ -23,8 +23,8 @@ export function renderApportionmentWinner(container, data, config) {
                     <span class="party-name">${escapeHtml(row.option)}</span>
                 </div>
                 <div class="allocation-data">
-                    <span class="votes-count">${t('vote_count', { count: row.votes })}</span>
-                    <span class="seats-count">${t('seat_count', { count: row.seats })}</span>
+                    <span class="votes-count">${tHtml('vote_count', { count: row.votes })}</span>
+                    <span class="seats-count">${tHtml('seat_count', { count: row.seats })}</span>
                 </div>
             </div>
         `;
@@ -33,7 +33,7 @@ export function renderApportionmentWinner(container, data, config) {
     const html = `
         <div class="report-winner-card apportionment-winner">
             <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
-            <p class="total-seats">${t('total_seats')}: ${escapeHtml(seats)}</p>
+            <p class="total-seats">${tHtml('total_seats')}: ${escapeHtml(seats)}</p>
             <div class="allocation-container">
                 ${allocationHtml}
             </div>
@@ -41,7 +41,7 @@ export function renderApportionmentWinner(container, data, config) {
             ${explanation ? `
                 <div class="explanation-container">
                     <button class="btn btn-secondary btn-small btn-toggle-explanation">
-                        ${t('show_calculation_steps')}
+                        ${tHtml('show_calculation_steps')}
                     </button>
                     <div class="explanation-content" style="display: none;">
                         ${explanation}

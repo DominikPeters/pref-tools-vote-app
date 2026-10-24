@@ -131,7 +131,9 @@ if (!$needsInstall) {
 }
 
 \App\i18n\UiLocale::initialize(
-    is_string($_COOKIE[\App\i18n\UiLocale::COOKIE] ?? null) ? $_COOKIE[\App\i18n\UiLocale::COOKIE] : null,
+    (is_string($_COOKIE[\App\i18n\UiLocale::COOKIE] ?? null)
+        ? \App\i18n\Languages::resolve($_COOKIE[\App\i18n\UiLocale::COOKIE]) : null)
+        ?? (!$needsInstall ? \App\Auth::getInstance()->user()?->preferredLocale : null),
     $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''
 );
 

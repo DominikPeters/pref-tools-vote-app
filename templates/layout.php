@@ -12,10 +12,10 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?= e($metaDescription ?? 'Create polls with advanced voting methods like Schulze, IRV, and Majority Judgment. Collect rankings, approval votes, and analyze results with research-grade social choice algorithms.') ?>">
+    <meta name="description" content="<?= e($metaDescription ?? __('page_create_polls_with_advanced_voting_methods_like_schulze_irv_and_majority_judgme')) ?>">
     <meta name="theme-color" content="#4f46e5">
     <meta property="og:title" content="<?= e($title ?? 'Pref.Tools Vote') ?>">
-    <meta property="og:description" content="<?= e($metaDescription ?? 'Smarter polls with advanced voting methods. Go beyond simple polls with rankings, approval votes, and research-grade analysis.') ?>">
+    <meta property="og:description" content="<?= e($metaDescription ?? __('page_smarter_polls_with_advanced_voting_methods_go_beyond_simple_polls_with_ranking')) ?>">
     <meta property="og:type" content="website">
     <title><?= e($title ?? 'Pref.Tools Vote') ?></title>
     <?= csrf_meta() ?>
@@ -79,7 +79,7 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
 
     <footer class="site-footer" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. A social choice voting application. <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
+            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. <?= e(__('page_a_social_choice_voting_application')) ?> <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
         </div>
     </footer>
 

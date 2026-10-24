@@ -15,12 +15,12 @@ class MultiSWFComparisonReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Rank Aggregation Rule Comparison';
+        return __('report_type_multi_swf_comparison');
     }
 
     public function getDescription(): string
     {
-        return 'Compares the consensus rankings produced by different rank aggregation rules';
+        return __('report_compares_the_consensus_rankings_produced_by_different_rank_aggregation_rules');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class MultiSWFComparisonReport extends BaseReport
                 [
                     'name' => 'swfs',
                     'type' => 'checkboxes',
-                    'label' => 'Rank Aggregation Rules to Compare',
+                    'label' => __('report_rank_aggregation_rules_to_compare'),
                     'required' => true,
                     'options' => [], // Populated dynamically
                     'dynamicOptions' => 'socialWelfareFunctions',

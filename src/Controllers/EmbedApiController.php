@@ -48,17 +48,19 @@ class EmbedApiController extends ApiController
         $poll = Poll::findByEmbedToken($params['publicId'], $params['embedToken']);
 
         if (!$poll) {
-            return $this->error('Poll not found or invalid embed token', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found_or_invalid_embed_token'), 'NOT_FOUND', 404);
         }
 
+        $this->messageLocale = $poll->locale;
+
         if (!$poll->canBeEmbedded()) {
-            $reason = 'This poll cannot be embedded';
+            $reason = $this->t('error_this_poll_cannot_be_embedded');
             if ($poll->votingMode !== 'open') {
-                $reason = 'Only polls with open voting mode can be embedded';
+                $reason = $this->t('error_only_polls_with_open_voting_mode_can_be_embedded');
             } elseif ($poll->status !== 'open') {
-                $reason = 'This poll is not currently open for voting';
+                $reason = $this->t('error_this_poll_is_not_currently_open_for_voting');
             } elseif (!$poll->allowEmbedding) {
-                $reason = 'Embedding is not enabled for this poll';
+                $reason = $this->t('error_embedding_is_not_enabled_for_this_poll');
             }
             return $this->error($reason, 'NOT_EMBEDDABLE', 403);
         }
@@ -88,15 +90,17 @@ class EmbedApiController extends ApiController
         $poll = Poll::findByEmbedToken($params['publicId'], $params['embedToken']);
 
         if (!$poll) {
-            return $this->error('Poll not found or invalid embed token', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found_or_invalid_embed_token'), 'NOT_FOUND', 404);
         }
 
+        $this->messageLocale = $poll->locale;
+
         if (!$poll->canBeEmbedded()) {
-            return $this->error('This poll cannot be embedded', 'NOT_EMBEDDABLE', 403);
+            return $this->error($this->t('error_this_poll_cannot_be_embedded'), 'NOT_EMBEDDABLE', 403);
         }
 
         if ($poll->status !== 'open') {
-            return $this->error('This poll is not accepting responses', 'POLL_CLOSED', 400);
+            return $this->error($this->t('error_this_poll_is_not_accepting_responses'), 'POLL_CLOSED', 400);
         }
 
         $data = $this->getBody() ?? [];
@@ -133,7 +137,7 @@ class EmbedApiController extends ApiController
                 'results_url' => $poll->areResultsViewable() ? url("{$poll->publicId}/results") : null,
             ]);
         } catch (\Exception $e) {
-            return $this->error('Failed to submit response: ' . $e->getMessage(), 'SUBMIT_FAILED', 500);
+            return $this->error($this->t('error_failed_to_submit_response_detail', ['detail' => $e->getMessage()]), 'SUBMIT_FAILED', 500);
         }
     }
 
@@ -145,15 +149,15 @@ class EmbedApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         if ($poll->votingMode !== 'open') {
-            return $this->error('Embedding is only available for polls with open voting mode', 'INVALID_MODE', 400);
+            return $this->error($this->t('error_embedding_is_only_available_for_polls_with_open_voting_mode'), 'INVALID_MODE', 400);
         }
 
         $embedToken = $poll->getOrCreateEmbedToken();

@@ -14,12 +14,12 @@ class ApprovalWinnerReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Approval Winner';
+        return __('report_type_approval_winner');
     }
 
     public function getDescription(): string
     {
-        return 'Shows the winner(s) with the most votes';
+        return __('report_shows_the_winner_s_with_the_most_votes');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -49,7 +49,7 @@ class ApprovalWinnerReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],

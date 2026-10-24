@@ -42,7 +42,7 @@ class InvitationApiController extends ApiController
             $owner = User::find($poll->userId);
             if ($owner && !$owner->isEmailVerified()) {
                 return $this->error(
-                    'You must verify your email address before sending invitations. Please check your inbox for the verification link.',
+                    __('error_you_must_verify_your_email_address_before_sending_invitations_please_check_your_inbox_for_the_verifi'),
                     'EMAIL_NOT_VERIFIED',
                     403
                 );
@@ -60,7 +60,7 @@ class InvitationApiController extends ApiController
         $user = $this->user();
         if (!$user) {
             return $this->error(
-                'You must be logged in to use email invitations.',
+                __('error_you_must_be_logged_in_to_use_email_invitations'),
                 'AUTH_REQUIRED',
                 401
             );
@@ -68,7 +68,7 @@ class InvitationApiController extends ApiController
 
         if ($poll->userId === null) {
             return $this->error(
-                'This poll must be linked to your account before you can send email invitations.',
+                __('error_this_poll_must_be_linked_to_your_account_before_you_can_send_email_invitations'),
                 'POLL_NOT_LINKED',
                 403
             );
@@ -76,7 +76,7 @@ class InvitationApiController extends ApiController
 
         if ($poll->userId !== $user->id) {
             return $this->error(
-                'Only the owner of this poll can manage email invitations.',
+                __('error_only_the_owner_of_this_poll_can_manage_email_invitations'),
                 'NOT_OWNER',
                 403
             );
@@ -93,7 +93,7 @@ class InvitationApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         // Check owner requirement
@@ -122,7 +122,7 @@ class InvitationApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         // Check owner requirement
@@ -139,7 +139,7 @@ class InvitationApiController extends ApiController
 
         if (!$this->invitationService->isMailConfigured()) {
             return $this->error(
-                'Email is not configured. Please configure SMTP settings in the sysadmin panel.',
+                __('error_email_is_not_configured_please_configure_smtp_settings_in_the_sysadmin_panel'),
                 'MAIL_NOT_CONFIGURED',
                 400
             );
@@ -153,7 +153,7 @@ class InvitationApiController extends ApiController
         $emails = array_filter($emails);
 
         if (empty($emails)) {
-            return $this->error('No valid email addresses provided', 'NO_EMAILS', 400);
+            return $this->error(__('error_no_valid_email_addresses_provided'), 'NO_EMAILS', 400);
         }
 
         $results = $this->invitationService->sendInvitations($poll, $emails);
@@ -186,7 +186,7 @@ class InvitationApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         // Check owner requirement
@@ -203,7 +203,7 @@ class InvitationApiController extends ApiController
 
         if (!$this->invitationService->isMailConfigured()) {
             return $this->error(
-                'Email is not configured. Please configure SMTP settings in the sysadmin panel.',
+                __('error_email_is_not_configured_please_configure_smtp_settings_in_the_sysadmin_panel'),
                 'MAIL_NOT_CONFIGURED',
                 400
             );
@@ -211,11 +211,11 @@ class InvitationApiController extends ApiController
 
         $invitation = EmailInvitation::find((int) ($params['invitationId'] ?? 0));
         if (!$invitation || $invitation->pollId !== $poll->id) {
-            return $this->error('Invitation not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_invitation_not_found'), 'NOT_FOUND', 404);
         }
 
         if ($invitation->usedAt) {
-            return $this->error('Cannot resend to an invitation that has already been used', 'ALREADY_USED', 400);
+            return $this->error(__('error_cannot_resend_to_an_invitation_that_has_already_been_used'), 'ALREADY_USED', 400);
         }
 
         try {
@@ -223,13 +223,13 @@ class InvitationApiController extends ApiController
 
             if ($result['blocked']) {
                 return $this->error(
-                    'This email address has unsubscribed from invitation emails',
+                    __('error_this_email_address_has_unsubscribed_from_invitation_emails'),
                     'EMAIL_BLOCKED',
                     400
                 );
             }
         } catch (\Exception $e) {
-            return $this->error('Failed to send email: ' . $e->getMessage(), 'SEND_FAILED', 500);
+            return $this->error(__('error_failed_to_send_email_detail', ['detail' => $e->getMessage()]), 'SEND_FAILED', 500);
         }
 
         $arr = $invitation->toArray();
@@ -246,7 +246,7 @@ class InvitationApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         // Check owner requirement
@@ -257,11 +257,11 @@ class InvitationApiController extends ApiController
 
         $invitation = EmailInvitation::find((int) ($params['invitationId'] ?? 0));
         if (!$invitation || $invitation->pollId !== $poll->id) {
-            return $this->error('Invitation not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_invitation_not_found'), 'NOT_FOUND', 404);
         }
 
         if ($invitation->usedAt) {
-            return $this->error('Cannot delete an invitation that has been used', 'ALREADY_USED', 400);
+            return $this->error(__('error_cannot_delete_an_invitation_that_has_been_used'), 'ALREADY_USED', 400);
         }
 
         $invitation->delete();

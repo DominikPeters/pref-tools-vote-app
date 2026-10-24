@@ -4,13 +4,13 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t } from '../i18n.js';
+import { t, tHtml } from '../i18n.js';
 
 export function renderApprovalWinner(container, data, config) {
     const { winners, is_tie, total_responses } = data;
 
     if (!winners || winners.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_winner_yet')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_winner_yet')}</p>`;
         return;
     }
 
@@ -20,10 +20,10 @@ export function renderApprovalWinner(container, data, config) {
 
     const html = `
         <div class="report-winner-card">
-            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${t('result_winner')}</p>`}
+            ${is_tie ? `<p class="tie-notice">${tHtml('result_tied')}:</p>` : `<p class="winner-label">${tHtml('result_winner')}</p>`}
             <div class="winner-name">${winnerNames}</div>
             <div class="winner-stats">
-                <span class="winner-count">${t('vote_count', { count: winnerCount })}</span>
+                <span class="winner-count">${tHtml('vote_count', { count: winnerCount })}</span>
                 <span class="winner-percent">(${winnerPercentage}%)</span>
             </div>
         </div>

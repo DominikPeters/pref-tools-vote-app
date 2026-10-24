@@ -1,3 +1,4 @@
+import { t, tHtml } from '../i18n.js';
 /**
  * Choice Counts Report Renderer
  * Bar chart showing vote counts for each option
@@ -9,7 +10,7 @@ export function renderChoiceCounts(container, data, config) {
     const { scores, max_score, total_responses } = data;
 
     if (!scores || scores.length === 0) {
-        container.innerHTML = '<p class="no-data">No votes yet.</p>';
+        container.innerHTML = `<p class="no-data">${tHtml('js_no_votes_yet')}</p>`;
         return;
     }
 

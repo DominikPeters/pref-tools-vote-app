@@ -27,8 +27,8 @@ class SysadminController
         if (!$user->isSysadmin()) {
             http_response_code(403);
             view('error', [
-                'title' => 'Access Denied',
-                'message' => 'You do not have permission to access the sysadmin area.',
+                'title' => __('backend_access_denied'),
+                'message' => __('backend_you_do_not_have_permission_to_access_the_sysadmin_area'),
             ]);
             if (!defined('PHPUNIT_RUNNING')) {
                 exit;

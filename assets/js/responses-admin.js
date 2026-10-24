@@ -1,3 +1,4 @@
+import { tUi, tUiHtml, uiTranslator } from './i18n.js';
 /**
  * Individual Responses Browser
  *
@@ -133,7 +134,7 @@ async function loadResponses() {
 
     } catch (err) {
         container.classList.remove('loading');
-        showToast('Failed to load responses: ' + err.message, 'error');
+        showToast(tUi('js_failed_to_load_responses_error', { error: err.message }), 'error');
     }
 }
 
@@ -144,12 +145,12 @@ function populateVoterDropdown() {
     const select = document.getElementById('voterSelect');
     if (!select) return;
 
-    select.innerHTML = '<option value="">Select voter...</option>';
+    select.innerHTML = `<option value="">${tUiHtml('js_select_voter')}</option>`;
 
     responses.forEach((response, index) => {
         const option = document.createElement('option');
         option.value = response.id;
-        option.textContent = response.voter_name || `Response ${index + 1}`;
+        option.textContent = response.voter_name || tUi('js_response_number', { number: index + 1 });
         select.appendChild(option);
     });
 }
@@ -233,11 +234,11 @@ function renderResponseMeta(response) {
 
     if (response.created_at) {
         const date = new Date(response.created_at);
-        const formatted = date.toLocaleString(undefined, {
+        const formatted = date.toLocaleString(uiTranslator.locale, {
             dateStyle: 'medium',
             timeStyle: 'short'
         });
-        html += `<div class="response-meta-time">Submitted: ${formatted}</div>`;
+        html += `<div class="response-meta-time">${tUiHtml('js_submitted_date', { date: formatted })}</div>`;
     }
 
     container.innerHTML = html;
@@ -391,8 +392,7 @@ function prefillAnswers(answers) {
                         sortedRanks.forEach((rank, index) => {
                             const indifferenceClass = document.createElement('div');
                             indifferenceClass.classList.add('indifference-class');
-                            const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
-                            indifferenceClass.dataset.rank = `${index + 1}${suffix}`;
+                            indifferenceClass.dataset.rank = tUi('js_rank_ordinal', { rank: index + 1 });
 
                             rankGroups[rank].forEach(item => {
                                 indifferenceClass.appendChild(item);
@@ -467,12 +467,12 @@ async function deleteCurrentResponse() {
     if (responses.length === 0) return;
 
     const response = responses[currentIndex];
-    const voterName = response.voter_name || `Response ${currentIndex + 1}`;
+    const voterName = response.voter_name || tUi('js_response_number', { number: currentIndex + 1 });
 
     const confirmed = await showConfirmModal({
-        title: 'Delete Response',
-        message: `Are you sure you want to delete the response from "${voterName}"? This action cannot be undone.`,
-        confirmText: 'Delete',
+        title: tUi('js_delete_response'),
+        message: tUi('js_responses_delete_confirm', { name: voterName }),
+        confirmText: tUi('delete'),
         confirmClass: 'btn-danger'
     });
 
@@ -482,7 +482,7 @@ async function deleteCurrentResponse() {
         const publicId = poll.public_id;
         await api.delete(`/api/polls/${publicId}/responses/${response.id}`);
 
-        showToast('Response deleted', 'success');
+        showToast(tUi('js_response_deleted'), 'success');
 
         // Remove from local array
         responses.splice(currentIndex, 1);
@@ -505,7 +505,7 @@ async function deleteCurrentResponse() {
         navigateTo(currentIndex);
 
     } catch (err) {
-        showToast('Failed to delete response: ' + err.message, 'error');
+        showToast(tUi('js_failed_to_delete_response_error', { error: err.message }), 'error');
     }
 }
 

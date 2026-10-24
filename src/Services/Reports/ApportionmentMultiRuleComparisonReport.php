@@ -15,12 +15,12 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Apportionment Multi-Rule Comparison';
+        return __('report_type_apportionment_multi_rule_comparison');
     }
 
     public function getDescription(): string
     {
-        return 'Compares seat allocations under different apportionment methods';
+        return __('report_compares_seat_allocations_under_different_apportionment_methods');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'rules',
                     'type' => 'checkboxes',
-                    'label' => 'Apportionment Methods to Compare',
+                    'label' => __('report_apportionment_methods_to_compare'),
                     'required' => true,
                     'options' => [],
                     'dynamicOptions' => 'apportionmentRules',
@@ -58,7 +58,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'seats',
                     'type' => 'number',
-                    'label' => 'Total Seats',
+                    'label' => __('total_seats'),
                     'required' => true,
                     'default' => 10,
                     'min' => 1,
@@ -66,7 +66,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
@@ -91,7 +91,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
 
         $instance = ApportionmentProfileBuilder::fromSingleChoiceResponses($question, $responses, $seats, $excludeUserAdded);
         if (array_sum($instance->votes) === 0) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         $results = [];
@@ -100,7 +100,7 @@ class ApportionmentMultiRuleComparisonReport extends BaseReport
                 $res = ApportionmentRulesRegistry::compute($ruleKey, $instance, false);
                 $results[] = [
                     'rule' => $ruleKey,
-                    'rule_name' => ApportionmentRulesRegistry::RULES[$ruleKey]['name'] ?? $ruleKey,
+                    'rule_name' => ApportionmentRulesRegistry::getRules()[$ruleKey]['name'] ?? $ruleKey,
                     'allocation' => $res['representatives'],
                     'ties' => $res['ties'] ?? false,
                 ];

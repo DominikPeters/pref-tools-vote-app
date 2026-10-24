@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($emailLocale) ?>" dir="<?= e($emailDirection) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>You're invited to vote</title>
+    <title><?= e($emailT('email_you_re_invited_to_vote')) ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -51,7 +51,8 @@
             background-color: #1d4ed8;
         }
         .vote-link {
-            word-break: break-all;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
             color: #6b7280;
             font-size: 14px;
             margin-top: 16px;
@@ -84,9 +85,9 @@
 <body>
     <div class="email-container">
         <?php if (!empty($inviterName)): ?>
-        <h1><?= htmlspecialchars($inviterName) ?> Invited You to Vote</h1>
+        <h1><?= e($emailT('email_name_invited_you_to_vote', ['name' => $inviterName])) ?></h1>
         <?php else: ?>
-        <h1>You're Invited to Vote</h1>
+        <h1><?= e($emailT('email_you_re_invited_to_vote_2')) ?></h1>
         <?php endif; ?>
 
         <p class="poll-title"><?= htmlspecialchars($poll->title) ?></p>
@@ -97,28 +98,28 @@
 
         <?php if ($poll->votingMode === 'secret_ballot'): ?>
         <div class="secret-ballot-notice">
-            <strong>Secret Ballot:</strong> Your vote will be completely anonymous and cannot be changed after submission.
+            <strong><?= e($emailT('email_secret_ballot')) ?></strong> <?= e($emailT('email_your_vote_will_be_completely_anonymous_and_cannot_be_changed_after_submission')) ?>
         </div>
         <?php endif; ?>
 
-        <p>You've been invited to participate in this poll. Click the button below to cast your vote:</p>
+        <p><?= e($emailT('email_you_ve_been_invited_to_participate_in_this_poll_click_the_button_below_to_cast_your_vote')) ?></p>
 
         <p style="text-align: center;">
-            <a href="<?= htmlspecialchars($voteUrl) ?>" class="vote-button">Cast Your Vote</a>
+            <a href="<?= htmlspecialchars($voteUrl) ?>" class="vote-button"><?= e($emailT('email_cast_your_vote')) ?></a>
         </p>
 
         <p class="vote-link">
-            Or copy and paste this link into your browser:<br>
+            <?= e($emailT('email_or_copy_and_paste_this_link_into_your_browser')) ?><br>
             <?= htmlspecialchars($voteUrl) ?>
         </p>
 
         <div class="footer">
-            <p>This invitation link is unique to you. Please do not share it with others.</p>
-            <p>Sent by <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
+            <p><?= e($emailT('email_this_invitation_link_is_unique_to_you_please_do_not_share_it_with_others')) ?></p>
+            <p><?= e($emailT('email_sent_by')) ?> <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
             <?php if (!empty($unsubscribeUrl)): ?>
             <p style="margin-top: 16px;">
                 <a href="<?= htmlspecialchars($unsubscribeUrl) ?>" class="unsubscribe-link">
-                    Don't want to receive future invitations? Unsubscribe
+                    <?= e($emailT('email_don_t_want_to_receive_future_invitations_unsubscribe')) ?>
                 </a>
             </p>
             <?php endif; ?>

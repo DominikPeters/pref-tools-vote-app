@@ -37,7 +37,7 @@ Translator::setLocale($pollLocale);
         <div class="container">
             <?php if ($isPreview): ?>
             <div class="preview-banner">
-                This is a preview. Votes submitted here will not be counted.
+                <?= e(__('page_this_is_a_preview_votes_submitted_here_will_not_be_counted')) ?>
             </div>
             <?php endif; ?>
 
@@ -70,7 +70,7 @@ Translator::setLocale($pollLocale);
 
             <footer class="embed-footer">
                 <a href="<?= url($poll->publicId) ?>" target="_blank" rel="noopener">
-                    Powered by Pref.Tools Vote
+                    <?= e(__('page_powered_by_pref_tools_vote')) ?>
                 </a>
             </footer>
         </div>

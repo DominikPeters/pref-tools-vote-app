@@ -61,7 +61,7 @@ class ApportionmentRulesRegistry
     public static function getRulesAsOptions(): array
     {
         $options = [];
-        foreach (self::RULES as $key => $rule) {
+        foreach (self::localizeMetadata(self::RULES) as $key => $rule) {
             $options[] = [
                 'value' => $key,
                 'label' => $rule['name'],
@@ -70,5 +70,28 @@ class ApportionmentRulesRegistry
             ];
         }
         return $options;
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'hamilton' => ['name' => __('rule_hamilton_largest_remainder'), 'description' => __('rule_allocates_seats_by_lower_quotas_and_then_by_largest_remainders')],
+            'dhondt' => ['name' => __('rule_d_hondt_jefferson'), 'description' => __('rule_divisor_method_with_divisors_1_2_3_favors_options_with_more_votes')],
+            'saintelague' => ['name' => __('rule_sainte_lagu_webster'), 'description' => __('rule_divisor_method_with_divisors_1_3_5_neutral_towards_vote_counts')],
+            'huntington' => ['name' => __('rule_huntington_hill'), 'description' => __('rule_divisor_method_using_geometric_means_used_for_us_house_apportionment')],
+            'dean' => ['name' => __('rule_dean'), 'description' => __('rule_divisor_method_using_harmonic_means')],
+            'adams' => ['name' => __('rule_adams'), 'description' => __('rule_divisor_method_favoring_options_with_fewer_votes_divisors_0_1_2')],
+            'quota' => ['name' => __('rule_quota'), 'description' => __('rule_balinski_and_young_s_quota_method_satisfies_lower_and_upper_quota')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
+    }
+
+    public static function getRules(): array
+    {
+        return self::localizeMetadata(self::RULES);
     }
 }

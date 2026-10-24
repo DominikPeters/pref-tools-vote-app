@@ -256,15 +256,26 @@ class ModerationService
     public static function getFlaggedMessage(array $moderationResult): string
     {
         if (empty($moderationResult['flagged_categories'])) {
-            return 'Content was flagged by moderation system.';
+            return __('error_content_was_flagged_by_moderation_system');
         }
 
         $categories = array_keys($moderationResult['flagged_categories']);
-        $readable = array_map(function ($cat) {
-            return str_replace(['/', '_', '-'], ' ', $cat);
+        $readable = array_map(static fn(string $category): string => match ($category) {
+            'sexual' => __('moderation_category_sexual'),
+            'sexual/minors' => __('moderation_category_sexual_minors'),
+            'harassment' => __('moderation_category_harassment'),
+            'harassment/threatening' => __('moderation_category_harassment_threatening'),
+            'hate' => __('moderation_category_hate'),
+            'hate/threatening' => __('moderation_category_hate_threatening'),
+            'illicit' => __('moderation_category_illicit'),
+            'illicit/violent' => __('moderation_category_illicit_violent'),
+            'self-harm' => __('moderation_category_self_harm'),
+            'self-harm/intent' => __('moderation_category_self_harm_intent'),
+            'self-harm/instructions' => __('moderation_category_self_harm_instructions'),
+            'violence' => __('moderation_category_violence'),
+            'violence/graphic' => __('moderation_category_violence_graphic'),
+            default => $category,
         }, $categories);
-
-        return 'Content was flagged for: ' . implode(', ', $readable) .
-               '. Please revise your content and try again.';
+        return __('error_content_was_flagged_for_categories_please_revise_your_content_and_try_again', ['categories' => implode(', ', $readable)]);
     }
 }

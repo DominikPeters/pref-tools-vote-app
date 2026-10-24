@@ -10,7 +10,7 @@
  */
 
 import { api, generateTempId, showToast, showUndoToast, showConfirmModal, setButtonLoading, clearButtonLoading, basePath, escapeHtml } from './app.js';
-import { t, createTranslator, uiTranslator } from './i18n.js';
+import { t, createTranslator, uiTranslator, tHtml } from './i18n.js';
 import { loadTranslator, isSupportedLocale } from './catalog-loader.js';
 import { renderQuestion, OPTION_TYPES, getQuestionTypes } from './question-renderer.js';
 import { marked } from './marked.esm.js';
@@ -426,7 +426,7 @@ function renderTypeSettings(question) {
                 <div class="type-settings single-choice-settings">
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-other" ${scAllowOther ? 'checked' : ''}>
-                        <span>${t('allow_other_option')}</span>
+                        <span>${tHtml('allow_other_option')}</span>
                     </label>
                 </div>
             `;
@@ -441,16 +441,16 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings approval-settings" data-option-count="${optionCount}">
                     <label>
-                        <span>${t('min_label')}</span>
+                        <span>${tHtml('min_label')}</span>
                         <input type="number" class="setting-min" value="${min}" min="0" max="${optionCount}">
                     </label>
                     <label>
-                        <span>${t('max_label')}</span>
+                        <span>${tHtml('max_label')}</span>
                         <input type="number" class="setting-max" value="${maxDisplay}" min="1" max="${optionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-other" ${apAllowOther ? 'checked' : ''}>
-                        <span>${t('allow_other')}</span>
+                        <span>${tHtml('allow_other')}</span>
                     </label>
                 </div>
             `;
@@ -464,15 +464,15 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings pb-settings" data-option-count="${pbOptionCount}">
                     <label>
-                        <span>${t('min_label')}</span>
+                        <span>${tHtml('min_label')}</span>
                         <input type="number" class="setting-min" value="${pbMin}" min="0" max="${pbOptionCount}">
                     </label>
                     <label>
-                        <span>${t('max_label')}</span>
+                        <span>${tHtml('max_label')}</span>
                         <input type="number" class="setting-max" value="${pbMaxDisplay}" min="1" max="${pbOptionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label>
-                        <span>${t('currency_label')}</span>
+                        <span>${tHtml('currency_label')}</span>
                         <input type="text" class="setting-currency" value="${escapeAttr(currency)}" placeholder="$, €, zł...">
                     </label>
                 </div>
@@ -486,11 +486,11 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings ranking-truncated-settings" data-option-count="${rtOptionCount}">
                     <label>
-                        <span>${t('min_label')}</span>
+                        <span>${tHtml('min_label')}</span>
                         <input type="number" class="setting-min" value="${rtMin}" min="0" max="${rtOptionCount}">
                     </label>
                     <label>
-                        <span>${t('max_label')}</span>
+                        <span>${tHtml('max_label')}</span>
                         <input type="number" class="setting-max" value="${rtMaxDisplay}" min="1" max="${rtOptionCount}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                 </div>
@@ -501,7 +501,7 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings star-settings">
                     <label>
-                        <span>${t('stars_label')}</span>
+                        <span>${tHtml('stars_label')}</span>
                         <input type="number" class="setting-star-count" value="${starCount}" min="2" max="10">
                     </label>
                 </div>
@@ -517,10 +517,10 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings grade-settings">
                     <label>
-                        <span>${t('scale_label')}</span>
+                        <span>${tHtml('scale_label')}</span>
                         <select class="setting-grade-preset">
                             ${Object.entries(gradePresets).map(([key, preset]) =>
-                                `<option value="${key}" ${key === currentPreset ? 'selected' : ''}>${preset.label}</option>`
+                                `<option value="${key}" ${key === currentPreset ? 'selected' : ''}>${escapeHtml(preset.label)}</option>`
                             ).join('')}
                         </select>
                     </label>
@@ -537,7 +537,7 @@ function renderTypeSettings(question) {
                 <div class="type-settings yna-settings">
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-allow-abstain" ${allowAbstain ? 'checked' : ''}>
-                        <span>${t('allow_abstain')}</span>
+                        <span>${tHtml('allow_abstain')}</span>
                     </label>
                 </div>
             `;
@@ -553,20 +553,20 @@ function renderTypeSettings(question) {
             return `
                 <div class="type-settings distribution-settings" data-option-count="${distOptionCount}">
                     <label>
-                        <span>${t('budget_label')}</span>
+                        <span>${tHtml('budget_label')}</span>
                         <input type="number" class="setting-budget" value="${distBudget}" min="1" placeholder="100">
                     </label>
                     <label>
-                        <span>${t('max_per_option_label')}</span>
+                        <span>${tHtml('max_per_option_label')}</span>
                         <input type="number" class="setting-max-per-option" value="${distMaxDisplay}" min="1" max="${distBudget}" placeholder="${escapeAttr(t('all_placeholder'))}">
                     </label>
                     <label>
-                        <span>${t('spread_across_at_least_label')}</span>
+                        <span>${tHtml('spread_across_at_least_label')}</span>
                         <input type="number" class="setting-min-options" value="${distMinOptionsDisplay}" min="1" max="${distOptionCount}" placeholder="1">
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" class="setting-require-all" ${distRequireAll ? 'checked' : ''}>
-                        <span>${t('require_using_all_points')}</span>
+                        <span>${tHtml('require_using_all_points')}</span>
                     </label>
                 </div>
             `;
@@ -601,7 +601,7 @@ function renderQuestionEditor(question, index, questionNumber) {
             </div>
 
             <div class="editor-description">
-                <button type="button" class="btn-add-description" style="${question.description ? 'display: none' : ''}">+ ${t('add_description')}</button>
+                <button type="button" class="btn-add-description" style="${question.description ? 'display: none' : ''}">+ ${tHtml('add_description')}</button>
                 <textarea class="question-description-input" style="${!question.description ? 'display: none' : ''}" placeholder="${escapeAttr(t('description_optional_placeholder'))}">${escapeAttr(question.description || '')}</textarea>
             </div>
 
@@ -610,7 +610,7 @@ function renderQuestionEditor(question, index, questionNumber) {
                     <div class="options-list" data-question-id="${question._id}">
                         ${question.options.map((opt, i) => renderOptionEditor(opt, i, question)).join('')}
                     </div>
-                    <button type="button" class="btn btn-small btn-add-option">+ ${t('add_option')}</button>
+                    <button type="button" class="btn btn-small btn-add-option">+ ${tHtml('add_option')}</button>
                 </div>
             ` : ''}
 
@@ -621,8 +621,8 @@ function renderQuestionEditor(question, index, questionNumber) {
                         <input type="checkbox" class="question-required-input"
                             ${question.required || requiredBehavior.forced ? 'checked' : ''}
                             ${requiredBehavior.disabled ? 'disabled' : ''}>
-                        <span>${t('required')}</span>
-                        ${requiredBehavior.disabled ? `<span class="required-hint">${t('always_parenthetical')}</span>` : ''}
+                        <span>${tHtml('required')}</span>
+                        ${requiredBehavior.disabled ? `<span class="required-hint">${tHtml('always_parenthetical')}</span>` : ''}
                     </label>
                 ` : ''}
                 <div class="editor-actions">
@@ -641,14 +641,14 @@ function renderQuestionEditor(question, index, questionNumber) {
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                         </svg>
-                        <span>${t('duplicate')}</span>
+                        <span>${tHtml('duplicate')}</span>
                     </button>
                     <button type="button" class="btn-editor-action delete-question">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        <span>${t('delete_question')}</span>
+                        <span>${tHtml('delete_question')}</span>
                     </button>
                 </div>
             </div>
@@ -680,7 +680,7 @@ function renderOptionEditor(option, index, question) {
                     <textarea class="option-description-input" placeholder="${escapeAttr(t('description_supports_markdown_placeholder'))}" rows="2">${escapeAttr(option.description || '')}</textarea>
                     <div class="option-cost-row">
                         <label>
-                            <span>${t('cost_label')}</span>
+                            <span>${tHtml('cost_label')}</span>
                             <input type="number" class="option-cost-input" value="${cost}" placeholder="0" min="0">
                         </label>
                     </div>
@@ -1630,22 +1630,22 @@ function openThankYouModal() {
     overlay.innerHTML = `
         <div class="confirm-modal thank-you-modal">
             <div class="confirm-modal-header">
-                <h3>${t('customize_thank_you_message')}</h3>
+                <h3>${tHtml('customize_thank_you_message')}</h3>
             </div>
             <div class="confirm-modal-body">
                 <p class="thank-you-modal-description">
-                    ${t('thank_you_modal_description')}
+                    ${tHtml('thank_you_modal_description')}
                 </p>
                 <textarea id="thankYouInput" class="thank-you-textarea" rows="6" placeholder="${escapeAttr(t('thank_you_placeholder'))}">${escapeHtml(state.thankYouMessage || '')}</textarea>
                 <div class="thank-you-preview-section">
-                    <label class="thank-you-preview-label">${t('preview')}:</label>
+                    <label class="thank-you-preview-label">${tHtml('preview')}:</label>
                     <div id="thankYouPreview" class="thank-you-preview markdown"></div>
                 </div>
             </div>
             <div class="confirm-modal-actions">
-                <button class="btn btn-secondary btn-cancel">${t('cancel')}</button>
-                <button class="btn btn-danger btn-clear" style="${state.thankYouMessage ? '' : 'display: none'}">${t('reset_to_default')}</button>
-                <button class="btn btn-primary btn-save">${t('save')}</button>
+                <button class="btn btn-secondary btn-cancel">${tHtml('cancel')}</button>
+                <button class="btn btn-danger btn-clear" style="${state.thankYouMessage ? '' : 'display: none'}">${tHtml('reset_to_default')}</button>
+                <button class="btn btn-primary btn-save">${tHtml('save')}</button>
             </div>
         </div>
     `;

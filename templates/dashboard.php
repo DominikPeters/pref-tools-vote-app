@@ -1,5 +1,5 @@
 <?php
-$title = 'Dashboard - Pref.Tools Vote';
+$title = __('dashboard') . ' - Pref.Tools Vote';
 $extraJs = ['/assets/js/dashboard.js'];
 ob_start();
 ?>
@@ -7,7 +7,7 @@ ob_start();
 <div class="dashboard-container">
     <div class="container">
         <header class="dashboard-header">
-            <h1>Your Dashboard</h1>
+            <h1><?= e(__('page_your_dashboard')) ?></h1>
         </header>
 
         <?php if (!$user->isEmailVerified()): ?>
@@ -18,21 +18,21 @@ ob_start();
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                 </svg>
                 <div class="verification-text">
-                    <strong>Verify your email address</strong>
-                    <span>We've sent a verification link to <strong><?= e($user->email) ?></strong>. Please click the link to verify your email. You'll need to verify before sending poll invitations.</span>
+                    <strong><?= e(__('page_verify_your_email_address')) ?></strong>
+                    <span><?= e(__('page_we_ve_sent_a_verification_link_to_email_please_click_the_link_to_verify_your_e', ['email' => $user->email])) ?></span>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary btn-small" id="resendVerificationBtn">Resend Email</button>
+            <button type="button" class="btn btn-secondary btn-small" id="resendVerificationBtn"><?= e(__('page_resend_email')) ?></button>
         </div>
         <?php endif; ?>
 
         <section class="card votes-section">
             <div class="section-header">
-                <h2>Your Polls</h2>
-                <a href="<?= basePath() ?>/create" class="btn btn-primary btn-create-poll">Create New Poll</a>
+                <h2><?= e(__('page_your_polls')) ?></h2>
+                <a href="<?= basePath() ?>/create" class="btn btn-primary btn-create-poll"><?= e(__('page_create_new_poll')) ?></a>
             </div>
             <?php if (empty($polls)): ?>
-                <p class="empty-message">You haven't created any polls yet.</p>
+                <p class="empty-message"><?= e(__('page_you_haven_t_created_any_polls_yet')) ?></p>
             <?php else: ?>
                 <div class="votes-list">
                     <?php foreach ($polls as $poll): ?>
@@ -40,18 +40,18 @@ ob_start();
                             <div class="vote-info">
                                 <h3 class="poll-title"><?= e($poll->title) ?></h3>
                                 <div class="poll-meta-info">
-                                    <span class="status status-<?= e($poll->status) ?>"><?= ucfirst(e($poll->status)) ?></span>
-                                    <span class="response-count"><?= $poll->getResponseCount() ?> responses</span>
-                                    <span class="created-date"><?= $poll->createdAt->format('M j, Y') ?></span>
+                                    <span class="status status-<?= e($poll->status) ?>"><?= e(__('status_' . $poll->status)) ?></span>
+                                    <span class="response-count"><?= e(__('response_count', ['count' => $poll->getResponseCount()])) ?></span>
+                                    <span class="created-date"><?= \App\i18n\LocaleFormat::date($poll->createdAt) ?></span>
                                 </div>
                             </div>
                             <div class="poll-actions">
-                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($poll->adminToken) ?>" class="btn btn-small btn-primary">Manage</a>
-                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary">View</a>
+                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($poll->adminToken) ?>" class="btn btn-small btn-primary"><?= e(__('page_manage')) ?></a>
+                                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary"><?= e(__('page_view')) ?></a>
                                 <button type="button" class="btn btn-small btn-secondary duplicate-poll-btn"
                                     data-public-id="<?= e($poll->publicId) ?>"
                                     data-admin-token="<?= e($poll->adminToken) ?>"
-                                    data-tooltip="Create a copy of this poll">Duplicate</button>
+                                    data-tooltip="<?= e(__('page_create_a_copy_of_this_poll')) ?>"><?= e(__('duplicate')) ?></button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -60,9 +60,9 @@ ob_start();
         </section>
 
         <section class="card votes-section">
-            <h2>Polls You Voted In</h2>
+            <h2><?= e(__('page_polls_you_voted_in')) ?></h2>
             <?php if (empty($votedPolls)): ?>
-                <p class="empty-message">You haven't voted in any polls yet (while logged in).</p>
+                <p class="empty-message"><?= e(__('page_you_haven_t_voted_in_any_polls_yet_while_logged_in')) ?></p>
             <?php else: ?>
                 <div class="votes-list">
                     <?php foreach ($votedPolls as $poll): ?>
@@ -74,20 +74,20 @@ ob_start();
                             <div class="vote-info">
                                 <h3 class="poll-title"><?= e($poll->title) ?></h3>
                                 <div class="poll-meta-info">
-                                    <span class="status status-<?= e($poll->status) ?>"><?= ucfirst(e($poll->status)) ?></span>
-                                    <span class="created-date"><?= $poll->createdAt->format('M j, Y') ?></span>
+                                    <span class="status status-<?= e($poll->status) ?>"><?= e(__('status_' . $poll->status)) ?></span>
+                                    <span class="created-date"><?= \App\i18n\LocaleFormat::date($poll->createdAt) ?></span>
                                 </div>
                             </div>
                             <div class="poll-actions">
                                 <?php if ($resultsAvailable): ?>
-                                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-small btn-secondary">Results</a>
+                                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/results" class="btn btn-small btn-secondary"><?= e(__('results')) ?></a>
                                 <?php else: ?>
-                                    <button class="btn btn-small btn-secondary" disabled data-tooltip="Results not yet available" data-tooltip-pos="left">Results</button>
+                                    <button class="btn btn-small btn-secondary" disabled data-tooltip="<?= e(__('page_results_not_yet_available')) ?>" data-tooltip-pos="left"><?= e(__('results')) ?></button>
                                 <?php endif; ?>
                                 <?php if ($votingOpen): ?>
-                                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary">Edit Vote</a>
+                                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>" class="btn btn-small btn-secondary"><?= e(__('page_edit_vote')) ?></a>
                                 <?php else: ?>
-                                    <button class="btn btn-small btn-secondary" disabled data-tooltip="Voting is closed" data-tooltip-pos="left">Edit Vote</button>
+                                    <button class="btn btn-small btn-secondary" disabled data-tooltip="<?= e(__('page_voting_is_closed')) ?>" data-tooltip-pos="left"><?= e(__('page_edit_vote')) ?></button>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -97,24 +97,24 @@ ob_start();
         </section>
 
         <section class="card account-section">
-            <h2>Account</h2>
-            <p>Logged in as: <strong><?= e($user->name) ?></strong> &lt;<?= e($user->email) ?>&gt;</p>
+            <h2><?= e(__('page_account')) ?></h2>
+            <p><?= e(__('page_logged_in_as_name_email', ['name' => $user->name, 'email' => $user->email])) ?></p>
             <div class="account-actions">
-                <button type="button" class="btn btn-secondary" id="changeNameBtn">Change Name</button>
-                <button type="button" class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
+                <button type="button" class="btn btn-secondary" id="changeNameBtn"><?= e(__('page_change_name')) ?></button>
+                <button type="button" class="btn btn-secondary" id="changePasswordBtn"><?= e(__('page_change_password')) ?></button>
                 <form action="<?= basePath() ?>/api/auth/logout" method="post" id="logoutForm" class="account-logout-form">
-                    <button type="submit" class="btn btn-secondary">Log Out</button>
+                    <button type="submit" class="btn btn-secondary"><?= e(__('log_out')) ?></button>
                 </form>
             </div>
         </section>
 
         <section class="card data-section">
-            <h2>Your Data</h2>
-            <p>Under GDPR, you have the right to access and export all data we have about you.</p>
+            <h2><?= e(__('page_your_data')) ?></h2>
+            <p><?= e(__('page_under_gdpr_you_have_the_right_to_access_and_export_all_data_we_have_about_you')) ?></p>
             <div class="data-actions">
-                <button type="button" class="btn btn-secondary" id="viewDataBtn">View My Data</button>
-                <button type="button" class="btn btn-secondary" id="exportDataBtn">Export My Data</button>
-                <button type="button" class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+                <button type="button" class="btn btn-secondary" id="viewDataBtn"><?= e(__('page_view_my_data')) ?></button>
+                <button type="button" class="btn btn-secondary" id="exportDataBtn"><?= e(__('page_export_my_data')) ?></button>
+                <button type="button" class="btn btn-danger" id="deleteAccountBtn"><?= e(__('page_delete_account')) ?></button>
             </div>
         </section>
 
@@ -123,14 +123,14 @@ ob_start();
             <div class="modal-overlay"></div>
             <div class="modal-content modal-large">
                 <div class="modal-header">
-                    <h2 id="viewDataModalTitle">Your Personal Data</h2>
-                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                    <h2 id="viewDataModalTitle"><?= e(__('page_your_personal_data')) ?></h2>
+                    <button type="button" class="modal-close" aria-label="<?= e(__('page_close')) ?>">&times;</button>
                 </div>
                 <div class="modal-body" id="dataModalBody">
-                    <p>Loading...</p>
+                    <p><?= e(__('page_loading')) ?></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close-btn">Close</button>
+                    <button type="button" class="btn btn-secondary modal-close-btn"><?= e(__('page_close')) ?></button>
                 </div>
             </div>
         </div>
@@ -140,11 +140,11 @@ ob_start();
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="deleteAccountModalTitle">Delete Your Account</h2>
-                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                    <h2 id="deleteAccountModalTitle"><?= e(__('page_delete_your_account')) ?></h2>
+                    <button type="button" class="modal-close" aria-label="<?= e(__('page_close')) ?>">&times;</button>
                 </div>
                 <div class="modal-body" id="deleteAccountBody">
-                    <p>Loading...</p>
+                    <p><?= e(__('page_loading')) ?></p>
                 </div>
             </div>
         </div>
@@ -154,30 +154,30 @@ ob_start();
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="changePasswordModalTitle">Change Password</h2>
-                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                    <h2 id="changePasswordModalTitle"><?= e(__('page_change_password')) ?></h2>
+                    <button type="button" class="modal-close" aria-label="<?= e(__('page_close')) ?>">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="changePasswordForm" method="post">
                         <div class="form-group">
-                            <label for="currentPassword">Current Password</label>
+                            <label for="currentPassword"><?= e(__('page_current_password')) ?></label>
                             <input type="password" id="currentPassword" name="current_password" required class="form-control" autocomplete="current-password">
                         </div>
                         <div class="form-group">
-                            <label for="newPassword">New Password</label>
+                            <label for="newPassword"><?= e(__('page_new_password')) ?></label>
                             <input type="password" id="newPassword" name="new_password" required class="form-control" minlength="8" autocomplete="new-password">
-                            <p class="help-text">Must be at least 8 characters</p>
+                            <p class="help-text"><?= e(__('page_must_be_at_least_8_characters')) ?></p>
                         </div>
                         <div class="form-group">
-                            <label for="confirmPassword">Confirm New Password</label>
+                            <label for="confirmPassword"><?= e(__('page_confirm_new_password')) ?></label>
                             <input type="password" id="confirmPassword" name="confirm_password" required class="form-control" minlength="8" autocomplete="new-password">
                         </div>
                         <div id="changePasswordError" class="error-message" style="display: none;"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
-                    <button type="submit" form="changePasswordForm" class="btn btn-primary" id="changePasswordSubmit">Change Password</button>
+                    <button type="button" class="btn btn-secondary modal-close-btn"><?= e(__('cancel')) ?></button>
+                    <button type="submit" form="changePasswordForm" class="btn btn-primary" id="changePasswordSubmit"><?= e(__('page_change_password')) ?></button>
                 </div>
             </div>
         </div>
@@ -187,21 +187,21 @@ ob_start();
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="changeNameModalTitle">Change Name</h2>
-                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                    <h2 id="changeNameModalTitle"><?= e(__('page_change_name')) ?></h2>
+                    <button type="button" class="modal-close" aria-label="<?= e(__('page_close')) ?>">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="changeNameForm" method="post">
                         <div class="form-group">
-                            <label for="newName">New Name</label>
+                            <label for="newName"><?= e(__('page_new_name')) ?></label>
                             <input type="text" id="newName" name="name" required class="form-control" value="<?= e($user->name) ?>" autocomplete="name">
                         </div>
                         <div id="changeNameError" class="error-message" style="display: none;"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
-                    <button type="submit" form="changeNameForm" class="btn btn-primary" id="changeNameSubmit">Change Name</button>
+                    <button type="button" class="btn btn-secondary modal-close-btn"><?= e(__('cancel')) ?></button>
+                    <button type="submit" form="changeNameForm" class="btn btn-primary" id="changeNameSubmit"><?= e(__('page_change_name')) ?></button>
                 </div>
             </div>
         </div>

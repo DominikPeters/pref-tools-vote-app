@@ -6,7 +6,7 @@
 
 import { api, escapeHtml, showUndoToast } from './app.js';
 import { renderReport, getReportTypeName } from './report-types/index.js';
-import { t, formatDate as i18nFormatDate } from './i18n.js';
+import { t, formatDate as i18nFormatDate, tHtml } from './i18n.js';
 
 // SVG Icons (Feather Icons style)
 const icons = {
@@ -60,7 +60,7 @@ export async function loadAndRenderResults(publicId, options = {}) {
         return;
     }
 
-    container.innerHTML = `<p class="loading">${t('loading_results')}</p>`;
+    container.innerHTML = `<p class="loading">${tHtml('loading_results')}</p>`;
 
     try {
         // Fetch poll data
@@ -82,7 +82,7 @@ export async function loadAndRenderResults(publicId, options = {}) {
 
     } catch (err) {
         console.error('Failed to load results:', err);
-        container.innerHTML = `<p class="error-message">${t('error_loading')}</p>`;
+        container.innerHTML = `<p class="error-message">${tHtml('error_loading')}</p>`;
     }
 }
 
@@ -127,8 +127,8 @@ function renderResults(container, poll, reports, options) {
         <div class="summary-stats">
             <span class="stat">${formatStat('response_count', responseCount)}</span>
             <span class="stat">${formatStat('question_count', questionCount)}</span>
-            <span class="status-badge status-${poll.status}">${t('status_' + poll.status)}</span>
-            ${dateInfo ? `<span class="stat date-info">${dateInfo}</span>` : ''}
+            <span class="status-badge status-${poll.status}">${tHtml('status_' + poll.status)}</span>
+            ${dateInfo ? `<span class="stat date-info">${escapeHtml(dateInfo)}</span>` : ''}
         </div>
     </div>`;
 
@@ -146,13 +146,13 @@ function renderResults(container, poll, reports, options) {
 
                 <div class="question-reports" data-question-id="${question.id}">
                     ${questionReports.length === 0 && !isAdmin
-                        ? `<p class="no-reports">${t('no_results_available')}</p>`
+                        ? `<p class="no-reports">${tHtml('no_results_available')}</p>`
                         : ''}
                 </div>
 
                 ${isAdmin ? `
                     <button class="btn btn-secondary btn-add-report" data-question-id="${question.id}">
-                        + ${t('add_analysis')}
+                        + ${tHtml('add_analysis')}
                     </button>
                 ` : ''}
             </div>
@@ -207,18 +207,18 @@ function renderReportCard(container, report, options) {
     if (!isPublicTextBlock) {
         headerHtml = `
             <div class="report-header">
-                ${isAdmin ? `<span class="report-drag-handle" data-tooltip="${t('drag_to_reorder')}" data-tooltip-pos="left">${getIcon('menu')}</span>` : ''}
+                ${isAdmin ? `<span class="report-drag-handle" data-tooltip="${tHtml('drag_to_reorder')}" data-tooltip-pos="left">${getIcon('menu')}</span>` : ''}
                 <span class="report-name">${escapeHtml(typeName)}</span>
         `;
 
         if (isAdmin) {
             headerHtml += `
                 <div class="report-actions">
-                    ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="${t('settings')}">${getIcon('settings')}</button>` : ''}
-                    <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? t('make_private') : t('make_public')}">
+                    ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="${tHtml('settings')}">${getIcon('settings')}</button>` : ''}
+                    <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? tHtml('make_private') : tHtml('make_public')}">
                         ${getIcon(report.is_public ? 'eye' : 'lock')}
                     </button>
-                    <button class="btn-icon delete-report" data-tooltip="${t('delete_analysis')}">${getIcon('trash')}</button>
+                    <button class="btn-icon delete-report" data-tooltip="${tHtml('delete_analysis')}">${getIcon('trash')}</button>
                 </div>
             `;
         }

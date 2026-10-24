@@ -116,9 +116,9 @@ class MultiwinnerRulesRegistry
     public static function getRules(string $type = 'approval'): array
     {
         if ($type === 'approval') {
-            return self::ABC_RULES;
+            return self::localizeMetadata(self::ABC_RULES);
         }
-        return self::PREF_MULTIWINNER_RULES;
+        return self::localizeMetadata(self::PREF_MULTIWINNER_RULES);
     }
 
     /**
@@ -127,7 +127,7 @@ class MultiwinnerRulesRegistry
     public static function compute(string $rule, $profile, int $committeesize, bool $resolute = true, bool $returnDetailed = false): array
     {
         // Handle abcvoting rules
-        if (isset(self::ABC_RULES[$rule])) {
+        if (isset(self::localizeMetadata(self::ABC_RULES)[$rule])) {
             $result = match ($rule) {
                 'av' => SimpleRules::computeAv($profile, $committeesize, $resolute),
                 'sav' => SimpleRules::computeSav($profile, $committeesize, $resolute),
@@ -137,7 +137,7 @@ class MultiwinnerRulesRegistry
                 'seqslav' => SequentialRules::computeSeqSlav($profile, $committeesize, $resolute, $returnDetailed),
                 'seqphragmen' => \AbcVoting\PhragmenRules::computeSeqPhragmen($profile, $committeesize, [], null, $resolute, $returnDetailed),
                 'equal-shares' => ProportionalRules::computeEqualShares($profile, $committeesize, $resolute, null, 'seqphragmen', $returnDetailed),
-                default => throw new \InvalidArgumentException("Unknown ABC rule: $rule"),
+                default => throw new \InvalidArgumentException(__('error_unknown_abc_rule_rule', ['rule' => $rule])),
             };
 
             // Normalize return format for SequentialRules when returnDetailed is true
@@ -158,10 +158,10 @@ class MultiwinnerRulesRegistry
         }
 
         // Handle pref_voting rules
-        if (isset(self::PREF_MULTIWINNER_RULES[$rule])) {
+        if (isset(self::localizeMetadata(self::PREF_MULTIWINNER_RULES)[$rule])) {
             $method = self::getPrefMethod($rule, $committeesize);
             if (!$method) {
-                throw new \InvalidArgumentException("Unknown pref_voting rule: $rule");
+                throw new \InvalidArgumentException(__('error_unknown_pref_voting_rule_rule', ['rule' => $rule]));
             }
 
             // pref_voting methods return a single winner (array of candidates)
@@ -171,7 +171,7 @@ class MultiwinnerRulesRegistry
             return [$committee];
         }
 
-        throw new \InvalidArgumentException("Unknown rule: $rule");
+        throw new \InvalidArgumentException(__('error_unknown_rule_rule', ['rule' => $rule]));
     }
 
     /**
@@ -196,7 +196,7 @@ class MultiwinnerRulesRegistry
      */
     public static function hasExplanation(string $rule): bool
     {
-        return self::ABC_RULES[$rule]['has_explanation'] ?? false;
+        return self::localizeMetadata(self::ABC_RULES)[$rule]['has_explanation'] ?? false;
     }
 
     /**
@@ -222,5 +222,30 @@ class MultiwinnerRulesRegistry
             ];
         }
         return $options;
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'av' => ['name' => __('rule_approval_voting_av'), 'description' => __('rule_selects_candidates_with_the_most_approvals')],
+            'sav' => ['name' => __('rule_satisfaction_approval_voting_sav'), 'description' => __('rule_weight_of_each_vote_is_divided_by_the_number_of_candidates_approved')],
+            'pav' => ['name' => __('rule_proportional_approval_voting_pav'), 'description' => __('rule_proportional_rule_using_thiele_scores_brute_force')],
+            'seqpav' => ['name' => __('rule_sequential_pav'), 'description' => __('rule_greedy_approximation_of_pav')],
+            'seqcc' => ['name' => __('rule_sequential_chamberlin_courant'), 'description' => __('rule_greedy_approximation_of_cc_maximizes_coverage')],
+            'seqslav' => ['name' => __('rule_sequential_sainte_lagu_av'), 'description' => __('rule_greedy_approximation_of_slav')],
+            'seqphragmen' => ['name' => __('rule_sequential_phragm_n'), 'description' => __('rule_phragm_n_s_sequential_method_for_proportional_representation')],
+            'approval_stv' => ['name' => __('rule_approval_stv'), 'description' => __('rule_stv_variant_specifically_designed_for_rankings_with_ties')],
+            'stv_scottish' => ['name' => __('rule_scottish_stv'), 'description' => __('rule_standard_single_transferable_vote_as_used_in_scotland')],
+            'stv_meek' => ['name' => __('rule_meek_s_stv'), 'description' => __('rule_advanced_stv_method_used_in_new_zealand_handles_ties_and_truncations_gracefully')],
+            'stv_warren' => ['name' => __('rule_warren_s_stv'), 'description' => __('rule_variant_of_meek_s_method_with_different_surplus_distribution')],
+            'stv_nb' => ['name' => __('rule_new_brunswick_stv_stv_nb'), 'description' => __('rule_stv_variant_used_in_new_brunswick')],
+            'stv_wig' => ['name' => __('rule_weighted_inclusive_gregory_wig'), 'description' => __('rule_standard_stv_variant_using_wig_surplus_transfers')],
+            'cpo_stv' => ['name' => __('rule_cpo_stv'), 'description' => __('rule_comparison_of_pairs_of_outcomes_stv_condorcet_consistent_multi_winner_rule')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
     }
 }

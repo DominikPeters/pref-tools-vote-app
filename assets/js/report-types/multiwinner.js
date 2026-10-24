@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderMultiwinner(container, data, config) {
     const { rule, rule_name, committee_size, committees, explanation, is_tie, total_responses, error } = data;
@@ -15,7 +15,7 @@ export function renderMultiwinner(container, data, config) {
     }
 
     if (!committees || committees.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_winning_committee_yet')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_winning_committee_yet')}</p>`;
         return;
     }
 
@@ -27,7 +27,7 @@ export function renderMultiwinner(container, data, config) {
         const memberNames = committee.map(m => `<li>${escapeHtml(m.option)}</li>`).join('');
         committeesHtml += `
             <div class="abc-committee">
-                ${is_tie ? `<p class="committee-idx">${t('committee_number', { num: idx + 1 })}</p>` : ''}
+                ${is_tie ? `<p class="committee-idx">${tHtml('committee_number', { num: idx + 1 })}</p>` : ''}
                 <ul class="committee-members">
                     ${memberNames}
                 </ul>
@@ -40,8 +40,8 @@ export function renderMultiwinner(container, data, config) {
     const html = `
         <div class="report-winner-card abc-winner">
             <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
-            <p class="committee-size">${t('committee_size')}: ${escapeHtml(committee_size)}</p>
-            ${is_tie ? `<p class="tie-notice">${t('tied_committees')}:</p>` : `<p class="winner-label">${t('winning_committee')}:</p>`}
+            <p class="committee-size">${tHtml('committee_size')}: ${escapeHtml(committee_size)}</p>
+            ${is_tie ? `<p class="tie-notice">${tHtml('tied_committees')}:</p>` : `<p class="winner-label">${tHtml('winning_committee')}:</p>`}
             <div class="committees-container">
                 ${committeesHtml}
             </div>
@@ -49,7 +49,7 @@ export function renderMultiwinner(container, data, config) {
             ${hasExplanation ? `
                 <div class="explanation-container">
                     <button class="btn btn-secondary btn-small btn-toggle-explanation">
-                        ${t('show_calculation_steps')}
+                        ${tHtml('show_calculation_steps')}
                     </button>
                     <div class="explanation-content" style="display: none;">
                         ${explanation}

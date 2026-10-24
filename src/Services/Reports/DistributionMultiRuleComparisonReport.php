@@ -15,12 +15,12 @@ class DistributionMultiRuleComparisonReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Distribution Multi-Rule Comparison';
+        return __('report_type_distribution_multi_rule_comparison');
     }
 
     public function getDescription(): string
     {
-        return 'Compares the collective distribution under different aggregation rules';
+        return __('report_compares_the_collective_distribution_under_different_aggregation_rules');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class DistributionMultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'rules',
                     'type' => 'checkboxes',
-                    'label' => 'Aggregation Rules to Compare',
+                    'label' => __('report_aggregation_rules_to_compare'),
                     'required' => true,
                     'options' => [],
                     'dynamicOptions' => 'distributionRules',
@@ -72,7 +72,7 @@ class DistributionMultiRuleComparisonReport extends BaseReport
         $distributions = DistributionProfileBuilder::fromDistributionResponses($question, $responses);
 
         if (empty($distributions)) {
-            return ['error' => 'No valid responses for this question.'];
+            return $this->errorResult('error_no_valid_responses_for_this_question');
         }
 
         // Get option metadata
@@ -99,7 +99,7 @@ class DistributionMultiRuleComparisonReport extends BaseReport
 
                 $results[] = [
                     'rule' => $ruleKey,
-                    'rule_name' => DistributionRulesRegistry::RULES[$ruleKey]['name'] ?? $ruleKey,
+                    'rule_name' => DistributionRulesRegistry::getRules()[$ruleKey]['name'] ?? $ruleKey,
                     'distribution' => $distribution,
                 ];
             } catch (\Exception $e) {

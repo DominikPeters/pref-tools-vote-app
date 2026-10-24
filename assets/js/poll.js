@@ -7,7 +7,7 @@
 
 import { api, showToast, showConfirmModal, setButtonLoading, clearButtonLoading, escapeHtml } from './app.js';
 import { renderQuestion } from './question-renderer.js';
-import { tHtml } from './i18n.js';
+import { t, tHtml } from './i18n.js';
 import { initReportButton } from './report.js';
 
 // ==========================================================================
@@ -96,9 +96,9 @@ function initForm() {
         // Show confirmation for secret ballot
         if (window.POLL_DATA?.voting_mode === 'secret_ballot') {
             const confirmed = await showConfirmModal({
-                title: 'Submit Secret Ballot',
-                message: 'This is a secret ballot. Once submitted, you cannot view or change your vote. Are you sure you want to submit?',
-                confirmText: 'Submit Vote',
+                title: t('js_submit_secret_ballot'),
+                message: t('js_poll_secret_ballot_confirm'),
+                confirmText: t('submit_vote'),
             });
             if (!confirmed) return;
         }
@@ -298,7 +298,7 @@ function validateForm(data) {
         if (answer === null || answer === undefined || answer === '' ||
             (Array.isArray(answer) && answer.length === 0) ||
             (typeof answer === 'object' && !Array.isArray(answer) && Object.keys(answer).length === 0)) {
-            return 'Please answer all required questions';
+            return t('js_please_answer_all_required_questions');
         }
     }
 
@@ -313,7 +313,7 @@ function validateForm(data) {
             const answer = data.answers[questionId];
             const count = Array.isArray(answer) ? answer.length : 0;
             if (count < min) {
-                return `Please select at least ${min} option(s) for "${question.text}"`;
+                return t('js_poll_approval_min_error', { count: min, question: question.text });
             }
         }
     }
@@ -330,10 +330,10 @@ function validateForm(data) {
         const count = Array.isArray(answer) ? answer.length : 0;
 
         if (min > 0 && count < min) {
-            return `Please rank at least ${min} option(s) for "${question.text}"`;
+            return t('js_poll_ranking_min_error', { count: min, question: question.text });
         }
         if (max !== null && count > max) {
-            return `Please rank at most ${max} option(s) for "${question.text}"`;
+            return t('js_poll_ranking_max_error', { count: max, question: question.text });
         }
     }
 
@@ -353,13 +353,13 @@ function validateForm(data) {
             const optionsWithPoints = values.filter(v => v > 0).length;
 
             if (requireAll && totalUsed !== budget) {
-                return `Please use all ${budget} points for "${question.text}"`;
+                return t('js_poll_distribution_all_points_error', { count: budget, question: question.text });
             }
             if (totalUsed > budget) {
-                return `You've exceeded the budget of ${budget} points for "${question.text}"`;
+                return t('js_poll_distribution_budget_error', { count: budget, question: question.text });
             }
             if (minOptions > 1 && optionsWithPoints < minOptions) {
-                return `Please distribute points across at least ${minOptions} options for "${question.text}"`;
+                return t('js_poll_distribution_min_error', { count: minOptions, question: question.text });
             }
         }
     }
@@ -415,11 +415,11 @@ function initApproval() {
             hint.className = 'approval-hint';
             let hintText = '';
             if (min > 0 && max !== null) {
-                hintText = min === max ? `Select exactly ${min}` : `Select ${min} to ${max}`;
+                hintText = min === max ? t('js_select_exactly_count', { count: min }) : t('js_select_min_to_max', { min, max });
             } else if (min > 0) {
-                hintText = `Select at least ${min}`;
+                hintText = t('js_select_at_least_count', { count: min });
             } else if (max !== null) {
-                hintText = `Select up to ${max}`;
+                hintText = t('js_select_up_to_count', { count: max });
             }
             hint.textContent = hintText;
             container.parentNode.insertBefore(hint, container);
@@ -533,16 +533,16 @@ function initTruncatedRankings() {
         if (min > 0 || hasMax) {
             let hintText = '';
             if (min > 0 && hasMax) {
-                hintText = min === maxSetting ? `Rank exactly ${min}` : `Rank ${min} to ${maxSetting} options`;
+                hintText = min === maxSetting ? t('js_rank_exactly_count', { count: min }) : t('js_poll_rank_range_hint', { min, max: maxSetting });
             } else if (min > 0) {
-                hintText = `Rank at least ${min} options`;
+                hintText = t('js_poll_rank_min_hint', { count: min });
             } else if (hasMax) {
-                hintText = `Rank up to ${maxSetting} options`;
+                hintText = t('js_poll_rank_max_hint', { count: maxSetting });
             }
             hintEl.textContent = hintText;
             hintEl.style.display = '';
         } else {
-            hintEl.textContent = 'Drag options to rank them (top = best)';
+            hintEl.textContent = t('js_drag_options_to_rank_them_top_best');
             hintEl.style.display = '';
         }
 
@@ -635,8 +635,7 @@ function initRankingWithTies() {
             const classes = rankingContainer.querySelectorAll('.indifference-class:has(.ranking-ties-item)');
             classes.forEach((ic, index) => {
                 const rank = index + 1;
-                const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
-                ic.dataset.rank = `${rank}${suffix}`;
+                ic.dataset.rank = t('js_rank_ordinal', { rank });
             });
         }
 
@@ -1215,8 +1214,7 @@ function prefillForm(response) {
                         sortedRanks.forEach((rank, index) => {
                             const indifferenceClass = document.createElement('div');
                             indifferenceClass.classList.add('indifference-class');
-                            const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
-                            indifferenceClass.dataset.rank = `${index + 1}${suffix}`;
+                            indifferenceClass.dataset.rank = t('js_rank_ordinal', { rank: index + 1 });
 
                             rankGroups[rank].forEach(item => {
                                 indifferenceClass.appendChild(item);

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($emailLocale) ?>" dir="<?= e($emailDirection) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poll Report</title>
+    <title><?= e($emailT('email_poll_report')) ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -111,45 +111,45 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>Poll Reported</h1>
+        <h1><?= e($emailT('email_poll_reported')) ?></h1>
 
-        <p>A user has reported a poll for potentially violating community guidelines.</p>
+        <p><?= e($emailT('email_a_user_has_reported_a_poll_for_potentially_violating_community_guidelines')) ?></p>
 
         <div class="info-section">
-            <h2>Poll Title</h2>
+            <h2><?= e($emailT('email_poll_title')) ?></h2>
             <p><?= htmlspecialchars($poll->title) ?></p>
         </div>
 
         <div class="info-section">
-            <h2>Reason</h2>
+            <h2><?= e($emailT('email_reason')) ?></h2>
             <p><span class="reason-badge"><?= htmlspecialchars($reasonLabel) ?></span></p>
         </div>
 
         <?php if (!empty($note)): ?>
         <div class="note-section">
-            <h2>Additional Details</h2>
+            <h2><?= e($emailT('email_additional_details')) ?></h2>
             <p><?= htmlspecialchars($note) ?></p>
         </div>
         <?php endif; ?>
 
         <p style="text-align: center;">
-            <a href="<?= htmlspecialchars($pollUrl) ?>" class="view-button">View Poll</a>
+            <a href="<?= htmlspecialchars($pollUrl) ?>" class="view-button"><?= e($emailT('email_view_poll')) ?></a>
         </p>
 
         <div class="metadata">
             <div class="metadata-item">
-                <span class="metadata-label">Poll ID:</span> <?= htmlspecialchars($poll->publicId) ?>
+                <span class="metadata-label"><?= e($emailT('email_poll_id')) ?></span> <?= htmlspecialchars($poll->publicId) ?>
             </div>
             <div class="metadata-item">
-                <span class="metadata-label">Reporter IP:</span> <?= htmlspecialchars($reporterIp) ?>
+                <span class="metadata-label"><?= e($emailT('email_reporter_ip')) ?></span> <?= htmlspecialchars($reporterIp) ?>
             </div>
             <div class="metadata-item">
-                <span class="metadata-label">Reported at:</span> <?= htmlspecialchars($timestamp) ?>
+                <span class="metadata-label"><?= e($emailT('email_reported_at')) ?></span> <?= htmlspecialchars($timestamp) ?>
             </div>
         </div>
 
         <div class="footer">
-            <p>This is an automated notification from Pref.Tools Vote.</p>
+            <p><?= e($emailT('email_this_is_an_automated_notification_from_pref_tools_vote')) ?></p>
         </div>
     </div>
 </body>

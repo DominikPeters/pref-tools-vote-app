@@ -1,3 +1,4 @@
+import { tUi, tUiHtml, uiTranslator } from './i18n.js';
 /**
  * Admin Panel JavaScript
  */
@@ -64,9 +65,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('deletePoll')?.addEventListener('click', async () => {
         const confirmed = await showConfirmModal({
-            title: 'Delete Poll',
-            message: 'Are you sure you want to delete this poll? This action cannot be undone and all responses will be lost.',
-            confirmText: 'Delete Poll',
+            title: tUi('js_delete_poll'),
+            message: tUi('js_admin_delete_poll_confirm'),
+            confirmText: tUi('js_delete_poll'),
         });
         if (confirmed) {
             deletePoll(publicId, adminToken);
@@ -91,9 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('deleteAllResponses')?.addEventListener('click', async () => {
         const responseCount = document.getElementById('responseCount')?.textContent || '0';
         const confirmed = await showConfirmModal({
-            title: 'Delete All Responses',
-            message: `Are you sure you want to permanently delete all ${responseCount} response(s)? This action cannot be undone.`,
-            confirmText: 'Delete All Responses',
+            title: tUi('js_delete_all_responses'),
+            message: tUi('js_admin_delete_all_responses_confirm', { count: Number(responseCount) }),
+            confirmText: tUi('js_delete_all_responses'),
         });
         if (confirmed) {
             deleteAllResponses(publicId, adminToken);
@@ -107,8 +108,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const input = document.getElementById(targetId);
             if (input) {
                 await copyToClipboard(input.value);
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = 'Copy', 2000);
+                btn.textContent = tUi('copied');
+                setTimeout(() => btn.textContent = tUi('js_copy'), 2000);
             }
         });
     });
@@ -153,19 +154,19 @@ async function loadVote(publicId, adminToken) {
         const result = await api.get(`/api/polls/${publicId}/admin/${adminToken}`);
         pollData = result.poll;
     } catch (err) {
-        showToast('Failed to load poll data', 'error');
+        showToast(tUi('js_failed_to_load_poll_data'), 'error');
     }
 }
 
 async function loadResponses(publicId, adminToken) {
     const container = document.getElementById('responsesList');
-    container.innerHTML = '<p class="loading">Loading responses...</p>';
+    container.innerHTML = `<p class="loading">${tUiHtml('js_loading_responses')}</p>`;
 
     try {
         const result = await api.get(`/api/polls/${publicId}/responses?admin_token=${adminToken}`);
 
         if (result.responses.length === 0) {
-            container.innerHTML = '<p class="empty-message">No responses yet.</p>';
+            container.innerHTML = `<p class="empty-message">${tUiHtml('no_responses')}</p>`;
             return;
         }
 
@@ -184,9 +185,9 @@ async function loadResponses(publicId, adminToken) {
                 <div class="response-item">
                     <span class="response-number">#${index + 1}</span>
                     ${response.voter_name ? `<span class="voter-name">${escapeHtml(response.voter_name)}</span>` : ''}
-                    <span class="response-time">${new Date(response.created_at).toLocaleString()}</span>
-                    ${answeredCount !== null ? `<span class="response-answered">${answeredCount}/${totalQuestions} answered</span>` : ''}
-                    <a class="response-view" href="${basePath}/${publicId}/admin/${adminToken}/responses?r=${response.id}">View</a>
+                    <span class="response-time">${new Date(response.created_at).toLocaleString(uiTranslator.locale)}</span>
+                    ${answeredCount !== null ? `<span class="response-answered">${tUiHtml('js_count_total_answered', { count: answeredCount, total: totalQuestions })}</span>` : ''}
+                    <a class="response-view" href="${basePath}/${publicId}/admin/${adminToken}/responses?r=${response.id}">${tUiHtml('js_view')}</a>
                 </div>
             `;
         }).join('');
@@ -194,7 +195,7 @@ async function loadResponses(publicId, adminToken) {
         // Update count
         document.getElementById('responseCount').textContent = result.responses.length;
     } catch (err) {
-        container.innerHTML = '<p class="error-message">Failed to load responses.</p>';
+        container.innerHTML = `<p class="error-message">${tUiHtml('js_failed_to_load_responses')}</p>`;
     }
 }
 
@@ -221,9 +222,9 @@ async function closePoll(publicId, adminToken) {
         if (result.poll && result.poll.visibility === 'private') {
             // Store message in sessionStorage to show after reload
             sessionStorage.setItem('closeToast', JSON.stringify({
-                message: 'Poll closed. Results are currently private.',
+                message: tUi('js_poll_closed_results_are_currently_private'),
                 link: `${basePath}/${publicId}/admin/${adminToken}/results`,
-                linkText: 'Manage results'
+                linkText: tUi('js_manage_results')
             }));
         }
 
@@ -265,7 +266,7 @@ async function deleteAllResponses(publicId, adminToken) {
         const result = await api.delete(`/api/polls/${publicId}/admin/${adminToken}/responses`, {
             confirm: true,
         });
-        showToast(`Deleted ${result.count} response(s)`, 'success');
+        showToast(tUi('js_admin_responses_deleted', { count: result.count }), 'success');
 
         // Update UI
         document.getElementById('responseCount').textContent = '0';
@@ -283,7 +284,7 @@ async function claimPoll(publicId, adminToken) {
     try {
         if (btn) setButtonLoading(btn);
         await api.post('/api/user/claim-poll', { public_id: publicId, admin_token: adminToken });
-        showToast('Poll claimed to your account', 'success');
+        showToast(tUi('js_poll_claimed_to_your_account'), 'success');
         // Reload to update the UI (removes claim button, hides bookmark hint)
         location.reload();
     } catch (err) {
@@ -313,9 +314,9 @@ async function exportData(publicId, adminToken, format) {
             downloadBlob(blob, `vote-${publicId}.csv`);
         }
 
-        showToast(`Exported as ${format.toUpperCase()}`, 'success');
+        showToast(tUi('js_exported_as_format', { format: format.toUpperCase() }), 'success');
     } catch (err) {
-        showToast('Export failed: ' + err.message, 'error');
+        showToast(tUi('js_export_failed_error', { error: err.message }), 'error');
     }
 }
 
@@ -384,7 +385,7 @@ async function loadTokens(publicId, adminToken) {
         tokensData = result.tokens || [];
         renderTokens();
     } catch (err) {
-        document.getElementById('tokensList').innerHTML = '<p class="error-message">Failed to load tokens.</p>';
+        document.getElementById('tokensList').innerHTML = `<p class="error-message">${tUiHtml('js_failed_to_load_tokens')}</p>`;
     }
 }
 
@@ -405,7 +406,7 @@ function initTokenManagement(publicId, adminToken) {
             });
             tokensData = [...tokensData, ...result.tokens];
             renderTokens();
-            showToast(`Generated ${result.tokens.length} tokens`, 'success');
+            showToast(tUi('js_admin_tokens_generated', { count: result.tokens.length }), 'success');
             labelInput.value = '';
         } catch (err) {
             showToast(err.message, 'error');
@@ -419,7 +420,7 @@ function renderTokens() {
     const container = document.getElementById('tokensList');
 
     if (tokensData.length === 0) {
-        container.innerHTML = '<p class="empty-message">No tokens yet. Generate some above.</p>';
+        container.innerHTML = `<p class="empty-message">${tUiHtml('js_no_tokens_yet_generate_some_above')}</p>`;
         return;
     }
 
@@ -428,19 +429,19 @@ function renderTokens() {
 
     container.innerHTML = `
         <div class="tokens-summary">
-            <span class="token-stat">${tokensData.length} total</span>
-            <span class="token-stat available">${availableCount} available</span>
-            <span class="token-stat used">${usedCount} used</span>
+            <span class="token-stat">${tUiHtml('js_count_total', { count: tokensData.length })}</span>
+            <span class="token-stat available">${tUiHtml('js_count_available', { count: availableCount })}</span>
+            <span class="token-stat used">${tUiHtml('js_count_used', { count: usedCount })}</span>
         </div>
         <div class="tokens-table-wrapper">
             <table class="tokens-table">
                 <thead>
                     <tr>
-                        <th>Token</th>
-                        <th>Label</th>
-                        <th>Created</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>${tUiHtml('js_token')}</th>
+                        <th>${tUiHtml('js_label')}</th>
+                        <th>${tUiHtml('js_created')}</th>
+                        <th>${tUiHtml('js_status')}</th>
+                        <th>${tUiHtml('js_actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -450,16 +451,16 @@ function renderTokens() {
                                 <code>${escapeHtml(token.token)}</code>
                             </td>
                             <td class="token-label">${escapeHtml(token.label || '-')}</td>
-                            <td class="token-created">${new Date(token.created_at).toLocaleDateString()}</td>
+                            <td class="token-created">${new Date(token.created_at).toLocaleDateString(uiTranslator.locale)}</td>
                             <td class="token-status">
                                 ${token.used_at
-                                    ? `<span class="badge badge-used">Used</span>`
-                                    : `<span class="badge badge-available">Available</span>`
+                                    ? `<span class="badge badge-used">${tUiHtml('js_used')}</span>`
+                                    : `<span class="badge badge-available">${tUiHtml('js_available')}</span>`
                                 }
                             </td>
                             <td class="token-actions">
-                                <button type="button" class="btn btn-small btn-secondary copy-token" data-url="${escapeHtml(token.url)}">Copy URL</button>
-                                ${!token.used_at ? `<button type="button" class="btn btn-small btn-outline-danger delete-token" data-id="${token.id}">Delete</button>` : ''}
+                                <button type="button" class="btn btn-small btn-secondary copy-token" data-url="${escapeHtml(token.url)}">${tUiHtml('js_copy_url')}</button>
+                                ${!token.used_at ? `<button type="button" class="btn btn-small btn-outline-danger delete-token" data-id="${token.id}">${tUiHtml('delete')}</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -472,8 +473,8 @@ function renderTokens() {
     container.querySelectorAll('.copy-token').forEach(btn => {
         btn.addEventListener('click', async () => {
             await copyToClipboard(btn.dataset.url);
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = 'Copy URL', 2000);
+            btn.textContent = tUi('copied');
+            setTimeout(() => btn.textContent = tUi('js_copy_url'), 2000);
         });
     });
 
@@ -487,7 +488,7 @@ function renderTokens() {
                 await api.delete(`/api/polls/${publicId}/admin/${adminToken}/tokens/${tokenId}`);
                 tokensData = tokensData.filter(t => t.id !== parseInt(tokenId));
                 renderTokens();
-                showToast('Token deleted', 'success');
+                showToast(tUi('js_token_deleted'), 'success');
             } catch (err) {
                 showToast(err.message, 'error');
             }
@@ -507,7 +508,7 @@ async function loadInvitations(publicId, adminToken) {
         renderInvitations();
     } catch (err) {
         const container = document.getElementById('invitationsList');
-        if (container) container.innerHTML = '<p class="error-message">Failed to load invitations.</p>';
+        if (container) container.innerHTML = `<p class="error-message">${tUiHtml('js_failed_to_load_invitations')}</p>`;
     }
 }
 
@@ -518,7 +519,7 @@ function initInvitationManagement(publicId, adminToken) {
         const emails = emailsInput.value.trim();
 
         if (!emails) {
-            showToast('Please enter email addresses', 'error');
+            showToast(tUi('js_please_enter_email_addresses'), 'error');
             return;
         }
 
@@ -528,16 +529,7 @@ function initInvitationManagement(publicId, adminToken) {
             invitationsData = result.invitations;
             renderInvitations();
 
-            let message = `Sent ${result.sent_count} invitation(s)`;
-            if (result.existing_count > 0) {
-                message += `, ${result.existing_count} already existed`;
-            }
-            if (result.blocked_count > 0) {
-                message += `, ${result.blocked_count} blocked (unsubscribed)`;
-            }
-            if (result.failed_count > 0) {
-                message += `, ${result.failed_count} failed`;
-            }
+            const message = tUi('js_admin_invitation_summary', { sent: result.sent_count, existing: result.existing_count, blocked: result.blocked_count, failed: result.failed_count });
             const hasWarnings = result.failed_count > 0 || result.blocked_count > 0;
             showToast(message, hasWarnings ? 'warning' : 'success');
             emailsInput.value = '';
@@ -566,7 +558,7 @@ function renderInvitations() {
     }
 
     if (invitationsData.length === 0) {
-        container.innerHTML = '<p class="empty-message">No invitations sent yet.</p>';
+        container.innerHTML = `<p class="empty-message">${tUiHtml('js_no_invitations_sent_yet')}</p>`;
         return;
     }
 
@@ -575,18 +567,18 @@ function renderInvitations() {
 
     container.innerHTML = `
         <div class="invitations-summary">
-            <span class="invitation-stat">${invitationsData.length} total</span>
-            <span class="invitation-stat pending">${pendingCount} pending</span>
-            <span class="invitation-stat used">${usedCount} voted</span>
+            <span class="invitation-stat">${tUiHtml('js_count_total', { count: invitationsData.length })}</span>
+            <span class="invitation-stat pending">${tUiHtml('js_count_pending', { count: pendingCount })}</span>
+            <span class="invitation-stat used">${tUiHtml('js_count_voted', { count: usedCount })}</span>
         </div>
         <div class="invitations-table-wrapper">
             <table class="invitations-table">
                 <thead>
                     <tr>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Sent</th>
-                        <th>Actions</th>
+                        <th>${tUiHtml('js_email')}</th>
+                        <th>${tUiHtml('js_status')}</th>
+                        <th>${tUiHtml('js_sent')}</th>
+                        <th>${tUiHtml('js_actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -595,16 +587,16 @@ function renderInvitations() {
                             <td class="invitation-email">${escapeHtml(inv.email)}</td>
                             <td class="invitation-status">
                                 ${inv.used_at
-                                    ? `<span class="badge badge-used">Voted</span>`
-                                    : `<span class="badge badge-pending">Pending</span>`
+                                    ? `<span class="badge badge-used">${tUiHtml('js_voted')}</span>`
+                                    : `<span class="badge badge-pending">${tUiHtml('js_pending')}</span>`
                                 }
                             </td>
-                            <td class="invitation-sent">${new Date(inv.sent_at).toLocaleDateString()}</td>
+                            <td class="invitation-sent">${new Date(inv.sent_at).toLocaleDateString(uiTranslator.locale)}</td>
                             <td class="invitation-actions">
-                                <button type="button" class="btn btn-small btn-secondary copy-invitation" data-url="${escapeHtml(inv.url)}">Copy URL</button>
+                                <button type="button" class="btn btn-small btn-secondary copy-invitation" data-url="${escapeHtml(inv.url)}">${tUiHtml('js_copy_url')}</button>
                                 ${!inv.used_at ? `
-                                    <button type="button" class="btn btn-small btn-secondary resend-invitation" data-id="${inv.id}" ${!mailConfigured ? 'disabled' : ''}>Resend</button>
-                                    <button type="button" class="btn btn-small btn-outline-danger delete-invitation" data-id="${inv.id}">Delete</button>
+                                    <button type="button" class="btn btn-small btn-secondary resend-invitation" data-id="${inv.id}" ${!mailConfigured ? 'disabled' : ''}>${tUiHtml('js_resend')}</button>
+                                    <button type="button" class="btn btn-small btn-outline-danger delete-invitation" data-id="${inv.id}">${tUiHtml('delete')}</button>
                                 ` : ''}
                             </td>
                         </tr>
@@ -621,8 +613,8 @@ function renderInvitations() {
     container.querySelectorAll('.copy-invitation').forEach(btn => {
         btn.addEventListener('click', async () => {
             await copyToClipboard(btn.dataset.url);
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = 'Copy URL', 2000);
+            btn.textContent = tUi('copied');
+            setTimeout(() => btn.textContent = tUi('js_copy_url'), 2000);
         });
     });
 
@@ -632,7 +624,7 @@ function renderInvitations() {
             try {
                 setButtonLoading(btn);
                 await api.post(`/api/polls/${publicId}/admin/${adminToken}/invitations/${invitationId}/resend`);
-                showToast('Invitation resent', 'success');
+                showToast(tUi('js_invitation_resent'), 'success');
             } catch (err) {
                 showToast(err.message, 'error');
             } finally {
@@ -648,7 +640,7 @@ function renderInvitations() {
                 await api.delete(`/api/polls/${publicId}/admin/${adminToken}/invitations/${invitationId}`);
                 invitationsData = invitationsData.filter(i => i.id !== parseInt(invitationId));
                 renderInvitations();
-                showToast('Invitation deleted', 'success');
+                showToast(tUi('js_invitation_deleted'), 'success');
             } catch (err) {
                 showToast(err.message, 'error');
             }
@@ -698,7 +690,7 @@ function initSettings(publicId, adminToken) {
         try {
             setButtonLoading(saveBtn);
             await api.put(`/api/polls/${publicId}/admin/${adminToken}`, data);
-            showToast('Settings saved', 'success');
+            showToast(tUi('js_settings_saved'), 'success');
             settingsChanged = false;
             saveBtn.style.display = 'none';
         } catch (err) {
@@ -722,7 +714,7 @@ function initNotificationSetting(publicId, adminToken) {
             await api.put(`/api/polls/${publicId}/admin/${adminToken}`, {
                 notify_on_response: checkbox.checked,
             });
-            showToast(checkbox.checked ? 'Email notifications enabled' : 'Email notifications disabled', 'success');
+            showToast(checkbox.checked ? tUi('js_email_notifications_enabled') : tUi('js_email_notifications_disabled'), 'success');
         } catch (err) {
             // Revert checkbox on error
             checkbox.checked = !checkbox.checked;
@@ -774,7 +766,7 @@ function initEmbedding(publicId, adminToken) {
                 `;
             }
         } catch (err) {
-            showToast('Failed to generate embed code: ' + err.message, 'error');
+            showToast(tUi('js_failed_to_generate_embed_code_error', { error: err.message }), 'error');
         }
     };
 
@@ -794,12 +786,12 @@ function initEmbedding(publicId, adminToken) {
         copyBtn.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(embedCodeTextarea.value);
-                showToast('Embed code copied to clipboard', 'success');
+                showToast(tUi('js_embed_code_copied_to_clipboard'), 'success');
             } catch (err) {
                 // Fallback for older browsers
                 embedCodeTextarea.select();
                 document.execCommand('copy');
-                showToast('Embed code copied to clipboard', 'success');
+                showToast(tUi('js_embed_code_copied_to_clipboard'), 'success');
             }
         });
     }

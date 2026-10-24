@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($emailLocale) ?>" dir="<?= e($emailDirection) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify your email address</title>
+    <title><?= e($emailT('email_verify_your_email_address')) ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -41,7 +41,8 @@
             background-color: #1d4ed8;
         }
         .verify-link {
-            word-break: break-all;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
             color: #6b7280;
             font-size: 14px;
             margin-top: 16px;
@@ -66,28 +67,28 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>Verify Your Email Address</h1>
+        <h1><?= e($emailT('email_verify_your_email_address_2')) ?></h1>
 
-        <p>Hi <?= htmlspecialchars($userName) ?>,</p>
+        <p><?= e($emailT('email_hi_name', ['name' => $userName])) ?></p>
 
-        <p>Thank you for registering! Please verify your email address by clicking the button below:</p>
+        <p><?= e($emailT('email_thank_you_for_registering_please_verify_your_email_address_by_clicking_the_button_below')) ?></p>
 
         <p style="text-align: center;">
-            <a href="<?= htmlspecialchars($verifyUrl) ?>" class="verify-button">Verify Email Address</a>
+            <a href="<?= htmlspecialchars($verifyUrl) ?>" class="verify-button"><?= e($emailT('email_verify_email_address')) ?></a>
         </p>
 
         <p class="verify-link">
-            Or copy and paste this link into your browser:<br>
+            <?= e($emailT('email_or_copy_and_paste_this_link_into_your_browser')) ?><br>
             <?= htmlspecialchars($verifyUrl) ?>
         </p>
 
         <div class="expiry-notice">
-            This verification link will expire in 24 hours.
+            <?= e($emailT('email_this_verification_link_will_expire_in_24_hours')) ?>
         </div>
 
         <div class="footer">
-            <p>If you did not create an account, you can safely ignore this email.</p>
-            <p>Sent by <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
+            <p><?= e($emailT('email_if_you_did_not_create_an_account_you_can_safely_ignore_this_email')) ?></p>
+            <p><?= e($emailT('email_sent_by')) ?> <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
         </div>
     </div>
 </body>

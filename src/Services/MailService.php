@@ -118,7 +118,7 @@ class MailService
         } catch (Exception $e) {
             // Log the error
             error_log("PHPMailer Error: " . $mail->ErrorInfo);
-            throw new \Exception("Failed to send email: " . $mail->ErrorInfo);
+            throw new \Exception(__('error_failed_to_send_email_detail', ['detail' => $mail->ErrorInfo]));
         }
     }
 

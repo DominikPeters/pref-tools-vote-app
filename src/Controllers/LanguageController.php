@@ -14,9 +14,10 @@ final class LanguageController
         $locale = is_string($value) ? Languages::resolve($value) : null;
         if ($locale === null) {
             http_response_code(400);
-            view('error', ['title' => 'Unsupported language', 'message' => 'Choose an available interface language.']);
+            view('error', ['title' => __('backend_unsupported_language'), 'message' => __('backend_choose_an_available_interface_language')]);
             return;
         }
+        \App\Auth::getInstance()->user()?->updatePreferredLocale($locale);
         $returnTo = self::safeReturnPath($_POST['return_to'] ?? '', basePath());
         setcookie(UiLocale::COOKIE, $locale, [
             'expires' => time() + 365 * 86400,

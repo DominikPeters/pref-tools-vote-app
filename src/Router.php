@@ -83,7 +83,7 @@ class Router
 
         // No route found
         http_response_code(404);
-        return ['error' => 'Not Found', 'code' => 'NOT_FOUND'];
+        return ['error' => __('error_not_found'), 'code' => 'NOT_FOUND'];
     }
 
     private function getUri(): string

@@ -29,7 +29,7 @@ import { renderResponseMatrix } from './response-matrix.js';
 import { renderRawDataExport } from './raw-data-export.js';
 import { renderTextBlock } from './text-block.js';
 import { renderTextResponses } from './text-responses.js';
-import { t } from '../i18n.js';
+import { t, tHtml } from '../i18n.js';
 
 const renderers = {
     'choice_counts': renderChoiceCounts,
@@ -68,12 +68,12 @@ export function renderReport(container, report, context = {}) {
     const renderer = renderers[report.report_type];
 
     if (!renderer) {
-        container.innerHTML = `<p class="report-error">${t('unknown_report_type', { type: report.report_type })}</p>`;
+        container.innerHTML = `<p class="report-error">${tHtml('unknown_report_type', { type: report.report_type })}</p>`;
         return;
     }
 
     if (!report.cached_result) {
-        container.innerHTML = `<p class="report-loading">${t('computing_results')}</p>`;
+        container.innerHTML = `<p class="report-loading">${tHtml('computing_results')}</p>`;
         return;
     }
 
@@ -84,7 +84,7 @@ export function renderReport(container, report, context = {}) {
         renderer(container, report.cached_result, report.config, fullContext);
     } catch (err) {
         console.error('Error rendering report:', err);
-        container.innerHTML = `<p class="report-error">${t('error_loading')}</p>`;
+        container.innerHTML = `<p class="report-error">${tHtml('error_loading')}</p>`;
     }
 }
 

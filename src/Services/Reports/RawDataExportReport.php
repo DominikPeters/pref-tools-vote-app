@@ -14,12 +14,12 @@ class RawDataExportReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Export Raw Vote Data';
+        return __('report_type_raw_data_export');
     }
 
     public function getDescription(): string
     {
-        return 'Download the raw ballots (PrefLib/Pabulib format) for analysis in external tools';
+        return __('report_download_the_raw_ballots_preflib_pabulib_format_for_analysis_in_external_tools');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -55,7 +55,7 @@ class RawDataExportReport extends BaseReport
                 [
                     'name' => 'include_user_options',
                     'type' => 'checkbox',
-                    'label' => 'Include user-added "Other" options',
+                    'label' => __('report_include_user_added_other_options'),
                     'required' => false,
                     'default' => true,
                     'dependsOn' => ['field' => 'question.settings.allowOther', 'value' => true],
@@ -74,7 +74,9 @@ class RawDataExportReport extends BaseReport
         } else {
             return [
                 'supported' => false,
-                'error' => 'This question type is not supported for raw data export.',
+                'error' => __('error_this_question_type_is_not_supported_for_raw_data_export'),
+                'error_key' => 'error_this_question_type_is_not_supported_for_raw_data_export',
+                'error_params' => [],
             ];
         }
 

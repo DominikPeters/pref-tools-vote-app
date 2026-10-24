@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 /**
  * Render distribution aggregation report
@@ -21,7 +21,7 @@ export function renderDistributionAggregation(container, data, config) {
     }
 
     if (!distribution || distribution.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_responses')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 
@@ -56,7 +56,7 @@ export function renderDistributionAggregation(container, data, config) {
         <div class="report-distribution-aggregation">
             <div class="da-header">
                 <p class="da-rule-name">${escapeHtml(translatedRuleName)}</p>
-                <p class="da-response-count">${total_responses} ${t('responses')}</p>
+                <p class="da-response-count">${tHtml('response_count', { count: total_responses })}</p>
             </div>
 
             <div class="da-visualization">
@@ -74,8 +74,8 @@ export function renderDistributionAggregation(container, data, config) {
             <table class="da-results-table">
                 <thead>
                     <tr>
-                        <th>${t('option')}</th>
-                        <th>${t('percentage')}</th>
+                        <th>${tHtml('option')}</th>
+                        <th>${tHtml('percentage')}</th>
                     </tr>
                 </thead>
                 <tbody>

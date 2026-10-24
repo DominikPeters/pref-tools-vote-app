@@ -32,7 +32,7 @@ class TokenApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         $tokens = AccessToken::findByPollId($poll->id);
@@ -54,7 +54,7 @@ class TokenApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         $data = $this->getBody() ?? [];
@@ -82,12 +82,12 @@ class TokenApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         $token = AccessToken::find((int) ($params['tokenId'] ?? 0));
         if (!$token || $token->pollId !== $poll->id) {
-            return $this->error('Token not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_token_not_found'), 'NOT_FOUND', 404);
         }
 
         $data = $this->getBody() ?? [];
@@ -117,16 +117,16 @@ class TokenApiController extends ApiController
     {
         $poll = $this->getPollWithAdminAuth($params);
         if (!$poll) {
-            return $this->error('Unauthorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_unauthorized'), 'UNAUTHORIZED', 403);
         }
 
         $token = AccessToken::find((int) ($params['tokenId'] ?? 0));
         if (!$token || $token->pollId !== $poll->id) {
-            return $this->error('Token not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_token_not_found'), 'NOT_FOUND', 404);
         }
 
         if ($token->usedAt) {
-            return $this->error('Cannot delete a used token', 'TOKEN_USED', 400);
+            return $this->error(__('error_cannot_delete_a_used_token'), 'TOKEN_USED', 400);
         }
 
         $token->delete();

@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderVotingRuleWinner(container, data, config) {
     const { rule, rule_name, winners, is_tie, total_responses, error } = data;
@@ -15,7 +15,7 @@ export function renderVotingRuleWinner(container, data, config) {
     }
 
     if (!winners || winners.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_winner_yet')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_winner_yet')}</p>`;
         return;
     }
 
@@ -26,7 +26,7 @@ export function renderVotingRuleWinner(container, data, config) {
     const html = `
         <div class="report-winner-card voting-rule-winner">
             <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
-            ${is_tie ? `<p class="tie-notice">${t('result_tied')}:</p>` : `<p class="winner-label">${t('result_winner')}:</p>`}
+            ${is_tie ? `<p class="tie-notice">${tHtml('result_tied')}:</p>` : `<p class="winner-label">${tHtml('result_winner')}:</p>`}
             <div class="winner-name">${winnerNames}</div>
         </div>
     `;

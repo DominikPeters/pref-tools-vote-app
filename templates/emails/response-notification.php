@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e($emailLocale) ?>" dir="<?= e($emailDirection) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Response to Your Poll</title>
+    <title><?= e($emailT('email_new_response_to_your_poll')) ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -63,7 +63,8 @@
             background-color: #1d4ed8;
         }
         .view-link {
-            word-break: break-all;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
             color: #6b7280;
             font-size: 14px;
             margin-top: 16px;
@@ -83,41 +84,40 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>New Response Received</h1>
+        <h1><?= e($emailT('email_new_response_received')) ?></h1>
 
         <p class="poll-title"><?= htmlspecialchars($poll->title) ?></p>
 
         <div class="response-info">
             <?php if (!empty($voterName)): ?>
             <div class="response-info-item">
-                <span class="response-info-label">From:</span> <?= htmlspecialchars($voterName) ?>
+                <span class="response-info-label"><?= e($emailT('email_from')) ?></span> <?= htmlspecialchars($voterName) ?>
             </div>
             <?php endif; ?>
             <div class="response-info-item">
-                <span class="response-info-label">Response #:</span> <?= $responseNumber ?>
+                <span class="response-info-label"><?= e($emailT('email_response')) ?></span> <?= e($emailT('email_number', ['number' => $responseNumber])) ?>
             </div>
             <div class="response-info-item">
-                <span class="response-info-label">Submitted:</span> <?= $submittedAt ?>
+                <span class="response-info-label"><?= e($emailT('email_submitted')) ?></span> <?= e($submittedAt) ?>
             </div>
         </div>
 
-        <p>Someone has submitted a response to your poll. Click the button below to view the details:</p>
+        <p><?= e($emailT('email_someone_has_submitted_a_response_to_your_poll_click_the_button_below_to_view_the_details')) ?></p>
 
         <p style="text-align: center;">
-            <a href="<?= htmlspecialchars($viewUrl) ?>" class="view-button">View Response</a>
+            <a href="<?= htmlspecialchars($viewUrl) ?>" class="view-button"><?= e($emailT('email_view_response')) ?></a>
         </p>
 
         <p class="view-link">
-            Or copy and paste this link into your browser:<br>
+            <?= e($emailT('email_or_copy_and_paste_this_link_into_your_browser')) ?><br>
             <?= htmlspecialchars($viewUrl) ?>
         </p>
 
         <div class="footer">
-            <p>Sent by <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
+            <p><?= e($emailT('email_sent_by')) ?> <a href="<?= htmlspecialchars(url('')) ?>">Pref.Tools Vote</a></p>
             <p class="unsubscribe-note">
-                You're receiving this email because you enabled response notifications for this poll.
-                To stop receiving these notifications, disable the setting in your poll's admin panel.
-            </p>
+            <?= e($emailT('email_you_re_receiving_this_email_because_you_enabled_response_notifications_for_this_poll_to_stop_receivi')) ?>
+        </p>
         </div>
     </div>
 </body>

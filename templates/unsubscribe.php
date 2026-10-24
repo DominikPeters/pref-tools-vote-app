@@ -1,5 +1,5 @@
 <?php
-$title = ($action === 'resubscribe' ? 'Resubscribe' : 'Unsubscribe') . ' - Pref.Tools Vote';
+$title = ($action === 'resubscribe' ? __('page_resubscribe') : __('page_unsubscribe')) . ' - Pref.Tools Vote';
 ob_start();
 ?>
 
@@ -7,31 +7,31 @@ ob_start();
     <div class="container">
         <div class="auth-card card unsubscribe-card">
             <?php if (!$isValid): ?>
-                <h2>Invalid Link</h2>
-                <p>This unsubscribe link is invalid or has expired.</p>
+                <h2><?= e(__('page_invalid_link')) ?></h2>
+                <p><?= e(__('page_this_unsubscribe_link_is_invalid_or_has_expired')) ?></p>
                 <p class="unsubscribe-action">
-                    <a href="<?= e(url('/')) ?>" class="btn btn-primary">Go to Homepage</a>
+                    <a href="<?= e(url('/')) ?>" class="btn btn-primary"><?= e(__('page_go_to_homepage')) ?></a>
                 </p>
             <?php else: ?>
                 <div id="loadingState">
-                    <h2><?= $action === 'resubscribe' ? 'Resubscribing...' : 'Unsubscribing...' ?></h2>
-                    <p>Please wait...</p>
+                    <h2><?= $action === 'resubscribe' ? __('page_resubscribing') : __('page_unsubscribing') ?></h2>
+                    <p><?= e(__('page_please_wait')) ?></p>
                 </div>
 
                 <div id="successState" style="display: none;">
                     <h2 id="successTitle"></h2>
                     <p id="successMessage"></p>
                     <p class="unsubscribe-email">
-                        Email: <strong><?= e($email) ?></strong>
+                        <?= e(__('page_email_17507d')) ?> <strong><?= e($email) ?></strong>
                     </p>
                     <div id="toggleAction" class="unsubscribe-action"></div>
                 </div>
 
                 <div id="errorState" style="display: none;">
-                    <h2>Something Went Wrong</h2>
-                    <p id="errorMessage">An error occurred. Please try again later.</p>
+                    <h2><?= e(__('page_something_went_wrong')) ?></h2>
+                    <p id="errorMessage"><?= e(__('page_an_error_occurred_please_try_again_later')) ?></p>
                     <p class="unsubscribe-action">
-                        <a href="<?= e(url('/')) ?>" class="btn btn-primary">Go to Homepage</a>
+                        <a href="<?= e(url('/')) ?>" class="btn btn-primary"><?= e(__('page_go_to_homepage')) ?></a>
                     </p>
                 </div>
             <?php endif; ?>
@@ -68,9 +68,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             successState.style.display = 'block';
 
             if (data.is_unsubscribed) {
-                document.getElementById('successTitle').textContent = 'Unsubscribed Successfully';
+                document.getElementById('successTitle').textContent = <?= json_encode(__('page_unsubscribed_successfully'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
                 document.getElementById('successMessage').textContent =
-                    'You will no longer receive invitation emails from Pref.Tools Vote.';
+                    <?= json_encode(__('page_you_will_no_longer_receive_invitation_emails_from_pref_tools_vote'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
 
                 // Show resubscribe option
                 const resubscribeUrl = basePath + '/unsubscribe?' + new URLSearchParams({
@@ -78,13 +78,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                     sig: signature,
                     action: 'resubscribe'
                 }).toString();
-                document.getElementById('toggleAction').innerHTML =
-                    '<p class="unsubscribe-toggle-label">Changed your mind?</p>' +
-                    '<a href="' + resubscribeUrl + '" class="btn btn-secondary">Resubscribe</a>';
+                const prompt = document.createElement('p');
+                prompt.className = 'unsubscribe-toggle-label';
+                prompt.textContent = <?= json_encode(__('page_changed_your_mind'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+                const link = document.createElement('a');
+                link.className = 'btn btn-secondary';
+                link.href = resubscribeUrl;
+                link.textContent = <?= json_encode(__('page_resubscribe'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+                document.getElementById('toggleAction').replaceChildren(prompt, link);
             } else {
-                document.getElementById('successTitle').textContent = 'Resubscribed Successfully';
+                document.getElementById('successTitle').textContent = <?= json_encode(__('page_resubscribed_successfully'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
                 document.getElementById('successMessage').textContent =
-                    'You will now receive invitation emails from Pref.Tools Vote.';
+                    <?= json_encode(__('page_you_will_now_receive_invitation_emails_from_pref_tools_vote'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
 
                 // Show unsubscribe option
                 const unsubscribeUrl = basePath + '/unsubscribe?' + new URLSearchParams({
@@ -92,13 +97,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                     sig: signature,
                     action: 'unsubscribe'
                 }).toString();
-                document.getElementById('toggleAction').innerHTML =
-                    '<p class="unsubscribe-toggle-label">Changed your mind?</p>' +
-                    '<a href="' + unsubscribeUrl + '" class="btn btn-secondary">Unsubscribe</a>';
+                const prompt = document.createElement('p');
+                prompt.className = 'unsubscribe-toggle-label';
+                prompt.textContent = <?= json_encode(__('page_changed_your_mind'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+                const link = document.createElement('a');
+                link.className = 'btn btn-secondary';
+                link.href = unsubscribeUrl;
+                link.textContent = <?= json_encode(__('page_unsubscribe'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+                document.getElementById('toggleAction').replaceChildren(prompt, link);
             }
         } else {
             errorState.style.display = 'block';
-            document.getElementById('errorMessage').textContent = data.error || 'An error occurred';
+            document.getElementById('errorMessage').textContent = data.error || <?= json_encode(__('page_an_error_occurred'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
         }
     } catch (err) {
         loadingState.style.display = 'none';

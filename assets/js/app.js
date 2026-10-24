@@ -2,7 +2,7 @@
  * Pref.Tools Vote - Main Application JavaScript
  */
 
-import { t, pageTranslator } from './i18n.js';
+import { tUi } from './i18n.js';
 
 // Get base path for URLs (supports subfolder deployment)
 const basePath = window.BASE_PATH || '';
@@ -37,8 +37,7 @@ export const api = {
         const result = await response.json();
 
         if (!response.ok) {
-            const key = `api_error_${String(result.code || '').toLowerCase()}`;
-            throw new Error(pageTranslator.has(key) ? t(key) : result.error || t('request_failed'));
+            throw new Error(result.error || tUi('request_failed'));
         }
 
         return result;
@@ -178,7 +177,7 @@ export function showUndoToast(message, onUndo, duration = 5000) {
     toast.appendChild(messageSpan);
 
     const undoBtn = document.createElement('button');
-    undoBtn.textContent = t('undo');
+    undoBtn.textContent = tUi('undo');
     undoBtn.style.cssText = `
         background: transparent;
         border: 1px solid var(--color-border-muted);
@@ -233,7 +232,7 @@ export function showUndoToast(message, onUndo, duration = 5000) {
  * @param {boolean} [options.danger=true] - Whether to style confirm as danger
  * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
  */
-export function showConfirmModal({ title, message, confirmText = t('delete'), cancelText = t('cancel'), danger = true }) {
+export function showConfirmModal({ title, message, confirmText = tUi('delete'), cancelText = tUi('cancel'), danger = true }) {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-modal-overlay';
@@ -334,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const success = await copyToClipboard(input.value);
                 if (success) {
                     const originalText = btn.textContent;
-                    btn.textContent = t('copied');
+                    btn.textContent = tUi('copied');
                     setTimeout(() => btn.textContent = originalText, 2000);
                 }
             }
@@ -350,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await api.post('/api/auth/logout');
                 window.location.href = basePath + '/';
             } catch (err) {
-                showToast(t('logout_failed'), 'error');
+                showToast(tUi('logout_failed'), 'error');
             }
         });
     }
@@ -388,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await api.post('/api/auth/logout');
                     window.location.href = basePath + '/';
                 } catch (err) {
-                    showToast(t('logout_failed'), 'error');
+                    showToast(tUi('logout_failed'), 'error');
                 }
             });
         }

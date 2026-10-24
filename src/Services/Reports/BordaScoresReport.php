@@ -14,12 +14,12 @@ class BordaScoresReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Borda Scores';
+        return __('report_type_borda_scores');
     }
 
     public function getDescription(): string
     {
-        return 'Point totals where options earn more points for higher ranks (Borda count)';
+        return __('report_point_totals_where_options_earn_more_points_for_higher_ranks_borda_count');
     }
 
     public function getSupportedQuestionTypes(): array

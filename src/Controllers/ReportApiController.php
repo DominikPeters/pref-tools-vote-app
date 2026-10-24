@@ -21,12 +21,12 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check if results are visible
         if (!$this->canSeeResults($poll)) {
-            return $this->error('Results are not visible', 'NOT_VISIBLE', 403);
+            return $this->error(\App\i18n\Translator::translateForLocale($poll->locale, 'error_results_are_not_visible'), 'NOT_VISIBLE', 403);
         }
 
         $reports = Report::findPublicByPollId($poll->id);
@@ -35,7 +35,7 @@ class ReportApiController extends ApiController
         $this->ensureReportsComputed($poll, $reports, false);
 
         return $this->success([
-            'reports' => array_map(fn($r) => $r->toPublicArray(), $reports),
+            'reports' => array_map(fn($r) => $r->toPublicArray($poll->locale, $poll->visibility === 'full'), $reports),
         ]);
     }
 
@@ -47,11 +47,11 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $reports = Report::findByPollId($poll->id);
@@ -72,11 +72,11 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll->loadQuestions();
@@ -136,39 +136,39 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $data = $this->getBody() ?? [];
 
         // Validate required fields
         if (empty($data['question_id'])) {
-            return $this->error('Question ID is required', 'MISSING_QUESTION_ID', 400);
+            return $this->error(__('error_question_id_is_required'), 'MISSING_QUESTION_ID', 400);
         }
 
         if (empty($data['report_type'])) {
-            return $this->error('Report type is required', 'MISSING_REPORT_TYPE', 400);
+            return $this->error(__('error_report_type_is_required'), 'MISSING_REPORT_TYPE', 400);
         }
 
         // Verify question belongs to this poll
         $question = Question::find((int) $data['question_id']);
         if (!$question || $question->pollId !== $poll->id) {
-            return $this->error('Question not found', 'QUESTION_NOT_FOUND', 404);
+            return $this->error(__('error_question_not_found'), 'QUESTION_NOT_FOUND', 404);
         }
 
         // Verify report type is valid for this question type
         $handler = ReportRegistry::get($data['report_type']);
         if (!$handler) {
-            return $this->error('Unknown report type', 'UNKNOWN_REPORT_TYPE', 400);
+            return $this->error(__('error_unknown_report_type'), 'UNKNOWN_REPORT_TYPE', 400);
         }
 
         if (!in_array($question->type, $handler->getSupportedQuestionTypes())) {
             return $this->error(
-                'Report type not supported for this question type',
+                __('error_report_type_not_supported_for_this_question_type'),
                 'UNSUPPORTED_REPORT_TYPE',
                 400
             );
@@ -192,7 +192,7 @@ class ReportApiController extends ApiController
 
             return $this->success(['report' => $report->toArray()]);
         } catch (\Exception $e) {
-            return $this->error('Failed to create report: ' . $e->getMessage(), 'CREATE_FAILED', 500);
+            return $this->error(__('error_failed_to_create_report_detail', ['detail' => $e->getMessage()]), 'CREATE_FAILED', 500);
         }
     }
 
@@ -204,23 +204,23 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $report = Report::find((int) $params['reportId']);
 
         if (!$report) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         // Verify report belongs to a question in this poll
         $question = Question::find($report->questionId);
         if (!$question || $question->pollId !== $poll->id) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         $data = $this->getBody() ?? [];
@@ -239,7 +239,7 @@ class ReportApiController extends ApiController
 
             return $this->success(['report' => $report->toArray()]);
         } catch (\Exception $e) {
-            return $this->error('Failed to update report: ' . $e->getMessage(), 'UPDATE_FAILED', 500);
+            return $this->error(__('error_failed_to_update_report_detail', ['detail' => $e->getMessage()]), 'UPDATE_FAILED', 500);
         }
     }
 
@@ -251,23 +251,23 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $report = Report::find((int) $params['reportId']);
 
         if (!$report) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         // Verify report belongs to a question in this poll
         $question = Question::find($report->questionId);
         if (!$question || $question->pollId !== $poll->id) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         LogService::getInstance()->log('report.deleted', $poll->id, $this->user()?->id, null, [
@@ -288,17 +288,17 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $data = $this->getBody() ?? [];
 
         if (!isset($data['order']) || !is_array($data['order'])) {
-            return $this->error('Order array is required', 'MISSING_ORDER', 400);
+            return $this->error(__('error_order_array_is_required'), 'MISSING_ORDER', 400);
         }
 
         try {
@@ -315,7 +315,7 @@ class ReportApiController extends ApiController
 
             return $this->success();
         } catch (\Exception $e) {
-            return $this->error('Failed to reorder reports: ' . $e->getMessage(), 'REORDER_FAILED', 500);
+            return $this->error(__('error_failed_to_reorder_reports_detail', ['detail' => $e->getMessage()]), 'REORDER_FAILED', 500);
         }
     }
 
@@ -327,23 +327,23 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error(__('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $report = Report::find((int) $params['reportId']);
 
         if (!$report) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         // Verify report belongs to a question in this poll
         $question = Question::find($report->questionId);
         if (!$question || $question->pollId !== $poll->id) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         try {
@@ -351,7 +351,7 @@ class ReportApiController extends ApiController
 
             return $this->success(['report' => $report->toArray()]);
         } catch (\Exception $e) {
-            return $this->error('Failed to compute report: ' . $e->getMessage(), 'COMPUTE_FAILED', 500);
+            return $this->error(__('error_failed_to_compute_report_detail', ['detail' => $e->getMessage()]), 'COMPUTE_FAILED', 500);
         }
     }
 
@@ -365,19 +365,19 @@ class ReportApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error(__('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         $report = Report::find((int) $params['reportId']);
 
         if (!$report) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         // Verify report belongs to this poll
         $question = Question::find($report->questionId);
         if (!$question || $question->pollId !== $poll->id) {
-            return $this->error('Report not found', 'REPORT_NOT_FOUND', 404);
+            return $this->error(__('error_report_not_found'), 'REPORT_NOT_FOUND', 404);
         }
 
         // Check authorization: report is public OR valid admin token
@@ -385,12 +385,12 @@ class ReportApiController extends ApiController
         $isAdmin = $adminToken && $poll->verifyAdminToken($adminToken);
 
         if (!$report->isPublic && !$isAdmin) {
-            return $this->error('Not authorized', 'UNAUTHORIZED', 403);
+            return $this->error(__('error_not_authorized'), 'UNAUTHORIZED', 403);
         }
 
         // Verify this is a raw_data_export report
         if ($report->reportType !== 'raw_data_export') {
-            return $this->error('Export not available for this report type', 'INVALID_REPORT_TYPE', 400);
+            return $this->error(__('error_export_not_available_for_this_report_type'), 'INVALID_REPORT_TYPE', 400);
         }
 
         // Load responses
@@ -420,11 +420,11 @@ class ReportApiController extends ApiController
                 'exclude_user_added' => $excludeUserAdded,
             ]);
         } else {
-            return $this->error('Question type not supported for export', 'UNSUPPORTED_TYPE', 400);
+            return $this->error(__('error_question_type_not_supported_for_export'), 'UNSUPPORTED_TYPE', 400);
         }
 
         if ($exportData === null) {
-            return $this->error('Failed to generate export', 'EXPORT_FAILED', 500);
+            return $this->error(__('error_failed_to_generate_export'), 'EXPORT_FAILED', 500);
         }
 
         return $this->success([
@@ -470,10 +470,11 @@ class ReportApiController extends ApiController
 
         // Build config with privacy context for reports that need it
         $config = $report->config ?? [];
-        $config['is_admin'] = $isAdmin;
+        $config['is_admin'] = $isAdmin || $report->reportType === 'response_matrix';
         $config['poll_visibility'] = $poll->visibility;
 
-        $result = $handler->compute($question, $responses, $config);
+        $result = \App\i18n\Translator::withLocale('en', fn() => $handler->compute($question, $responses, $config));
+        $result['_i18n_version'] = 1;
         $report->updateCache($result);
     }
 
@@ -485,7 +486,7 @@ class ReportApiController extends ApiController
         $responses = null;
 
         foreach ($reports as $report) {
-            if ($report->cachedResult === null) {
+            if (($report->cachedResult['_i18n_version'] ?? null) !== 1) {
                 // Load responses lazily
                 if ($responses === null) {
                     $responses = Response::findByPollId($poll->id);
@@ -500,10 +501,11 @@ class ReportApiController extends ApiController
                     if ($question) {
                         // Build config with privacy context
                         $config = $report->config ?? [];
-                        $config['is_admin'] = $isAdmin;
+                        $config['is_admin'] = $isAdmin || $report->reportType === 'response_matrix';
                         $config['poll_visibility'] = $poll->visibility;
 
-                        $result = $handler->compute($question, $responses, $config);
+                        $result = \App\i18n\Translator::withLocale('en', fn() => $handler->compute($question, $responses, $config));
+                        $result['_i18n_version'] = 1;
                         $report->updateCache($result);
                     }
                 }

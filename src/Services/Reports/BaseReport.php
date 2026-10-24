@@ -59,15 +59,15 @@ abstract class BaseReport
     public static function getCategories(): array
     {
         return [
-            'vote_tallies' => 'Vote Tallies',
-            'single_winner' => 'Single-Winner',
-            'multi_winner' => 'Multi-Winner',
-            'ranking_analysis' => 'Ranking Analysis',
-            'rank_aggregation' => 'Rank Aggregation',
-            'apportionment' => 'Apportionment',
-            'participatory_budgeting' => 'Participatory Budgeting',
-            'distribution_aggregation' => 'Distribution Aggregation',
-            'data_export' => 'Data & Export',
+            'vote_tallies' => __('report_vote_tallies'),
+            'single_winner' => __('report_single_winner'),
+            'multi_winner' => __('report_multi_winner'),
+            'ranking_analysis' => __('report_ranking_analysis'),
+            'rank_aggregation' => __('report_type_rank_aggregation'),
+            'apportionment' => __('report_apportionment'),
+            'participatory_budgeting' => __('type_participatory_budgeting'),
+            'distribution_aggregation' => __('report_type_distribution_aggregation'),
+            'data_export' => __('report_data_export'),
         ];
     }
 
@@ -86,28 +86,28 @@ abstract class BaseReport
     {
         return [
             'who_wins' => [
-                'label' => 'Who wins?',
-                'description' => 'Determine the winning option using a voting method',
+                'label' => __('report_who_wins'),
+                'description' => __('report_determine_the_winning_option_using_a_voting_method'),
             ],
             'how_voted' => [
-                'label' => 'How did people vote?',
-                'description' => 'Tallies, tables, and visualizations of the votes',
+                'label' => __('report_how_did_people_vote'),
+                'description' => __('report_tallies_tables_and_visualizations_of_the_votes'),
             ],
             'multiple_winners' => [
-                'label' => 'Multiple winners',
-                'description' => 'Elect a committee or divide seats among the options',
+                'label' => __('report_multiple_winners'),
+                'description' => __('report_elect_a_committee_or_divide_seats_among_the_options'),
             ],
             'compare_methods' => [
-                'label' => 'Compare voting methods',
-                'description' => 'See how the outcome differs across voting rules',
+                'label' => __('report_compare_voting_methods'),
+                'description' => __('report_see_how_the_outcome_differs_across_voting_rules'),
             ],
             'export' => [
-                'label' => 'Export the data',
-                'description' => 'Download the raw ballots for external analysis',
+                'label' => __('report_export_the_data'),
+                'description' => __('report_download_the_raw_ballots_for_external_analysis'),
             ],
             'text' => [
-                'label' => 'Add explanatory text',
-                'description' => 'Write notes shown alongside the results',
+                'label' => __('report_add_explanatory_text'),
+                'description' => __('report_write_notes_shown_alongside_the_results'),
             ],
         ];
     }
@@ -153,8 +153,18 @@ abstract class BaseReport
     }
 
     /**
-     * Get metadata for the report type catalog
+     * Keep error identities and parameters in the shared cache for later translation.
      */
+    protected function errorResult(string $key, array $params = []): array
+    {
+        return [
+            'error' => \App\i18n\Translator::translateForLocale('en', $key, $params),
+            'error_key' => $key,
+            'error_params' => $params,
+        ];
+    }
+
+    /** Get metadata for the report type catalog. */
     public function getMetadata(): array
     {
         return [

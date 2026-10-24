@@ -10,6 +10,32 @@ use App\Models\SiteSetting;
 
 class ResponseNotificationTest extends TestCase
 {
+    public function test_notification_uses_the_recipients_language_even_when_the_voter_uses_another_language(): void
+    {
+        $owner = $this->createUser('french-owner@example.com', 'password123', 'Owner');
+        $owner->markEmailVerified();
+        $owner->updatePreferredLocale('fr');
+        $poll = $this->createPoll([
+            'title' => 'Recipient language', 'status' => 'open', 'locale' => 'de',
+            'notify_on_response' => true, 'collect_name' => true,
+        ], $owner->id);
+        $question = $this->createQuestion($poll->id);
+        \App\i18n\UiLocale::initialize('de');
+        $this->clearEmails();
+        $result = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'voter_name' => 'Besucher', 'answers' => [$question->id => $question->options[0]->id],
+        ]);
+        $this->assertSuccess($result);
+        $this->assertEmailSentTo($owner->email);
+        $email = $this->getLastEmailTo($owner->email);
+        $this->assertSame(
+            \App\i18n\Translator::translateForLocale('fr', 'email_new_response_to_title_from_name', ['title' => $poll->title, 'name' => 'Besucher']),
+            mb_decode_mimeheader($email['Content']['Headers']['Subject'][0])
+        );
+        $this->assertStringContainsString('lang="fr" dir="ltr"', $email['Content']['Body']);
+        $this->assertSame('de', \App\i18n\Translator::getLocale());
+    }
+
     public function test_sends_notification_to_owner_on_response(): void
     {
         // 1. Setup owner

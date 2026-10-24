@@ -41,7 +41,7 @@ class InvitationService
         foreach ($emails as $email) {
             // Validate email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $results['failed'][] = ['email' => $email, 'reason' => 'Invalid email format'];
+                $results['failed'][] = ['email' => $email, 'reason' => __('error_invalid_email_format')];
                 continue;
             }
 
@@ -111,11 +111,12 @@ class InvitationService
             }
         }
 
+        $emailLocale = $poll->locale;
         $subject = $inviterName
-            ? "{$inviterName} invited you to vote: {$poll->title}"
-            : "You're invited to vote: {$poll->title}";
+            ? \App\i18n\Translator::translateForLocale($emailLocale, 'email_name_invited_you_to_vote_title', ['name' => $inviterName, 'title' => $poll->title])
+            : \App\i18n\Translator::translateForLocale($emailLocale, 'email_you_re_invited_to_vote_title', ['title' => $poll->title]);
 
-        $body = $this->renderEmailTemplate('invitation', [
+        $body = EmailTemplate::render('invitation', $emailLocale, [
             'poll' => $poll,
             'voteUrl' => $voteUrl,
             'invitation' => $invitation,
@@ -138,14 +139,4 @@ class InvitationService
         LogService::getInstance()->log('email.invitation_sent', $poll->id, $poll->userId);
     }
 
-    /**
-     * Render an email template
-     */
-    private function renderEmailTemplate(string $template, array $data): string
-    {
-        extract($data);
-        ob_start();
-        include TEMPLATES_PATH . '/emails/' . $template . '.php';
-        return ob_get_clean();
-    }
 }

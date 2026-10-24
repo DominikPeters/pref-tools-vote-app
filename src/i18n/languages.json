@@ -1,4 +1,8 @@
 {
+  "bn": {
+    "name": "বাংলা",
+    "direction": "ltr"
+  },
   "de": {
     "name": "Deutsch",
     "direction": "ltr"
@@ -15,6 +19,14 @@
     "name": "Français",
     "direction": "ltr"
   },
+  "hi": {
+    "name": "हिन्दी",
+    "direction": "ltr"
+  },
+  "hr": {
+    "name": "Hrvatski",
+    "direction": "ltr"
+  },
   "it": {
     "name": "Italiano",
     "direction": "ltr"
@@ -29,6 +41,14 @@
   },
   "pt": {
     "name": "Português",
+    "direction": "ltr"
+  },
+  "ro": {
+    "name": "Română",
+    "direction": "ltr"
+  },
+  "ru": {
+    "name": "Русский",
     "direction": "ltr"
   }
 }

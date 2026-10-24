@@ -91,7 +91,7 @@ class SocialWelfareFunctionRegistry
     public static function getSWFsForQuestionType(string $questionType): array
     {
         return match ($questionType) {
-            'ranking' => self::RANKING_SWFS,
+            'ranking' => self::localizeMetadata(self::RANKING_SWFS),
             default => [],
         };
     }
@@ -161,5 +161,23 @@ class SocialWelfareFunctionRegistry
         }
 
         return $options;
+    }
+
+    /** Localize display metadata without changing stable rule identifiers or constants. */
+    private static function localizeMetadata(array $rules): array
+    {
+        $labels = [
+            'kemeny_young' => ['name' => __('rule_kemeny_young'), 'description' => __('rule_finds_the_ranking_that_minimizes_the_total_number_of_pairwise_disagreements_with_voters')],
+            'borda_ranking' => ['name' => __('rule_borda_ranking'), 'description' => __('rule_ranks_candidates_by_their_total_borda_score')],
+            'irv_ranking' => ['name' => __('rule_instant_runoff_ranking'), 'description' => __('rule_ranks_candidates_in_the_order_they_are_eliminated_in_irv')],
+            'copeland_ranking' => ['name' => __('rule_copeland_ranking'), 'description' => __('rule_ranks_candidates_by_their_number_of_pairwise_victories')],
+            'plurality_ranking' => ['name' => __('rule_plurality_ranking'), 'description' => __('rule_ranks_candidates_by_their_number_of_first_place_votes')],
+            'anti_plurality_ranking' => ['name' => __('rule_anti_plurality_ranking'), 'description' => __('rule_ranks_candidates_by_their_number_of_last_place_votes_fewer_is_better')],
+            'squared_kemeny' => ['name' => __('rule_squared_kemeny'), 'description' => __('rule_a_variation_of_kemeny_young_that_uses_squared_distances')],
+        ];
+        foreach ($rules as $key => &$rule) {
+            if (isset($labels[$key])) $rule = array_replace($rule, $labels[$key]);
+        }
+        return $rules;
     }
 }

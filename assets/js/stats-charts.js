@@ -1,3 +1,4 @@
+import { tUi, uiTranslator } from './i18n.js';
 /**
  * Stats Charts - ECharts-based time series charts for sysadmin stats
  */
@@ -15,11 +16,11 @@
 
     // Email type colors and labels
     const emailTypes = {
-        verification: { color: '#3498db', label: 'Verification' },
-        password_reset: { color: '#e74c3c', label: 'Password Reset' },
-        invitation: { color: '#2ecc71', label: 'Invitation' },
-        response_notification: { color: '#f39c12', label: 'Response Notification' },
-        other: { color: '#95a5a6', label: 'Other' }
+        verification: { color: '#3498db', label: tUi('js_verification') },
+        password_reset: { color: '#e74c3c', label: tUi('js_password_reset') },
+        invitation: { color: '#2ecc71', label: tUi('js_invitation') },
+        response_notification: { color: '#f39c12', label: tUi('js_response_notification') },
+        other: { color: '#95a5a6', label: tUi('report_reason_other') }
     };
 
     /**
@@ -69,8 +70,7 @@
                     rotate: 45,
                     formatter: function(value) {
                         // Show shorter date format
-                        const parts = value.split('-');
-                        return parts[1] + '/' + parts[2];
+                        return new Date(value + 'T12:00:00').toLocaleDateString(uiTranslator.locale, { month: 'short', day: 'numeric' });
                     }
                 }
             },
@@ -80,7 +80,7 @@
             },
             series: [
                 {
-                    name: 'Daily',
+                    name: tUi('js_daily'),
                     type: 'bar',
                     data: values,
                     itemStyle: {
@@ -89,7 +89,7 @@
                     barMaxWidth: 20
                 },
                 {
-                    name: '7-day avg',
+                    name: tUi('js_7_day_avg'),
                     type: 'line',
                     data: movingAvg,
                     smooth: true,
@@ -140,7 +140,7 @@
 
         // Add moving average line
         series.push({
-            name: '7-day avg',
+            name: tUi('js_7_day_avg'),
             type: 'line',
             data: movingAvg,
             smooth: true,
@@ -162,7 +162,7 @@
                 }
             },
             legend: {
-                data: [...Object.values(emailTypes).map(t => t.label), '7-day avg'],
+                data: [...Object.values(emailTypes).map(t => t.label), tUi('js_7_day_avg')],
                 bottom: 0,
                 type: 'scroll'
             },
@@ -179,8 +179,7 @@
                 axisLabel: {
                     rotate: 45,
                     formatter: function(value) {
-                        const parts = value.split('-');
-                        return parts[1] + '/' + parts[2];
+                        return new Date(value + 'T12:00:00').toLocaleDateString(uiTranslator.locale, { month: 'short', day: 'numeric' });
                     }
                 }
             },
@@ -270,7 +269,7 @@
         // Show loading state
         [pollsChart, responsesChart, emailsChart].forEach(chart => {
             if (chart) {
-                chart.showLoading();
+                chart.showLoading('default', { text: tUi('js_loading') });
             }
         });
 

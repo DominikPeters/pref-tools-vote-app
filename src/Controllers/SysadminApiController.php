@@ -20,11 +20,11 @@ class SysadminApiController
         $user = Auth::getInstance()->user();
 
         if (!$user) {
-            return ['error' => 'Authentication required', 'status' => 401];
+            return ['error' => __('error_authentication_required'), 'status' => 401];
         }
 
         if (!$user->isSysadmin()) {
-            return ['error' => 'Sysadmin access required', 'status' => 403];
+            return ['error' => __('error_sysadmin_access_required'), 'status' => 403];
         }
 
         return null;
@@ -99,7 +99,7 @@ class SysadminApiController
         $user = User::find($userId);
 
         if (!$user) {
-            return ['error' => 'User not found', 'status' => 404];
+            return ['error' => __('error_user_not_found'), 'status' => 404];
         }
 
         $input = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -109,13 +109,13 @@ class SysadminApiController
             $newRole = $input['role'];
 
             if (!in_array($newRole, [User::ROLE_USER, User::ROLE_SYSADMIN])) {
-                return ['error' => 'Invalid role', 'status' => 400];
+                return ['error' => __('error_invalid_role'), 'status' => 400];
             }
 
             // Prevent removing sysadmin from self
             $currentUser = Auth::getInstance()->user();
             if ($user->id === $currentUser->id && $newRole !== User::ROLE_SYSADMIN) {
-                return ['error' => 'Cannot remove sysadmin role from yourself', 'status' => 400];
+                return ['error' => __('error_cannot_remove_sysadmin_role_from_yourself'), 'status' => 400];
             }
 
             $user->updateRole($newRole);
@@ -142,13 +142,13 @@ class SysadminApiController
         $user = User::find($userId);
 
         if (!$user) {
-            return ['error' => 'User not found', 'status' => 404];
+            return ['error' => __('error_user_not_found'), 'status' => 404];
         }
 
         // Prevent deleting self
         $currentUser = Auth::getInstance()->user();
         if ($user->id === $currentUser->id) {
-            return ['error' => 'Cannot delete yourself', 'status' => 400];
+            return ['error' => __('error_cannot_delete_yourself'), 'status' => 400];
         }
 
         LogService::getInstance()->log('sysadmin.user.deleted', null, $user->id, null, [
@@ -196,7 +196,7 @@ class SysadminApiController
         $poll = Poll::find($pollId);
 
         if (!$poll) {
-            return ['error' => 'Poll not found', 'status' => 404];
+            return ['error' => __('error_poll_not_found'), 'status' => 404];
         }
 
         $currentUser = Auth::getInstance()->user();
@@ -271,7 +271,7 @@ class SysadminApiController
         $input = json_decode(file_get_contents('php://input'), true) ?? [];
 
         if (!isset($input['settings']) || !is_array($input['settings'])) {
-            return ['error' => 'Settings object required', 'status' => 400];
+            return ['error' => __('error_settings_object_required'), 'status' => 400];
         }
 
         $validKeys = array_keys(SiteSetting::DEFAULTS);
@@ -437,13 +437,13 @@ class SysadminApiController
 
         // Check if mail is enabled
         if (!SiteSetting::getBool('mail.enabled')) {
-            return ['error' => 'Email is not enabled in settings', 'status' => 400];
+            return ['error' => __('error_email_is_not_enabled_in_settings'), 'status' => 400];
         }
 
         // Get sysadmin email
         $toEmail = SiteSetting::get('notifications.sysadmin_email');
         if (empty($toEmail)) {
-            return ['error' => 'Sysadmin notification email is not configured', 'status' => 400];
+            return ['error' => __('error_sysadmin_notification_email_is_not_configured'), 'status' => 400];
         }
 
         // Get current user for logging
@@ -453,26 +453,28 @@ class SysadminApiController
             $mailService = new MailService();
             $siteName = SiteSetting::get('site.name', 'Pref.Tools Vote');
 
+            // A registered recipient uses their own preference; otherwise use the source language.
+            $emailLocale = User::findByEmail($toEmail)?->getPreferredLocale() ?? \App\i18n\Languages::getDefault();
             $result = $mailService->send(
                 $toEmail,
-                "[{$siteName}] Test Email",
-                "This is a test email from {$siteName}.\n\nIf you received this email, your SMTP configuration is working correctly.\n\nSent at: " . date('Y-m-d H:i:s T')
+                \App\i18n\Translator::translateForLocale($emailLocale, 'email_sitename_test_email', ['siteName' => $siteName]),
+                \App\i18n\Translator::translateForLocale($emailLocale, 'email_this_is_a_test_email_from_sitename_if_you_received_this_email_your_smtp_configuration_is_working_cor', ['siteName' => $siteName, 'timestamp' => \App\Services\EmailTemplate::formatDate(new \DateTime(), $emailLocale)])
             );
 
             if ($result) {
                 LogService::getInstance()->log('sysadmin.email.test_sent', null, $currentUser->id, null, [
                     'to' => $toEmail,
                 ]);
-                return ['ok' => true, 'success' => true, 'message' => "Test email sent to {$toEmail}"];
+                return ['ok' => true, 'success' => true, 'message' => __('backend_test_email_sent_to_toemail', ['toEmail' => $toEmail])];
             } else {
-                return ['error' => 'Failed to send test email. Check your SMTP settings.', 'status' => 500];
+                return ['error' => __('error_failed_to_send_test_email_check_your_smtp_settings'), 'status' => 500];
             }
         } catch (\Exception $e) {
             LogService::getInstance()->log('sysadmin.email.test_failed', null, $currentUser->id, null, [
                 'to' => $toEmail,
                 'error' => $e->getMessage(),
             ]);
-            return ['error' => 'Email error: ' . $e->getMessage(), 'status' => 500];
+            return ['error' => __('error_email_error_detail', ['detail' => $e->getMessage()]), 'status' => 500];
         }
     }
 }

@@ -15,12 +15,12 @@ class RankAggregationReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Rank Aggregation';
+        return __('report_type_rank_aggregation');
     }
 
     public function getDescription(): string
     {
-        return 'Combines all ballots into a consensus ranking of the options';
+        return __('report_combines_all_ballots_into_a_consensus_ranking_of_the_options');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -50,7 +50,7 @@ class RankAggregationReport extends BaseReport
                 [
                     'name' => 'swf',
                     'type' => 'select',
-                    'label' => 'Rank Aggregation Rule',
+                    'label' => __('report_rank_aggregation_rule'),
                     'required' => true,
                     'options' => [], // Populated dynamically
                     'dynamicOptions' => 'socialWelfareFunctions',
@@ -69,9 +69,7 @@ class RankAggregationReport extends BaseReport
         // Get the SWF factory from registry
         $swfFactory = SocialWelfareFunctionRegistry::getMethod($swfKey, $question->type);
         if ($swfFactory === null) {
-            return [
-                'error' => "Unknown or unsupported Social Welfare Function: {$swfKey}",
-            ];
+            return $this->errorResult('error_unknown_or_unsupported_social_welfare_function_swfkey', ['swfKey' => $swfKey]);
         }
 
         // Build ranking profile (complete rankings only for now)

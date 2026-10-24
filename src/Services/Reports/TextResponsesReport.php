@@ -13,12 +13,12 @@ class TextResponsesReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Text Answers';
+        return __('report_type_text_responses');
     }
 
     public function getDescription(): string
     {
-        return 'Lists all text answers given to this question';
+        return __('report_lists_all_text_answers_given_to_this_question');
     }
 
     public function getSupportedQuestionTypes(): array

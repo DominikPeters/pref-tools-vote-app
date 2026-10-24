@@ -460,6 +460,11 @@ class ParticipatoryBudgetingRules
             if (!$comp['stickToMES']) {
                 $winners = $greedy;
                 $notes['comparison'] = "The committee chosen by the greedy algorithm is preferred by {$comp['prefersGreedy']} voters, while the committee chosen by the method of equal shares is preferred by {$comp['prefersMES']} voters.";
+                // Stable facts for applications rendering this explanation in another language.
+                $notes['comparison_counts'] = [
+                    'prefers_greedy' => $comp['prefersGreedy'],
+                    'prefers_mes' => $comp['prefersMES'],
+                ];
             }
         }
 

@@ -14,6 +14,7 @@ class User
     public string $name;
     public ?string $passwordHash = null;
     public string $role = self::ROLE_USER;
+    public ?string $preferredLocale = null;
     public ?\DateTime $emailVerifiedAt = null;
     public ?string $emailVerificationToken = null;
     public ?\DateTime $emailVerificationExpires = null;
@@ -33,6 +34,7 @@ class User
         $user->name = $row['name'];
         $user->passwordHash = $row['password_hash'];
         $user->role = $row['role'] ?? self::ROLE_USER;
+        $user->preferredLocale = \App\i18n\Languages::resolve($row['preferred_locale'] ?? '');
         $user->emailVerifiedAt = !empty($row['email_verified_at']) ? new \DateTime($row['email_verified_at']) : null;
         $user->emailVerificationToken = $row['email_verification_token'] ?? null;
         $user->emailVerificationExpires = !empty($row['email_verification_expires']) ? new \DateTime($row['email_verification_expires']) : null;
@@ -93,6 +95,7 @@ class User
             'name' => $this->name,
             'role' => $this->role,
             'email_verified' => $this->isEmailVerified(),
+            'preferred_locale' => $this->preferredLocale,
             'created_at' => $this->createdAt?->format('c'),
         ];
     }
@@ -127,6 +130,20 @@ class User
         $db = Database::getInstance();
         $db->update('users', ['role' => $role], 'id = :id', ['id' => $this->id]);
         $this->role = $role;
+    }
+
+    /** Recipient locale is stable across requests and independent of the triggering voter. */
+    public function getPreferredLocale(): string
+    {
+        return \App\i18n\Languages::resolve($this->preferredLocale ?? '') ?? \App\i18n\Languages::getDefault();
+    }
+
+    public function updatePreferredLocale(string $locale): void
+    {
+        $locale = \App\i18n\Languages::resolve($locale);
+        if ($locale === null) throw new \InvalidArgumentException('Unsupported interface locale');
+        Database::getInstance()->update('users', ['preferred_locale' => $locale], 'id = :id', ['id' => $this->id]);
+        $this->preferredLocale = $locale;
     }
 
     /**

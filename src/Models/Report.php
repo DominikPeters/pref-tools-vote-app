@@ -206,7 +206,7 @@ class Report
             'config' => $this->config,
             'position' => $this->position,
             'is_public' => $this->isPublic,
-            'cached_result' => $this->cachedResult,
+            'cached_result' => \App\Services\ReportResultPresenter::localize($this->cachedResult, $this->reportType),
             'computed_at' => $this->computedAt?->format('c'),
             'created_at' => $this->createdAt?->format('c'),
         ];
@@ -215,7 +215,7 @@ class Report
     /**
      * Convert to array for public view (excludes sensitive info)
      */
-    public function toPublicArray(): array
+    public function toPublicArray(?string $locale = null, bool $showNames = false): array
     {
         return [
             'id' => $this->id,
@@ -223,7 +223,7 @@ class Report
             'report_type' => $this->reportType,
             'config' => $this->config,
             'position' => $this->position,
-            'cached_result' => $this->cachedResult,
+            'cached_result' => \App\Services\ReportResultPresenter::localize($this->cachedResult, $this->reportType, $locale, $showNames),
         ];
     }
 }

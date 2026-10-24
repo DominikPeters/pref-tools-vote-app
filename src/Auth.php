@@ -138,7 +138,7 @@ class Auth
         );
 
         if ($existing) {
-            throw new \RuntimeException('Email already registered');
+            throw new \RuntimeException(__('error_email_already_registered'));
         }
 
         // Create user
@@ -147,6 +147,7 @@ class Auth
             'name' => $name,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'role' => $role,
+            'preferred_locale' => \App\i18n\UiLocale::get(),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -156,6 +157,7 @@ class Auth
         $user->email = $email;
         $user->name = $name;
         $user->role = $role;
+        $user->preferredLocale = \App\i18n\UiLocale::get();
         $user->createdAt = new \DateTime();
         $user->updatedAt = new \DateTime();
 

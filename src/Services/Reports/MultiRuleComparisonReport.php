@@ -15,12 +15,12 @@ class MultiRuleComparisonReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Multi-Rule Comparison';
+        return __('report_type_multi_rule_comparison');
     }
 
     public function getDescription(): string
     {
-        return 'Do different voting rules agree on the winner? Compare them side by side';
+        return __('report_do_different_voting_rules_agree_on_the_winner_compare_them_side_by_side');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -51,7 +51,7 @@ class MultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'rules',
                     'type' => 'checkboxes',
-                    'label' => 'Voting Rules to Compare',
+                    'label' => __('report_voting_rules_to_compare'),
                     'required' => true,
                     'options' => [], // Populated dynamically based on question type
                     'dynamicOptions' => 'votingRules', // Signal to frontend to fetch dynamically
@@ -59,7 +59,7 @@ class MultiRuleComparisonReport extends BaseReport
                 [
                     'name' => 'show_summary',
                     'type' => 'checkbox',
-                    'label' => 'Show win count summary',
+                    'label' => __('report_show_win_count_summary'),
                     'required' => true,
                     'default' => true,
                 ],
@@ -81,7 +81,7 @@ class MultiRuleComparisonReport extends BaseReport
         } elseif ($profileType === 'grade') {
             $profile = ProfileBuilder::fromGradeResponses($question, $responses);
         } else {
-            return ['error' => 'Unsupported question type'];
+            return $this->errorResult('error_unsupported_question_type');
         }
 
         // Map index back to option ID
@@ -132,10 +132,12 @@ class MultiRuleComparisonReport extends BaseReport
                         'option' => $winner['option'],
                         'count' => 0,
                         'rules' => [],
+                        'rule_ids' => [],
                     ];
                 }
                 $winCounts[$optionId]['count']++;
                 $winCounts[$optionId]['rules'][] = $result['rule_name'];
+                $winCounts[$optionId]['rule_ids'][] = $result['rule'];
             }
         }
 

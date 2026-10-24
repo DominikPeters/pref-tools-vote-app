@@ -1,5 +1,5 @@
 <?php
-$title = 'Poll Administration - Pref.Tools Vote';
+$title = __('page_poll_administration') . ' - Pref.Tools Vote';
 $extraCss = ['/assets/css/sysadmin.css'];
 $extraJs = ['/assets/js/sysadmin.js'];
 ob_start();
@@ -8,38 +8,38 @@ ob_start();
 <div class="sysadmin-container">
     <div class="container">
         <header class="sysadmin-header">
-            <h1>Poll Administration</h1>
+            <h1><?= e(__('page_poll_administration')) ?></h1>
             <nav class="sysadmin-nav">
-                <a href="<?= basePath() ?>/sysadmin">Overview</a>
-                <a href="<?= basePath() ?>/sysadmin/users">Users</a>
-                <a href="<?= basePath() ?>/sysadmin/polls" class="active">Polls</a>
-                <a href="<?= basePath() ?>/sysadmin/logs">Logs</a>
-                <a href="<?= basePath() ?>/sysadmin/stats">Stats</a>
-                <a href="<?= basePath() ?>/sysadmin/config">Config</a>
+                <a href="<?= basePath() ?>/sysadmin"><?= e(__('page_overview')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/users"><?= e(__('page_users')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/polls" class="active"><?= e(__('page_polls')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/logs"><?= e(__('page_logs')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/stats"><?= e(__('page_stats')) ?></a>
+                <a href="<?= basePath() ?>/sysadmin/config"><?= e(__('page_config')) ?></a>
             </nav>
         </header>
 
         <section class="card">
             <div class="section-header">
-                <h2>All Polls</h2>
-                <span class="total-count" id="pollCount">Loading...</span>
+                <h2><?= e(__('page_all_polls')) ?></h2>
+                <span class="total-count" id="pollCount"><?= e(__('page_loading')) ?></span>
             </div>
             <div class="table-container">
                 <table class="data-table" id="pollsTable">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Title</th>
-                            <th>Owner</th>
-                            <th>Status</th>
-                            <th>Responses</th>
-                            <th>Created</th>
-                            <th>Actions</th>
+                            <th><?= e(__('page_title')) ?></th>
+                            <th><?= e(__('page_owner')) ?></th>
+                            <th><?= e(__('page_status')) ?></th>
+                            <th><?= e(__('responses')) ?></th>
+                            <th><?= e(__('page_created')) ?></th>
+                            <th><?= e(__('page_actions')) ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="7" class="loading">Loading polls...</td>
+                            <td colspan="7" class="loading"><?= e(__('page_loading_polls')) ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -62,7 +62,7 @@ ob_start();
         <td class="poll-responses"></td>
         <td class="poll-created"></td>
         <td class="poll-actions">
-            <button class="btn btn-small btn-danger delete-poll-btn">Delete</button>
+            <button class="btn btn-small btn-danger delete-poll-btn"><?= e(__('delete')) ?></button>
         </td>
     </tr>
 </template>

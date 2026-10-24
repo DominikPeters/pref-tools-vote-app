@@ -1,5 +1,5 @@
 <?php
-$title = 'About - Pref.Tools Vote';
+$title = __('about') . ' - Pref.Tools Vote';
 $extraCss = ['assets/css/about.css'];
 ob_start();
 ?>
@@ -7,120 +7,120 @@ ob_start();
 <div class="about-container">
     <div class="container">
         <div class="card about-card">
-            <h1>About Pref.Tools Vote</h1>
+            <h1><?= e(__('page_about_pref_tools_vote')) ?></h1>
 
             <section class="about-section about-author">
                 <div class="author-content">
                     <img src="<?= basePath() ?>/assets/img/dominik.jpg" alt="Dominik Peters" class="author-photo">
                     <div class="author-text">
-                        <p>This web application was developed by <strong>Dominik Peters</strong>, a CNRS researcher at <strong>Universit&eacute; Paris Dauphine</strong>, who has worked extensively in voting theory and computational social choice.</p>
+                        <p><?= e(__('page_this_web_application_was_developed_by_dominik_peters_a_cnrs_researcher_at_univ')) ?></p>
                         <p><a href="https://dominik-peters.de" target="_blank" rel="noopener">dominik-peters.de</a></p>
                     </div>
                 </div>
             </section>
 
             <section class="about-section">
-                <h2>Development</h2>
-                <p>Pref.Tools Vote was developed with the assistance of <strong>Claude Opus 4.5</strong> (Anthropic) and was first published in <strong>January 2026</strong>.</p>
-                <p>The backend voting rule computations are powered by adapted versions of:</p>
+                <h2><?= e(__('page_development')) ?></h2>
+                <p><?= e(__('page_pref_tools_vote_was_developed_with_the_assistance_of_claude_opus_4_5_anthropic')) ?></p>
+                <p><?= e(__('page_the_backend_voting_rule_computations_are_powered_by_adapted_versions_of')) ?></p>
                 <ul>
-                    <li><a href="https://github.com/voting-tools/pref_voting/" target="_blank" rel="noopener"><strong>pref_voting</strong></a> &mdash; A Python library for preference voting methods (single winner, rank aggregation, multi winner)</li>
-                    <li><a href="https://github.com/martinlackner/abcvoting/" target="_blank" rel="noopener"><strong>abcvoting</strong></a> &mdash; A Python library for approval-based committee voting</li>
-                    <li><a href="https://pref.tools/apportionment/" target="_blank" rel="noopener"><strong>pref.tools/apportionment</strong></a> &mdash; A web app for apportionment methods</li>
-                    <li><a href="https://equalshares.net/tools/compute/" target="_blank" rel="noopener"><strong>Method of Equal Shares: Online Computation Tool</strong></a> &mdash; A web app for computing the Method of Equal Shares in participatory budgeting</li>
+                    <li><a href="https://github.com/voting-tools/pref_voting/" target="_blank" rel="noopener"><strong>pref_voting</strong></a> <?= e(__('page_a_python_library_for_preference_voting_methods_single_winner_rank_aggregation')) ?></li>
+                    <li><a href="https://github.com/martinlackner/abcvoting/" target="_blank" rel="noopener"><strong>abcvoting</strong></a> <?= e(__('page_a_python_library_for_approval_based_committee_voting')) ?></li>
+                    <li><a href="https://pref.tools/apportionment/" target="_blank" rel="noopener"><strong>pref.tools/apportionment</strong></a> <?= e(__('page_a_web_app_for_apportionment_methods')) ?></li>
+                    <li><a href="https://equalshares.net/tools/compute/" target="_blank" rel="noopener"><strong><?= e(__('page_method_of_equal_shares_online_computation_tool')) ?></strong></a> <?= e(__('page_a_web_app_for_computing_the_method_of_equal_shares_in_participatory_budgeting')) ?></li>
                 </ul>
             </section>
 
             <section class="about-section">
-                <h2>Open Source</h2>
-                <p>The source code for this application is <strong>MIT licensed</strong> and available on GitHub:</p>
+                <h2><?= e(__('page_open_source')) ?></h2>
+                <p><?= e(__('page_the_source_code_for_this_application_is_mit_licensed_and_available_on_github')) ?></p>
                 <p><a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">github.com/DominikPeters/pref-tools-vote-app</a></p>
-                <p>Feedback, bug reports, and contributions are welcome!</p>
+                <p><?= e(__('page_feedback_bug_reports_and_contributions_are_welcome')) ?></p>
             </section>
 
             <section class="about-section">
-                <h2>Features</h2>
+                <h2><?= e(__('page_features')) ?></h2>
 
-                <h3>Question Types</h3>
-                <p>Pref.Tools Vote supports a variety of input types designed for social choice applications:</p>
+                <h3><?= e(__('page_question_types')) ?></h3>
+                <p><?= e(__('page_pref_tools_vote_supports_a_variety_of_input_types_designed_for_social_choice_a')) ?></p>
                 <ul class="feature-list">
-                    <li><strong>Single Choice</strong> &mdash; Standard radio button selection</li>
-                    <li><strong>Approval Voting</strong> &mdash; Select multiple options (with optional min/max limits)</li>
-                    <li><strong>Ranking (Full)</strong> &mdash; Drag-and-drop complete ranking of all options</li>
-                    <li><strong>Ranking (Partial)</strong> &mdash; Rank a subset of options (truncated preferences)</li>
-                    <li><strong>Ranking with Ties</strong> &mdash; Allow indifference classes in rankings</li>
-                    <li><strong>Star Rating</strong> &mdash; Rate options on a configurable star scale (2-10 stars)</li>
-                    <li><strong>Grade Voting</strong> &mdash; Assign grades (Excellent, Very Good, Good, Fair, Poor, Reject)</li>
-                    <li><strong>Yes / No / Abstain</strong> &mdash; Three-option voting for each alternative</li>
-                    <li><strong>Participatory Budgeting</strong> &mdash; Budget allocation with project costs</li>
-                    <li><strong>Short Text</strong> &mdash; Single-line free text response</li>
-                    <li><strong>Long Text</strong> &mdash; Multi-line free text response</li>
+                    <li><strong><?= e(__('type_single_choice')) ?></strong> <?= e(__('page_standard_radio_button_selection')) ?></li>
+                    <li><strong><?= e(__('page_approval_voting')) ?></strong> <?= e(__('page_select_multiple_options_with_optional_min_max_limits')) ?></li>
+                    <li><strong><?= e(__('page_ranking_full')) ?></strong> <?= e(__('page_drag_and_drop_complete_ranking_of_all_options')) ?></li>
+                    <li><strong><?= e(__('type_ranking_truncated')) ?></strong> <?= e(__('page_rank_a_subset_of_options_truncated_preferences')) ?></li>
+                    <li><strong><?= e(__('page_ranking_with_ties')) ?></strong> <?= e(__('page_allow_indifference_classes_in_rankings')) ?></li>
+                    <li><strong><?= e(__('type_star')) ?></strong> <?= e(__('page_rate_options_on_a_configurable_star_scale_2_10_stars')) ?></li>
+                    <li><strong><?= e(__('page_grade_voting')) ?></strong> <?= e(__('page_assign_grades_excellent_very_good_good_fair_poor_reject')) ?></li>
+                    <li><strong><?= e(__('type_yes_no_abstain')) ?></strong> <?= e(__('page_three_option_voting_for_each_alternative')) ?></li>
+                    <li><strong><?= e(__('type_participatory_budgeting')) ?></strong> <?= e(__('page_budget_allocation_with_project_costs')) ?></li>
+                    <li><strong><?= e(__('type_text_single')) ?></strong> <?= e(__('page_single_line_free_text_response')) ?></li>
+                    <li><strong><?= e(__('type_text_multi')) ?></strong> <?= e(__('page_multi_line_free_text_response')) ?></li>
                 </ul>
 
-                <h3>Single-Winner Voting Methods</h3>
-                <p>For ranking and approval-based questions:</p>
+                <h3><?= e(__('page_single_winner_voting_methods')) ?></h3>
+                <p><?= e(__('page_for_ranking_and_approval_based_questions')) ?></p>
                 <ul class="feature-list">
-                    <li><strong>Schulze Method</strong> &mdash; Condorcet-consistent method using beat paths</li>
-                    <li><strong>Ranked Pairs</strong> &mdash; Lock-in method based on pairwise margins</li>
-                    <li><strong>Instant Runoff Voting (IRV)</strong> &mdash; Sequential elimination of last-place candidates</li>
-                    <li><strong>Borda Count</strong> &mdash; Positional scoring rule</li>
-                    <li><strong>Copeland</strong> &mdash; Count pairwise victories</li>
-                    <li><strong>Minimax</strong> &mdash; Minimize worst pairwise defeat</li>
-                    <li><strong>Plurality</strong> &mdash; Most first-place votes wins</li>
-                    <li><strong>Split Cycle</strong> &mdash; Condorcet method using cycle resolution</li>
-                    <li><strong>Stable Voting</strong> &mdash; Defeat-dropping Condorcet method</li>
-                    <li><strong>Approval Voting</strong> &mdash; Most approvals wins</li>
+                    <li><strong><?= e(__('page_schulze_method')) ?></strong> <?= e(__('page_condorcet_consistent_method_using_beat_paths')) ?></li>
+                    <li><strong><?= e(__('page_ranked_pairs')) ?></strong> <?= e(__('page_lock_in_method_based_on_pairwise_margins')) ?></li>
+                    <li><strong><?= e(__('page_instant_runoff_voting_irv')) ?></strong> <?= e(__('page_sequential_elimination_of_last_place_candidates')) ?></li>
+                    <li><strong><?= e(__('page_borda_count')) ?></strong> <?= e(__('page_positional_scoring_rule')) ?></li>
+                    <li><strong><?= e(__('page_copeland')) ?></strong> <?= e(__('page_count_pairwise_victories')) ?></li>
+                    <li><strong><?= e(__('page_minimax')) ?></strong> <?= e(__('page_minimize_worst_pairwise_defeat')) ?></li>
+                    <li><strong><?= e(__('page_plurality')) ?></strong> <?= e(__('page_most_first_place_votes_wins')) ?></li>
+                    <li><strong><?= e(__('page_split_cycle')) ?></strong> <?= e(__('page_condorcet_method_using_cycle_resolution')) ?></li>
+                    <li><strong><?= e(__('page_stable_voting')) ?></strong> <?= e(__('page_defeat_dropping_condorcet_method')) ?></li>
+                    <li><strong><?= e(__('page_approval_voting')) ?></strong> <?= e(__('page_most_approvals_wins')) ?></li>
                 </ul>
 
-                <h3>Multi-Winner &amp; Committee Methods</h3>
+                <h3><?= e(__('page_multi_winner_committee_methods')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Proportional Approval Voting (PAV)</strong> &mdash; Thiele method for proportional representation</li>
-                    <li><strong>Method of Equal Shares</strong> &mdash; Proportional method for approval ballots</li>
-                    <li><strong>Single Transferable Vote (STV)</strong> &mdash; Ranked-choice proportional method</li>
-                    <li><strong>Sequential Phragm&eacute;n</strong> &mdash; Load-balancing proportional method</li>
-                    <li><strong>Chamberlin-Courant</strong> &mdash; Diversity-maximizing committee selection</li>
-                    <li><strong>Apportionment Methods</strong> &mdash; Seat allocation (D'Hondt, Sainte-Lagu&euml;, etc.)</li>
+                    <li><strong><?= e(__('page_proportional_approval_voting_pav')) ?></strong> <?= e(__('page_thiele_method_for_proportional_representation')) ?></li>
+                    <li><strong><?= e(__('page_method_of_equal_shares')) ?></strong> <?= e(__('page_proportional_method_for_approval_ballots')) ?></li>
+                    <li><strong><?= e(__('page_single_transferable_vote_stv')) ?></strong> <?= e(__('page_ranked_choice_proportional_method')) ?></li>
+                    <li><strong><?= e(__('page_sequential_phragm_n')) ?></strong> <?= e(__('page_load_balancing_proportional_method')) ?></li>
+                    <li><strong><?= e(__('page_chamberlin_courant')) ?></strong> <?= e(__('page_diversity_maximizing_committee_selection')) ?></li>
+                    <li><strong><?= e(__('page_apportionment_methods')) ?></strong> <?= e(__('page_seat_allocation_d_hondt_sainte_lagu_etc')) ?></li>
                 </ul>
 
-                <h3>Rank Aggregation</h3>
+                <h3><?= e(__('report_type_rank_aggregation')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Kemeny</strong> &mdash; Optimal ranking minimizing pairwise disagreements</li>
-                    <li><strong>Squared Kemeny</strong> &mdash; Variant using squared distances</li>
-                    <li><strong>Borda Ranking</strong> &mdash; Ranking by Borda scores</li>
+                    <li><strong><?= e(__('page_kemeny')) ?></strong> <?= e(__('page_optimal_ranking_minimizing_pairwise_disagreements')) ?></li>
+                    <li><strong><?= e(__('page_squared_kemeny')) ?></strong> <?= e(__('page_variant_using_squared_distances')) ?></li>
+                    <li><strong><?= e(__('page_borda_ranking')) ?></strong> <?= e(__('page_ranking_by_borda_scores')) ?></li>
                 </ul>
 
-                <h3>Rating &amp; Judgment Methods</h3>
+                <h3><?= e(__('page_rating_judgment_methods')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Score Voting</strong> &mdash; Sum of ratings</li>
-                    <li><strong>STAR Voting</strong> &mdash; Score Then Automatic Runoff</li>
-                    <li><strong>Majority Judgment</strong> &mdash; Median-based grade aggregation</li>
+                    <li><strong><?= e(__('page_score_voting')) ?></strong> <?= e(__('page_sum_of_ratings')) ?></li>
+                    <li><strong><?= e(__('page_star_voting')) ?></strong> <?= e(__('page_score_then_automatic_runoff')) ?></li>
+                    <li><strong><?= e(__('report_type_majority_judgment')) ?></strong> <?= e(__('page_median_based_grade_aggregation')) ?></li>
                 </ul>
 
-                <h3>Participatory Budgeting</h3>
+                <h3><?= e(__('type_participatory_budgeting')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Method of Equal Shares</strong> &mdash; Proportional budget allocation</li>
-                    <li><strong>Utilitarian Greedy</strong> &mdash; Maximize total utility</li>
-                    <li><strong>PaBuLib Export</strong> &mdash; Export data in standard research format</li>
+                    <li><strong><?= e(__('page_method_of_equal_shares')) ?></strong> <?= e(__('page_proportional_budget_allocation')) ?></li>
+                    <li><strong><?= e(__('page_utilitarian_greedy')) ?></strong> <?= e(__('page_maximize_total_utility')) ?></li>
+                    <li><strong><?= e(__('page_pabulib_export')) ?></strong> <?= e(__('page_export_data_in_standard_research_format')) ?></li>
                 </ul>
 
-                <h3>Visualizations &amp; Analysis</h3>
+                <h3><?= e(__('page_visualizations_analysis')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Pairwise Margins Graph</strong> &mdash; Head-to-head comparison visualization</li>
-                    <li><strong>Response Matrix</strong> &mdash; Doodle-style overview of all responses</li>
-                    <li><strong>Multi-Rule Comparison</strong> &mdash; Compare outcomes across voting methods</li>
-                    <li><strong>Condorcet Winner Detection</strong> &mdash; Identify candidates beating all others</li>
-                    <li><strong>Data Export</strong> &mdash; PrefLib and PaBuLib formats for research</li>
+                    <li><strong><?= e(__('page_pairwise_margins_graph')) ?></strong> <?= e(__('page_head_to_head_comparison_visualization')) ?></li>
+                    <li><strong><?= e(__('report_type_response_matrix')) ?></strong> <?= e(__('page_doodle_style_overview_of_all_responses')) ?></li>
+                    <li><strong><?= e(__('report_type_multi_rule_comparison')) ?></strong> <?= e(__('page_compare_outcomes_across_voting_methods')) ?></li>
+                    <li><strong><?= e(__('page_condorcet_winner_detection')) ?></strong> <?= e(__('page_identify_candidates_beating_all_others')) ?></li>
+                    <li><strong><?= e(__('page_data_export')) ?></strong> <?= e(__('page_preflib_and_pabulib_formats_for_research')) ?></li>
                 </ul>
 
-                <h3>Poll Configuration</h3>
+                <h3><?= e(__('page_poll_configuration')) ?></h3>
                 <ul class="feature-list">
-                    <li><strong>Multiple Questions per Poll</strong> &mdash; Combine different question types</li>
-                    <li><strong>Privacy Settings</strong> &mdash; Full transparency, anonymous votes, or private results</li>
-                    <li><strong>Access Control</strong> &mdash; Public, password-protected, one-time tokens, or email invitations</li>
-                    <li><strong>Voting Modes</strong> &mdash; Open, identified, or secret ballot</li>
-                    <li><strong>Response Editing</strong> &mdash; No editing, edit own, or edit any (Doodle-style)</li>
-                    <li><strong>Option Randomization</strong> &mdash; Randomize option order to reduce bias</li>
-                    <li><strong>Markdown Support</strong> &mdash; Rich text in descriptions and messages</li>
+                    <li><strong><?= e(__('page_multiple_questions_per_poll')) ?></strong> <?= e(__('page_combine_different_question_types')) ?></li>
+                    <li><strong><?= e(__('page_privacy_settings')) ?></strong> <?= e(__('page_full_transparency_anonymous_votes_or_private_results')) ?></li>
+                    <li><strong><?= e(__('page_access_control')) ?></strong> <?= e(__('page_public_password_protected_one_time_tokens_or_email_invitations')) ?></li>
+                    <li><strong><?= e(__('page_voting_modes')) ?></strong> <?= e(__('page_open_identified_or_secret_ballot')) ?></li>
+                    <li><strong><?= e(__('page_response_editing')) ?></strong> <?= e(__('page_no_editing_edit_own_or_edit_any_doodle_style')) ?></li>
+                    <li><strong><?= e(__('page_option_randomization')) ?></strong> <?= e(__('page_randomize_option_order_to_reduce_bias')) ?></li>
+                    <li><strong><?= e(__('page_markdown_support')) ?></strong> <?= e(__('page_rich_text_in_descriptions_and_messages')) ?></li>
                 </ul>
             </section>
         </div>

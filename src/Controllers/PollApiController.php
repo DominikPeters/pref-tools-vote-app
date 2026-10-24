@@ -31,7 +31,7 @@ class PollApiController extends ApiController
 
         if (array_key_exists('locale', $data)) {
             $locale = is_string($data['locale']) ? Languages::resolve($data['locale']) : null;
-            if ($locale === null) return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+            if ($locale === null) return $this->error($this->t('error_unsupported_poll_language'), 'INVALID_LOCALE', 400);
             $data['locale'] = $locale;
         }
 
@@ -41,7 +41,7 @@ class PollApiController extends ApiController
         if ($userId === null && TurnstileService::isConfigured()) {
             $turnstileToken = $data['turnstile_token'] ?? '';
             if (!TurnstileService::verify($turnstileToken)) {
-                return $this->error('Security verification failed. Please try again.', 'TURNSTILE_FAILED', 400);
+                return $this->error($this->t('error_security_verification_failed_please_try_again'), 'TURNSTILE_FAILED', 400);
             }
         }
 
@@ -74,7 +74,7 @@ class PollApiController extends ApiController
                 'public_url' => url($poll->publicId),
             ]);
         } catch (\Exception $e) {
-            return $this->error('Failed to create vote: ' . $e->getMessage(), 'CREATE_FAILED', 500);
+            return $this->error($this->t('error_failed_to_create_vote_detail', ['detail' => $e->getMessage()]), 'CREATE_FAILED', 500);
         }
     }
 
@@ -86,7 +86,7 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check access based on access mode
@@ -107,11 +107,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll->loadQuestions();
@@ -127,18 +127,18 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $data = $this->getBody() ?? [];
 
         if (array_key_exists('locale', $data)) {
             $locale = is_string($data['locale']) ? Languages::resolve($data['locale']) : null;
-            if ($locale === null) return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+            if ($locale === null) return $this->error($this->t('error_unsupported_poll_language'), 'INVALID_LOCALE', 400);
             $data['locale'] = $locale;
         }
 
@@ -146,7 +146,7 @@ class PollApiController extends ApiController
         if (isset($data['voting_mode']) && $poll->isModeLocked()) {
             if ($data['voting_mode'] !== $poll->votingMode) {
                 return $this->error(
-                    'Cannot change voting mode after responses exist. Delete all responses first.',
+                    $this->t('error_cannot_change_voting_mode_after_responses_exist_delete_all_responses_first'),
                     'MODE_LOCKED',
                     400
                 );
@@ -179,7 +179,7 @@ class PollApiController extends ApiController
 
             return $this->success(['poll' => $poll->toAdminArray()]);
         } catch (\Exception $e) {
-            return $this->error('Failed to update vote: ' . $e->getMessage(), 'UPDATE_FAILED', 500);
+            return $this->error($this->t('error_failed_to_update_vote_detail', ['detail' => $e->getMessage()]), 'UPDATE_FAILED', 500);
         }
     }
 
@@ -191,11 +191,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $title = $poll->title;
@@ -217,11 +217,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll = $poll->close();
@@ -240,11 +240,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll = $poll->reopen();
@@ -263,11 +263,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll->loadQuestions();
@@ -275,7 +275,7 @@ class PollApiController extends ApiController
         try {
             // Create new poll with same settings
             $newPoll = Poll::create([
-                'title' => $poll->title . ' (copy)',
+                'title' => $this->t('backend_title_copy', ['title' => $poll->title]),
                 'description' => $poll->description,
                 'visibility' => $poll->visibility,
                 'collect_name' => $poll->collectName,
@@ -338,7 +338,7 @@ class PollApiController extends ApiController
                 'admin_url' => url("{$newPoll->publicId}/admin/{$newPoll->adminToken}"),
             ]);
         } catch (\Exception $e) {
-            return $this->error('Failed to duplicate poll: ' . $e->getMessage(), 'DUPLICATE_FAILED', 500);
+            return $this->error($this->t('error_failed_to_duplicate_poll_detail', ['detail' => $e->getMessage()]), 'DUPLICATE_FAILED', 500);
         }
     }
 
@@ -351,7 +351,7 @@ class PollApiController extends ApiController
 
         // Always return success to prevent probing for valid poll IDs
         if (!$poll) {
-            return $this->success(['message' => 'Report received']);
+            return $this->success(['message' => $this->t('backend_report_received')]);
         }
 
         $data = $this->getBody() ?? [];
@@ -359,24 +359,15 @@ class PollApiController extends ApiController
         $note = $data['note'] ?? '';
 
         // Validate reason
-        $validReasons = [
-            'spam' => 'Spam or misleading content',
-            'harassment' => 'Harassment or hate speech',
-            'doxxing' => 'Personal information exposure (doxxing)',
-            'illegal' => 'Illegal activity or content',
-            'impersonation' => 'Impersonation or fraud',
-            'phishing' => 'Malware or phishing attempt',
-            'copyright' => 'Copyright or trademark violation',
-            'other' => 'Other',
-        ];
+        $validReasons = array_fill_keys(['spam', 'harassment', 'doxxing', 'illegal', 'impersonation', 'phishing', 'copyright', 'other'], true);
 
         if (!isset($validReasons[$reason])) {
-            return $this->error('Invalid reason', 'INVALID_REASON', 400);
+            return $this->error($this->t('error_invalid_reason'), 'INVALID_REASON', 400);
         }
 
         // Require note for "other" reason
         if ($reason === 'other' && empty(trim($note))) {
-            return $this->error('Please provide details for your report', 'NOTE_REQUIRED', 400);
+            return $this->error($this->t('provide_report_details'), 'NOTE_REQUIRED', 400);
         }
 
         // Get reporter IP
@@ -391,11 +382,12 @@ class PollApiController extends ApiController
 
                 if ($mailService->isConfigured()) {
                     // Render email template
-                    $emailHtml = $this->renderReportEmail($poll, $reason, $validReasons[$reason], $note, $reporterIp);
+                    $emailLocale = User::findByEmail($sysadminEmail)?->getPreferredLocale() ?? \App\i18n\Languages::getDefault();
+                    $emailHtml = $this->renderReportEmail($poll, $reason, $note, $reporterIp, $emailLocale);
 
                     $mailService->send(
                         $sysadminEmail,
-                        '[Poll Report] ' . $poll->title,
+                        \App\i18n\Translator::translateForLocale($emailLocale, 'email_poll_report_title', ['title' => $poll->title]),
                         $emailHtml,
                         true
                     );
@@ -411,20 +403,31 @@ class PollApiController extends ApiController
             }
         }
 
-        return $this->success(['message' => 'Report received']);
+        return $this->success(['message' => $this->t('backend_report_received')]);
     }
 
     /**
      * Render the poll report email template
      */
-    private function renderReportEmail(Poll $poll, string $reasonKey, string $reasonLabel, string $note, string $reporterIp): string
+    private function renderReportEmail(Poll $poll, string $reasonKey, string $note, string $reporterIp, string $emailLocale): string
     {
         $pollUrl = url($poll->publicId);
         $timestamp = date('Y-m-d H:i:s T');
 
-        ob_start();
-        include __DIR__ . '/../../templates/emails/report.php';
-        return ob_get_clean();
+        $reasonLabel = match ($reasonKey) {
+            'spam' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_spam'),
+            'harassment' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_harassment'),
+            'doxxing' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_doxxing'),
+            'illegal' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_illegal'),
+            'impersonation' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_impersonation'),
+            'phishing' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_phishing'),
+            'copyright' => \App\i18n\Translator::translateForLocale($emailLocale, 'report_reason_copyright'),
+            'other' => \App\i18n\Translator::translateForLocale($emailLocale, 'category_other'),
+            default => $reasonKey,
+        };
+        return \App\Services\EmailTemplate::render('report', $emailLocale, compact(
+            'poll', 'reasonLabel', 'note', 'pollUrl', 'reporterIp', 'timestamp'
+        ));
     }
 
     /**
@@ -435,11 +438,13 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
+        $this->messageLocale = $poll->locale;
+
         if ($poll->status !== 'open') {
-            return $this->error('Poll is not open for submissions', 'POLL_NOT_OPEN', 400);
+            return $this->error($this->t('error_poll_is_not_open_for_submissions'), 'POLL_NOT_OPEN', 400);
         }
 
         $data = $this->getBody() ?? [];
@@ -475,12 +480,12 @@ class PollApiController extends ApiController
 
         // Secret ballot: never allow editing
         if ($poll->votingMode === 'secret_ballot' && $existingResponse) {
-            return $this->error('You have already voted in this secret ballot', 'ALREADY_VOTED', 400);
+            return $this->error($this->t('error_you_have_already_voted_in_this_secret_ballot'), 'ALREADY_VOTED', 400);
         }
 
         // Check edit permissions for non-secret modes
         if ($existingResponse && !$poll->canEditResponse()) {
-            return $this->error('You have already submitted a response', 'ALREADY_SUBMITTED', 400);
+            return $this->error($this->t('error_you_have_already_submitted_a_response'), 'ALREADY_SUBMITTED', 400);
         }
 
         try {
@@ -571,7 +576,7 @@ class PollApiController extends ApiController
                 'voter_token' => $poll->votingMode !== 'secret_ballot' ? $response->voterToken : null,
             ]);
         } catch (\Exception $e) {
-            return $this->error('Failed to submit response: ' . $e->getMessage(), 'SUBMIT_FAILED', 500);
+            return $this->error($this->t('error_failed_to_submit_response_detail', ['detail' => $e->getMessage()]), 'SUBMIT_FAILED', 500);
         }
     }
 
@@ -583,13 +588,13 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check visibility
         $canSee = $this->canSeeResponses($poll);
         if (!$canSee) {
-            return $this->error('Responses are not visible', 'NOT_VISIBLE', 403);
+            return $this->error($this->t('error_responses_are_not_visible'), 'NOT_VISIBLE', 403);
         }
 
         $responses = Response::findByPollId($poll->id);
@@ -613,13 +618,13 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
-            return $this->error('Response not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_response_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check authorization
@@ -632,7 +637,7 @@ class PollApiController extends ApiController
         $isPublic = $poll->visibility !== 'private';
 
         if (!$isAdmin && !$isOwner && !$isVoter && !$isPublic) {
-            return $this->error('You are not authorized to view this response', 'UNAUTHORIZED', 403);
+            return $this->error($this->t('error_you_are_not_authorized_to_view_this_response'), 'UNAUTHORIZED', 403);
         }
 
         $response->loadAnswers();
@@ -651,18 +656,20 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
+
+        $this->messageLocale = $poll->locale;
 
         // Secret ballot responses cannot be edited
         if ($poll->votingMode === 'secret_ballot') {
-            return $this->error('Secret ballot responses cannot be edited', 'EDIT_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_secret_ballot_responses_cannot_be_edited'), 'EDIT_NOT_ALLOWED', 403);
         }
 
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
-            return $this->error('Response not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_response_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check edit permissions
@@ -678,7 +685,7 @@ class PollApiController extends ApiController
         }
 
         if (!$canEdit) {
-            return $this->error('Cannot edit this response', 'EDIT_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_cannot_edit_this_response'), 'EDIT_NOT_ALLOWED', 403);
         }
 
         $data = $this->getBody() ?? [];
@@ -704,7 +711,7 @@ class PollApiController extends ApiController
 
             return $this->success(['response' => $response->toArray()]);
         } catch (\Exception $e) {
-            return $this->error('Failed to update response: ' . $e->getMessage(), 'UPDATE_FAILED', 500);
+            return $this->error($this->t('error_failed_to_update_response_detail', ['detail' => $e->getMessage()]), 'UPDATE_FAILED', 500);
         }
     }
 
@@ -716,18 +723,18 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         // Secret ballot responses cannot be deleted by voters
         if ($poll->votingMode === 'secret_ballot') {
-            return $this->error('Secret ballot responses cannot be deleted', 'DELETE_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_secret_ballot_responses_cannot_be_deleted'), 'DELETE_NOT_ALLOWED', 403);
         }
 
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
-            return $this->error('Response not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_response_not_found'), 'NOT_FOUND', 404);
         }
 
         // Check delete permissions
@@ -743,7 +750,7 @@ class PollApiController extends ApiController
         }
 
         if (!$canDelete) {
-            return $this->error('Cannot delete this response', 'DELETE_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_cannot_delete_this_response'), 'DELETE_NOT_ALLOWED', 403);
         }
 
         $voterName = $response->voterName;
@@ -771,23 +778,23 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         // Secret ballot responses cannot be withdrawn (voter has no way to identify their response)
         if ($poll->votingMode === 'secret_ballot') {
-            return $this->error('Secret ballot responses cannot be withdrawn', 'WITHDRAW_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_secret_ballot_responses_cannot_be_withdrawn'), 'WITHDRAW_NOT_ALLOWED', 403);
         }
 
         $response = Response::find((int) $params['responseId']);
 
         if (!$response || $response->pollId !== $poll->id) {
-            return $this->error('Response not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_response_not_found'), 'NOT_FOUND', 404);
         }
 
         // Already withdrawn
         if ($response->isWithdrawn()) {
-            return $this->error('Response has already been withdrawn', 'ALREADY_WITHDRAWN', 400);
+            return $this->error($this->t('error_response_has_already_been_withdrawn'), 'ALREADY_WITHDRAWN', 400);
         }
 
         // Check ownership - voter must prove they own this response
@@ -805,7 +812,7 @@ class PollApiController extends ApiController
         }
 
         if (!$canWithdraw) {
-            return $this->error('Cannot withdraw this response', 'WITHDRAW_NOT_ALLOWED', 403);
+            return $this->error($this->t('error_cannot_withdraw_this_response'), 'WITHDRAW_NOT_ALLOWED', 403);
         }
 
         $voterName = $response->voterName;
@@ -830,17 +837,17 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         // Get confirmation from request body
         $data = $this->getBody();
         if (empty($data['confirm']) || $data['confirm'] !== true) {
-            return $this->error('Confirmation required', 'CONFIRMATION_REQUIRED', 400);
+            return $this->error($this->t('error_confirmation_required'), 'CONFIRMATION_REQUIRED', 400);
         }
 
         // Get all responses (including withdrawn ones for complete cleanup)
@@ -861,7 +868,7 @@ class PollApiController extends ApiController
         ]);
 
         return $this->success([
-            'message' => 'All responses deleted',
+            'message' => $this->t('backend_all_responses_deleted'),
             'count' => $count,
         ]);
     }
@@ -874,11 +881,11 @@ class PollApiController extends ApiController
         $poll = Poll::findByPublicId($params['publicId']);
 
         if (!$poll) {
-            return $this->error('Poll not found', 'NOT_FOUND', 404);
+            return $this->error($this->t('error_poll_not_found'), 'NOT_FOUND', 404);
         }
 
         if (!$poll->verifyAdminToken($params['adminToken'])) {
-            return $this->error('Invalid admin token', 'INVALID_TOKEN', 403);
+            return $this->error($this->t('error_invalid_admin_token'), 'INVALID_TOKEN', 403);
         }
 
         $poll->loadQuestions();
@@ -1017,7 +1024,7 @@ class PollApiController extends ApiController
     private function exportCsv(Poll $poll, array $responses): array
     {
         // Build CSV content
-        $headers = ['Response ID', 'Voter Name', 'Created At'];
+        $headers = [$this->t('export_response_id'), $this->t('export_voter_name'), $this->t('export_created_at')];
         foreach ($poll->questions as $question) {
             $headers[] = $question->text;
         }
@@ -1117,7 +1124,7 @@ class PollApiController extends ApiController
                 'content' => $content,
             ]);
             return $this->error(
-                'Unable to process content. Please try again later.',
+                $this->t('error_unable_to_process_content_please_try_again_later'),
                 'MODERATION_ERROR',
                 503
             );
@@ -1224,19 +1231,16 @@ class PollApiController extends ApiController
         // Get voter name if collected
         $voterName = $response->voterName;
 
-        // Format the submission time
-        $submittedAt = $response->createdAt->format('M j, Y \a\t g:i A');
-
-        // Render email template
-        ob_start();
-        include __DIR__ . '/../../templates/emails/response-notification.php';
-        $emailBody = ob_get_clean();
-
-        // Build subject line
-        $subject = 'New response to "' . $poll->title . '"';
-        if ($voterName) {
-            $subject .= ' from ' . $voterName;
-        }
+        $emailLocale = $owner->getPreferredLocale();
+        $submittedAt = \App\Services\EmailTemplate::formatDate($response->createdAt, $emailLocale);
+        $emailBody = \App\Services\EmailTemplate::render('response-notification', $emailLocale, compact(
+            'poll', 'voterName', 'responseNumber', 'submittedAt', 'viewUrl'
+        ));
+        $subject = \App\i18n\Translator::translateForLocale($emailLocale,
+            $voterName ?
+                'email_new_response_to_title_from_name' : 'email_new_response_to_title',
+            ['title' => $poll->title, 'name' => $voterName]
+        );
 
         try {
             $mailService->send(
@@ -1291,7 +1295,7 @@ class PollApiController extends ApiController
             if ($question->type === 'single_choice' && is_array($answer) && isset($answer['other'])) {
                 $otherText = trim($answer['other']);
                 if ($otherText !== '') {
-                    $option = Option::findOrCreateUserAdded($question->id, 'Other: ' . $otherText);
+                    $option = Option::findOrCreateUserAdded($question->id, \App\i18n\Translator::translateForLocale($poll->locale, 'backend_other_text', ['text' => $otherText]));
                     $answers[$questionId] = $option->id;
                 } else {
                     // Empty "other" text - treat as no answer
@@ -1306,7 +1310,7 @@ class PollApiController extends ApiController
                     if (is_array($item) && isset($item['other'])) {
                         $otherText = trim($item['other']);
                         if ($otherText !== '') {
-                            $option = Option::findOrCreateUserAdded($question->id, 'Other: ' . $otherText);
+                            $option = Option::findOrCreateUserAdded($question->id, \App\i18n\Translator::translateForLocale($poll->locale, 'backend_other_text', ['text' => $otherText]));
                             $processedAnswer[] = $option->id;
                         }
                         // Skip empty "other" text

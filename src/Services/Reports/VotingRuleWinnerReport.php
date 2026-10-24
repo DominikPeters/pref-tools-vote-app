@@ -15,12 +15,12 @@ class VotingRuleWinnerReport extends BaseReport
 
     public function getName(): string
     {
-        return 'Voting Rule Winner';
+        return __('report_type_voting_rule_winner');
     }
 
     public function getDescription(): string
     {
-        return 'The winning option according to a voting rule of your choice';
+        return __('report_the_winning_option_according_to_a_voting_rule_of_your_choice');
     }
 
     public function getSupportedQuestionTypes(): array
@@ -51,7 +51,7 @@ class VotingRuleWinnerReport extends BaseReport
                 [
                     'name' => 'rule',
                     'type' => 'select',
-                    'label' => 'Voting Rule',
+                    'label' => __('voting_rule'),
                     'required' => true,
                     'options' => [], // Populated dynamically
                     'dynamicOptions' => 'votingRules',
@@ -70,9 +70,7 @@ class VotingRuleWinnerReport extends BaseReport
         // Get the voting method from registry
         $method = VotingRulesRegistry::getMethod($rule, $question->type);
         if ($method === null) {
-            return [
-                'error' => "Unknown or unsupported voting rule: {$rule}",
-            ];
+            return $this->errorResult('error_unknown_or_unsupported_voting_rule_rule', ['rule' => $rule]);
         }
 
         // Build appropriate profile
@@ -82,7 +80,7 @@ class VotingRuleWinnerReport extends BaseReport
         } elseif ($profileType === 'grade') {
             $profile = ProfileBuilder::fromGradeResponses($question, $responses);
         } else {
-            return ['error' => 'Unsupported question type'];
+            return $this->errorResult('error_unsupported_question_type');
         }
 
         // No votes yet: voting methods cannot run on an empty profile

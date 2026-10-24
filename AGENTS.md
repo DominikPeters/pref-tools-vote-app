@@ -33,6 +33,8 @@ Run `npm ci && npm run build` after checkout. Use `npm run watch` while editing 
 
 PHP requires `intl`. Shared ICU catalogs live in `src/i18n/locales/*.json` and language metadata in `src/i18n/languages.json`. Run `npm run check:i18n` and `npm run test:i18n` after i18n changes. UI language and poll language are independent; never change global interface translations to render a poll preview. Keep messages as plain text and escape at the rendering location. Review translation coverage baseline changes explicitly.
 
+All thirteen catalogs currently cover the whole source catalog; new messages need translations in all twelve non-English catalogs. Emails use explicit recipient/poll locale contexts. Report caches store stable facts and identifiers; translate display fields at serialization, and apply public privacy rules independently of the cache's creator. Keep both computation scopes and recipient rendering from leaking into the active interface locale.
+
 **PHP Unit Tests:**
 ```bash
 phpunit
@@ -54,6 +56,8 @@ npm run test:e2e:debug  # Run in debug mode
 ```
 
 E2E tests are in `e2e/` and test full user flows (install, auth, polls, sysadmin).
+
+PHP email tests and E2E tests share the local MailHog inbox; run those suites sequentially. Isolate E2E language-preference changes to a dedicated account so the shared admin storage state keeps its language.
 
 ### E2E Test Architecture
 

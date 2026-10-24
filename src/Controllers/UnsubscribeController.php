@@ -46,11 +46,11 @@ class UnsubscribeController
 
         // Validate signature
         if (empty($email) || empty($signature)) {
-            return ['error' => 'Missing email or signature', 'status' => 400];
+            return ['error' => __('error_missing_email_or_signature'), 'status' => 400];
         }
 
         if (!UnsubscribeService::verifySignature($email, $signature)) {
-            return ['error' => 'Invalid signature', 'status' => 403];
+            return ['error' => __('error_invalid_signature'), 'status' => 403];
         }
 
         if ($action === 'resubscribe') {
@@ -58,7 +58,7 @@ class UnsubscribeController
             LogService::getInstance()->log('email_resubscribe', null, null, null, ['email' => $email]);
             return [
                 'success' => true,
-                'message' => 'You have been resubscribed and will receive future invitations.',
+                'message' => __('backend_you_have_been_resubscribed_and_will_receive_future_invitations'),
                 'is_unsubscribed' => false,
             ];
         } else {
@@ -66,7 +66,7 @@ class UnsubscribeController
             LogService::getInstance()->log('email_unsubscribe', null, null, null, ['email' => $email]);
             return [
                 'success' => true,
-                'message' => 'You have been unsubscribed and will no longer receive invitation emails.',
+                'message' => __('backend_you_have_been_unsubscribed_and_will_no_longer_receive_invitation_emails'),
                 'is_unsubscribed' => true,
             ];
         }
@@ -84,13 +84,13 @@ class UnsubscribeController
         // Validate signature
         if (empty($email) || empty($signature)) {
             http_response_code(400);
-            echo 'Missing email or signature';
+            echo __('backend_missing_email_or_signature');
             return;
         }
 
         if (!UnsubscribeService::verifySignature($email, $signature)) {
             http_response_code(403);
-            echo 'Invalid signature';
+            echo __('backend_invalid_signature');
             return;
         }
 
@@ -100,6 +100,6 @@ class UnsubscribeController
 
         // Return success (RFC 8058 expects 200 OK)
         http_response_code(200);
-        echo 'Unsubscribed successfully';
+        echo __('backend_unsubscribed_successfully');
     }
 }

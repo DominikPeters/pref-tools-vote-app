@@ -1,3 +1,4 @@
+import { tUi, tUiHtml, uiTranslator } from './i18n.js';
 /**
  * Sysadmin Dashboard JavaScript
  */
@@ -57,7 +58,7 @@ async function apiRequest(endpoint, options = {}) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Request failed');
+            throw new Error(data.error || tUi('request_failed'));
         }
 
         return data;
@@ -79,7 +80,7 @@ async function loadUsers(offset = 0) {
     try {
         const data = await apiRequest(`/users?limit=${PAGE_SIZE}&offset=${offset}`);
 
-        countEl.textContent = `${data.total} total`;
+        countEl.textContent = tUi('js_count_total', { count: data.total });
         currentPage.users = offset;
 
         // Clear and populate table
@@ -111,7 +112,7 @@ async function loadUsers(offset = 0) {
         renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadUsers);
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="6" class="loading">Error loading users: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading">${tUiHtml('js_error_loading_users_error', { error: error.message })}</td></tr>`;
     }
 }
 
@@ -122,16 +123,16 @@ async function updateUserRole(userId, newRole) {
             body: JSON.stringify({ role: newRole })
         });
     } catch (error) {
-        showToast(`Failed to update role: ${error.message}`, 'error');
+        showToast(tUi('js_failed_to_update_role_error', { error: error.message }), 'error');
         loadUsers(currentPage.users);
     }
 }
 
 async function deleteUser(userId, email) {
     const confirmed = await showConfirmModal({
-        title: 'Delete User',
-        message: `Are you sure you want to delete user "${email}"? This action cannot be undone.`,
-        confirmText: 'Delete User',
+        title: tUi('js_delete_user'),
+        message: tUi('js_sysadmin_delete_user_confirm', { email }),
+        confirmText: tUi('js_delete_user'),
     });
 
     if (!confirmed) return;
@@ -140,7 +141,7 @@ async function deleteUser(userId, email) {
         await apiRequest(`/users/${userId}`, { method: 'DELETE' });
         loadUsers(currentPage.users);
     } catch (error) {
-        showToast(`Failed to delete user: ${error.message}`, 'error');
+        showToast(tUi('js_failed_to_delete_user_error', { error: error.message }), 'error');
     }
 }
 
@@ -156,7 +157,7 @@ async function loadPolls(offset = 0) {
     try {
         const data = await apiRequest(`/polls?limit=${PAGE_SIZE}&offset=${offset}`);
 
-        countEl.textContent = `${data.total} total`;
+        countEl.textContent = tUi('js_count_total', { count: data.total });
         currentPage.polls = offset;
 
         // Clear and populate table
@@ -174,10 +175,10 @@ async function loadPolls(offset = 0) {
             titleLink.textContent = poll.title;
             titleLink.href = `${BASE_PATH}/${poll.public_id}`;
 
-            row.querySelector('.poll-owner').textContent = poll.owner_email || '(anonymous)';
+            row.querySelector('.poll-owner').textContent = poll.owner_email || tUi('js_anonymous');
 
             const statusSpan = row.querySelector('.status');
-            statusSpan.textContent = poll.status;
+            statusSpan.textContent = tUi(`status_${poll.status}`);
             statusSpan.classList.add(`status-${poll.status}`);
 
             row.querySelector('.poll-responses').textContent = poll.response_count;
@@ -193,15 +194,15 @@ async function loadPolls(offset = 0) {
         renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadPolls);
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="7" class="loading">Error loading polls: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="loading">${tUiHtml('js_error_loading_polls_error', { error: error.message })}</td></tr>`;
     }
 }
 
 async function deletePoll(pollId, title) {
     const confirmed = await showConfirmModal({
-        title: 'Delete Poll',
-        message: `Are you sure you want to delete poll "${title}"? This will also delete all responses. This action cannot be undone.`,
-        confirmText: 'Delete Poll',
+        title: tUi('js_delete_poll'),
+        message: tUi('js_sysadmin_delete_poll_confirm', { title }),
+        confirmText: tUi('js_delete_poll'),
     });
 
     if (!confirmed) return;
@@ -210,7 +211,7 @@ async function deletePoll(pollId, title) {
         await apiRequest(`/polls/${pollId}`, { method: 'DELETE' });
         loadPolls(currentPage.polls);
     } catch (error) {
-        showToast(`Failed to delete poll: ${error.message}`, 'error');
+        showToast(tUi('js_failed_to_delete_poll_error', { error: error.message }), 'error');
     }
 }
 
@@ -226,7 +227,7 @@ async function loadLogs(offset = 0) {
     try {
         const data = await apiRequest(`/logs?limit=${PAGE_SIZE}&offset=${offset}`);
 
-        countEl.textContent = `${data.total} total`;
+        countEl.textContent = tUi('js_count_total', { count: data.total });
         currentPage.logs = offset;
 
         // Clear and populate table
@@ -238,7 +239,7 @@ async function loadLogs(offset = 0) {
 
             row.querySelector('.log-time').textContent = formatDateTime(log.created_at);
             row.querySelector('.log-action code').textContent = log.action;
-            row.querySelector('.log-user').textContent = log.user_email || (log.user_id ? `User #${log.user_id}` : '-');
+            row.querySelector('.log-user').textContent = log.user_email || (log.user_id ? tUi('js_user_id', { id: log.user_id }) : '-');
             row.querySelector('.log-poll').textContent = log.poll_id || '-';
             row.querySelector('.log-ip').textContent = log.ip_address || '-';
 
@@ -255,7 +256,7 @@ async function loadLogs(offset = 0) {
         renderPagination(paginationEl, data.total, offset, PAGE_SIZE, loadLogs);
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="6" class="loading">Error loading logs: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading">${tUiHtml('js_error_loading_logs_error', { error: error.message })}</td></tr>`;
     }
 }
 
@@ -294,7 +295,7 @@ function initModal() {
 function formatDate(isoString) {
     if (!isoString) return '-';
     const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(uiTranslator.locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -304,7 +305,7 @@ function formatDate(isoString) {
 function formatDateTime(isoString) {
     if (!isoString) return '-';
     const date = new Date(isoString);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString(uiTranslator.locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -323,9 +324,9 @@ function renderPagination(container, total, offset, pageSize, loadFn) {
     }
 
     container.innerHTML = `
-        <button class="prev-btn" ${offset === 0 ? 'disabled' : ''}>Previous</button>
-        <span class="page-info">Page ${currentPageNum} of ${totalPages}</span>
-        <button class="next-btn" ${offset + pageSize >= total ? 'disabled' : ''}>Next</button>
+        <button class="prev-btn" ${offset === 0 ? 'disabled' : ''}>${tUiHtml('js_previous')}</button>
+        <span class="page-info">${tUiHtml('js_page_page_of_total', { page: currentPageNum, total: totalPages })}</span>
+        <button class="next-btn" ${offset + pageSize >= total ? 'disabled' : ''}>${tUiHtml('js_next')}</button>
     `;
 
     container.querySelector('.prev-btn')?.addEventListener('click', () => {
@@ -356,7 +357,7 @@ async function loadConfig() {
         const data = await apiRequest('/settings');
         populateConfigForm(data.settings);
     } catch (error) {
-        showToast(`Failed to load settings: ${error.message}`, 'error');
+        showToast(tUi('js_failed_to_load_settings_error', { error: error.message }), 'error');
     }
 }
 
@@ -408,7 +409,7 @@ function initConfigForm() {
         e.preventDefault();
 
         saveBtn.disabled = true;
-        saveStatus.textContent = 'Saving...';
+        saveStatus.textContent = tUi('js_saving');
         saveStatus.className = 'status-message loading';
 
         try {
@@ -418,7 +419,7 @@ function initConfigForm() {
                 body: JSON.stringify({ settings })
             });
 
-            saveStatus.textContent = 'Settings saved successfully';
+            saveStatus.textContent = tUi('js_settings_saved_successfully');
             saveStatus.className = 'status-message success';
 
             // Reload to get fresh masked values
@@ -429,7 +430,7 @@ function initConfigForm() {
             }, 3000);
 
         } catch (error) {
-            saveStatus.textContent = `Error: ${error.message}`;
+            saveStatus.textContent = tUi('js_error_error', { error: error.message });
             saveStatus.className = 'status-message error';
         } finally {
             saveBtn.disabled = false;
@@ -496,7 +497,7 @@ function initSecretFields() {
         input.addEventListener('blur', () => {
             if (input.value === '' && secretFieldsWithValues.has(input.name)) {
                 // User cleared it but didn't enter new value - will keep existing on save
-                input.placeholder = 'Leave empty to keep existing';
+                input.placeholder = tUi('js_leave_empty_to_keep_existing');
             }
         });
     });
@@ -510,7 +511,7 @@ function initTestEmail() {
 
     testBtn.addEventListener('click', async () => {
         testBtn.disabled = true;
-        testStatus.textContent = 'Sending...';
+        testStatus.textContent = tUi('js_sending');
         testStatus.className = 'status-message loading';
 
         try {
@@ -518,11 +519,11 @@ function initTestEmail() {
                 method: 'POST'
             });
 
-            testStatus.textContent = data.message || 'Test email sent!';
+            testStatus.textContent = data.message || tUi('js_test_email_sent');
             testStatus.className = 'status-message success';
 
         } catch (error) {
-            testStatus.textContent = `Error: ${error.message}`;
+            testStatus.textContent = tUi('js_error_error', { error: error.message });
             testStatus.className = 'status-message error';
         } finally {
             testBtn.disabled = false;

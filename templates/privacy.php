@@ -1,12 +1,12 @@
 <?php
-$title = 'Privacy Policy - Pref.Tools Vote';
+$title = __('privacy_policy') . ' - Pref.Tools Vote';
 ob_start();
 ?>
 
 <div class="policy-container">
     <div class="container">
         <div class="card">
-            <div class="markdown-content">
+            <div class="markdown-content" lang="en">
                 <?= $content ?>
             </div>
         </div>

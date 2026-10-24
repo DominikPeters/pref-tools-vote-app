@@ -6,7 +6,7 @@
  */
 
 import { renderQuestion } from './question-renderer.js';
-import { t } from './i18n.js';
+import { t, tHtml } from './i18n.js';
 
 // ==========================================================================
 // Initialization
@@ -82,7 +82,7 @@ function initForm() {
         try {
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                submitBtn.textContent = t('js_submitting');
             }
 
             // Use embed API endpoint
@@ -97,7 +97,7 @@ function initForm() {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.error || 'Failed to submit response');
+                throw new Error(result.error || t('js_failed_to_submit_response'));
             }
 
             // Show thank you message
@@ -123,16 +123,16 @@ function showThankYou(result) {
         messageContent = `<div class="thank-you-custom markdown">${customMessage}</div>`;
     } else {
         messageContent = `
-            <h2>${t('thank_you')}</h2>
-            <p>${t('response_recorded')}</p>
+            <h2>${tHtml('thank_you')}</h2>
+            <p>${tHtml('response_recorded')}</p>
         `;
     }
 
     let actionsHtml = '';
     if (resultsUrl) {
-        actionsHtml += `<a href="${resultsUrl}" target="_blank" class="btn btn-primary">${t('view_results')}</a>`;
+        actionsHtml += `<a href="${resultsUrl}" target="_blank" class="btn btn-primary">${tHtml('view_results')}</a>`;
     }
-    actionsHtml += `<a href="${siteUrl}" target="_blank" class="site-link">Visit Pref.Tools Vote</a>`;
+    actionsHtml += `<a href="${siteUrl}" target="_blank" class="site-link">${tHtml('js_visit_pref_tools_vote')}</a>`;
 
     container.innerHTML = `
         <div class="container">
@@ -303,7 +303,7 @@ function validateForm(data) {
             const answer = data.answers[questionId];
             const count = Array.isArray(answer) ? answer.length : 0;
             if (count < min) {
-                return `Please select at least ${min} option(s) for "${question.text}"`;
+                return t('js_poll_approval_min_error', { count: min, question: question.text });
             }
         }
     }
@@ -350,11 +350,11 @@ function initApproval() {
             hint.className = 'approval-hint';
             let hintText = '';
             if (min > 0 && max !== null) {
-                hintText = min === max ? `Select exactly ${min}` : `Select ${min} to ${max}`;
+                hintText = min === max ? t('js_select_exactly_count', { count: min }) : t('js_select_min_to_max', { min, max });
             } else if (min > 0) {
-                hintText = `Select at least ${min}`;
+                hintText = t('js_select_at_least_count', { count: min });
             } else if (max !== null) {
-                hintText = `Select up to ${max}`;
+                hintText = t('js_select_up_to_count', { count: max });
             }
             hint.textContent = hintText;
             container.parentNode.insertBefore(hint, container);
@@ -448,16 +448,16 @@ function initTruncatedRankings() {
         if (min > 0 || hasMax) {
             let hintText = '';
             if (min > 0 && hasMax) {
-                hintText = min === maxSetting ? `Rank exactly ${min}` : `Rank ${min} to ${maxSetting} options`;
+                hintText = min === maxSetting ? t('js_rank_exactly_count', { count: min }) : t('js_poll_rank_range_hint', { min, max: maxSetting });
             } else if (min > 0) {
-                hintText = `Rank at least ${min} options`;
+                hintText = t('js_poll_rank_min_hint', { count: min });
             } else if (hasMax) {
-                hintText = `Rank up to ${maxSetting} options`;
+                hintText = t('js_poll_rank_max_hint', { count: maxSetting });
             }
             hintEl.textContent = hintText;
             hintEl.style.display = '';
         } else {
-            hintEl.textContent = 'Drag options to rank them (top = best)';
+            hintEl.textContent = t('js_drag_options_to_rank_them_top_best');
             hintEl.style.display = '';
         }
 
@@ -529,8 +529,7 @@ function initRankingWithTies() {
             const classes = rankingContainer.querySelectorAll('.indifference-class:has(.ranking-ties-item)');
             classes.forEach((ic, index) => {
                 const rank = index + 1;
-                const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
-                ic.dataset.rank = `${rank}${suffix}`;
+                ic.dataset.rank = t('js_rank_ordinal', { rank });
             });
         }
 

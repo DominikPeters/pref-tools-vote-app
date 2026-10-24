@@ -3,7 +3,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderPBWinner(container, data, config) {
     const { rule, rule_name, total_budget, winners, notes, total_responses, error } = data;
@@ -14,7 +14,7 @@ export function renderPBWinner(container, data, config) {
     }
 
     if (!winners || winners.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_winning_projects_yet')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_winning_projects_yet')}</p>`;
         return;
     }
 
@@ -36,22 +36,22 @@ export function renderPBWinner(container, data, config) {
             <p class="rule-name">${escapeHtml(translatedRuleName)}</p>
             <div class="pb-budget-summary">
                 <div class="budget-stat">
-                    <span class="stat-label">${t('total_budget')}:</span>
+                    <span class="stat-label">${tHtml('total_budget')}:</span>
                     <span class="stat-value">${escapeHtml(total_budget.toLocaleString())}</span>
                 </div>
                 <div class="budget-stat">
-                    <span class="stat-label">${t('spent')}:</span>
+                    <span class="stat-label">${tHtml('spent')}:</span>
                     <span class="stat-value ${totalCost > total_budget ? 'over-budget' : ''}">${escapeHtml(totalCost.toLocaleString())}</span>
                 </div>
             </div>
 
-            <p class="winner-label">${t('winning_projects')}</p>
+            <p class="winner-label">${tHtml('winning_projects')}</p>
             <div class="pb-winners-list">
                 ${winnerItems}
             </div>
 
             <div class="pb-outcome-stats">
-                <p>${t('avg_voter_approves', { count: avgApproved.toFixed(2) })}</p>
+                <p>${tHtml('avg_voter_approves', { count: avgApproved.toFixed(2) })}</p>
                 ${notes?.comparison ? `<p class="comparison-note">${escapeHtml(notes.comparison)}</p>` : ''}
             </div>
         </div>

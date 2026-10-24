@@ -1,3 +1,4 @@
+import { tUi, tUiHtml } from './i18n.js';
 /**
  * Results Admin Page JavaScript
  *
@@ -36,10 +37,10 @@ function initVisibilityControl(publicId, adminToken) {
             await api.put(`/api/polls/${publicId}/admin/${adminToken}`, {
                 visibility: newVisibility,
             });
-            showToast('Visibility updated', 'success');
+            showToast(tUi('js_visibility_updated'), 'success');
         } catch (err) {
             console.error('Failed to update visibility:', err);
-            showToast('Failed to update visibility', 'error');
+            showToast(tUi('js_failed_to_update_visibility'), 'error');
         }
     });
 }
@@ -95,9 +96,8 @@ function addSetupBanner(publicId, container) {
     const banner = document.createElement('div');
     banner.className = 'results-setup-banner';
     banner.innerHTML = `
-        <span>Standard analyses are set up automatically for each question.
-        You can reorder, customize, or remove them below — and add more with “+ Add Analysis”.</span>
-        <button class="btn-close" title="Dismiss">&times;</button>
+        <span>${tUiHtml('js_results_setup_banner')}</span>
+        <button class="btn-close" title="${tUiHtml('js_dismiss')}">&times;</button>
     `;
     container.prepend(banner);
 
@@ -132,7 +132,7 @@ function refreshQuestionCardExtras(publicId, adminToken) {
         if (activeTypes.length === 0 && !note) {
             note = document.createElement('p');
             note.className = 'no-reports';
-            note.textContent = 'No analyses yet — nothing will be shown for this question.';
+            note.textContent = tUi('js_results_no_analyses');
             reportsContainer.appendChild(note);
         } else if (activeTypes.length > 0 && note) {
             note.remove();
@@ -162,7 +162,7 @@ function refreshQuestionCardExtras(publicId, adminToken) {
                 }
             });
         }
-        btn.textContent = 'Add recommended analyses';
+        btn.textContent = tUi('js_add_recommended_analyses');
     });
 }
 
@@ -187,7 +187,7 @@ function showReportDrawer(questionId, publicId, adminToken) {
     const types = availableTypes?.types_by_question?.[questionId] || [];
 
     if (types.length === 0) {
-        showToast('No report types available for this question type', 'error');
+        showToast(tUi('js_results_no_report_types'), 'error');
         return;
     }
 
@@ -207,9 +207,9 @@ function showReportDrawer(questionId, publicId, adminToken) {
     drawer.className = 'report-drawer';
     drawer.innerHTML = `
         <div class="drawer-header">
-            <button class="btn-drawer-back" title="Back" hidden>${getReportIcon('chevron-left')}</button>
-            <span class="drawer-title">Add Analysis</span>
-            <button class="btn-close" title="Close">&times;</button>
+            <button class="btn-drawer-back" title="${tUiHtml('js_back')}" hidden>${getReportIcon('chevron-left')}</button>
+            <span class="drawer-title">${tUiHtml('add_analysis')}</span>
+            <button class="btn-close" title="${tUiHtml('js_close')}">&times;</button>
         </div>
         <div class="drawer-content"></div>
     `;
@@ -254,7 +254,7 @@ function showIntentStep(ctx) {
         typesByIntent[key].push(type);
     }
 
-    let html = '<p class="wizard-question">What do you want to show?</p>';
+    let html = `<p class="wizard-question">${tUiHtml('js_what_do_you_want_to_show')}</p>`;
     html += '<div class="report-type-grid">';
     for (const [key, meta] of Object.entries(intents)) {
         if (!typesByIntent[key] || typesByIntent[key].length === 0) continue;
@@ -268,12 +268,12 @@ function showIntentStep(ctx) {
             </button>
         `;
     }
-    html += '</div>';
-    html += '<div class="browse-all-row"><button type="button" class="btn-link browse-all">Browse all analyses</button></div>';
+    html += `</div>`;
+    html += `<div class="browse-all-row"><button type="button" class="btn-link browse-all">${tUiHtml('js_browse_all_analyses')}</button></div>`;
 
     const content = ctx.drawer.querySelector('.drawer-content');
     content.innerHTML = html;
-    setDrawerHeader(ctx, 'Add Analysis', null);
+    setDrawerHeader(ctx, tUi('add_analysis'), null);
 
     content.querySelectorAll('.intent-card').forEach(card => {
         card.addEventListener('click', () => {
@@ -297,7 +297,7 @@ function showIntentTypesStep(ctx, intentKey, intentTypes) {
     const meta = availableTypes?.intents?.[intentKey];
     const content = ctx.drawer.querySelector('.drawer-content');
     content.innerHTML = `<div class="report-type-grid">${renderTypeCards(ctx, intentTypes)}</div>`;
-    setDrawerHeader(ctx, meta?.label || 'Add Analysis', () => showIntentStep(ctx));
+    setDrawerHeader(ctx, meta?.label || tUi('add_analysis'), () => showIntentStep(ctx));
     bindTypeCards(ctx, content, () => showIntentTypesStep(ctx, intentKey, intentTypes));
 }
 
@@ -329,7 +329,7 @@ function showAllTypesStep(ctx) {
 
     const content = ctx.drawer.querySelector('.drawer-content');
     content.innerHTML = html;
-    setDrawerHeader(ctx, 'All Analyses', () => showIntentStep(ctx));
+    setDrawerHeader(ctx, tUi('js_all_analyses'), () => showIntentStep(ctx));
     bindTypeCards(ctx, content, () => showAllTypesStep(ctx));
 }
 
@@ -349,7 +349,7 @@ function renderTypeCards(ctx, typesArr) {
         const isDefault = defaultTypes.includes(type.type);
         const disabledAttr = isDisabled ? 'disabled' : '';
         const disabledClass = isDisabled ? 'disabled' : '';
-        const tooltip = isDisabled ? 'This analysis is already added' : '';
+        const tooltip = isDisabled ? tUi('js_this_analysis_is_already_added') : '';
 
         return `
             <button class="report-type-card ${disabledClass}"
@@ -358,7 +358,7 @@ function renderTypeCards(ctx, typesArr) {
                     ${tooltip ? `title="${escapeHtml(tooltip)}"` : ''}>
                 <span class="type-icon">${getReportIcon(type.icon)}</span>
                 <div class="type-info">
-                    <div class="type-name">${escapeHtml(type.name)}${isDefault ? ' <span class="badge-default">default</span>' : ''}</div>
+                    <div class="type-name">${escapeHtml(type.name)}${isDefault ? ` <span class="badge-default">${tUiHtml('js_default')}</span>` : ''}</div>
                     <div class="type-description">${escapeHtml(type.description)}</div>
                 </div>
             </button>
@@ -460,8 +460,8 @@ function showConfigStep(ctx, typeData, backFn) {
 
     formHtml += `
         <div class="form-actions">
-            <button type="button" class="btn btn-secondary btn-back">Back</button>
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button type="button" class="btn btn-secondary btn-back">${tUiHtml('js_back')}</button>
+            <button type="submit" class="btn btn-primary">${tUiHtml('js_add')}</button>
         </div>
     `;
     formHtml += '</form>';
@@ -508,7 +508,7 @@ function getFieldOptions(field, questionId) {
 function renderOptionInfo(opt) {
     return `
         <span class="rule-option-info">
-            <span class="rule-option-name">${escapeHtml(opt.label)}${opt.default ? ' <span class="badge-default">default</span>' : ''}</span>
+            <span class="rule-option-name">${escapeHtml(opt.label)}${opt.default ? ` <span class="badge-default">${tUiHtml('js_default')}</span>` : ''}</span>
             ${opt.description ? `<span class="rule-option-desc">${escapeHtml(opt.description)}</span>` : ''}
         </span>
     `;
@@ -613,7 +613,7 @@ function renderConfigField(field, currentValue, questionId) {
                         ${max !== undefined ? `max="${max}"` : ''}>`;
     } else {
         html += `<input type="text" id="config-${field.name}" name="${field.name}"
-                        value="${currentValue || ''}" class="form-control">`;
+                        value="${escapeHtml(currentValue || '')}" class="form-control">`;
     }
 
     html += `</div>`;
@@ -626,7 +626,7 @@ function renderConfigField(field, currentValue, questionId) {
 function showEditConfigModal(report, publicId, adminToken) {
     const typeData = availableTypes?.all_types?.find(t => t.type === report.report_type);
     if (!typeData?.config_schema) {
-        showToast('No configuration options for this report type', 'error');
+        showToast(tUi('js_results_no_configuration'), 'error');
         return;
     }
 
@@ -647,14 +647,14 @@ function showEditConfigModal(report, publicId, adminToken) {
     overlay.innerHTML = `
         <div class="config-modal">
             <div class="modal-header">
-                <h3>Edit ${escapeHtml(typeData.name)} Settings</h3>
-                <button class="btn-close" title="Close">&times;</button>
+                <h3>${tUiHtml('js_edit_name_settings', { name: typeData.name })}</h3>
+                <button class="btn-close" title="${tUiHtml('js_close')}">&times;</button>
             </div>
             <form class="config-form">
                 ${fieldsHtml}
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary btn-cancel">${tUiHtml('cancel')}</button>
+                    <button type="submit" class="btn btn-primary">${tUiHtml('save')}</button>
                 </div>
             </form>
         </div>
@@ -691,11 +691,11 @@ function showEditConfigModal(report, publicId, adminToken) {
                 renderReport(contentContainer, report, { publicId, adminToken });
             }
 
-            showToast('Settings saved', 'success');
+            showToast(tUi('js_settings_saved'), 'success');
             closeModal();
         } catch (err) {
             console.error('Failed to update config:', err);
-            showToast('Failed to save settings', 'error');
+            showToast(tUi('js_failed_to_save_settings'), 'error');
         }
     });
 }
@@ -726,10 +726,10 @@ async function addReport(questionId, reportType, config, publicId, adminToken) {
         }
 
         refreshQuestionCardExtras(publicId, adminToken);
-        showToast('Analysis added', 'success');
+        showToast(tUi('js_analysis_added'), 'success');
     } catch (err) {
         console.error('Failed to add report:', err);
-        showToast('Failed to add analysis', 'error');
+        showToast(tUi('js_failed_to_add_analysis'), 'error');
     }
 }
 
@@ -748,14 +748,14 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
 
     card.innerHTML = `
         <div class="report-header">
-            <span class="report-drag-handle" data-tooltip="Drag to reorder" data-tooltip-pos="left">${getIcon('menu')}</span>
+            <span class="report-drag-handle" data-tooltip="${tUiHtml('drag_to_reorder')}" data-tooltip-pos="left">${getIcon('menu')}</span>
             <span class="report-name">${escapeHtml(typeName)}</span>
             <div class="report-actions">
-                ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="Settings">${getIcon('settings')}</button>` : ''}
-                <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? 'Make private' : 'Make public'}">
+                ${hasConfig ? `<button class="btn-icon edit-config" data-tooltip="${tUiHtml('settings')}">${getIcon('settings')}</button>` : ''}
+                <button class="btn-icon toggle-public" data-tooltip="${report.is_public ? tUiHtml('make_private') : tUiHtml('make_public')}">
                     ${getIcon(report.is_public ? 'eye' : 'lock')}
                 </button>
-                <button class="btn-icon delete-report" data-tooltip="Delete analysis">${getIcon('trash')}</button>
+                <button class="btn-icon delete-report" data-tooltip="${tUiHtml('delete_analysis')}">${getIcon('trash')}</button>
             </div>
         </div>
         <div class="report-content"></div>
@@ -784,7 +784,7 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
             );
             report.is_public = result.report.is_public;
             toggleBtn.innerHTML = getIcon(report.is_public ? 'eye' : 'lock');
-            toggleBtn.setAttribute('data-tooltip', report.is_public ? 'Make private' : 'Make public');
+            toggleBtn.setAttribute('data-tooltip', report.is_public ? tUi('make_private') : tUi('make_public'));
         } catch (err) {
             console.error('Failed to toggle visibility:', err);
         }
@@ -800,7 +800,7 @@ function addReportCardToContainer(container, report, publicId, adminToken) {
         let shouldDelete = true;
 
         // Show undo toast
-        showUndoToast('Analysis deleted', () => {
+        showUndoToast(tUi('analysis_deleted'), () => {
             // Undo - show card again
             shouldDelete = false;
             card.style.display = '';

@@ -4,13 +4,13 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t } from '../i18n.js';
+import { t, tHtml } from '../i18n.js';
 
 export function renderTextResponses(container, data, config) {
     const { answers } = data;
 
     if (!answers || answers.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_responses')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_responses')}</p>`;
         return;
     }
 

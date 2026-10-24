@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml } from '../app.js';
-import { t, tFallback } from '../i18n.js';
+import { t, tFallback, tHtml } from '../i18n.js';
 
 export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     const { results, summary, committee_size, total_rules, total_responses, error } = data;
@@ -15,7 +15,7 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     }
 
     if (!results || results.length === 0) {
-        container.innerHTML = `<p class="no-data">${t('no_results_to_compare')}</p>`;
+        container.innerHTML = `<p class="no-data">${tHtml('no_results_to_compare')}</p>`;
         return;
     }
 
@@ -27,8 +27,8 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>${t('voting_rule')}</th>
-                            <th>${t('winning_committee')} (${t('committee_size_label', { size: committee_size })})</th>
+                            <th>${tHtml('voting_rule')}</th>
+                            <th>${tHtml('winning_committee')} (${tHtml('committee_size_label', { size: committee_size })})</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,7 +38,7 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
                             <tr>
                                 <td class="rule-name">
                                     ${escapeHtml(translatedRuleName)}
-                                    ${res.is_tie ? `<span class="tie-badge" title="${t('tie_showing_first')}">${t('result_tied')}</span>` : ''}
+                                    ${res.is_tie ? `<span class="tie-badge" title="${tHtml('tie_showing_first')}">${tHtml('result_tied')}</span>` : ''}
                                 </td>
                                 <td>
                                     <ul class="committee-list-inline">
@@ -56,15 +56,15 @@ export function renderMultiwinnerMultiRuleComparison(container, data, config) {
     if (showSummary && summary && summary.length > 0) {
         html += `
             <div class="report-summary mt-4">
-                <h5>${t('candidate_frequency')}</h5>
-                <p class="summary-desc">${t('candidate_frequency_desc', { count: total_rules })}</p>
+                <h5>${tHtml('candidate_frequency')}</h5>
+                <p class="summary-desc">${tHtml('js_candidate_frequency_description', { count: total_rules })}</p>
                 <div class="table-container">
                     <table class="report-table summary-table">
                         <thead>
                             <tr>
-                                <th>${t('candidate')}</th>
-                                <th>${t('count')}</th>
-                                <th>${t('rules')}</th>
+                                <th>${tHtml('candidate')}</th>
+                                <th>${tHtml('count')}</th>
+                                <th>${tHtml('rules')}</th>
                             </tr>
                         </thead>
                         <tbody>
