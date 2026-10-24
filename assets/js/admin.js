@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast(`${data.message} <a href="${data.link}">${data.linkText}</a>`, 'info');
     }
 
+    // Bind visible settings before waiting for network requests, so an early
+    // change is not lost while the initial poll/access data is still loading.
+    initSettings(publicId, adminToken);
+    initNotificationSetting(publicId, adminToken);
+    initEmbedding(publicId, adminToken);
+
     // Load poll data first, then responses (the answered-count needs pollData)
     await loadVote(publicId, adminToken);
     loadResponses(publicId, adminToken);
@@ -41,15 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         initTokenManagement(publicId, adminToken);
         initInvitationManagement(publicId, adminToken);
     }
-
-    // Initialize settings
-    initSettings(publicId, adminToken);
-
-    // Response notification setting
-    initNotificationSetting(publicId, adminToken);
-
-    // Embedding settings
-    initEmbedding(publicId, adminToken);
 
     // Action buttons
     const publishBtn = document.getElementById('publishPoll');
@@ -748,7 +745,7 @@ function initEmbedding(publicId, adminToken) {
             // Get or generate embed token
             const result = await api.post(`/api/polls/${publicId}/admin/${adminToken}/embed-token`);
             const embedUrl = result.embed_url;
-            const scriptUrl = `${window.location.origin}${window.BASE_PATH}/assets/js/embed/vote-poll.js`;
+            const scriptUrl = new URL(window.EMBED_SCRIPT_URL, window.location.origin).href;
 
             const code = `<script src="${scriptUrl}"><\/script>\n<vote-poll src="${embedUrl}"></vote-poll>`;
             if (embedCodeTextarea) {

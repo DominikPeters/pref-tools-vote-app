@@ -247,11 +247,13 @@ function basePath(): string
 }
 
 /**
- * Generate an asset URL with base path
+ * Generate an asset URL with base path and Vite's content hash.
  */
 function asset(string $path): string
 {
-    return basePath() . '/' . ltrim($path, '/');
+    static $manifest = null;
+    $manifest ??= new \App\Services\AssetManifest(BASE_PATH);
+    return $manifest->url($path, basePath());
 }
 
 /**

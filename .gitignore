@@ -11,7 +11,7 @@ vendor/
 
 # Node.js
 node_modules/
-package-lock.json
+assets/build/
 
 # Playwright
 /test-results/

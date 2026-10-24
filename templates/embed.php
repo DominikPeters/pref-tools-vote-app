@@ -17,10 +17,10 @@ $translations = Translator::getAllTranslations();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($poll->title) ?></title>
     <base href="<?= basePath() ?>/">
-    <link rel="stylesheet" href="<?= basePath() ?>/assets/css/main.css">
-    <link rel="stylesheet" href="<?= basePath() ?>/assets/css/question.css">
-    <link rel="stylesheet" href="<?= basePath() ?>/assets/css/poll.css">
-    <link rel="stylesheet" href="<?= basePath() ?>/assets/css/embed.css">
+    <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+    <link rel="stylesheet" href="<?= asset('assets/css/question.css') ?>">
+    <link rel="stylesheet" href="<?= asset('assets/css/poll.css') ?>">
+    <link rel="stylesheet" href="<?= asset('assets/css/embed.css') ?>">
 </head>
 <body>
     <script>
@@ -77,6 +77,6 @@ $translations = Translator::getAllTranslations();
         </div>
     </div>
 
-    <script src="<?= basePath() ?>/assets/js/embed-poll.js" type="module"></script>
+    <script src="<?= asset('assets/js/embed-poll.js') ?>" type="module"></script>
 </body>
 </html>

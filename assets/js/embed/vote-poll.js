@@ -33,7 +33,7 @@ class VotePoll extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.showLoading();
         if (this.hasAttribute('src')) {
             this.loadPoll();
         }

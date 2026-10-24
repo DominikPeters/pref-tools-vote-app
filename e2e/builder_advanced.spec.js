@@ -3,6 +3,78 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Advanced Builder Features', () => {
 
+  test('loads bundled scripts, shared modules and styles without stale source modules', async ({ freshPage }) => {
+    const sourceRequests = [];
+    const assetRequests = [];
+    const errors = [];
+    freshPage.on('pageerror', error => errors.push(error.message));
+    freshPage.on('request', request => {
+      const path = new URL(request.url()).pathname;
+      if (path.startsWith('/assets/') && /\.(js|css)$/.test(path)) {
+        assetRequests.push(path);
+      }
+    });
+    // A cached, pre-redesign renderer lacks getQuestionTypes. The bundled page
+    // must never request that unversioned source URL.
+    await freshPage.route('**/assets/js/question-renderer.js', route => {
+      sourceRequests.push(route.request().url());
+      return route.fulfill({
+        contentType: 'application/javascript',
+        body: 'export const OPTION_TYPES = []; export function renderQuestion() {}',
+      });
+    });
+
+    await freshPage.goto('/create');
+    await freshPage.click('#addQuestionBtn');
+    await freshPage.click('.type-btn[data-type="single_choice"]');
+    await expect(freshPage.locator('.question-title-input')).toBeVisible();
+    expect(assetRequests.length).toBeGreaterThan(2);
+    expect(assetRequests.every(path => path.startsWith('/assets/build/'))).toBe(true);
+    expect(sourceRequests).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
+  test('can save, update, reload and publish the same draft', async ({ page }) => {
+    await page.goto('/create');
+    await page.fill('#pollTitle', 'Saved Draft');
+    await page.click('#addQuestionBtn');
+    await page.click('.type-btn[data-type="single_choice"]');
+    await page.locator('.question-title-input').fill('Draft Question');
+
+    const [created] = await Promise.all([
+      page.waitForResponse(response => response.url().endsWith('/api/polls') && response.request().method() === 'POST'),
+      page.click('#saveBtn'),
+    ]);
+    expect(created.ok()).toBe(true);
+    const { poll } = await created.json();
+    await expect(page.locator('#saveBtn')).toHaveText('Update Draft');
+
+    await page.fill('#pollTitle', 'Updated Draft');
+    const adminPath = `/api/polls/${poll.public_id}/admin/${poll.admin_token}`;
+    const [updated] = await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(adminPath) && response.request().method() === 'PUT'),
+      page.click('#saveBtn'),
+    ]);
+    expect(updated.ok()).toBe(true);
+    expect((await updated.json()).poll.public_id).toBe(poll.public_id);
+    await expect(page.locator('#saveBtn')).toBeEnabled();
+
+    await page.reload();
+    await expect(page.locator('#pollTitle')).toHaveValue('Updated Draft');
+    const [published] = await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(adminPath) && response.request().method() === 'PUT'),
+      page.click('#publishBtn'),
+    ]);
+    expect(published.ok()).toBe(true);
+    await expect(page).toHaveURL(`/${poll.public_id}/admin/${poll.admin_token}`);
+    // Navigation can discard the POST/PUT response body; read the saved poll.
+    const saved = await page.request.get(adminPath);
+    expect(saved.ok()).toBe(true);
+    const publishedPoll = (await saved.json()).poll;
+    expect(publishedPoll.public_id).toBe(poll.public_id);
+    expect(publishedPoll.status).toBe('open');
+  });
+
   test('can duplicate a question', async ({ page }) => {
     await page.goto('/create');
 

@@ -110,14 +110,13 @@ function currentPath(): string
 }
 
 /**
- * Helper function to get asset URL with cache busting
+ * Use the same asset resolution as the application.
  */
 function asset(string $path): string
 {
-    $base = basePath();
-    $fullPath = BASE_PATH . '/assets/' . ltrim($path, '/');
-    $version = file_exists($fullPath) ? filemtime($fullPath) : time();
-    return $base . '/assets/' . ltrim($path, '/') . '?v=' . $version;
+    static $manifest = null;
+    $manifest ??= new \App\Services\AssetManifest(BASE_PATH);
+    return $manifest->url($path, basePath());
 }
 
 /**

@@ -126,6 +126,15 @@ class TranslatorTest extends TestCase
         $this->assertEquals('Clear Poll', $translations['clear_poll']);
     }
 
+    public function test_locale_cannot_load_php_files_outside_the_translation_catalog(): void
+    {
+        Translator::setLocale('../../tests/config');
+
+        $this->assertSame('en', Translator::getLocale());
+        $this->assertArrayNotHasKey('database', Translator::getAllTranslations());
+        $this->assertSame('Submit Vote', Translator::translate('submit_vote'));
+    }
+
     public function test_translate_preserves_unknown_parameters(): void
     {
         // If a parameter placeholder exists but no value is provided,

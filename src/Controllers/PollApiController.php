@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Auth;
+use App\i18n\Languages;
 use App\Models\Poll;
 use App\Models\Question;
 use App\Models\Option;
@@ -27,6 +28,10 @@ class PollApiController extends ApiController
     public function create(array $params): array
     {
         $data = $this->getBody() ?? [];
+
+        if (array_key_exists('locale', $data) && (!is_string($data['locale']) || !Languages::isValid($data['locale']))) {
+            return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+        }
 
         $userId = $this->user()?->id;
 
@@ -128,6 +133,10 @@ class PollApiController extends ApiController
         }
 
         $data = $this->getBody() ?? [];
+
+        if (array_key_exists('locale', $data) && (!is_string($data['locale']) || !Languages::isValid($data['locale']))) {
+            return $this->error('Unsupported poll language', 'INVALID_LOCALE', 400);
+        }
 
         // Prevent voting_mode change if mode is locked
         if (isset($data['voting_mode']) && $poll->isModeLocked()) {

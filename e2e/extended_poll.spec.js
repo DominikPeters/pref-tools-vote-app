@@ -2,6 +2,39 @@
 const { test, expect } = require('./fixtures');
 
 test.describe('Extended Poll Features', () => {
+  test('can change settings while the initial poll read is pending', async ({ page, api }) => {
+    const response = await api.post('/api/polls', {
+      data: { title: 'Early settings change', status: 'open' }
+    });
+    const { poll } = await response.json();
+    const adminPath = `/api/polls/${poll.public_id}/admin/${poll.admin_token}`;
+    let releaseRead;
+    let readPending = false;
+    const gate = new Promise(resolve => { releaseRead = resolve; });
+    await page.route(`**${adminPath}`, async route => {
+      if (route.request().method() === 'GET') {
+        readPending = true;
+        await gate;
+      }
+      await route.continue();
+    });
+
+    try {
+      await page.goto(`/${poll.public_id}/admin/${poll.admin_token}`);
+      await expect.poll(() => readPending).toBe(true);
+      await page.selectOption('#settingVisibility', 'full');
+      await expect(page.locator('#saveSettings')).toBeVisible();
+      const [saved] = await Promise.all([
+        page.waitForResponse(r => r.url().endsWith(adminPath) && r.request().method() === 'PUT'),
+        page.click('#saveSettings'),
+      ]);
+      expect(saved.ok()).toBe(true);
+      expect((await saved.json()).poll.visibility).toBe('full');
+    } finally {
+      releaseRead();
+    }
+  });
+
 
   test('can create, edit, close, and delete a poll', async ({ page }) => {
     // 1. Create a poll

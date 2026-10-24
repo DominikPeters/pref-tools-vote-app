@@ -17,6 +17,10 @@ $votingModeDescriptions = [
 ];
 ?>
 
+<script>
+    window.EMBED_SCRIPT_URL = <?= json_encode(asset('assets/js/embed/vote-poll.js'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) ?>;
+</script>
+
 <div class="admin-container">
     <div class="container">
         <nav class="breadcrumbs">

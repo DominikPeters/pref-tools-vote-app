@@ -6,6 +6,7 @@ A voting web app where users create polls (similar to Google Forms) with special
 
 - **Backend:** PHP (no Composer/frameworks), supports SQLite and MySQL
 - **Frontend:** Vanilla HTML + JavaScript (ES modules)
+- **Assets:** Vite builds hashed JavaScript/CSS in `assets/build/`; PHP resolves entry points through `AssetManifest`
 - **Routing:** mod_rewrite via `.htaccess`
 - **Communication:** JSON API via fetch
 
@@ -27,6 +28,8 @@ tests/            # PHPUnit tests
 ```
 
 ## Running Tests
+
+Run `npm ci && npm run build` after checkout. Use `npm run watch` while editing frontend files. Node.js 20.19+ or 22.12+ is required for Vite. E2E npm scripts rebuild assets automatically; rebuild before running PHPUnit after frontend edits.
 
 **PHP Unit Tests:**
 ```bash

@@ -8,6 +8,25 @@ use App\Models\Question;
 
 class PollApiTest extends TestCase
 {
+    public function test_locale_must_be_supported_when_creating_and_updating_polls(): void
+    {
+        $created = $this->callApi('POST', '/api/polls', ['title' => 'French poll', 'locale' => 'fr']);
+        $this->assertSuccess($created);
+        $poll = $created['poll'];
+
+        foreach (['../../tests/config', 'xx', ['fr'], null] as $locale) {
+            $this->assertError($this->callApi('POST', '/api/polls', [
+                'title' => 'Invalid language', 'locale' => $locale,
+            ]), 'INVALID_LOCALE');
+            $this->assertError($this->callApi('PUT', "/api/polls/{$poll['public_id']}/admin/{$poll['admin_token']}", [
+                'locale' => $locale,
+            ]), 'INVALID_LOCALE');
+        }
+
+        $this->assertSame(1, Poll::count());
+        $this->assertSame('fr', Poll::findByPublicId($poll['public_id'])->locale);
+    }
+
     public function test_can_create_poll_without_auth(): void
     {
         $response = $this->callApi('POST', '/api/polls', [

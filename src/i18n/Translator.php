@@ -12,7 +12,9 @@ class Translator
      */
     public static function setLocale(string $locale): void
     {
-        self::$locale = $locale;
+        // Locale values can originate in poll API input. Never use arbitrary
+        // strings as PHP include paths, including values already stored in polls.
+        self::$locale = Languages::isValid($locale) ? $locale : Languages::getDefault();
         self::$strings = null; // Force reload
     }
 

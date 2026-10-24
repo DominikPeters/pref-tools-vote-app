@@ -2,7 +2,7 @@
 const { test, expect } = require('./fixtures');
 
 test.describe('Poll Embedding', () => {
-  test('can enable embedding for a poll', async ({ page, api }) => {
+  test('can enable embedding for a poll', async ({ page, freshPage, api }) => {
     // Create a poll via API
     const response = await api.post('/api/polls', {
       data: {
@@ -47,6 +47,22 @@ test.describe('Poll Embedding', () => {
     const codeValue = await embedCode.inputValue();
     expect(codeValue).toContain('vote-poll');
     expect(codeValue).toContain('/embed/');
+
+    // The generated classic script must work independently of the app's ES modules.
+    const scriptUrl = codeValue.match(/<script src="([^"]+)"/)[1];
+    const embedUrl = codeValue.match(/<vote-poll src="([^"]+)"/)[1];
+    expect(new URL(scriptUrl).pathname).toMatch(/^\/assets\/build\/.*\.js$/);
+    await freshPage.goto('/privacy');
+    await freshPage.addScriptTag({ url: scriptUrl });
+    await freshPage.evaluate(src => {
+      const poll = document.createElement('vote-poll');
+      poll.setAttribute('src', src);
+      document.body.appendChild(poll);
+    }, embedUrl);
+    const component = freshPage.locator('vote-poll');
+    await component.getByRole('radio', { name: 'A', exact: true }).check();
+    await component.getByRole('button', { name: 'Submit Vote', exact: true }).click();
+    await expect(component.getByRole('heading', { name: 'Thank you!', exact: true })).toBeVisible();
   });
 
   test('embed section shows info message for non-open voting modes', async ({ page, api }) => {

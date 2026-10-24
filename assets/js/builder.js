@@ -1391,8 +1391,8 @@ async function saveDraft() {
                 data.turnstile_token = token;
             }
             result = await api.post('/api/polls', data);
-            state.publicId = result.vote.public_id;
-            state.adminToken = result.vote.admin_token;
+            state.publicId = result.poll.public_id;
+            state.adminToken = result.poll.admin_token;
         }
 
         state.isDirty = false;
