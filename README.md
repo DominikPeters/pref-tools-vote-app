@@ -19,8 +19,20 @@ the production server serves PHP and the generated static files.
 Run `npm run watch` in another terminal while editing frontend files. E2E test
 scripts build the assets automatically. Run `npm run build` before `phpunit`.
 GitHub Actions builds the assets before testing and deploying. Deployment uploads
-the hashed files first and retains previous hashes for already-open pages, then
-uploads the application and its new manifest.
+only `assets/build/assets/` first and retains previous hashes for already-open
+pages, then uploads the application and its new manifest. The asset uploader
+checks remote file sizes, uploads missing or incomplete files to temporary names,
+and publishes them with a rename. Transient FTP failures get up to three attempts,
+each retry using a fresh connection. It never deletes old assets or downloads a
+deployment state file.
+
+After building, use `npm run deploy:assets -- --dry-run` to list the versioned
+files without credentials or network access. GitHub's `dry_run` deployment input
+uses the same mode. Live uploads read `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`,
+and `FTP_ROOTDIR` from the environment; the last names the asset directory relative
+to the FTP login directory (production: `vote/assets/build/assets`). Credentials
+and raw server error messages are never logged. Run the isolated uploader tests
+with `npm run test:deploy-assets`.
 
 ## Internationalization
 

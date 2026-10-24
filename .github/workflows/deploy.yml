@@ -39,22 +39,16 @@ jobs:
                  -e 's|^RewriteBase /$|# RewriteBase /|' .htaccess
           grep -n RewriteBase .htaccess
 
-      # Upload hashed assets before the PHP/manifest update. A state file per
-      # revision keeps previous hashes available to already-open/cached pages.
+      # Publish only hashed files first, retaining old hashes for cached pages.
+      # This append-only uploader uses SIZE and atomic renames, without a state file.
       - name: Upload frontend assets via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: w008ef9a.kasserver.com
-          port: 21
-          protocol: ftp
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: assets/build/
-          server-dir: vote/assets/build/
-          state-name: .ftp-assets-${{ github.sha }}.json
-          dry-run: ${{ inputs.dry_run == true }}
-          exclude: |
-            .vite/**
+        run: npm run deploy:assets
+        env:
+          FTP_SERVER: w008ef9a.kasserver.com
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_ROOTDIR: vote/assets/build/assets
+          DRY_RUN: ${{ inputs.dry_run == true }}
 
       # Upload PHP and the new manifest after its assets are present. Runtime
       # config, databases and server-installed libraries are excluded.
