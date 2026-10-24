@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only list what would be uploaded
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to pref.tools/vote
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # The app is served from the /vote/ subfolder in production.
+      - name: Set RewriteBase for subfolder deployment
+        run: |
+          sed -i -e 's|^# RewriteBase /vote/|RewriteBase /vote/|' \
+                 -e 's|^RewriteBase /$|# RewriteBase /|' .htaccess
+          grep -n RewriteBase .htaccess
+
+      # Only tracked files are uploaded, so config/config.php, data/*.db and
+      # lib/PHPMailer (all untracked) are left alone on the server.
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /vote/
+          dry-run: ${{ inputs.dry_run == true }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .claude/**
+            .github/**
+            .gemini-clipboard/**
+            tests/**
+            e2e/**
+            scripts/**
+            data/**
+            config/config.php
+            config/config.test.php
+            node_modules/**
+            package.json
+            package-lock.json
+            phpunit.xml
+            playwright.config.js
+            AGENTS.md
+            CLAUDE.md
+            GEMINI.md
+            E2E-OBSERVATIONS.md
+            PRIVACY.md
+            background.md
+            i18n-instructions.md
+            implementation-plan.md
+            *.docx
+            *.pdf
