@@ -43,11 +43,19 @@ test.describe('Thank You Message Buttons', () => {
     });
     const tokenData = await tokenResponse.json();
     const token = tokenData.tokens[0].token;
+    const requests = [];
+    freshPage.on('request', request => requests.push({
+      url: request.url(), referrer: request.headers()['referer'] || '',
+    }));
 
-    await freshPage.goto(`/${pollData.poll.public_id}?token=${token}`);
+    expect(tokenData.tokens[0].url).toContain('#token=');
+    await freshPage.goto(tokenData.tokens[0].url);
     
     // Wait for questions to be rendered
     await freshPage.waitForSelector('.question-display');
+    await expect(freshPage).toHaveURL(`/${pollData.poll.public_id}`);
+    const submission = freshPage.waitForRequest(request => request.method() === 'POST'
+      && new URL(request.url()).pathname === `/api/polls/${pollData.poll.public_id}/responses`);
     
     await freshPage.getByRole('radio', { name: 'A', exact: true }).check();
     await freshPage.click('#pollForm button[type="submit"]');
@@ -58,6 +66,10 @@ test.describe('Thank You Message Buttons', () => {
     await expect(freshPage.locator('text=Thank you')).toBeVisible();
     await expect(freshPage.locator('button:has-text("Edit Your Response")')).not.toBeVisible();
     await expect(freshPage.locator('a:has-text("View Results")')).not.toBeVisible();
+    const submitted = await submission;
+    expect(new URL(submitted.url()).search).toBe('');
+    expect(submitted.postDataJSON().access_token).toBe(token);
+    expect(requests.every(request => !request.url.includes(token) && !request.referrer.includes(token))).toBe(true);
   });
 
   test('shows editing banner and update button when already voted and can edit', async ({ freshPage, api }) => {

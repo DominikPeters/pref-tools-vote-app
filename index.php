@@ -33,7 +33,7 @@ checkMaintenanceMode();
 // Set security headers
 header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Referrer-Policy: no-referrer');
 
 // Set X-Frame-Options only for non-embed routes
 $requestPath = $_SERVER['REQUEST_URI'] ?? '/';

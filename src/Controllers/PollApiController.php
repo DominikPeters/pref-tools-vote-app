@@ -460,7 +460,12 @@ class PollApiController extends ApiController
         // For identified/secret ballot modes, validate access
         if ($poll->requiresIdentity()) {
             $accessService = new AccessControlService();
-            $token = $_GET['token'] ?? $_SESSION['poll_token_' . $poll->publicId] ?? null;
+            // Browser submissions carry credentials in the body, never in the request URL.
+            // Keep query support for existing API clients.
+            $token = $data['access_token'] ?? $_GET['token'] ?? $_SESSION['poll_token_' . $poll->publicId] ?? null;
+            if ($token !== null && !is_string($token)) {
+                return $this->error($this->t('error_invalid_access_token'), 'ACCESS_DENIED', 403);
+            }
             $access = $accessService->validateAccess($poll, $token);
 
             if (!$access['allowed']) {
@@ -1200,6 +1205,11 @@ class PollApiController extends ApiController
      */
     private function sendResponseNotification(Poll $poll, Response $response): void
     {
+        // Both notification timing and its IP-bearing audit log can identify a ballot.
+        if ($poll->votingMode === 'secret_ballot') {
+            return;
+        }
+
         // Check if notifications are enabled
         if (!$poll->notifyOnResponse) {
             return;

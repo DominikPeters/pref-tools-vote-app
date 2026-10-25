@@ -156,6 +156,11 @@ class EmailInvitation
             'is_secret_ballot' => $isSecretBallot ? 1 : 0,
         ];
 
+        if ($isSecretBallot) {
+            $updateData['clicked_at'] = null;
+            $this->clickedAt = null;
+        }
+
         if (!$isSecretBallot) {
             $updateData['used_at'] = date('Y-m-d H:i:s');
             $this->usedAt = new \DateTime();

@@ -96,7 +96,7 @@ class InvitationService
      */
     private function sendInvitationEmail(Poll $poll, EmailInvitation $invitation): void
     {
-        $voteUrl = url($poll->publicId . '?token=' . $invitation->token);
+        $voteUrl = $poll->getAccessUrl($invitation->token);
         $unsubscribeUrl = UnsubscribeService::generateUnsubscribeUrl($invitation->email);
         $oneClickUrl = UnsubscribeService::generateOneClickUrl($invitation->email);
 

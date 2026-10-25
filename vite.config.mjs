@@ -3,7 +3,7 @@ import { build, defineConfig } from 'vite';
 
 // PHP renders the HTML; Vite builds the page scripts and their shared imports.
 const scripts = [
-    'app', 'admin', 'auth', 'builder', 'dashboard', 'embed-poll', 'poll',
+    'app', 'admin', 'auth', 'builder', 'dashboard', 'embed-poll', 'poll', 'poll-access',
     'responses-admin', 'results', 'results-admin', 'stats-charts', 'sysadmin',
 ];
 const input = Object.fromEntries([

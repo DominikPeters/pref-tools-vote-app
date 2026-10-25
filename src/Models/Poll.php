@@ -444,6 +444,12 @@ class Poll
         return in_array($this->votingMode, ['identified', 'secret_ballot']);
     }
 
+    /** Access credentials in fragments are not sent in HTTP URLs or referrers. */
+    public function getAccessUrl(string $token): string
+    {
+        return url($this->publicId . '#token=' . rawurlencode($token));
+    }
+
     /**
      * Check if this poll can be embedded
      * Only open voting mode (anonymous) can be embedded

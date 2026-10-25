@@ -281,9 +281,12 @@ class PageControllerTest extends TestCase
         $_GET['token'] = $token;
         
         $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
-        
-        $this->assertStringContainsString($poll->title, $output);
+        $this->assertRedirect(url($poll->publicId));
+        $this->assertSame(303, http_response_code());
         $this->assertEquals($token, $_SESSION['poll_token_' . $poll->publicId]);
+        $_GET = [];
+        $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
+        $this->assertStringContainsString($poll->title, $output);
     }
 
     public function test_poll_token_access_used_fail(): void
@@ -302,6 +305,54 @@ class PageControllerTest extends TestCase
         $this->assertEquals(403, http_response_code());
     }
 
+    public function test_fragment_token_can_be_exchanged_by_post_without_consuming_it(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'voting_mode' => 'secret_ballot']);
+        $invite = \App\Models\EmailInvitation::create($poll->id, 'secret@example.com');
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['access_token'] = $invite->token;
+
+        $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
+
+        $this->assertSame('', $output);
+        $this->assertSame(303, http_response_code());
+        $this->assertRedirect(url($poll->publicId));
+        $this->assertSame($invite->token, $_SESSION['poll_token_' . $poll->publicId]);
+        $invite = \App\Models\EmailInvitation::find($invite->id);
+        $this->assertFalse($invite->isUsed());
+        $this->assertNull($invite->clickedAt);
+    }
+
+    public function test_used_secret_ballot_link_is_rejected_even_without_a_usage_timestamp(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'voting_mode' => 'secret_ballot']);
+        $token = \App\Models\AccessToken::generate($poll->id, 1)[0];
+        $token->markUsed(null, true);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['access_token'] = $token->token;
+
+        $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
+
+        $this->assertSame(403, http_response_code());
+        $this->assertStringContainsString('Access Link Used', $output);
+        $this->assertArrayNotHasKey('poll_token_' . $poll->publicId, $_SESSION);
+    }
+
+    public function test_token_from_another_poll_cannot_establish_access(): void
+    {
+        $poll = $this->createPoll(['status' => 'open', 'voting_mode' => 'secret_ballot']);
+        $otherPoll = $this->createPoll();
+        $token = \App\Models\AccessToken::generate($otherPoll->id, 1)[0];
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['access_token'] = $token->token;
+
+        $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
+
+        $this->assertSame(403, http_response_code());
+        $this->assertStringContainsString('Invalid access token', $output);
+        $this->assertArrayNotHasKey('poll_token_' . $poll->publicId, $_SESSION);
+    }
+
     public function test_poll_email_invite_access_success(): void
     {
         $poll = $this->createPoll(['status' => 'open', 'voting_mode' => 'identified']);
@@ -310,9 +361,10 @@ class PageControllerTest extends TestCase
         $_GET['token'] = $invite->token;
         
         $output = $this->captureView(fn() => $this->controller->poll(['publicId' => $poll->publicId]));
-        
-        $this->assertStringContainsString($poll->title, $output);
+        $this->assertRedirect(url($poll->publicId));
+        $this->assertSame(303, http_response_code());
         $this->assertEquals($invite->token, $_SESSION['poll_token_' . $poll->publicId]);
+        $this->assertNull(\App\Models\EmailInvitation::find($invite->id)->clickedAt);
     }
 
     public function test_poll_email_invite_access_used_fail(): void

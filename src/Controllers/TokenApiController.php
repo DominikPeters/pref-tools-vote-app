@@ -40,7 +40,7 @@ class TokenApiController extends ApiController
         return $this->success([
             'tokens' => array_map(function ($token) use ($poll) {
                 $arr = $token->toArray();
-                $arr['url'] = url($poll->publicId . '?token=' . $token->token);
+                $arr['url'] = $poll->getAccessUrl($token->token);
                 return $arr;
             }, $tokens),
         ]);
@@ -68,7 +68,7 @@ class TokenApiController extends ApiController
         return $this->success([
             'tokens' => array_map(function ($token) use ($poll) {
                 $arr = $token->toArray();
-                $arr['url'] = url($poll->publicId . '?token=' . $token->token);
+                $arr['url'] = $poll->getAccessUrl($token->token);
                 return $arr;
             }, $tokens),
         ]);
@@ -104,7 +104,7 @@ class TokenApiController extends ApiController
         }
 
         $arr = $token->toArray();
-        $arr['url'] = url($poll->publicId . '?token=' . $token->token);
+        $arr['url'] = $poll->getAccessUrl($token->token);
 
         return $this->success(['token' => $arr]);
     }

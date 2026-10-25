@@ -3,6 +3,44 @@ const { test, expect } = require('./fixtures');
 
 test.describe('Access Modes', () => {
 
+  test('keeps access links in separate tabs independent and accepts legacy links', async ({ freshPage, api }) => {
+    const created = await api.post('/api/polls', {
+      data: {
+        title: 'Separate secret ballot links', status: 'open', voting_mode: 'secret_ballot',
+        questions: [{ type: 'single_choice', text: 'Q1', options: [{ label: 'A' }] }],
+      },
+    });
+    const { poll } = await created.json();
+    const generated = await api.post(`/api/polls/${poll.public_id}/admin/${poll.admin_token}/tokens`, {
+      data: { count: 2 },
+    });
+    const { tokens } = await generated.json();
+    const secondPage = await freshPage.context().newPage();
+
+    // The old query URL redirects before assets load, with no referrer disclosure.
+    const legacy = await freshPage.goto(`/${poll.public_id}?token=${tokens[0].token}`);
+    expect(legacy.request().redirectedFrom()).not.toBeNull();
+    expect(legacy.headers()['referrer-policy']).toBe('no-referrer');
+    await expect(freshPage).toHaveURL(`/${poll.public_id}`);
+    await expect(freshPage.locator('#pollForm input[name="access_token"]')).toHaveValue(tokens[0].token);
+
+    // An existing session must still exchange a new fragment for the same poll.
+    await secondPage.goto(tokens[1].url);
+    await expect(secondPage.locator('#pollForm input[name="access_token"]')).toHaveValue(tokens[1].token);
+    await expect(secondPage).toHaveURL(`/${poll.public_id}`);
+    await expect(freshPage.locator('#pollForm input[name="access_token"]')).toHaveValue(tokens[0].token);
+
+    for (const voterPage of [freshPage, secondPage]) {
+      await voterPage.getByRole('radio', { name: 'A', exact: true }).check();
+      await voterPage.click('#pollForm button[type="submit"]');
+      await voterPage.click('.confirm-modal .btn-confirm');
+      await expect(voterPage.getByRole('heading', { name: 'Thank you!' })).toBeVisible();
+    }
+
+    await secondPage.goto(tokens[1].url);
+    await expect(secondPage.getByRole('heading', { name: 'Access Link Used' })).toBeVisible();
+  });
+
   test('can generate and use one-time tokens', async ({ page, freshPage, api }) => {
     // 1. Create identified poll
     const pollResponse = await api.post('/api/polls', {

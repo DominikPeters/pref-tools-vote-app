@@ -274,6 +274,9 @@ class PageController
 
         \App\i18n\Translator::setLocale($poll->locale);
 
+        // Voter pages can contain session-specific access credentials.
+        header('Cache-Control: no-store');
+
         // If vote is closed and results are public, redirect to results
         if ($poll->status === 'closed' && $poll->visibility !== 'private') {
             header('Location: ' . url("{$poll->publicId}/results"));
@@ -315,33 +318,37 @@ class PageController
             }
         }
 
-        // Check for token-based access in URL and store in session if valid
-        $token = $_GET['token'] ?? null;
-        if ($token) {
-            $accessToken = \App\Models\AccessToken::findByToken($poll->id, $token);
-            if ($accessToken && !$accessToken->usedAt) {
-                $_SESSION['poll_token_' . $poll->publicId] = $token;
-            } elseif ($accessToken && $accessToken->usedAt) {
-                // If token is already used, we can show an error immediately
+        // New links exchange fragment credentials through POST. Accept old query
+        // links too, but redirect before rendering assets or participant content.
+        $token = $_POST['access_token'] ?? $_GET['token'] ?? null;
+        if ($token !== null) {
+            $accessToken = is_string($token) && $token !== ''
+                ? \App\Models\AccessToken::findByToken($poll->id, $token) : null;
+            $emailInvite = is_string($token) && $token !== '' && !$accessToken
+                ? \App\Models\EmailInvitation::findByToken($poll->id, $token) : null;
+            $credential = $accessToken ?? $emailInvite;
+
+            if (!$credential || $credential->isUsed()) {
                 http_response_code(403);
-                view('error', [
-                    'title' => __('page_access_link_used'),
-                    'message' => __('page_this_access_link_has_already_been_used'),
+                view('poll-access', [
+                    'poll' => $poll,
+                    'user' => Auth::getInstance()->user(),
+                    'accessTitle' => $credential
+                        ? __($emailInvite ? 'page_invitation_used' : 'page_access_link_used')
+                        : __('page_access_denied'),
+                    'accessMessage' => $credential
+                        ? __($emailInvite ? 'page_this_invitation_link_has_already_been_used' : 'page_this_access_link_has_already_been_used')
+                        : __('error_invalid_access_token'),
                 ]);
                 return;
             }
-            // Check email invitations too
-            $emailInvite = \App\Models\EmailInvitation::findByToken($poll->id, $token);
-            if ($emailInvite && !$emailInvite->usedAt) {
-                $_SESSION['poll_token_' . $poll->publicId] = $token;
-            } elseif ($emailInvite && $emailInvite->usedAt) {
-                http_response_code(403);
-                view('error', [
-                    'title' => __('page_invitation_used'),
-                    'message' => __('page_this_invitation_link_has_already_been_used'),
-                ]);
-                return;
+
+            $_SESSION['poll_token_' . $poll->publicId] = $token;
+            header('Location: ' . url($poll->publicId), true, 303);
+            if (!defined('PHPUNIT_RUNNING')) {
+                exit;
             }
+            return;
         }
 
         // Enforce token-based access if required by voting mode or access mode
@@ -350,9 +357,9 @@ class PageController
         if ($requiresToken) {
             if (empty($_SESSION['poll_token_' . $poll->publicId])) {
                 http_response_code(403);
-                view('error', [
-                    'title' => __('page_access_required'),
-                    'message' => __('page_this_poll_requires_an_access_link_please_use_the_unique_link_provided_to_you'),
+                view('poll-access', [
+                    'poll' => $poll,
+                    'user' => Auth::getInstance()->user(),
                 ]);
                 return;
             }

@@ -237,8 +237,8 @@ $votingModeDescriptions = [
                 <?php if ($user && $poll->userId === $user->id && $user->emailVerifiedAt !== null): ?>
                 <div class="responses-notification-setting" id="notificationSetting">
                     <label class="checkbox-label">
-                        <input type="checkbox" id="notifyOnResponse" <?= $poll->notifyOnResponse ? 'checked' : '' ?>>
-                        <span><?= e(__('page_email_me_when_someone_submits_a_response')) ?></span>
+                        <input type="checkbox" id="notifyOnResponse" <?= $poll->notifyOnResponse && $poll->votingMode !== 'secret_ballot' ? 'checked' : '' ?> <?= $poll->votingMode === 'secret_ballot' ? 'disabled' : '' ?>>
+                        <span><?= e(__('page_email_me_when_someone_submits_a_response')) ?><?php if ($poll->votingMode === 'secret_ballot'): ?> <?= e(__('page_disabled_for_secret_ballot')) ?><?php endif; ?></span>
                     </label>
                 </div>
                 <?php endif; ?>

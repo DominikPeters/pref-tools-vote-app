@@ -111,6 +111,18 @@ class AccessControlServiceTest extends TestCase
         $this->assertEquals('This invitation link has already been used', $result['error']);
     }
 
+    public function test_secret_ballot_access_validation_does_not_record_invitation_timing(): void
+    {
+        $poll = $this->createPoll(['voting_mode' => 'secret_ballot']);
+        $invite = EmailInvitation::create($poll->id, 'test@example.com');
+
+        $result = $this->service->validateAccess($poll, $invite->token);
+
+        $this->assertTrue($result['allowed']);
+        $this->assertNull(EmailInvitation::find($invite->id)->clickedAt);
+        $this->assertFalse(EmailInvitation::find($invite->id)->isUsed());
+    }
+
     public function test_validate_access_invalid_token(): void
     {
         $poll = $this->createPoll(['voting_mode' => 'identified']);

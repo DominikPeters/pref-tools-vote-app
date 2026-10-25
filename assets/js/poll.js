@@ -9,6 +9,7 @@ import { api, showToast, showConfirmModal, setButtonLoading, clearButtonLoading,
 import { renderQuestion } from './question-renderer.js';
 import { t, tHtml } from './i18n.js';
 import { initReportButton } from './report.js';
+import './poll-access.js';
 
 // ==========================================================================
 // Initialization
@@ -110,12 +111,7 @@ function initForm() {
 
             const isEditing = form.dataset.editing === 'true';
             
-            // Include token from URL if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const apiUrl = `/api/polls/${publicId}/responses` + (token ? `?token=${encodeURIComponent(token)}` : '');
-            
-            await api.post(apiUrl, formData);
+            await api.post(`/api/polls/${publicId}/responses`, formData);
 
             clearProgress();
 
@@ -170,6 +166,10 @@ function initForm() {
 function collectFormData() {
     const form = document.getElementById('pollForm');
     const data = { answers: {} };
+
+    // Keep each tab's access link independent of other tabs sharing the session.
+    const accessToken = form.elements.namedItem('access_token')?.value;
+    if (accessToken) data.access_token = accessToken;
 
     // Voter name
     const nameInput = document.getElementById('voterName');

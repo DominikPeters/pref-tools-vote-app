@@ -1,6 +1,6 @@
 # Privacy Policy for Pref.Tools Vote
 
-**Last updated:** 2025-12-30
+**Last updated:** 2026-10-25
 
 ## 1. Controller and Contact Information
 
@@ -41,13 +41,14 @@ When you submit a response to a poll, we may collect:
 - **IP address**: For security and abuse prevention (see Section 3.5 for exceptions)
 - **Browser information** (user agent): For security purposes
 
-**Exception for Secret Ballot polls**: When a poll is configured as a "Secret Ballot," we do **not** collect your IP address, browser information, or any identifying data. Your vote remains completely anonymous.
+**Secret ballots:** We do not attach your name, email address, account, IP address or browser information to your vote. We record which invitations have been used, but keep that information separate from votes. We still keep vote times and hosting logs (see Section 3.5), so we cannot promise complete anonymity.
 
 ### 3.4 Email Invitation Data
 
 If a poll creator sends you an email invitation:
 - Your email address is stored to send the invitation and track delivery status
-- We record when invitations are sent and used
+- We record when invitations are sent and whether they have been used
+- For secret ballots, we do not record when an invitation was clicked or used
 
 ### 3.5 Log Data
 
@@ -56,7 +57,9 @@ For security and abuse prevention, we maintain logs that may include:
 - Actions performed (login, poll creation, voting, etc.)
 - Timestamps
 
-**Automatic anonymization**: IP addresses in logs and responses are automatically deleted after **90 days**.
+IP addresses in our own logs, and IP addresses and browser information stored with votes, are deleted after **90 days**.
+
+Our web host keeps separate access logs for about **six months**. These record visit times, requested pages, browser information and IP addresses with the final part removed. Older logs may also contain invitation links.
 
 ## 4. How We Use Your Data
 
@@ -114,9 +117,10 @@ Some of our service providers (Cloudflare, OpenAI) are located in the United Sta
 |-----------|------------------|
 | User account data | Until you delete your account |
 | Poll and response data | Until the poll creator deletes the poll, or you withdraw your response |
-| IP addresses and browser info | **90 days**, then automatically anonymized |
+| IP addresses and browser info stored by the app | **90 days**, then deleted |
 | Email invitation records | Until the poll is deleted |
 | Action logs | **90 days** for IP addresses, indefinite for anonymized records |
+| Hosting access logs | About **six months** |
 
 ## 7. Your Rights
 
@@ -168,7 +172,7 @@ We implement appropriate technical and organizational measures to protect your d
 - Encrypted data transmission (HTTPS/TLS)
 - Secure password hashing
 - Automatic anonymization of IP addresses after 90 days
-- Special protections for secret ballot voting (no identifying data collected)
+- Keeping secret-ballot votes separate from names and email addresses
 
 ## 11. Changes to This Policy
 

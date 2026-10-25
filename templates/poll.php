@@ -25,6 +25,13 @@ ob_start();
     <?php endif; ?>
 </script>
 
+<?php if (!$isPreview): ?>
+<form id="pollAccessForm" method="post" action="<?= e(url($poll->publicId)) ?>" hidden>
+    <?= csrf_field() ?>
+    <input type="hidden" name="access_token" value="">
+</form>
+<?php endif; ?>
+
 <div class="poll-container">
     <div class="container">
         <header class="poll-header">
@@ -73,6 +80,9 @@ ob_start();
                     </div>
                 <?php endif; ?>
                 <form id="pollForm" class="poll-form" method="post" data-public-id="<?= e($poll->publicId) ?>" data-editing="<?= $isEditing ? 'true' : 'false' ?>" <?php if ($isEditing): ?>data-response-id="<?= $existingResponse->id ?>"<?php endif; ?>>
+                    <?php if (!$isPreview && !empty($_SESSION['poll_token_' . $poll->publicId])): ?>
+                        <input type="hidden" name="access_token" value="<?= e($_SESSION['poll_token_' . $poll->publicId]) ?>">
+                    <?php endif; ?>
                     <?php if ($poll->collectName): ?>
                         <div class="form-group name-field">
                             <label for="voterName"><?= __('your_name') ?></label>

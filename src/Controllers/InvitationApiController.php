@@ -107,7 +107,7 @@ class InvitationApiController extends ApiController
         return $this->success([
             'invitations' => array_map(function ($inv) use ($poll) {
                 $arr = $inv->toArray();
-                $arr['url'] = url($poll->publicId . '?token=' . $inv->token);
+                $arr['url'] = $poll->getAccessUrl($inv->token);
                 return $arr;
             }, $invitations),
             'mail_configured' => $this->invitationService->isMailConfigured(),
@@ -172,7 +172,7 @@ class InvitationApiController extends ApiController
             'blocked' => $results['blocked'],
             'invitations' => array_map(function ($inv) use ($poll) {
                 $arr = $inv->toArray();
-                $arr['url'] = url($poll->publicId . '?token=' . $inv->token);
+                $arr['url'] = $poll->getAccessUrl($inv->token);
                 return $arr;
             }, $invitations),
         ]);
@@ -233,7 +233,7 @@ class InvitationApiController extends ApiController
         }
 
         $arr = $invitation->toArray();
-        $arr['url'] = url($poll->publicId . '?token=' . $invitation->token);
+        $arr['url'] = $poll->getAccessUrl($invitation->token);
 
         return $this->success(['invitation' => $arr]);
     }

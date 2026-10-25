@@ -10,6 +10,30 @@ use App\Models\SiteSetting;
 
 class ResponseNotificationTest extends TestCase
 {
+    public function test_secret_ballot_sends_no_notification_or_ballot_linked_log_even_when_enabled(): void
+    {
+        $owner = $this->createUser('secret-owner@example.com');
+        $owner->markEmailVerified();
+        $poll = $this->createPoll([
+            'status' => 'open', 'voting_mode' => 'secret_ballot', 'notify_on_response' => true,
+        ], $owner->id);
+        $question = $this->createQuestion($poll->id);
+        $token = \App\Models\AccessToken::generate($poll->id, 1)[0];
+        $_SERVER['REMOTE_ADDR'] = '198.51.100.42';
+        $this->clearEmails();
+
+        $result = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
+            'access_token' => $token->token,
+            'answers' => [$question->id => $question->options[0]->id],
+        ]);
+
+        $this->assertSuccess($result);
+        $this->assertNoEmailsSent();
+        $this->assertSame(0, (int) \App\Database::getInstance()->fetchColumn(
+            'SELECT COUNT(*) FROM action_log WHERE poll_id = :poll_id', ['poll_id' => $poll->id]
+        ));
+    }
+
     public function test_notification_uses_the_recipients_language_even_when_the_voter_uses_another_language(): void
     {
         $owner = $this->createUser('french-owner@example.com', 'password123', 'Owner');

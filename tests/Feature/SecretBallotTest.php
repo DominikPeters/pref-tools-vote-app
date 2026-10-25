@@ -45,11 +45,8 @@ class SecretBallotTest extends TestCase
         $this->assertSuccess($responseWithToken);
     }
 
-    public function test_secret_ballot_fails_if_token_not_in_session_and_not_in_get(): void
+    public function test_secret_ballot_access_link_establishes_session_for_clean_url_submission(): void
     {
-        // This test simulates the case where the token was in the URL of the page,
-        // but not saved to the session because access_mode was 'link'.
-
         $poll = $this->createPoll([
             'status' => 'open',
             'voting_mode' => 'secret_ballot',
@@ -60,31 +57,12 @@ class SecretBallotTest extends TestCase
         $tokens = AccessToken::generate($poll->id, 1);
         $token = $tokens[0]->token;
 
-        // In a real scenario:
-        // 1. User visits /:publicId?token=XYZ
-        // 2. PageController::poll is called.
-        // We simulate this by calling a mock of what PageController would do.
-        
-        // Let's see if we can simulate the session being set or not.
         $_GET['token'] = $token;
-        
-        // This is what PageController::poll does currently:
-        if ($poll->accessMode === 'token') {
-            $t = $_GET['token'] ?? null;
-            if ($t) {
-                $accessToken = AccessToken::findByToken($poll->id, $t);
-                if ($accessToken && !$accessToken->usedAt) {
-                    $_SESSION['poll_token_' . $poll->publicId] = $t;
-                }
-            }
-        }
-        
-        // Since access_mode is 'link', the session variable is NOT set.
-        $this->assertArrayNotHasKey('poll_token_' . $poll->publicId, $_SESSION);
-
-        // 3. User submits vote (POST /api/...)
-        // Reset $_GET for the POST request
-        unset($_GET['token']);
+        ob_start();
+        (new \App\Controllers\PageController())->poll(['publicId' => $poll->publicId]);
+        ob_end_clean();
+        $this->assertSame(303, http_response_code());
+        $this->assertSame($token, $_SESSION['poll_token_' . $poll->publicId]);
 
         $response = $this->callApi('POST', "/api/polls/{$poll->publicId}/responses", [
             'answers' => [
@@ -92,9 +70,7 @@ class SecretBallotTest extends TestCase
             ],
         ]);
 
-        // It should FAIL if it's not in the session
-        $this->assertError($response, 'ACCESS_DENIED');
-        $this->assertEquals('Valid access token required to vote in this poll', $response['error']);
+        $this->assertSuccess($response);
     }
 
     public function test_secret_ballot_does_not_store_ip_address(): void
@@ -205,6 +181,7 @@ class SecretBallotTest extends TestCase
         $this->assertNull($invitation->usedAt, 'Secret ballot invitation should not have used_at timestamp');
         $this->assertTrue($invitation->isUsed(), 'Invitation should still report as used');
         $this->assertNull($invitation->responseId, 'Secret ballot invitation should not link to response');
+        $this->assertNull($invitation->clickedAt, 'Secret ballot invitation should not record submission timing');
     }
 
     public function test_secret_ballot_token_cannot_be_reused(): void

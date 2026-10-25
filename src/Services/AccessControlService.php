@@ -63,8 +63,10 @@ class AccessControlService
                         'error' => \App\i18n\Translator::translateForLocale($poll->locale, 'error_this_invitation_link_has_already_been_used'),
                     ];
                 }
-                // Track that the link was clicked (for deliverability tracking)
-                $emailInvite->markClicked();
+                // Submission timing would link a secret ballot back to its invitation.
+                if ($poll->votingMode !== 'secret_ballot') {
+                    $emailInvite->markClicked();
+                }
 
                 return [
                     'allowed' => true,
