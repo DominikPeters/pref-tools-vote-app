@@ -34,6 +34,11 @@
     font-size: 1.25rem;
 }
 
+.builder-header .terms-note {
+    margin: var(--spacing-xs) 0 0;
+    text-align: left;
+}
+
 .builder-header .breadcrumbs {
     margin-bottom: var(--spacing-xs);
 }

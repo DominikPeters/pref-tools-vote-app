@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Alternative Berechnung (Tabellenverfahren)",
   "explanation_table_description": "Erstelle eine Tabelle mit einer Zeile je Option. Jede Zelle enthält deren Stimmen geteilt durch den Divisor der Spalte. Markiere {seats, plural, one {den # größten Wert} other {die # größten Werte}} grün. Jede grüne Zelle gibt ihrer Option einen Sitz.",
   "explanation_divisor_ties": "Es gab Gleichstände. Die möglichen Zuteilungen folgen der obigen Tabelle, wobei Sitze zwischen diesen gleichstehenden Optionen umverteilt werden können: {options}. Aktuell haben diese Optionen einen zusätzlichen Sitz erhalten: {receiving}.",
-  "explanation_pb_comparison": "Das vom Greedy-Verfahren gewählte Komitee {greedy, plural, one {bevorzugt # Person} other {bevorzugen # Personen}}, während {mes, plural, one {# Person das Komitee der Methode gleicher Anteile bevorzugt} other {# Personen das Komitee der Methode gleicher Anteile bevorzugen}}."
+  "explanation_pb_comparison": "Das vom Greedy-Verfahren gewählte Komitee {greedy, plural, one {bevorzugt # Person} other {bevorzugen # Personen}}, während {mes, plural, one {# Person das Komitee der Methode gleicher Anteile bevorzugt} other {# Personen das Komitee der Methode gleicher Anteile bevorzugen}}.",
+  "terms_of_use": "Nutzungsbedingungen",
+  "legal_notice": "Impressum",
+  "page_terms_agree_account": "Mit dem Erstellen eines Kontos akzeptierst du die {terms}.",
+  "page_terms_agree_publish": "Mit dem Veröffentlichen einer Abstimmung akzeptierst du die {terms}.",
+  "page_terms_link": "Nutzungsbedingungen",
+  "page_document_not_found": "Dokument nicht gefunden",
+  "page_document_not_available": "Dieses Dokument ist nicht verfügbar."
 }

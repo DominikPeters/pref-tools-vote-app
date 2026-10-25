@@ -97,7 +97,7 @@ final class MarketingLocale
     public static function isReservedPublicId(string $id): bool
     {
         return Languages::isValid($id) || in_array($id, [
-            'create', 'login', 'dashboard', 'language', 'privacy', 'about',
+            'create', 'login', 'dashboard', 'language', 'privacy', 'terms', 'legal', 'about',
             'sysadmin', 'unsubscribe', 'preview', 'demo', 'api',
         ], true);
     }

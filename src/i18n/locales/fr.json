@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Calcul alternatif (méthode du tableau)",
   "explanation_table_description": "Créez un tableau avec une ligne par option. Chaque cellule contient les votes de l’option divisés par le diviseur de la colonne. Surlignez en vert {seats, plural, one {la plus grande valeur (#)} other {les # plus grandes valeurs}}. Chaque cellule verte donne un siège à son option.",
   "explanation_divisor_ties": "Il y a eu des égalités. Les répartitions possibles suivent le tableau, mais des sièges peuvent être réattribués entre ces options ex æquo : {options}. Actuellement, les options suivantes ont reçu un siège supplémentaire : {receiving}.",
-  "explanation_pb_comparison": "Le comité choisi par l’algorithme glouton est préféré par {greedy, plural, one {# votant} other {# votants}}, tandis que celui choisi par la méthode des parts égales est préféré par {mes, plural, one {# votant} other {# votants}}."
+  "explanation_pb_comparison": "Le comité choisi par l’algorithme glouton est préféré par {greedy, plural, one {# votant} other {# votants}}, tandis que celui choisi par la méthode des parts égales est préféré par {mes, plural, one {# votant} other {# votants}}.",
+  "terms_of_use": "Conditions d’utilisation",
+  "legal_notice": "Mentions légales",
+  "page_terms_agree_account": "En créant un compte, vous acceptez les {terms}.",
+  "page_terms_agree_publish": "En publiant un vote, vous acceptez les {terms}.",
+  "page_terms_link": "conditions d’utilisation",
+  "page_document_not_found": "Document introuvable",
+  "page_document_not_available": "Ce document n’est pas disponible."
 }

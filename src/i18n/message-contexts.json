@@ -1324,5 +1324,9 @@
   "explanation_table_title": "Apportionment calculation explanation rendered at serialization in the viewer locale; markup stays in LocalizedApportionmentExplanation.php, and option names remain user data. Numeric arguments use ICU plural rules.",
   "explanation_table_description": "Apportionment calculation explanation rendered at serialization in the viewer locale; markup stays in LocalizedApportionmentExplanation.php, and option names remain user data. Numeric arguments use ICU plural rules.",
   "explanation_divisor_ties": "Apportionment calculation explanation rendered at serialization in the viewer locale; markup stays in LocalizedApportionmentExplanation.php, and option names remain user data. Numeric arguments use ICU plural rules.",
-  "explanation_pb_comparison": "Participatory-budgeting outcome comparison. greedy/mes are numeric voter counts; MES means Method of Equal Shares. Complete sentence, no markup; localized from notes.comparison_key/params at serialization."
+  "explanation_pb_comparison": "Participatory-budgeting outcome comparison. greedy/mes are numeric voter counts; MES means Method of Equal Shares. Complete sentence, no markup; localized from notes.comparison_key/params at serialization.",
+  "page_terms_agree_account": "Note under the registration button. {terms} is a link whose text is page_terms_link, so the sentence must read naturally around it.",
+  "page_terms_agree_publish": "Note under the poll builder title, shown while the poll can still be published. {terms} is a link whose text is page_terms_link.",
+  "page_terms_link": "Link text for the Terms of Use inside page_terms_agree_account and page_terms_agree_publish. Use the grammatical case and capitalization those sentences need (e.g. accusative).",
+  "legal_notice": "Footer link to the legal notice page required for French websites (mentions légales); use the conventional local name (e.g. Impressum in German)."
 }

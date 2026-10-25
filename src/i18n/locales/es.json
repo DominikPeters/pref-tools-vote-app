@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Cálculo alternativo (método de tabla)",
   "explanation_table_description": "Crea una tabla con una fila por opción. Cada celda contiene los votos de la opción divididos entre el divisor de la columna. Resalta en verde {seats, plural, one {el mayor valor (#)} other {los # mayores valores}}. Cada celda verde da un escaño a su opción.",
   "explanation_divisor_ties": "Hubo empates. Los repartos posibles siguen la tabla, pero se pueden reasignar escaños entre estas opciones empatadas: {options}. Actualmente han recibido un escaño adicional estas opciones: {receiving}.",
-  "explanation_pb_comparison": "{greedy, plural, one {# votante prefiere} other {# votantes prefieren}} el comité elegido por el algoritmo voraz, mientras que {mes, plural, one {# votante prefiere} other {# votantes prefieren}} el elegido por el método de las partes iguales."
+  "explanation_pb_comparison": "{greedy, plural, one {# votante prefiere} other {# votantes prefieren}} el comité elegido por el algoritmo voraz, mientras que {mes, plural, one {# votante prefiere} other {# votantes prefieren}} el elegido por el método de las partes iguales.",
+  "terms_of_use": "Términos de uso",
+  "legal_notice": "Aviso legal",
+  "page_terms_agree_account": "Al crear una cuenta, aceptas los {terms}.",
+  "page_terms_agree_publish": "Al publicar una votación, aceptas los {terms}.",
+  "page_terms_link": "términos de uso",
+  "page_document_not_found": "Documento no encontrado",
+  "page_document_not_available": "Este documento no está disponible."
 }

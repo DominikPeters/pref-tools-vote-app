@@ -48,14 +48,19 @@ ob_start();
 <div class="builder-container">
     <div class="builder-header">
         <div class="container">
-            <?php if ($isEditing): ?>
-            <nav class="breadcrumbs">
-                <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>"><?= e(__('poll_admin')) ?></a>
-                <span class="separator">/</span>
-                <span class="current"><?= e(__('edit_poll')) ?></span>
-            </nav>
-            <?php endif; ?>
-            <h1><?= e($isEditing ? __('edit_poll') : __('create_new_poll')) ?></h1>
+            <div class="builder-title">
+                <?php if ($isEditing): ?>
+                <nav class="breadcrumbs">
+                    <a href="<?= basePath() ?>/<?= e($poll->publicId) ?>/admin/<?= e($adminToken) ?>"><?= e(__('poll_admin')) ?></a>
+                    <span class="separator">/</span>
+                    <span class="current"><?= e(__('edit_poll')) ?></span>
+                </nav>
+                <?php endif; ?>
+                <h1><?= e($isEditing ? __('edit_poll') : __('create_new_poll')) ?></h1>
+                <?php if (!$isEditing || $poll->status === 'draft'): ?>
+                <p class="terms-note"><?= messageWithLinks('page_terms_agree_publish', ['terms' => [basePath() . '/terms', __('page_terms_link')]]) ?></p>
+                <?php endif; ?>
+            </div>
             <div class="builder-actions">
                 <?php if ($isEditing): ?>
                 <button type="button" class="btn btn-secondary" id="cancelBtn"><?= e(__('cancel')) ?></button>

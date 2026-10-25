@@ -79,7 +79,7 @@ for (const path of [...walk('src'), ...walk('templates'), ...walk('assets/js')])
     if (!/\.(php|m?js)$/.test(path) || path.endsWith('marked.esm.js')) continue;
     const source = readFileSync(path, 'utf8');
     const patterns = path.endsWith('.php') ? [
-        /(?:__|\$this->t|\$this->errorResult|\$emailT|self::text)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g,
+        /(?:__|messageWithLinks|\$this->t|\$this->errorResult|\$emailT|self::text)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g,
         /Translator::translateForLocale\([^,]+,\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g,
     ] : [/\b(?:t|tHtml|tUi|tUiHtml)\(\s*['"]([a-z][a-z0-9_]*)['"]\s*[,)]/g];
     for (const pattern of patterns) for (const match of source.matchAll(pattern)) {

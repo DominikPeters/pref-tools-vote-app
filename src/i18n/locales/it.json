@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Calcolo alternativo (metodo tabellare)",
   "explanation_table_description": "Crea una tabella con una riga per opzione. Ogni cella contiene i voti dell’opzione divisi per il divisore della colonna. Evidenzia in verde {seats, plural, one {il valore più alto (#)} other {i # valori più alti}}. Ogni cella verde assegna un seggio alla relativa opzione.",
   "explanation_divisor_ties": "Si sono verificate parità. Le assegnazioni possibili seguono la tabella, ma i seggi possono essere riassegnati tra queste opzioni a pari merito: {options}. Attualmente hanno ricevuto un seggio aggiuntivo queste opzioni: {receiving}.",
-  "explanation_pb_comparison": "Il comitato scelto dall’algoritmo greedy è preferito da {greedy, plural, one {# votante} other {# votanti}}, mentre quello scelto dal metodo delle quote uguali è preferito da {mes, plural, one {# votante} other {# votanti}}."
+  "explanation_pb_comparison": "Il comitato scelto dall’algoritmo greedy è preferito da {greedy, plural, one {# votante} other {# votanti}}, mentre quello scelto dal metodo delle quote uguali è preferito da {mes, plural, one {# votante} other {# votanti}}.",
+  "terms_of_use": "Termini di utilizzo",
+  "legal_notice": "Note legali",
+  "page_terms_agree_account": "Creando un account, accetti i {terms}.",
+  "page_terms_agree_publish": "Pubblicando un sondaggio, accetti i {terms}.",
+  "page_terms_link": "termini di utilizzo",
+  "page_document_not_found": "Documento non trovato",
+  "page_document_not_available": "Questo documento non è disponibile."
 }

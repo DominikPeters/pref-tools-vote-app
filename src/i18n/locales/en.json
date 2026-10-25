@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Alternative computation (table method)",
   "explanation_table_description": "Create a table with one row per option. Each cell contains the option’s votes divided by the column’s divisor. Highlight the {seats, plural, one {# largest value} other {# largest values}} in green. Each green cell gives its option one seat.",
   "explanation_divisor_ties": "There were ties. The possible apportionments follow the table above except that seats can be reassigned among these tied options: {options}. Currently, these options received an extra seat: {receiving}.",
-  "explanation_pb_comparison": "The committee chosen by the greedy algorithm is preferred by {greedy, plural, one {# voter} other {# voters}}, while the committee chosen by the method of equal shares is preferred by {mes, plural, one {# voter} other {# voters}}."
+  "explanation_pb_comparison": "The committee chosen by the greedy algorithm is preferred by {greedy, plural, one {# voter} other {# voters}}, while the committee chosen by the method of equal shares is preferred by {mes, plural, one {# voter} other {# voters}}.",
+  "terms_of_use": "Terms of Use",
+  "legal_notice": "Legal Notice",
+  "page_terms_agree_account": "By creating an account, you agree to the {terms}.",
+  "page_terms_agree_publish": "By publishing a poll, you agree to the {terms}.",
+  "page_terms_link": "Terms of Use",
+  "page_document_not_found": "Document Not Found",
+  "page_document_not_available": "This document is not available."
 }

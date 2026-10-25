@@ -549,13 +549,37 @@ class PageController
      */
     public function privacy(array $params): void
     {
-        $filePath = __DIR__ . '/../../PRIVACY_POLICY.md';
+        $this->renderDocument('PRIVACY_POLICY.md', __('privacy_policy'), __('page_privacy_policy_not_found'), __('page_the_privacy_policy_document_is_not_available'));
+    }
+
+    /**
+     * GET /terms - Terms of use page
+     */
+    public function terms(array $params): void
+    {
+        $this->renderDocument('TERMS_OF_USE.md', __('terms_of_use'), __('page_document_not_found'), __('page_document_not_available'));
+    }
+
+    /**
+     * GET /legal - Legal notice page
+     */
+    public function legalNotice(array $params): void
+    {
+        $this->renderDocument('LEGAL_NOTICE.md', __('legal_notice'), __('page_document_not_found'), __('page_document_not_available'));
+    }
+
+    /**
+     * Render an English Markdown document from the project root
+     */
+    private function renderDocument(string $fileName, string $title, string $notFoundTitle, string $notFoundMessage): void
+    {
+        $filePath = __DIR__ . '/../../' . $fileName;
 
         if (!file_exists($filePath)) {
             http_response_code(404);
             view('error', [
-                'title' => __('page_privacy_policy_not_found'),
-                'message' => __('page_the_privacy_policy_document_is_not_available'),
+                'title' => $notFoundTitle,
+                'message' => $notFoundMessage,
             ]);
             return;
         }
@@ -568,8 +592,9 @@ class PageController
         $parsedown->setBreaksEnabled(true);
         $html = $parsedown->text($markdown);
 
-        view('privacy', [
+        view('document', [
             'user' => Auth::getInstance()->user(),
+            'documentTitle' => $title,
             'content' => $html,
         ]);
     }

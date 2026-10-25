@@ -176,7 +176,7 @@ class MarketingLocaleTest extends TestCase
     public function test_short_public_ids_reserve_marketing_and_other_literal_route_names(): void
     {
         foreach (array_keys(Languages::getAll()) as $code) $this->assertTrue(MarketingLocale::isReservedPublicId($code));
-        foreach (['create', 'demo', 'api', 'about'] as $id) $this->assertTrue(MarketingLocale::isReservedPublicId($id));
+        foreach (['create', 'demo', 'api', 'about', 'terms', 'legal'] as $id) $this->assertTrue(MarketingLocale::isReservedPublicId($id));
         $this->assertFalse(MarketingLocale::isReservedPublicId('Ab12Cd34'));
         $this->assertFalse(MarketingLocale::isReservedPublicId('xx'));
         $this->configure('https://configured.test/vote', 2);

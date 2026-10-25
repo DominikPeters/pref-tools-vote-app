@@ -95,6 +95,8 @@ $router->get('/login', [PageController::class, 'login']);
 $router->get('/dashboard', [PageController::class, 'dashboard']);
 $router->post('/language', [\App\Controllers\LanguageController::class, 'update']);
 $router->get('/privacy', [PageController::class, 'privacy']);
+$router->get('/terms', [PageController::class, 'terms']);
+$router->get('/legal', [PageController::class, 'legalNotice']);
 $router->get('/about', [PageController::class, 'about']);
 
 // Register exact language codes before dynamic poll IDs; never use a catchall locale.

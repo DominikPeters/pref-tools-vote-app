@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Alternativni izračun (tablična metoda)",
   "explanation_table_description": "Izradite tablicu s jednim retkom po opciji. Svaka ćelija sadrži broj glasova opcije podijeljen djeliteljem stupca. Označite zelenom najveće vrijednosti, njih {seats, number}. Svaka zelena ćelija daje svojoj opciji jedan mandat.",
   "explanation_divisor_ties": "Došlo je do izjednačenja. Moguće raspodjele slijede gornju tablicu, ali se mandati mogu preraspodijeliti među ovim izjednačenim opcijama: {options}. Trenutačno su dodatni mandat dobile ove opcije: {receiving}.",
-  "explanation_pb_comparison": "Odbor koji je odabrao pohlepni algoritam preferira {greedy, plural, one {# glasač} few {# glasača} other {# glasača}}, a odbor odabran metodom jednakih udjela preferira {mes, plural, one {# glasač} few {# glasača} other {# glasača}}."
+  "explanation_pb_comparison": "Odbor koji je odabrao pohlepni algoritam preferira {greedy, plural, one {# glasač} few {# glasača} other {# glasača}}, a odbor odabran metodom jednakih udjela preferira {mes, plural, one {# glasač} few {# glasača} other {# glasača}}.",
+  "terms_of_use": "Uvjeti korištenja",
+  "legal_notice": "Pravne napomene",
+  "page_terms_agree_account": "Izradom računa prihvaćate {terms}.",
+  "page_terms_agree_publish": "Objavom ankete prihvaćate {terms}.",
+  "page_terms_link": "uvjete korištenja",
+  "page_document_not_found": "Dokument nije pronađen",
+  "page_document_not_available": "Ovaj dokument nije dostupan."
 }

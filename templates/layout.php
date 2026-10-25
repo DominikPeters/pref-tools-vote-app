@@ -104,7 +104,7 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
 
     <footer class="site-footer" lang="<?= e($uiLocale) ?>" dir="<?= Languages::getDirection($uiLocale) ?>">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. <?= e(__('page_a_social_choice_voting_application')) ?> <a href="<?= basePath() ?>/privacy"><?= __('privacy_policy') ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
+            <p>&copy; <?= date('Y') ?> Pref.Tools Vote. <?= e(__('page_a_social_choice_voting_application')) ?> <a href="<?= basePath() ?>/terms"><?= e(__('terms_of_use')) ?></a> &middot; <a href="<?= basePath() ?>/privacy"><?= e(__('privacy_policy')) ?></a> &middot; <a href="<?= basePath() ?>/legal"><?= e(__('legal_notice')) ?></a> &middot; <a href="https://github.com/DominikPeters/pref-tools-vote-app" target="_blank" rel="noopener">GitHub</a></p>
             <?php if (isset($marketingPage)): ?>
             <nav class="marketing-languages" aria-label="<?= e(__('interface_language')) ?>">
                 <?php foreach (Languages::getAll() as $code => $name): ?>

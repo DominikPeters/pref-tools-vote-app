@@ -11,6 +11,8 @@ Email: mail@dominik-peters.de
 
 The Service is available at: https://pref.tools/vote
 
+When a poll creator collects respondents' names or email addresses, or invites people by email, the poll creator decides why this data is collected. Where data protection law applies to that poll, the poll creator is the controller of this data and we process it on their behalf, as described in our [Terms of Use](terms). For accounts, security logs and abuse prevention, we are the controller.
+
 ## 2. Overview
 
 Pref.Tools Vote is a web application for creating and participating in polls and elections, with a focus on social choice theory and preference voting methods. This privacy policy explains how we collect, use, and protect your personal data when you use our Service.

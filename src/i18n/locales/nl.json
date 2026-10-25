@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Alternatieve berekening (tabelmethode)",
   "explanation_table_description": "Maak een tabel met één rij per optie. Elke cel bevat de stemmen voor de optie gedeeld door de deler van de kolom. Markeer de {seats, plural, one {# grootste waarde} other {# grootste waarden}} groen. Elke groene cel geeft de bijbehorende optie één zetel.",
   "explanation_divisor_ties": "Er waren gelijke standen. De mogelijke zetelverdelingen volgen de bovenstaande tabel, maar zetels kunnen opnieuw worden verdeeld over deze gelijk geëindigde opties: {options}. Momenteel kregen deze opties een extra zetel: {receiving}.",
-  "explanation_pb_comparison": "De commissie van het gulzige algoritme heeft de voorkeur van {greedy, plural, one {# stemmer} other {# stemmers}}, terwijl de commissie van de methode van gelijke delen de voorkeur heeft van {mes, plural, one {# stemmer} other {# stemmers}}."
+  "explanation_pb_comparison": "De commissie van het gulzige algoritme heeft de voorkeur van {greedy, plural, one {# stemmer} other {# stemmers}}, terwijl de commissie van de methode van gelijke delen de voorkeur heeft van {mes, plural, one {# stemmer} other {# stemmers}}.",
+  "terms_of_use": "Gebruiksvoorwaarden",
+  "legal_notice": "Juridische informatie",
+  "page_terms_agree_account": "Door een account te maken, ga je akkoord met de {terms}.",
+  "page_terms_agree_publish": "Door een peiling te publiceren, ga je akkoord met de {terms}.",
+  "page_terms_link": "gebruiksvoorwaarden",
+  "page_document_not_found": "Document niet gevonden",
+  "page_document_not_available": "Dit document is niet beschikbaar."
 }

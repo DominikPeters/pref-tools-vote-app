@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Cálculo alternativo (método da tabela)",
   "explanation_table_description": "Crie uma tabela com uma linha por opção. Cada célula contém os votos da opção divididos pelo divisor da coluna. Destaque em verde {seats, plural, one {o maior valor (#)} other {os # maiores valores}}. Cada célula verde dá uma cadeira à opção correspondente.",
   "explanation_divisor_ties": "Houve empates. As distribuições possíveis seguem a tabela, mas as cadeiras podem ser redistribuídas entre estas opções empatadas: {options}. Atualmente, receberam uma cadeira adicional estas opções: {receiving}.",
-  "explanation_pb_comparison": "O comitê escolhido pelo algoritmo guloso é preferido por {greedy, plural, one {# votante} other {# votantes}}, enquanto o escolhido pelo método das partes iguais é preferido por {mes, plural, one {# votante} other {# votantes}}."
+  "explanation_pb_comparison": "O comitê escolhido pelo algoritmo guloso é preferido por {greedy, plural, one {# votante} other {# votantes}}, enquanto o escolhido pelo método das partes iguais é preferido por {mes, plural, one {# votante} other {# votantes}}.",
+  "terms_of_use": "Termos de uso",
+  "legal_notice": "Aviso legal",
+  "page_terms_agree_account": "Ao criar uma conta, você concorda com os {terms}.",
+  "page_terms_agree_publish": "Ao publicar uma votação, você concorda com os {terms}.",
+  "page_terms_link": "termos de uso",
+  "page_document_not_found": "Documento não encontrado",
+  "page_document_not_available": "Este documento não está disponível."
 }

@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Másik számítási mód (táblázatos módszer)",
   "explanation_table_description": "Készíts táblázatot, minden lehetőségnek egy sorral. Minden cellában a lehetőség szavazatszáma szerepel elosztva az oszlop osztójával. Jelöld zölddel a(z) {seats, plural, one {# legnagyobb értéket} other {# legnagyobb értéket}}. Minden zöld cella egy mandátumot ad a hozzá tartozó lehetőségnek.",
   "explanation_divisor_ties": "Holtverseny alakult ki. A lehetséges elosztások követik a fenti táblázatot, de a mandátumok átcsoportosíthatók a következő, holtversenyben álló lehetőségek között: {options}. Jelenleg ezek kaptak egy további mandátumot: {receiving}.",
-  "explanation_pb_comparison": "A mohó algoritmus által választott bizottságot {greedy, plural, one {# szavazó} other {# szavazó}} részesíti előnyben, míg az egyenlő részvétel módszerével választott bizottságot {mes, plural, one {# szavazó} other {# szavazó}} részesíti előnyben."
+  "explanation_pb_comparison": "A mohó algoritmus által választott bizottságot {greedy, plural, one {# szavazó} other {# szavazó}} részesíti előnyben, míg az egyenlő részvétel módszerével választott bizottságot {mes, plural, one {# szavazó} other {# szavazó}} részesíti előnyben.",
+  "terms_of_use": "Felhasználási feltételek",
+  "legal_notice": "Impresszum",
+  "page_terms_agree_account": "A fiók létrehozásával elfogadod a {terms}.",
+  "page_terms_agree_publish": "Egy szavazás közzétételével elfogadod a {terms}.",
+  "page_terms_link": "felhasználási feltételeket",
+  "page_document_not_found": "A dokumentum nem található",
+  "page_document_not_available": "Ez a dokumentum nem érhető el."
 }

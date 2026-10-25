@@ -324,3 +324,20 @@ function __(string $key, array $params = []): string
 {
     return \App\i18n\Translator::translate($key, $params);
 }
+
+/**
+ * Translate a message whose arguments are links, returning escaped HTML.
+ * $links maps argument names to [href, label]; the label is plain text.
+ */
+function messageWithLinks(string $key, array $links): string
+{
+    $placeholders = [];
+    foreach (array_keys($links) as $name) {
+        $placeholders[$name] = "\u{E000}{$name}\u{E000}";
+    }
+    $html = e(__($key, $placeholders));
+    foreach ($links as $name => [$href, $label]) {
+        $html = str_replace($placeholders[$name], '<a href="' . e($href) . '">' . e($label) . '</a>', $html);
+    }
+    return $html;
+}

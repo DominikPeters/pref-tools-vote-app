@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Calcul alternativ (metoda tabelului)",
   "explanation_table_description": "Creează un tabel cu un rând pentru fiecare opțiune. Fiecare celulă conține voturile opțiunii împărțite la divizorul coloanei. Evidențiază cu verde {seats, plural, one {cea mai mare valoare (#)} few {cele mai mari # valori} other {cele mai mari # de valori}}. Fiecare celulă verde dă opțiunii sale un loc.",
   "explanation_divisor_ties": "Au existat egalități. Repartizările posibile urmează tabelul, dar locurile pot fi reatribuite între aceste opțiuni la egalitate: {options}. În prezent, următoarele opțiuni au primit un loc suplimentar: {receiving}.",
-  "explanation_pb_comparison": "Comitetul ales de algoritmul greedy este preferat de {greedy, plural, one {# votant} few {# votanți} other {# de votanți}}, iar cel ales prin metoda cotelor egale este preferat de {mes, plural, one {# votant} few {# votanți} other {# de votanți}}."
+  "explanation_pb_comparison": "Comitetul ales de algoritmul greedy este preferat de {greedy, plural, one {# votant} few {# votanți} other {# de votanți}}, iar cel ales prin metoda cotelor egale este preferat de {mes, plural, one {# votant} few {# votanți} other {# de votanți}}.",
+  "terms_of_use": "Termeni de utilizare",
+  "legal_notice": "Informații legale",
+  "page_terms_agree_account": "Prin crearea unui cont, accepți {terms}.",
+  "page_terms_agree_publish": "Prin publicarea unui sondaj, accepți {terms}.",
+  "page_terms_link": "termenii de utilizare",
+  "page_document_not_found": "Documentul nu a fost găsit",
+  "page_document_not_available": "Acest document nu este disponibil."
 }

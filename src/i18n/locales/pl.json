@@ -1538,5 +1538,12 @@
   "explanation_table_title": "Alternatywne obliczenie (metoda tabelaryczna)",
   "explanation_table_description": "Utwórz tabelę z jednym wierszem na opcję. Każda komórka zawiera liczbę głosów na opcję podzieloną przez dzielnik danej kolumny. Wyróżnij na zielono {seats, plural, one {# największą wartość} few {# największe wartości} many {# największych wartości} other {# największej wartości}}. Każda zielona komórka daje jej opcji jeden mandat.",
   "explanation_divisor_ties": "Wystąpiły remisy. Możliwe podziały mandatów są zgodne z powyższą tabelą, ale mandaty można przenosić między następującymi remisującymi opcjami: {options}. Obecnie dodatkowy mandat otrzymały te opcje: {receiving}.",
-  "explanation_pb_comparison": "Komitet wybrany algorytmem zachłannym jest preferowany przez {greedy, plural, one {# głosującego} few {# głosujących} many {# głosujących} other {# głosującego}}, natomiast komitet wybrany metodą równych udziałów – przez {mes, plural, one {# głosującego} few {# głosujących} many {# głosujących} other {# głosującego}}."
+  "explanation_pb_comparison": "Komitet wybrany algorytmem zachłannym jest preferowany przez {greedy, plural, one {# głosującego} few {# głosujących} many {# głosujących} other {# głosującego}}, natomiast komitet wybrany metodą równych udziałów – przez {mes, plural, one {# głosującego} few {# głosujących} many {# głosujących} other {# głosującego}}.",
+  "terms_of_use": "Regulamin",
+  "legal_notice": "Nota prawna",
+  "page_terms_agree_account": "Tworząc konto, akceptujesz {terms}.",
+  "page_terms_agree_publish": "Publikując ankietę, akceptujesz {terms}.",
+  "page_terms_link": "regulamin",
+  "page_document_not_found": "Nie znaleziono dokumentu",
+  "page_document_not_available": "Ten dokument jest niedostępny."
 }

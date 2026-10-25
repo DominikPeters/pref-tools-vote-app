@@ -1,5 +1,5 @@
 <?php
-$title = __('privacy_policy') . ' - Pref.Tools Vote';
+$title = $documentTitle . ' - Pref.Tools Vote';
 ob_start();
 ?>
 

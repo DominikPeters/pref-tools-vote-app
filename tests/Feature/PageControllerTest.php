@@ -43,6 +43,26 @@ class PageControllerTest extends TestCase
         $this->assertStringContainsString('Privacy Policy', $output);
     }
 
+    public function test_terms(): void
+    {
+        $output = $this->captureView(fn() => $this->controller->terms([]));
+        $this->assertStringContainsString('<title>Terms of Use - Pref.Tools Vote</title>', $output);
+        $this->assertStringContainsString('not designed or certified', $output);
+    }
+
+    public function test_legal_notice(): void
+    {
+        $output = $this->captureView(fn() => $this->controller->legalNotice([]));
+        $this->assertStringContainsString('<title>Legal Notice - Pref.Tools Vote</title>', $output);
+        $this->assertStringContainsString('ALL-INKL.COM', $output);
+    }
+
+    public function test_login_page_shows_terms_note(): void
+    {
+        $output = $this->captureView(fn() => $this->controller->login([]));
+        $this->assertStringContainsString('By creating an account, you agree to the <a href="/terms">Terms of Use</a>.', $output);
+    }
+
     public function test_demo_not_configured(): void
     {
         SiteSetting::set('demo.poll_id', '');

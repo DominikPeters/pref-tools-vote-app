@@ -119,6 +119,8 @@ ob_start();
                 <?php endif; ?>
 
                 <button type="submit" class="btn btn-primary btn-block"><?= e(__('js_create_account')) ?></button>
+
+                <p class="terms-note"><?= messageWithLinks('page_terms_agree_account', ['terms' => [basePath() . '/terms', __('page_terms_link')]]) ?></p>
             </form>
 
             <p class="auth-note">
