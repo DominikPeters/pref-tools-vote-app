@@ -991,7 +991,7 @@
   "report_point_totals_where_options_earn_more_points_for_higher_ranks_borda_count": "Point totals where options earn more points for higher ranks (Borda count)",
   "report_add_custom_text_or_notes_to_narrate_results_supports_markdown": "Add custom text or notes to narrate results (supports Markdown)",
   "report_content_markdown_supported": "Content (Markdown supported)",
-  "report_enter_your_text_here_n_nyou_can_use_bold_italic_and_other_markdown_formatting": "Enter your text here...\\n\\nYou can use **bold**, *italic*, and other Markdown formatting.",
+  "report_enter_your_text_here_n_nyou_can_use_bold_italic_and_other_markdown_formatting": "Enter your text here...\n\nYou can use **bold**, *italic*, and other Markdown formatting.",
   "report_participatory_budgeting_rule_winner": "Participatory Budgeting Rule Winner",
   "report_shows_which_projects_are_funded_within_the_budget_under_a_participatory_budgeting_rule_e_g_method_of": "Shows which projects are funded within the budget under a participatory budgeting rule (e.g., Method of Equal Shares)",
   "report_completion_method": "Completion Method",

@@ -1,0 +1,14 @@
+{
+  "locale": "de",
+  "interface_terms": {
+    "participatory_budgeting": "Budgetabstimmung",
+    "point_distribution": "Punkteverteilung",
+    "pairwise_margins": "Paarweise Stimmendifferenzen",
+    "committee": "Komitee"
+  },
+  "notes": [
+    "Budgetabstimmung covers a shared budget for any group, including a team, club or informal gathering. Bürgerhaushalt and Bürgerbudget imply a municipal context and should not label this general-purpose feature. The product owner explicitly wants the wording to cover small-scale use cases too.",
+    "Budgetabstimmung selects projects with costs under a shared budget. Punkteverteilung lets each participant distribute points among options; keep the two question types distinct.",
+    "Pairwise margins are differences in vote counts, not percentages or merely which option has a majority. Use Stimmendifferenzen consistently for these numeric margins."
+  ]
+}

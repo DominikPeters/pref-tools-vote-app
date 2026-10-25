@@ -1,4 +1,9 @@
 {
+  "type_participatory_budgeting": "Select projects with monetary costs under a shared budget. Includes small teams, clubs and informal groups as well as municipalities; do not narrow the translation to a city or government budget. German preferred term: Budgetabstimmung. Distinct from the distribution question type, which distributes points.",
+  "report_type_pb_winner": "Projects selected by a participatory-budgeting voting rule within a shared budget. The process may involve a small group or a municipality; avoid terms that imply government or large-scale public budgeting. German: Gewinner der Budgetabstimmung.",
+  "report_type_pairwise_margins": "Net vote-count differences for each pair: voters preferring A to B minus voters preferring B to A. Distinguish the numeric margin from the mere existence of a majority or a percentage. German: Paarweise Stimmendifferenzen.",
+  "report_type_multiwinner": "A voting method selecting several winning options. Options may be people, projects, venues or other items; avoid wording that restricts winners to elected officials or persons.",
+  "report_type_multiwinner_multi_rule_comparison": "Compare the sets of winning options selected by several multi-winner voting methods. Options need not be people; preserve the distinction between comparing methods and simply listing multiple winners.",
   "your_name": "label for voter name input field",
   "name_placeholder": "placeholder text in name input",
   "submit_vote": "primary submit button",
